@@ -192,3 +192,13 @@ chrome/
 # Hosted catalog item files are generated output the docs host serves; the rules above match their folder names
 !docs/public/catalog/items/**/compositions/
 !docs/public/catalog/items/*-ad/
+
+# Studio One (studio-web/) — generated pipeline output. Renders are already
+# covered by the `renders/` rule above; these are the per-job project dirs and
+# the bundled media, none of which belong in git history.
+/projects/
+studio-web/renders/
+
+# Studio One runtime scratch
+studio-web/node_modules/
+.hyperframes/

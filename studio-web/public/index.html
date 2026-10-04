@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chalk Frames — Autonomous Video Production</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=block"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ambient-glow"></div>
+    <div class="vignette"></div>
+
+    <div class="app-layout">
+      <!-- Minimalist Luxury Header -->
+      <header class="studio-header">
+        <div class="brand">
+          <span class="brand-monogram">CF</span>
+          <div class="brand-text">
+            <h1 class="brand-title">CHALK FRAMES</h1>
+            <p class="brand-subtitle">Autonomous video production suite</p>
+          </div>
+        </div>
+
+        <div class="header-controls">
+          <div class="api-key-group">
+            <label for="apiKeyInput" class="control-label">OpenRouter Key</label>
+            <div class="input-with-action">
+              <input
+                type="password"
+                id="apiKeyInput"
+                placeholder="sk-or-v1-..."
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="button" id="saveKeyBtn" class="btn-subtle">Save</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Stage -->
+      <main class="studio-stage">
+        <!-- Configuration Section -->
+        <section class="panel production-panel">
+          <div class="panel-header">
+            <div class="panel-step">01</div>
+            <div class="panel-title-wrap">
+              <h2 class="panel-title">Production Brief</h2>
+              <p class="panel-desc">Configure framing, duration, casting, and styling</p>
+            </div>
+          </div>
+
+          <!-- Format & Timeframe Row -->
+          <div class="options-grid">
+            <!-- Aspect Ratio Selector -->
+            <div class="option-block">
+              <label class="control-label">Aspect Ratio</label>
+              <div class="pill-group" id="formatPills">
+                <button type="button" class="pill-btn active" data-format="landscape">
+                  <span class="pill-icon">⬚</span>
+                  <span class="pill-title">Landscape</span>
+                  <span class="pill-sub">16:9 · 1080p</span>
+                </button>
+                <button type="button" class="pill-btn" data-format="portrait">
+                  <span class="pill-icon">▯</span>
+                  <span class="pill-title">Portrait</span>
+                  <span class="pill-sub">9:16 · Mobile / Reels</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Duration & Timeline Selector -->
+            <div class="option-block timeline-block">
+              <div class="timeline-header">
+                <label class="control-label">Timeline Duration</label>
+                <div class="timeline-meta">
+                  <span id="durationDisplay" class="timeline-badge">30s</span>
+                  <span id="durationCategory" class="timeline-cat-badge">Shorts / Reels</span>
+                </div>
+              </div>
+              <div class="slider-wrapper">
+                <input
+                  type="range"
+                  id="durationSlider"
+                  class="timeline-slider"
+                  min="15"
+                  max="600"
+                  step="15"
+                  value="30"
+                />
+                <div class="slider-ticks">
+                  <span>15s</span>
+                  <span>1m</span>
+                  <span>3m</span>
+                  <span>5m</span>
+                  <span>8m</span>
+                  <span>10m</span>
+                </div>
+              </div>
+              <div class="pill-group duration-pills" id="durationPills">
+                <button type="button" class="pill-btn" data-duration="15">15s</button>
+                <button type="button" class="pill-btn active" data-duration="30">30s</button>
+                <button type="button" class="pill-btn" data-duration="60">1m</button>
+                <button type="button" class="pill-btn" data-duration="180">3m</button>
+                <button type="button" class="pill-btn" data-duration="300">5m</button>
+                <button type="button" class="pill-btn" data-duration="600">10m</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Director Model & Voice Actor Row -->
+          <div class="controls-row">
+            <!-- Director Model (with OpenRouter Live Pricing) -->
+            <div class="control-group">
+              <label for="modelSelect" class="control-label">Director Model</label>
+              <div class="custom-select-wrap">
+                <select id="modelSelect">
+                  <option value="anthropic/claude-sonnet-5.5" selected>
+                    Claude Sonnet 5.5 · $2.00 / $10.00 per 1M
+                  </option>
+                  <option value="openai/gpt-6.1-sol-pro">
+                    GPT-6.1 Sol Pro · $2.00 / $10.00 per 1M
+                  </option>
+                  <option value="openai/gpt-6.1-sol">GPT-6.1 Sol · $2.00 / $10.00 per 1M</option>
+                  <option value="x-ai/grok-4.6">Grok 4.6 · $2.00 / $6.00 per 1M</option>
+                  <option value="x-ai/grok-4.7">Grok 4.7 · $2.00 / $6.00 per 1M</option>
+                  <option value="deepseek/deepseek-chat-v3.1">
+                    DeepSeek V3.1 · $0.25 / $0.95 per 1M
+                  </option>
+                  <option value="deepseek/deepseek-r1">DeepSeek R1 · $0.70 / $2.50 per 1M</option>
+                  <option value="google/gemini-2.5-pro">
+                    Gemini 2.5 Pro · $1.25 / $10.00 per 1M
+                  </option>
+                  <option value="google/gemini-2.5-flash">
+                    Gemini 2.5 Flash · $0.30 / $2.50 per 1M
+                  </option>
+                  <option value="openai/gpt-6-luna-pro">
+                    GPT-6 Luna Pro · $0.10 / $0.50 per 1M
+                  </option>
+                  <option value="openai/gpt-4o">GPT-4o · $2.50 / $10.00 per 1M</option>
+                  <option value="openai/gpt-4o-mini">GPT-4o Mini · $0.15 / $0.60 per 1M</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Voice Actor with Audio Preview Sample -->
+            <div class="control-group">
+              <label for="voiceSelect" class="control-label">Voice Actor</label>
+              <div class="voice-row">
+                <div class="custom-select-wrap voice-select-wrap">
+                  <select id="voiceSelect">
+                    <option value="bm_george" selected>George (British Male, literary)</option>
+                    <option value="af_heart">Heart (American Female, warm)</option>
+                    <option value="af_nova">Nova (American Female, dynamic)</option>
+                    <option value="bf_isabella">Isabella (British Female, articulate)</option>
+                    <option value="am_adam">Adam (American Male, steady)</option>
+                    <option value="bf_emma">Emma (British Female, thoughtful)</option>
+                    <option value="am_michael">Michael (American Male, conversational)</option>
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  id="previewVoiceBtn"
+                  class="btn-voice-preview"
+                  title="Listen to voice sample"
+                >
+                  <span class="preview-icon" id="previewIcon">▶</span>
+                  <span class="preview-text">Sample</span>
+                  <span class="voice-wave" id="voiceWave"> <i></i><i></i><i></i><i></i> </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Soundtrack & Color Palette Row -->
+          <div class="controls-row">
+            <!-- Soundtrack Selector with Audio Preview -->
+            <div class="control-group">
+              <label for="musicSelect" class="control-label">Soundtrack</label>
+              <div class="voice-row">
+                <div class="custom-select-wrap voice-select-wrap">
+                  <select id="musicSelect">
+                    <option value="soothing-ambient" selected>
+                      Soothing Ambient (Gentle &amp; Warm Pulse)
+                    </option>
+                    <option value="modern-tech">Modern Tech (SaaS Kinetic Groove)</option>
+                    <option value="chill-lofi">Chill Horizon (Relaxed Electronic)</option>
+                    <option value="acoustic-warmth">Acoustic Warmth (Neo-Classical Piano)</option>
+                    <option value="minimal-clarity">Minimal Clarity (Thoughtful Acoustic)</option>
+                    <option value="none">No Music (Voiceover &amp; SFX Only)</option>
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  id="previewMusicBtn"
+                  class="btn-voice-preview"
+                  title="Listen to soundtrack preview"
+                >
+                  <span class="preview-icon" id="previewMusicIcon">▶</span>
+                  <span class="preview-text">Sample</span>
+                  <span class="voice-wave" id="musicWave"> <i></i><i></i><i></i><i></i> </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Color Palette Selector -->
+            <div class="control-group">
+              <label for="paletteSelect" class="control-label">Color Palette</label>
+              <div class="custom-select-wrap">
+                <select id="paletteSelect">
+                  <option value="warm-ivory" selected>Warm Ivory &amp; Obsidian (Editorial)</option>
+                  <option value="midnight-velvet">
+                    Midnight Velvet (Deep Obsidian &amp; Violet)
+                  </option>
+                  <option value="cyber-slate">Cyber Slate (Dark Slate &amp; Cyan)</option>
+                  <option value="emerald-noir">Emerald Noir (Forest &amp; Mint)</option>
+                  <option value="custom">Custom Palette</option>
+                </select>
+              </div>
+
+              <!-- Custom Color Pickers (toggled when custom is selected) -->
+              <div class="custom-palette-row hidden" id="customPaletteRow">
+                <div class="color-picker-item">
+                  <span>Background</span>
+                  <input type="color" id="customBg" value="#0a0a0f" />
+                </div>
+                <div class="color-picker-item">
+                  <span>Text</span>
+                  <input type="color" id="customText" value="#ffffff" />
+                </div>
+                <div class="color-picker-item">
+                  <span>Accent</span>
+                  <input type="color" id="customAccent" value="#e25329" />
+                </div>
+                <div class="color-picker-item">
+                  <span>Card</span>
+                  <input type="color" id="customCard" value="#14141e" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Source Tabs -->
+          <div class="source-container">
+            <div class="tab-bar">
+              <button type="button" class="tab-btn active" data-tab="topic">Topic / Prompt</button>
+              <button type="button" class="tab-btn" data-tab="url">Website URL</button>
+              <button type="button" class="tab-btn" data-tab="script">Custom Script</button>
+              <button type="button" class="tab-btn" data-tab="pdf">PDF Document</button>
+            </div>
+
+            <div class="tab-content" id="tabTopic">
+              <div class="input-field-wrap">
+                <textarea
+                  id="sourceTopicInput"
+                  rows="3"
+                  placeholder="Enter any topic in the world (e.g. Human Anatomy: The Cardiovascular System, Quantum Computing, How React Fiber Works, The Roman Empire, Photosynthesis...)"
+                  spellcheck="false"
+                ></textarea>
+
+                <div class="topic-toolbar">
+                  <div class="topic-style-select-wrap">
+                    <label for="topicStyleSelect" class="topic-style-label">Style:</label>
+                    <select id="topicStyleSelect" class="topic-style-select">
+                      <option value="explainer" selected>Visual Explainer (Engaging, intuitive, balanced)</option>
+                      <option value="deep-dive">Deep Technical / Scientific (Code, anatomy, architectures)</option>
+                      <option value="educational">Foundational Educational (Step-by-step concepts, clear analogies)</option>
+                      <option value="documentary">Cinematic Documentary (Story-driven, milestones, quotes)</option>
+                    </select>
+                  </div>
+                  <button type="button" id="prepareScriptBtn" class="btn-secondary-action">
+                    <span class="btn-draft-icon">⚡</span>
+                    <span class="btn-draft-text">Draft Script First</span>
+                  </button>
+                </div>
+
+                <div class="topic-suggestions">
+                  <span class="suggestion-label">Quick topics:</span>
+                  <div class="topic-chips-scroll">
+                    <button type="button" class="topic-chip" data-topic="Human Anatomy: The Cardiovascular System & Heart Mechanics">Anatomy: Heart Mechanics</button>
+                    <button type="button" class="topic-chip" data-topic="Quantum Computing: Superposition, Entanglement & Qubits">Quantum Computing</button>
+                    <button type="button" class="topic-chip" data-topic="How Modern CPU Architecture Works: Pipelining & Branch Prediction">CPU Architecture</button>
+                    <button type="button" class="topic-chip" data-topic="Photosynthesis & Cellular Energy Production in Plants">Biology: Photosynthesis</button>
+                    <button type="button" class="topic-chip" data-topic="The Physics of Black Holes & Event Horizons">Physics: Black Holes</button>
+                    <button type="button" class="topic-chip" data-topic="Distributed Systems: Raft Consensus Algorithm Explained">Distributed Raft Consensus</button>
+                    <button type="button" class="topic-chip" data-topic="The Fall of the Western Roman Empire: Key Turning Points">History: Fall of Rome</button>
+                  </div>
+                </div>
+
+                <!-- Live Generated Script Drawer (appears when user clicks Draft Script First) -->
+                <div class="topic-script-preview hidden" id="topicScriptPreview">
+                  <div class="preview-header">
+                    <div class="preview-title-badge">
+                      <span class="badge-dot"></span>
+                      <span id="previewTitle">Generated Script Preview</span>
+                    </div>
+                    <div class="preview-actions">
+                      <button type="button" id="useInCustomScriptBtn" class="btn-pill-subtle">Edit in Custom Script Tab →</button>
+                      <button type="button" id="closePreviewBtn" class="btn-close-subtle" title="Hide Preview">✕</button>
+                    </div>
+                  </div>
+                  <pre class="preview-body" id="previewBody"></pre>
+                </div>
+
+                <span class="field-hint"
+                  >Enter literally any subject — programming, human anatomy, physics, history, or philosophy. AI will research, craft the script, and generate the full video.</span
+                >
+              </div>
+            </div>
+
+            <div class="tab-content hidden" id="tabUrl">
+              <div class="input-field-wrap">
+                <input
+                  type="url"
+                  id="sourceUrlInput"
+                  placeholder="https://yourproduct.com"
+                  spellcheck="false"
+                  value=""
+                />
+                <span class="field-hint"
+                  >The engine extracts product messaging, typography, and visual assets</span
+                >
+              </div>
+            </div>
+
+            <div class="tab-content hidden" id="tabScript">
+              <div class="input-field-wrap">
+                <textarea
+                  id="sourceScriptInput"
+                  rows="4"
+                  placeholder="Product name, core pain point, key capabilities, pricing notes, and website link..."
+                ></textarea>
+                <span class="field-hint"
+                  >Structure into headline, feature bullet points, and call to action</span
+                >
+              </div>
+            </div>
+
+            <div class="tab-content hidden" id="tabPdf">
+              <div class="input-field-wrap">
+                <div class="pdf-drop-zone" id="pdfDropZone">
+                  <input type="file" id="pdfFileInput" accept="application/pdf" hidden />
+                  <div class="pdf-drop-inner" id="pdfDropInner">
+                    <div class="pdf-icon">
+                      <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
+                    </div>
+                    <p class="pdf-drop-label">
+                      Drop PDF here or <span class="pdf-browse-link">browse</span>
+                    </p>
+                    <p class="pdf-drop-hint" id="pdfDropHint">
+                      Pitch decks, product briefs, one-pagers, whitepapers
+                    </p>
+                  </div>
+                </div>
+                <span class="field-hint"
+                  >Text is extracted and parsed by the director model into a structured video
+                  brief</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-action">
+            <button type="button" id="generateBtn" class="btn-primary">
+              <span class="btn-text">Produce Video</span>
+              <span class="btn-indicator"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Realtime Flowchart Monitor -->
+        <section class="panel monitor-panel" id="monitorPanel">
+          <div class="panel-header">
+            <div class="panel-step">02</div>
+            <div class="panel-title-wrap">
+              <h2 class="panel-title">Production Line</h2>
+              <p class="panel-desc">Hardware accelerated execution pipeline</p>
+            </div>
+            <div class="live-pill" id="livePill">
+              <span class="pulse-dot"></span>
+              <span id="liveStatusText">Standby</span>
+            </div>
+          </div>
+
+          <!-- Flowchart Track -->
+          <div class="flowchart-container">
+            <div class="flowchart-track">
+              <!-- Node 1: Ingest -->
+              <div class="flow-node" id="node-ingest">
+                <div class="node-badge">01</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Ingest</span>
+                  <span class="node-sub">Source Profile</span>
+                </div>
+              </div>
+
+              <div class="flow-connector" id="conn-1"><div class="flow-pulse"></div></div>
+
+              <!-- Node 2: Narrative Director -->
+              <div class="flow-node" id="node-narrative">
+                <div class="node-badge">02</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Director</span>
+                  <span class="node-sub">Scene Architecture</span>
+                </div>
+              </div>
+
+              <div class="flow-connector" id="conn-2"><div class="flow-pulse"></div></div>
+
+              <!-- Node 3: Audio Synthesis -->
+              <div class="flow-node" id="node-audio">
+                <div class="node-badge">03</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Audio</span>
+                  <span class="node-sub">Speech &amp; Music</span>
+                </div>
+              </div>
+
+              <div class="flow-connector" id="conn-3"><div class="flow-pulse"></div></div>
+
+              <!-- Node 4: Composition -->
+              <div class="flow-node" id="node-composition">
+                <div class="node-badge">04</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Composition</span>
+                  <span class="node-sub">Motion Curves</span>
+                </div>
+              </div>
+
+              <div class="flow-connector" id="conn-4"><div class="flow-pulse"></div></div>
+
+              <!-- Node 5: Quality Gate -->
+              <div class="flow-node" id="node-validation">
+                <div class="node-badge">05</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Validation</span>
+                  <span class="node-sub">WCAG Contrast</span>
+                </div>
+              </div>
+
+              <div class="flow-connector" id="conn-5"><div class="flow-pulse"></div></div>
+
+              <!-- Node 6: Master Render -->
+              <div class="flow-node" id="node-render">
+                <div class="node-badge">06</div>
+                <div class="node-icon-circle"><div class="node-inner-dot"></div></div>
+                <div class="node-info">
+                  <span class="node-name">Master Render</span>
+                  <span class="node-sub">GPU Frame Capture</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Console Terminal Output -->
+          <div class="console-box">
+            <div class="console-header">
+              <span class="console-tag">Console Output</span>
+              <span class="console-time" id="consoleTimestamp">00:00:00</span>
+            </div>
+            <div class="console-message" id="consoleMessage">
+              Awaiting production trigger. Configure brief and press Produce Video.
+            </div>
+          </div>
+        </section>
+
+        <!-- Final Preview & Playback Theatre -->
+        <section class="panel cinema-panel hidden" id="cinemaPanel">
+          <div class="panel-header">
+            <div class="panel-step">03</div>
+            <div class="panel-title-wrap">
+              <h2 class="panel-title">Master Output</h2>
+              <p class="panel-desc" id="videoMetaText">1080p · 30 fps · Stereo 48kHz</p>
+            </div>
+            <div class="cinema-actions">
+              <a href="#" id="downloadLink" class="btn-subtle" download>Download Video</a>
+            </div>
+          </div>
+
+          <div class="theatre-container">
+            <div class="video-theatre" id="videoTheatre">
+              <video id="playerVideo" controls playsinline preload="metadata">
+                Your browser does not support HTML5 video.
+              </video>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="studio-footer">
+        <span>Studio One Autonomous Engine</span>
+        <span class="footer-separator">·</span>
+        <span>HyperFrames Monorepo</span>
+        <span class="footer-separator">·</span>
+        <span>Deterministic Render Pipeline</span>
+      </footer>
+    </div>
+
+    <!-- Hidden audio element for sample voice playback -->
+    <audio id="sampleAudioPlayer" preload="none"></audio>
+
+    <script src="app.js"></script>
+  </body>
+</html>

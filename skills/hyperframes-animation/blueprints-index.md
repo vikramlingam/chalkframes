@@ -8,7 +8,7 @@ A **blueprint** is a product-agnostic, **time-coded shot template** — `Scene N
 
 <blueprints>
 <blueprint id="kinetic-type-beats" roles="Hook, Problem, Product_Intro, Benefits, CTA, Brand_Outro" duration="3.0–12.9s">
-Flat, centered, bold-type shot where the **motion IS the words changing** — a fixed line swaps tokens in place by hard cut, or a statement builds across full-screen beats (each its own move) onto a spring-pop payoff. The workhorse (6 roles). Reach for it whenever the words carry the shot and there's no set, surface, or click.
+Flat, centered, bold-type shot where the **motion IS the words changing** — a fixed line swaps tokens in place by hard cut, or a statement builds across full-screen beats (each its own move) onto a spring-pop payoff. Covers 6 roles, so it fits often — reach for it when the words genuinely carry the shot and there's no set, surface, or click, but **never as the default**: two beats running, or three across one film, and the video reads as one repeated template. When a role lists two options and this is one of them, take the other unless the words are the whole point.
 </blueprint>
 
 <blueprint id="typewriter-reveal" roles="Hook, Brand_Outro" duration="3.6–7s">
@@ -192,6 +192,16 @@ Roles here map 1:1 to the storyboard frame `type` enum: **Hook**=`hook` · **Pro
 2. Open `blueprints/<id>.md` — read its time-coded template, `[slots]`, and named **signature move**.
 3. Choose a posture — **Reproduce** (slots map cleanly), **Adapt** (structure fits, content/surface differs; keep the signature move), or **Compose** (nothing fits → build from the motion vocabulary). The _how_ of writing each — what to keep/change, the per-frame fields — is `visual-design.md`'s job; defer to it.
 4. If nothing in the menu fits the beat, **compose** from the motion vocabulary in `motion-language.md` — still pace the reveals to the VO across the shot. Don't force a wrong blueprint.
+
+### Pick against what's already used
+
+A frame's best shape is often the one you **haven't** used yet. Before settling, read the blueprints already committed earlier in the storyboard and check the candidate against them:
+
+- **Same blueprint as the previous frame** → pick a different one. Consecutive frames must differ structurally; a repeated shape back-to-back is the single most common reason a video reads as templated.
+- **Third use of one blueprint in the film** → it has stopped being a motif and become the film's whole texture. Rotate to a shape from a different family (typographic → spatial → data → device → cinematic).
+- **Same `anchor` three frames running** → move the frame's weight (see the variety ledger in `../hyperframes/references/storyboard-format.md`).
+
+When two blueprints fit a beat equally well, prefer the one **not yet used**. Variety is structural — the spine, palette, and type stay fixed across the film; only the shape rotates.
 
 ## Motion coverage
 

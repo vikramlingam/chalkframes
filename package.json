@@ -1,19 +1,17 @@
 {
-  "name": "hyperframes-monorepo",
+  "name": "chalkframes",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/heygen-com/hyperframes"
-  },
+  "description": "Chalk Frames — Autonomous AI video rendering and production suite",
   "workspaces": [
     "packages/*"
   ],
   "type": "module",
   "scripts": {
-    "dev": "bun run studio",
-    "build": "bun run --filter '@hyperframes/{parsers,lint,studio-server}' build && bun run --filter @hyperframes/core build && bun run --filter '@hyperframes/{engine,producer,player,studio,shader-transitions,aws-lambda,gcp-cloud-run,sdk}' build && bun run --filter @hyperframes/cli build && bun run --filter @hyperframes/sdk-playground build",
+    "dev": "node --watch studio-web/server.mjs",
+    "dev:monorepo": "bun run --filter @hyperframes/studio dev",
+    "build": "bun run --filter '@hyperframes/{parsers,lint,studio-server}' build && bun run --filter @hyperframes/core build && bun run --filter '@hyperframes/{engine,producer,player,studio,shader-transitions,aws-lambda,gcp-cloud-run,sdk}' build && bun run --filter @hyperframes/cli build",
     "build:producer": "bun run --filter @hyperframes/producer build",
-    "studio": "bun run --filter @hyperframes/studio dev",
+    "studio": "node studio-web/server.mjs",
     "build:hyperframes-runtime": "bun run --filter @hyperframes/core build:hyperframes-runtime",
     "build:hyperframes-runtime:modular": "bun run --filter @hyperframes/core build:hyperframes-runtime:modular",
     "verify:packed-manifests": "node scripts/verify-packed-manifests.mjs",
@@ -76,6 +74,7 @@
     "lefthook": "^2.1.4",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
+    "pdf-parse": "^2.4.5",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vitest": "^4.1.11",

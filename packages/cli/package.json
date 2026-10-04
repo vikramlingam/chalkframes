@@ -9,6 +9,7 @@
     "directory": "packages/cli"
   },
   "bin": {
+    "chalkframes": "./bin/chalkframes.mjs",
     "hyperframes": "./bin/hyperframes.mjs",
     "hyperframes-localize-fonts": "./bin/hyperframes-localize-fonts.mjs"
   },

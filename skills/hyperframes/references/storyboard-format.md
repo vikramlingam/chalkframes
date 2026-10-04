@@ -34,6 +34,32 @@ One `## Frame N — Title` heading per frame (`Frame` / `Beat` / `Scene` accepte
 | `poster`        | seconds to seek for the tile poster (past the intro animation)                                                |
 | _any other key_ | kept verbatim under the frame's `extra` — a workflow carries its own per-frame data (effects, assets, …) here |
 
+## Visual variety — the per-frame variety keys
+
+A plan that names only `scene` and `voiceover` cannot be checked for repetition, so every request drifts toward the same shapes. Narrative workflows therefore carry these **optional** per-frame keys alongside `scene`. They are ordinary metadata keys: they land in the frame's `extra` and need no parser support.
+
+| Key         | Meaning                                                                   | Example           |
+| ----------- | ------------------------------------------------------------------------- | ----------------- |
+| `blueprint` | the shape instantiated (id from the role→blueprint menu, or `compose`)    | `dataviz-countup` |
+| `layout`    | the **layout archetype** — the frame's structural family, not its content | `hero-type`       |
+| `anchor`    | where the frame's weight sits in the canvas                               | `centered`        |
+| `focal`     | the shape carrying the frame — the thing the eye lands on                 | `single ring`     |
+| `entrance`  | the frame's primary entry move                                            | `push-through`    |
+
+Read down a finished `STORYBOARD.md`, these five columns are the **variety ledger** — the cheapest possible way to see repetition in one glance.
+
+### The rule
+
+Fill the ledger while planning, before any HTML exists, and hold it to three lines:
+
+1. **No `layout` archetype twice in a row.** Consecutive frames must differ structurally.
+2. **No `blueprint` more than twice in one video.** Past that it stops being a motif and becomes the film's whole texture.
+3. **No three consecutive frames sharing an `anchor`.** At most two centered, or two left-anchored, before the frame moves.
+
+State, per frame, the one thing that makes it differ from the frame before it — `differs from N-1 by <layout / focal / entrance>`. A frame you cannot differentiate that way is the frame to redesign.
+
+**Variety is structural, not random.** The ledger varies `layout` / `focal` / `entrance`; the spine, palette, type, and seam direction stay fixed for the whole video. Coherence is what reads as professional — a film with one device threading every beat and a different architecture per beat. Rotating the palette every scene is not variety, it is noise.
+
 ## Parsed manifest
 
 The parser is **lenient**: it never throws and records anything surprising as a `warning`.

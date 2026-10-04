@@ -1,0 +1,841 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import {
+  parseVideoRange,
+  validateStoryboard,
+  validateProductionInput,
+  validateTopicInput,
+  isPublicAddress,
+  normalizeArchetype,
+} from "./quality.mjs";
+import {
+  getSceneTimingStructure,
+  registerArchetype,
+  registerArchetypeRenderer,
+  formatCatalogForPrompt,
+  buildSceneHtmlAndChoreography,
+  getArchetypeScopedCss,
+} from "./server.mjs";
+import { formatCompactMetric } from "./renderers.mjs";
+
+const timing = [
+  { id: "scene1-hook", role: "hook" },
+  { id: "scene2-outro", role: "outro" },
+];
+const storyboard = () => ({
+  productName: "Brand <script>alert(1)</script>",
+  scenes: [
+    {
+      id: "../../escape",
+      archetype: "hook",
+      title: '<img src=x onerror="evil()">',
+      voiceover: "Narrate <exactly>",
+    },
+    { id: "other", archetype: "outro", title: "End", voiceover: "Done.", pills: ["Fast & easy"] },
+  ],
+});
+
+test("DNS address filtering refuses private, loopback, metadata and mapped IPv4", () => {
+  for (const address of [
+    "127.0.0.1",
+    "10.0.0.1",
+    "192.168.1.2",
+    "169.254.169.254",
+    "172.16.0.2",
+    "0.0.0.0",
+    "100.64.0.1",
+    "::1",
+    "fc00::1",
+    "fe80::1",
+    "::ffff:127.0.0.1",
+    "::ffff:7f00:1",
+  ]) {
+    assert.equal(isPublicAddress(address), false, address);
+  }
+  for (const address of ["8.8.8.8", "1.1.1.1", "2606:4700:4700::1111"]) {
+    assert.equal(isPublicAddress(address), true, address);
+  }
+});
+
+test("valid, suffix and open-ended byte ranges", () => {
+  assert.deepEqual(parseVideoRange("bytes=0-100", 1000), { start: 0, end: 100 });
+  assert.deepEqual(parseVideoRange("bytes=990-", 1000), { start: 990, end: 999 });
+  assert.deepEqual(parseVideoRange("bytes=-500", 1000), { start: 500, end: 999 });
+  assert.deepEqual(parseVideoRange("bytes=-2000", 1000), { start: 0, end: 999 });
+  assert.deepEqual(parseVideoRange("bytes=0-999999", 1000), { start: 0, end: 999 });
+});
+
+test("invalid and unsafe byte ranges are refused", () => {
+  for (const range of [
+    "bytes=abc-def",
+    "bytes=",
+    "bytes=-0",
+    "bytes=1000-",
+    "bytes=10-9",
+    "bytes=999999999999999999999999-",
+    "bytes=0-1,3-4",
+    "items=0-10",
+    "bytes=1.5-9",
+  ]) {
+    assert.equal(parseVideoRange(range, 1000), null, range);
+  }
+  assert.equal(parseVideoRange("bytes=0-", 0), null);
+});
+
+test("storyboard forces safe IDs, escapes all display strings, preserves narration", () => {
+  const result = validateStoryboard(storyboard(), timing);
+  assert.equal(result.scenes[0].id, "scene1-hook");
+  assert.equal(result.scenes[1].id, "scene2-outro");
+  assert.equal(result.scenes[0].title, "&lt;img src=x onerror=&quot;evil()&quot;&gt;");
+  assert.equal(result.scenes[0].voiceover, "Narrate <exactly>");
+  assert.equal(result.scenes[1].pills[0], "Fast &amp; easy");
+  assert.ok(!result.productName.includes("<script>"));
+});
+
+test("malformed director replies fail before TTS or filesystem work", () => {
+  assert.throws(() => validateStoryboard({ scenes: [] }, timing), /expected 2 scenes/);
+  const bad = storyboard();
+  bad.scenes[0].voiceover = "";
+  assert.throws(() => validateStoryboard(bad, timing), /narration/);
+  const badChart = storyboard();
+  badChart.scenes[0].chartData = { bars: [{ height: '10; background:url("evil")' }] };
+  assert.throws(() => validateStoryboard(badChart, timing), /chart heights/);
+  const badList = storyboard();
+  badList.scenes[1].pills = [1];
+  assert.throws(() => validateStoryboard(badList, timing), /text list/);
+});
+
+test("archetypes with object arrays (step-ladder, radial-orbit, live-feed, isometric-stack) validate cleanly", () => {
+  const customTiming = [
+    { id: "scene1-hook", role: "hook" },
+    { id: "scene2-step", role: "feature" },
+    { id: "scene3-orbit", role: "feature" },
+    { id: "scene4-feed", role: "feature" },
+    { id: "scene5-stack", role: "feature" },
+    { id: "scene6-outro", role: "outro" },
+  ];
+  const complexStoryboard = {
+    productName: "Neural Engine",
+    scenes: [
+      { id: "s1", archetype: "hook", title: "Intro", voiceover: "Welcome to the future." },
+      {
+        id: "s2",
+        archetype: "step-ladder",
+        title: "Process",
+        voiceover: "Here is the step by step process.",
+        stepData: {
+          steps: [
+            { stepNumber: "01", title: "Init", desc: "Start pipeline", status: "Active" },
+            { stepNumber: "02", title: "Execute", desc: "Run models", status: "Done" },
+          ],
+        },
+      },
+      {
+        id: "s3",
+        archetype: "radial-orbit",
+        title: "Ecosystem",
+        voiceover: "Our orbiting system.",
+        orbitData: {
+          centerTitle: "Core",
+          centerSub: "Hub",
+          satellites: [{ label: "Node A", desc: "First node" }],
+        },
+      },
+      {
+        id: "s4",
+        archetype: "live-feed",
+        title: "Activity",
+        voiceover: "Live stream of operations.",
+        feedData: {
+          items: [{ icon: "⚡", text: "Execution complete", tag: "Fast", status: "OK" }],
+        },
+      },
+      {
+        id: "s5",
+        archetype: "isometric-stack",
+        title: "Architecture",
+        voiceover: "The layered hierarchy.",
+        stackData: {
+          layers: [{ name: "UI", tech: "DOM", role: "Surface" }],
+        },
+      },
+      {
+        id: "s6",
+        archetype: "outro",
+        title: "Conclusion",
+        voiceover: "Get started today.",
+        pills: ["Reliable", "Fast"],
+        cta: "Try Now",
+      },
+    ],
+  };
+
+  const validated = validateStoryboard(complexStoryboard, customTiming);
+  assert.equal(validated.scenes.length, 6);
+  assert.equal(validated.scenes[1].archetype, "step-ladder");
+  assert.equal(validated.scenes[1].stepData.steps[0].title, "Init");
+  assert.equal(validated.scenes[2].archetype, "radial-orbit");
+  assert.equal(validated.scenes[3].archetype, "live-feed");
+  assert.equal(validated.scenes[4].archetype, "isometric-stack");
+});
+
+test("invalid source and duration fail before a job is admitted", () => {
+  for (const input of [
+    {},
+    { sourcePdf: "" },
+    { sourceScript: " " },
+    { sourceUrl: "https://example.com", duration: 601 },
+    { sourceUrl: "https://example.com", duration: 1000 },
+    { sourceUrl: "https://example.com", duration: "nan" },
+  ]) {
+    assert.throws(() => validateProductionInput(input));
+  }
+  assert.throws(() => validateProductionInput({ sourceScript: "hello", duration: 30 }), /API key/);
+  assert.equal(
+    validateProductionInput({ sourceScript: "hello", duration: 30, apiKey: "test" }).duration,
+    30,
+  );
+  assert.equal(
+    validateProductionInput({ sourceTopic: "Quantum Physics", duration: 45, apiKey: "test" })
+      .duration,
+    45,
+  );
+  assert.equal(
+    validateProductionInput({ sourceTopic: "Quantum Physics", duration: 600, apiKey: "test" })
+      .duration,
+    600,
+  );
+});
+
+test("topic input validation requires topic text and valid duration (max 600s)", () => {
+  for (const bad of [
+    {},
+    { topic: "" },
+    { topic: "   " },
+    { topic: 123 },
+    { topic: "Valid topic", duration: 5 },
+    { topic: "Valid topic", duration: 601 },
+    { topic: "Valid topic", apiKey: "" },
+  ]) {
+    assert.throws(() => validateTopicInput(bad));
+  }
+  const good = validateTopicInput({
+    topic: "Human Anatomy: The Circulatory System",
+    duration: 60,
+    apiKey: "test-key",
+  });
+  assert.equal(good.topic, "Human Anatomy: The Circulatory System");
+  assert.equal(good.duration, 60);
+});
+
+test("new visual variety archetypes (flowchart-process, kpi-counter-ring, interactive-diff, chat-exchange) validate cleanly", () => {
+  const varietyTiming = [
+    { id: "scene1-hook", role: "hook" },
+    { id: "scene2-flow", role: "features" },
+    { id: "scene3-kpi", role: "features" },
+    { id: "scene4-diff", role: "features" },
+    { id: "scene5-chat", role: "features" },
+    { id: "scene6-outro", role: "outro" },
+  ];
+
+  const storyboardData = {
+    productName: "NeuralEngine",
+    scenes: [
+      {
+        id: "s1",
+        archetype: "hook",
+        title: "The Problem",
+        voiceover: "Here is the starting friction.",
+      },
+      {
+        id: "s2",
+        archetype: "flowchart-process",
+        title: "Ingestion Pipeline",
+        voiceover: "Signals flow sequentially through four stages.",
+        flowData: {
+          steps: [
+            {
+              stepNumber: "01",
+              title: "Capture",
+              desc: "Edge sensory collection",
+              isHighlighted: false,
+            },
+            {
+              stepNumber: "02",
+              title: "Quantize",
+              desc: "FP8 tensor reduction",
+              isHighlighted: true,
+            },
+            {
+              stepNumber: "03",
+              title: "Dispatch",
+              desc: "Non-blocking ring bus",
+              isHighlighted: false,
+            },
+          ],
+        },
+      },
+      {
+        id: "s3",
+        archetype: "kpi-counter-ring",
+        title: "Throughput Multiplier",
+        voiceover: "Throughput scaled exponentially under real-world loads.",
+        kpiData: {
+          value: "1,420%",
+          label: "Throughput Increase",
+          trend: "+84% YoY",
+          progress: 88,
+          subtitle: "Measured on production clusters",
+        },
+      },
+      {
+        id: "s4",
+        archetype: "interactive-diff",
+        title: "Architectural Shift",
+        voiceover: "Legacy blocking locks were replaced by lock-free atomics.",
+        diffData: {
+          titleLeft: "Legacy Stack",
+          badgeLeft: "Deprecated",
+          linesLeft: ["Blocking mutex locks", "Thread contention", "High latency jitter"],
+          titleRight: "Modern Engine",
+          badgeRight: "Optimized",
+          linesRight: ["Lock-free atomics", "Zero-copy streaming", "Sub-millisecond p99"],
+        },
+      },
+      {
+        id: "s5",
+        archetype: "chat-exchange",
+        title: "Autonomous Negotiation",
+        voiceover: "Nodes negotiate distributed consensus in under two milliseconds.",
+        chatData: {
+          channelName: "Live Cluster Dispatch",
+          messages: [
+            {
+              sender: "Node Alpha",
+              text: "Proposing block #49281 with 12k txs",
+              isAi: false,
+              time: "12:00:01",
+            },
+            {
+              sender: "Validator",
+              text: "Quorum verified in 1.2ms. Block committed.",
+              isAi: true,
+              time: "12:00:02",
+            },
+          ],
+        },
+      },
+      {
+        id: "s6",
+        archetype: "outro",
+        title: "Summary",
+        voiceover: "Transform your pipeline today.",
+        pills: ["Fast", "Deterministic"],
+        cta: "Deploy Now",
+      },
+    ],
+  };
+
+  const result = validateStoryboard(storyboardData, varietyTiming);
+  assert.equal(result.scenes.length, 6);
+  assert.equal(result.scenes[1].archetype, "flowchart-process");
+  assert.equal(result.scenes[1].flowData.steps[0].title, "Capture");
+  assert.equal(result.scenes[2].archetype, "kpi-counter-ring");
+  assert.equal(result.scenes[2].kpiData.value, "1,420%");
+  assert.equal(result.scenes[3].archetype, "interactive-diff");
+  assert.equal(result.scenes[3].diffData.linesLeft.length, 3);
+  assert.equal(result.scenes[4].archetype, "chat-exchange");
+  assert.equal(result.scenes[4].chatData.messages.length, 2);
+});
+
+test("repetitive or generic archetypes are automatically diversified across distinct archetypes", () => {
+  const genericTiming = [
+    { id: "scene1-hook", role: "hook", suggestedArchetype: "hook" },
+    { id: "scene2-feat", role: "features", suggestedArchetype: "kinetic-text" },
+    { id: "scene3-feat", role: "features", suggestedArchetype: "flowchart-process" },
+    { id: "scene4-feat", role: "features", suggestedArchetype: "kpi-counter-ring" },
+    { id: "scene5-feat", role: "features", suggestedArchetype: "code-terminal" },
+    { id: "scene6-outro", role: "outro", suggestedArchetype: "outro" },
+  ];
+
+  // Simulated LLM outputting repetitive "features" archetype for all middle scenes
+  const repetitiveStoryboard = {
+    productName: "ChalkFrames",
+    scenes: [
+      { id: "s1", archetype: "hook", title: "Intro", voiceover: "Welcome to the video." },
+      {
+        id: "s2",
+        archetype: "features",
+        title: "Core Paradigm",
+        voiceover: "A fundamental shift.",
+      },
+      { id: "s3", archetype: "features", title: "Pipeline Flow", voiceover: "How data flows." },
+      { id: "s4", archetype: "features", title: "Throughput Gains", voiceover: "Massive speedup." },
+      { id: "s5", archetype: "features", title: "Developer APIs", voiceover: "Clean interfaces." },
+      { id: "s6", archetype: "outro", title: "Outro", voiceover: "Get started today." },
+    ],
+  };
+
+  const result = validateStoryboard(repetitiveStoryboard, genericTiming);
+  assert.equal(result.scenes.length, 6);
+  assert.equal(result.scenes[0].archetype, "hook");
+  assert.equal(result.scenes[1].archetype, "kinetic-text");
+  assert.equal(result.scenes[2].archetype, "flowchart-process");
+  assert.equal(result.scenes[3].archetype, "kpi-counter-ring");
+  assert.equal(result.scenes[4].archetype, "code-terminal");
+  assert.equal(result.scenes[5].archetype, "outro");
+
+  // Verify that enriched fallback data was generated for the diversified archetypes
+  assert.ok(result.scenes[1].kineticData.mainWord);
+  assert.ok(result.scenes[2].flowData.steps.length >= 3);
+  assert.ok(result.scenes[3].kpiData.value);
+  assert.ok(result.scenes[4].codeDemo.lines.length >= 3);
+
+  // Verify that NO two consecutive scenes share the same archetype
+  for (let i = 1; i < result.scenes.length; i++) {
+    assert.notEqual(result.scenes[i].archetype, result.scenes[i - 1].archetype);
+  }
+});
+
+test("normalizeArchetype maps diverse LLM keywords to correct non-default archetypes", () => {
+  // Test that synonyms and common LLM outputs don't fall back to features-cards
+  assert.equal(normalizeArchetype("hero-title"), "kinetic-text");
+  assert.equal(normalizeArchetype("headline-announcement"), "kinetic-text");
+  assert.equal(normalizeArchetype("analytics-dashboard"), "bento-grid");
+  assert.equal(normalizeArchetype("system-overview-panel"), "bento-grid");
+  assert.equal(normalizeArchetype("execution-workflow"), "flowchart-process");
+  assert.equal(normalizeArchetype("biological-diagram"), "flowchart-process");
+  assert.equal(normalizeArchetype("infographic-trends"), "data-graph");
+  assert.equal(normalizeArchetype("analytics-bars"), "data-graph");
+  assert.equal(normalizeArchetype("user-conversation"), "chat-exchange");
+  assert.equal(normalizeArchetype("ai-agent-message"), "chat-exchange");
+  assert.equal(normalizeArchetype("quarterly-roadmap"), "step-ladder");
+  assert.equal(normalizeArchetype("multi-phase-timeline"), "step-ladder");
+  assert.equal(normalizeArchetype("deep-dive-infrastructure"), "isometric-stack");
+  assert.equal(normalizeArchetype("side-by-side-comparison"), "split-comparison");
+  assert.equal(normalizeArchetype("orbital-network"), "radial-orbit");
+  assert.equal(normalizeArchetype("bash-command-terminal"), "code-terminal");
+  assert.equal(normalizeArchetype("gauge-counter"), "kpi-counter-ring");
+});
+
+test("getSceneTimingStructure generates diverse non-repetitive narrative beats across durations and seeds", () => {
+  // 30s video (4 scenes: hook, 2 middle, outro)
+  const timing30 = getSceneTimingStructure(30, 42);
+  assert.equal(timing30.length, 4);
+  assert.equal(timing30[0].role, "hook");
+  assert.equal(timing30[3].role, "outro");
+  assert.notEqual(timing30[1].narrativeIntent, timing30[2].narrativeIntent);
+
+  // 60s video (5 scenes: hook, 3 middle, outro)
+  const timing60 = getSceneTimingStructure(60, 42);
+  assert.equal(timing60.length, 5);
+  const middle60 = [timing60[1].role, timing60[2].role, timing60[3].role];
+  const unique60 = new Set(middle60);
+  assert.equal(unique60.size, 3, "All 3 middle scenes must have distinct roles");
+
+  // Different seeds produce different middle themes (narrative variety across regenerations)
+  const timing60A = getSceneTimingStructure(60, "seed-alpha");
+  const timing60B = getSceneTimingStructure(60, "seed-beta");
+  const setA = timing60A
+    .slice(1, 4)
+    .map((s) => s.chapterTitle)
+    .join(",");
+  const setB = timing60B
+    .slice(1, 4)
+    .map((s) => s.chapterTitle)
+    .join(",");
+  assert.notEqual(setA, setB, "Different seeds should rotate middle themes differently");
+});
+
+test("validateStoryboard respects explicit seeds and rotates archetypes cleanly", () => {
+  const genericTiming = [
+    { id: "s1", role: "hook", suggestedArchetype: "hook" },
+    { id: "s2", role: "middle" },
+    { id: "s3", role: "middle" },
+    { id: "s4", role: "middle" },
+    { id: "s5", role: "outro", suggestedArchetype: "outro" },
+  ];
+
+  const storyboardA = {
+    productName: "TestProduct",
+    seed: "run-1",
+    scenes: [
+      { id: "s1", archetype: "hook", title: "A", voiceover: "Voice." },
+      { id: "s2", archetype: "features", title: "B", voiceover: "Voice." },
+      { id: "s3", archetype: "features", title: "C", voiceover: "Voice." },
+      { id: "s4", archetype: "features", title: "D", voiceover: "Voice." },
+      { id: "s5", archetype: "outro", title: "E", voiceover: "Voice." },
+    ],
+  };
+
+  const storyboardB = {
+    ...storyboardA,
+    seed: "run-2",
+  };
+
+  const resA = validateStoryboard(storyboardA, genericTiming);
+  const resB = validateStoryboard(storyboardB, genericTiming);
+
+  // Both should have non-repeating middle archetypes
+  assert.notEqual(resA.scenes[1].archetype, resA.scenes[2].archetype);
+  assert.notEqual(resA.scenes[2].archetype, resA.scenes[3].archetype);
+
+  // Different seeds should produce different selections
+  const archsA = resA.scenes.map((s) => s.archetype).join(",");
+  const archsB = resB.scenes.map((s) => s.archetype).join(",");
+  assert.notEqual(archsA, archsB, "Different seed entropy must vary the selected archetypes");
+});
+
+test("adding a new test archetype to the catalog flows end-to-end from prompt to HTML generator without being normalized away", () => {
+  // 1. Register a brand new archetype in the dynamic catalog
+  registerArchetype("custom-matrix-view", {
+    description: "Multi-dimensional feature comparison matrix",
+    family: "comparative",
+  });
+
+  // 2. Register pluggable HTML and CSS renderers
+  registerArchetypeRenderer("custom-matrix-view", {
+    renderHtml: ({ scene, h }) => ({
+      innerHtml: `<div class="matrix-grid"><h3>${h(scene.title)}</h3><div class="matrix-val">${h(scene.matrixMetric)}</div></div>`,
+      gsapChoreography: `tl.from(".matrix-grid", { opacity: 0, y: 30, duration: 0.8 });`,
+    }),
+    renderCss: ({ activePalette }) => `
+      .matrix-grid { border: 2px solid ${activePalette.accent}; padding: 20px; }
+      .matrix-val { font-size: 28px; font-weight: bold; }
+    `,
+    getBackground: ({ activePalette }) => `background: ${activePalette.background};`,
+  });
+
+  // 3. Verify it is immediately exposed in the LLM prompt catalog
+  const formattedPrompt = formatCatalogForPrompt();
+  assert.match(
+    formattedPrompt,
+    /"custom-matrix-view": Multi-dimensional feature comparison matrix/,
+    "Catalog prompt format must expose newly registered archetype",
+  );
+
+  // 4. Verify normalizeArchetype matches it directly and does NOT fallback to features-cards
+  const normalized = normalizeArchetype("custom-matrix-view");
+  assert.equal(normalized, "custom-matrix-view");
+
+  // 5. Verify storyboard validation preserves custom archetype and custom payload data
+  const customStoryboard = {
+    productName: "MatrixEngine",
+    scenes: [
+      {
+        id: "s1",
+        archetype: "custom-matrix-view",
+        title: "Matrix Insights",
+        voiceover: "Real-time multidimensional matrix insights.",
+        matrixMetric: "99.98% High Precision",
+        customConfig: { dimensions: 4 },
+      },
+    ],
+  };
+
+  const validated = validateStoryboard(customStoryboard, [{ id: "s1", role: "middle" }]);
+  assert.equal(validated.scenes[0].archetype, "custom-matrix-view");
+  assert.equal(validated.scenes[0].matrixMetric, "99.98% High Precision");
+  assert.deepEqual(validated.scenes[0].customConfig, { dimensions: 4 });
+
+  // 6. Verify HTML/CSS generation dispatches cleanly to the custom renderer
+  const palette = {
+    background: "#0c0d10",
+    text: "#ffffff",
+    accent: "#6366f1",
+    border: "rgba(255,255,255,0.1)",
+  };
+  const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+    validated.scenes[0],
+    0,
+    1,
+    8.0,
+    1920,
+    1080,
+    false,
+  );
+  assert.match(innerHtml, /<div class="matrix-grid">/);
+  assert.match(innerHtml, /99\.98% High Precision/);
+  assert.match(gsapChoreography, /tl\.from\("\.matrix-grid"/);
+
+  const scopedCss = getArchetypeScopedCss(validated.scenes[0], 1920, 1080, false, palette);
+  assert.match(scopedCss, /\.matrix-grid \{ border: 2px solid #6366f1;/);
+});
+
+test("bento-metric-grid renders formatted values and avoids frozen textContent: 0 tweens", () => {
+  const scene = {
+    id: "s-metrics",
+    archetype: "bento-metric-grid",
+    title: "Performance Benchmarks",
+    bentoData: {
+      metrics: [
+        { label: "Active Vectors", value: "10M", unit: "+", detail: "in index", hero: true },
+        { label: "P99 Latency", value: "5ms", unit: "", detail: "edge search" },
+        { label: "Error Rate", value: "0", unit: "%", detail: "verified" },
+      ],
+    },
+  };
+
+  const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+    scene,
+    0,
+    1,
+    8.0,
+    1920,
+    1080,
+    false,
+  );
+
+  // Values rendered directly in HTML
+  assert.match(innerHtml, />10M</);
+  assert.match(innerHtml, />5ms</);
+  assert.match(innerHtml, />0</);
+
+  // No textContent: 0 interpolation tween
+  assert.doesNotMatch(gsapChoreography, /textContent:\s*0/);
+
+  // Animates .bento-value with scale, opacity, and transform
+  assert.match(gsapChoreography, /scope\.querySelectorAll\("\.bento-value"\)/);
+  assert.match(gsapChoreography, /scale:\s*0\.92/);
+  assert.match(gsapChoreography, /back\.out\(1\.4\)/);
+});
+
+test("scene-level theme: 'dark' adapts canvas to deep obsidian #0b0d14 and high-contrast typography", () => {
+  const lightScene = {
+    id: "s-light",
+    archetype: "hook",
+    title: "Editorial Perspective",
+    voiceover: "Clear and thoughtful design narrative.",
+  };
+  const darkScene = {
+    id: "s-dark",
+    theme: "dark",
+    archetype: "code-terminal",
+    title: "Distributed Pipeline",
+    voiceover: "Execution happens across distributed clusters.",
+  };
+
+  const validated = validateStoryboard(
+    {
+      productName: "ThemeEngine",
+      scenes: [lightScene, darkScene],
+    },
+    [
+      { id: "s-light", role: "hook" },
+      { id: "s-dark", role: "outro" },
+    ],
+  );
+
+  // Default theme is light, explicit dark theme preserved
+  assert.equal(validated.scenes[0].theme, "light");
+  assert.equal(validated.scenes[1].theme, "dark");
+
+  const basePalette = {
+    background: "#f7f6f1",
+    card: "#ffffff",
+    text: "#121316",
+    accent: "#6366f1",
+    border: "rgba(0,0,0,0.08)",
+  };
+
+  const darkCss = getArchetypeScopedCss(validated.scenes[1], 1920, 1080, false, basePalette);
+  assert.match(darkCss, /#0b0d14/);
+  assert.match(darkCss, /#f3f4f8/);
+  assert.match(darkCss, /Deep Obsidian Dark Theme Overrides/);
+});
+
+test("vector-cluster-graph alias normalization, validation enrichment, and SVG rendering", () => {
+  assert.equal(normalizeArchetype("vector-space"), "vector-cluster-graph");
+  assert.equal(normalizeArchetype("cluster-graph"), "vector-cluster-graph");
+  assert.equal(normalizeArchetype("knn-search"), "vector-cluster-graph");
+
+  const storyboard = {
+    productName: "VectorDB",
+    scenes: [
+      {
+        id: "s-vec",
+        archetype: "vector-space",
+        theme: "dark",
+        title: "Semantic Vector Search",
+        voiceover:
+          "Nearest neighbors navigate dense high-dimensional clusters in sub-millisecond time.",
+      },
+    ],
+  };
+
+  const validated = validateStoryboard(storyboard, [{ id: "s-vec", role: "middle" }]);
+  const scene = validated.scenes[0];
+  assert.equal(scene.archetype, "vector-cluster-graph");
+  assert.equal(scene.theme, "dark");
+  // Enriched with safe fallbacks
+  assert.ok(Array.isArray(scene.clusters) && scene.clusters.length === 3);
+  assert.ok(scene.stats && scene.stats.metric);
+  assert.match(scene.queryLabel, /q = embed/);
+
+  const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+    scene,
+    0,
+    1,
+    8.0,
+    1920,
+    1080,
+    false,
+  );
+
+  // Renders asymmetric layout with SVG canvas
+  assert.match(innerHtml, /vc-container/);
+  assert.match(innerHtml, /vc-left-col/);
+  assert.match(innerHtml, /vc-right-canvas/);
+  assert.match(innerHtml, /<svg class="vc-svg"/);
+  assert.match(innerHtml, /vc-traversal-path/);
+  assert.match(innerHtml, /vc-centroid/);
+
+  // GSAP animations for traversal and nodes
+  assert.match(gsapChoreography, /strokeDashoffset:\s*0/);
+  assert.match(gsapChoreography, /scope\.querySelectorAll\("\.vc-node"\)/);
+});
+
+test("formatCompactMetric formats large integers into human-readable compact notation", () => {
+  assert.equal(formatCompactMetric(10000000), "10M");
+  assert.equal(formatCompactMetric(1000000), "1M");
+  assert.equal(formatCompactMetric(500000), "500k");
+  assert.equal(formatCompactMetric("10000000"), "10M");
+  assert.equal(formatCompactMetric("1,000,000"), "1M");
+  assert.equal(formatCompactMetric("500,000"), "500k");
+  assert.equal(formatCompactMetric(10000), "10k");
+  assert.equal(formatCompactMetric(1000), "1k");
+  assert.equal(formatCompactMetric(2024), "2024");
+  assert.equal(formatCompactMetric("5ms"), "5ms");
+  assert.equal(formatCompactMetric("10M"), "10M");
+  assert.equal(formatCompactMetric(0), "0");
+  assert.equal(formatCompactMetric(null), "");
+  assert.equal(formatCompactMetric(undefined), "");
+});
+
+test("bento-metric-grid automatically formats raw large integers to prevent awkward wrapping", () => {
+  const scene = {
+    id: "s-bento-raw",
+    archetype: "bento-metric-grid",
+    title: "Global Scale",
+    bentoData: {
+      metrics: [
+        { label: "Active Vectors", value: 10000000, unit: "+", hero: true },
+        { label: "Daily Queries", value: 500000, unit: "/s" },
+        { label: "Cluster Nodes", value: 1000000, unit: "" },
+      ],
+    },
+  };
+
+  const { innerHtml } = buildSceneHtmlAndChoreography(scene, 0, 1, 8.0, 1920, 1080, false);
+  assert.match(innerHtml, />10M</);
+  assert.match(innerHtml, />500k</);
+  assert.match(innerHtml, />1M</);
+  assert.doesNotMatch(innerHtml, />10000000</);
+  assert.doesNotMatch(innerHtml, />500000</);
+});
+
+test("hook archetype strips director prefixes and only renders friction-box for shortcuts or short microcopy", () => {
+  // Case 1: Prefixed note with short consumer microcopy (< 35 chars) -> strip prefix and render
+  const shortPrefixedScene = {
+    id: "s1-short",
+    archetype: "hook",
+    title: "Instant Retrieval",
+    visualNote: "Editorial opener: Press ⌘K to start",
+  };
+  const res1 = buildSceneHtmlAndChoreography(shortPrefixedScene, 0, 1, 6.0, 1920, 1080, false);
+  assert.match(res1.innerHtml, /class="friction-box"/);
+  assert.match(res1.innerHtml, /Press ⌘K to start/);
+  assert.doesNotMatch(res1.innerHtml, /Editorial opener:/i);
+
+  // Case 2: Long director instructions (>= 35 chars) without shortcut -> suppress friction-box entirely
+  const longDirectorScene = {
+    id: "s1-long",
+    archetype: "hook",
+    title: "Deep Vision",
+    visualNote:
+      "Editorial opener: Start by zooming into the camera lens with heavy grain and film flicker",
+  };
+  const res2 = buildSceneHtmlAndChoreography(longDirectorScene, 0, 1, 6.0, 1920, 1080, false);
+  assert.doesNotMatch(res2.innerHtml, /class="friction-box"/);
+  assert.doesNotMatch(res2.innerHtml, /camera lens/);
+
+  // Case 3: Shortcut present + long director instructions -> keep keyboard-badge, drop long note
+  const shortcutWithLongNoteScene = {
+    id: "s1-shortcut",
+    archetype: "hook",
+    title: "Command Palette",
+    shortcut: "⌘K",
+    visualNote:
+      "Visual note: Zoom camera into center terminal interface while dimming surrounding UI",
+  };
+  const res3 = buildSceneHtmlAndChoreography(
+    shortcutWithLongNoteScene,
+    0,
+    1,
+    6.0,
+    1920,
+    1080,
+    false,
+  );
+  assert.match(res3.innerHtml, /class="friction-box"/);
+  assert.match(res3.innerHtml, /class="keyboard-badge">⌘K<\/span>/);
+  assert.doesNotMatch(res3.innerHtml, /Zoom camera/);
+  assert.doesNotMatch(res3.innerHtml, /Visual note:/i);
+
+  // Case 4: No shortcut and no visualNote -> no friction-box
+  const emptyNoteScene = {
+    id: "s1-empty",
+    archetype: "hook",
+    title: "Clean Canvas",
+  };
+  const res4 = buildSceneHtmlAndChoreography(emptyNoteScene, 0, 1, 6.0, 1920, 1080, false);
+  assert.doesNotMatch(res4.innerHtml, /class="friction-box"/);
+});
+
+test("outro archetype adopts dark card styling and high-contrast pills in dark mode", () => {
+  const outroScene = {
+    id: "s-outro",
+    archetype: "outro",
+    theme: "dark",
+    title: "Build Production Vectors Today",
+    subtitle: "Deterministic rendering and global indexing in minutes.",
+    cta: "Start Free Trial",
+    pills: ["Zero setup", "Sub-millisecond", "SOC2 Type II"],
+  };
+
+  const basePalette = {
+    background: "#f7f6f1",
+    card: "#ffffff",
+    text: "#121316",
+    accent: "#6366f1",
+    border: "rgba(0,0,0,0.08)",
+  };
+
+  const scopedCss = getArchetypeScopedCss(outroScene, 1920, 1080, false, basePalette);
+
+  // Modal card adopts dark styling instead of staying #ffffff
+  assert.match(scopedCss, /\.outro-card\s*\{[^}]*background:\s*#141724/);
+  assert.match(
+    scopedCss,
+    /\.outro-card\s*\{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.12\)/,
+  );
+  assert.match(
+    scopedCss,
+    /\.outro-card\s*\{[^}]*box-shadow:\s*0 24px 60px rgba\(0,\s*0,\s*0,\s*0\.5\)/,
+  );
+
+  // Typography inside outro card is crisp #f3f4f8
+  assert.match(scopedCss, /\.outro-card \.editorial-title\s*\{[^}]*color:\s*#f3f4f8/);
+
+  // Pills adopt dark styling with high-contrast borders and #f3f4f8 text
+  assert.match(scopedCss, /\.pill-feature\s*\{[^}]*background:\s*#0b0d14/);
+  assert.match(scopedCss, /\.pill-feature\s*\{[^}]*color:\s*#f3f4f8/);
+  assert.match(
+    scopedCss,
+    /\.pill-feature\s*\{[^}]*border:\s*1px solid rgba\(255,\s*255,\s*255,\s*0\.16\)/,
+  );
+
+  // CTA button has accent styling and glow
+  assert.match(scopedCss, /\.cta-button\s*\{[^}]*background:\s*#6366f1/);
+  assert.match(scopedCss, /\.cta-button\s*\{[^}]*box-shadow:[^}]*#6366f155/);
+});
