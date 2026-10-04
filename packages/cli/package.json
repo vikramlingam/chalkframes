@@ -10,7 +10,6 @@
   },
   "bin": {
     "chalkframes": "./bin/chalkframes.mjs",
-    "hyperframes": "./bin/hyperframes.mjs",
     "hyperframes-localize-fonts": "./bin/hyperframes-localize-fonts.mjs"
   },
   "files": [
@@ -53,14 +52,11 @@
   "devDependencies": {
     "@clack/prompts": "^1.1.0",
     "@google/genai": "1.52.0",
-    "@hyperframes/aws-lambda": "workspace:*",
     "@hyperframes/core": "workspace:*",
     "@hyperframes/engine": "workspace:*",
-    "@hyperframes/gcp-cloud-run": "workspace:*",
     "@hyperframes/lint": "workspace:*",
     "@hyperframes/parsers": "workspace:*",
     "@hyperframes/producer": "workspace:*",
-    "@hyperframes/studio": "workspace:*",
     "@hyperframes/studio-server": "workspace:*",
     "@types/css-tree": "^3.2.0",
     "@types/fontkit": "^2.0.9",

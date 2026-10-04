@@ -649,7 +649,7 @@ registerArchetypeRenderer("isometric-stack", {
     const rawLayers = scene.stackData?.layers || [
       {
         name: "Presentation & Surface",
-        tech: "HyperFrames IIFE Runtime",
+        tech: "Chalk Frames Engine",
         role: "Declarative Video DOM",
       },
       {
@@ -1890,7 +1890,7 @@ registerArchetypeRenderer("terminal-flow", {
         : [
             {
               prompt: "$",
-              text: "hyperframes render --out demo.mp4",
+              text: "chalkframes render --out demo.mp4",
               output: "✓ rendered 240 frames",
             },
           ];

@@ -517,12 +517,12 @@ export function validateStoryboard(value, timing) {
         filename: "orchestration.ts",
         language: "TypeScript",
         lines: [
-          "import { ChalkProducer } from '@chalkframes/core';",
-          "const producer = new ChalkProducer();",
-          `await producer.execute('${safeTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}');`,
-          "await producer.render4K();",
+          "import { createPipeline } from './pipeline';",
+          "const pipeline = createPipeline();",
+          `await pipeline.run('${safeTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}');`,
+          "await pipeline.finalize();",
         ],
-        output: "✓ Build finished in 18ms. 4K broadcast stream ready.",
+        output: "✓ Pipeline finished in 18ms. Output ready.",
         ...(enrichedScene.codeDemo || {}),
       };
     } else if (finalArchetype === "kinetic-text" && !enrichedScene.kineticData) {
@@ -687,7 +687,7 @@ export function validateStoryboard(value, timing) {
         lines: [
           {
             prompt: "$",
-            text: "hyperframes render --out demo.mp4",
+            text: "chalkframes render --out demo.mp4",
             output: "✓ rendered 240 frames",
           },
         ],

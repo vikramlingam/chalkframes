@@ -733,7 +733,7 @@ async function fetchPublicPage(url) {
     const request = (url.protocol === "https:" ? https : http).get(
       url,
       {
-        headers: { "User-Agent": "HyperFrames-Studio-One/1.0" },
+        headers: { "User-Agent": "ChalkFrames-Studio/1.0" },
         lookup: (_hostname, options, callback) =>
           options.all
             ? callback(null, [addresses[0]])
@@ -1054,8 +1054,8 @@ Respond ONLY with valid JSON matching this schema:
           { "text": "One review, then it ships" }
         ],
         "lines": [
-          { "prompt": "$", "text": "heygen draft --from-voice", "output": "✓ draft ready in 4.2s" },
-          { "prompt": "$", "text": "heygen publish draft-42", "output": "✓ published to workspace" }
+          { "prompt": "$", "text": "chalkframes draft --from-voice", "output": "✓ draft ready in 4.2s" },
+          { "prompt": "$", "text": "chalkframes publish draft-42", "output": "✓ published to workspace" }
         ]
       }
     },
@@ -1583,7 +1583,6 @@ async function runProductionPipeline(jobId, payload) {
 
     const hfBin =
       resolveBin("chalkframes") ||
-      resolveBin("hyperframes") ||
       requireBin("chalkframes", "run `bun run build`");
     const procEnv = childEnv();
 

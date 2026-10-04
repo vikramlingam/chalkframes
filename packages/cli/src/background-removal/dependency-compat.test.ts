@@ -25,7 +25,6 @@ describe("background-removal native dependency compatibility", () => {
       "../../package.json",
       "../../../engine/package.json",
       "../../../producer/package.json",
-      "../../../gcp-cloud-run/package.json",
     ]) {
       const packageJson = JSON.parse(
         readFileSync(fileURLToPath(new URL(manifest, import.meta.url)), "utf8"),

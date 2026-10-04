@@ -62,9 +62,13 @@ async function main() {
   }
   mkdirSync(join(DIST, "commands"), { recursive: true });
 
+  // The upstream browser studio (packages/studio) was removed in the Chalk
+  // Frames decoupling; only copy its dist when a build is actually present.
   const studioDist = resolve(CLI_ROOT, "..", "studio", "dist");
-  await waitForStudioDist(studioDist);
-  copyDirContents(studioDist, join(DIST, "studio"));
+  if (existsSync(studioDist)) {
+    await waitForStudioDist(studioDist);
+    copyDirContents(studioDist, join(DIST, "studio"));
+  }
 
   for (const tmpl of ["blank", "from-file", "_shared"]) {
     copyDir(join(CLI_ROOT, "src", "templates", tmpl), join(DIST, "templates", tmpl));

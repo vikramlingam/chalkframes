@@ -9,7 +9,6 @@ export const STUDIO_WORKSPACE_BUILD_ORDER = [
   "lint",
   "studio-server",
   "core",
-  "player",
 ] as const;
 
 // Gitignored, produced only by `core`'s own build script. `runtime-inline.ts`
@@ -156,11 +155,8 @@ export function formatWorkspaceBuildProblems(problems: WorkspaceBuildProblem[]):
     lines.push(`    fix: ${problem.fix}`);
   }
   lines.push("");
-  lines.push(
-    "  Or build every package in order (core depends on the first three, player on core):",
-  );
+  lines.push("  Or build every package in order (core depends on the first three):");
   lines.push("    bun run --filter '@hyperframes/{parsers,lint,studio-server}' build \\");
-  lines.push("      && bun run --filter @hyperframes/core build \\");
-  lines.push("      && bun run --filter @hyperframes/player build");
+  lines.push("      && bun run --filter @hyperframes/core build");
   return lines.join("\n");
 }
