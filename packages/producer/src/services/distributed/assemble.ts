@@ -41,8 +41,8 @@ import {
   MIXED_AUDIO_FILENAME,
   muxVideoWithAudio,
   runFfmpeg,
-} from "@hyperframes/engine";
-import { fpsToFfmpegArg } from "@hyperframes/core";
+} from "@chalkframes/engine";
+import { fpsToFfmpegArg } from "@chalkframes/core";
 import { defaultLogger, type ProducerLogger } from "../../logger.js";
 import { formatExportFrameName } from "../../utils/paths.js";
 import { padOrTrimAudioToVideoFrameCount } from "../render/audioPadTrim.js";

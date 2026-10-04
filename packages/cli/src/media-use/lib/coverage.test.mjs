@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { listTypes, getProviders } from "./registry.mjs";
 import { CAPABILITIES, listModels } from "./local-models.mjs";
 
-// Capstone: media-use must actually OWN each hyperframes media weakness. This
+// Capstone: media-use must actually OWN each chalkframes media weakness. This
 // test enforces the weakness→owner matrix in references/meta.md so a claim can't rot — if
 // a capability's entrypoint disappears, this fails.
 
@@ -42,7 +42,7 @@ test("weakness: no voice/audio gen → media-use exposes voice + the audio engin
   assert.ok(existsSync(join(SKILL, "audio", "scripts", "audio.mjs")), "audio engine missing");
 });
 
-test("weakness: scattered audio engine → consolidated under media-use (hyperframes-media gone)", () => {
+test("weakness: scattered audio engine → consolidated under media-use (chalkframes-media gone)", () => {
   assert.ok(existsSync(join(SKILL, "audio", "scripts", "lib", "tts.mjs")), "tts engine missing");
   assert.ok(
     existsSync(join(SKILL, "audio", "assets", "sfx", "manifest.json")),
@@ -95,7 +95,7 @@ test("weakness: no cross-project memory → global cache + ingest entrypoints ex
   assert.equal(typeof freeze.isDirectMediaUrl, "function", "ingest URL guard missing");
 });
 
-// Wenbo (06-29): heygen free-usage is the default; local models are the opt-out
+// Wenbo (06-29): chalkframes free-usage is the default; local models are the opt-out
 // fallback ("if user no, then local"). We still assert the fallback table is
 // populated so the opt-out path stays real.
 test("weakness: weak local defaults → local models exist as the opt-out fallback (tts/asr/upscale)", () => {
@@ -121,7 +121,7 @@ test("weakness: no image generation → local mflux (RAM-graded) + codex upsell"
   assert.equal(typeof lm.describeModelLadder, "function", "agent-facing ladder missing");
 });
 
-test("weakness: no video generation → local videogen ladder + heygen avatar upsell", async () => {
+test("weakness: no video generation → local videogen ladder + chalkframes avatar upsell", async () => {
   const lm = await import("./local-models.mjs");
   assert.ok(lm.CAPABILITIES.includes("videogen"), "videogen capability missing");
   assert.ok(lm.listModels("videogen").length >= 2, "videogen ladder too small");

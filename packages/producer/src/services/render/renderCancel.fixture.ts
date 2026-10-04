@@ -1,5 +1,5 @@
 // fallow-ignore-file unused-file
-import { resolveConfig, setHostHandlesSigint } from "@hyperframes/engine";
+import { resolveConfig, setHostHandlesSigint } from "@chalkframes/engine";
 import { createRenderJob, executeRenderJob } from "../renderOrchestrator.js";
 
 const [projectDir, outputPath] = process.argv.slice(2);

@@ -32,7 +32,7 @@ export async function resolveCloudAuthHeaders(): Promise<Record<string, string>>
 
 /**
  * Return the base URL the cloud client should hit. Honors
- * `HEYGEN_API_URL` (matches `auth/client.ts:apiBaseUrl`).
+ * `CHALKFRAMES_API_URL` (matches `auth/client.ts:apiBaseUrl`).
  */
 export function resolveCloudBaseUrl(): string {
   return apiBaseUrl();

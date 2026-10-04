@@ -8,7 +8,7 @@ import { bundleToSingleHtml, emitRootCompositionVariableStyles } from "./htmlBun
 import { ensureExternalScriptTag } from "./externalScripts";
 import { resetUnknownEnumWarnings } from "../runtime/getVariables";
 import { sanitizeCssValue } from "../runtime/applyVariableBindings";
-import { getHyperframeRuntimeScript } from "../generated/runtime-inline";
+import { getChalkframeRuntimeScript } from "../generated/runtime-inline";
 import { ensureHfIds } from "../parsers/hfIds";
 
 function makeTempProject(files: Record<string, string>): string {
@@ -200,14 +200,14 @@ describe("bundleToSingleHtml", () => {
 
     const bundled = await bundleToSingleHtml(dir);
     const runtimeBlock = bundled.match(
-      /<script\b[^>]*data-hyperframes-preview-runtime[^>]*>[\s\S]*?<\/script>/i,
+      /<script\b[^>]*data-chalkframes-preview-runtime[^>]*>[\s\S]*?<\/script>/i,
     )?.[0];
 
     expect(runtimeBlock).toBeDefined();
     // The runtime block must contain the inlined HF runtime IIFE — bundled
     // output is self-contained, so the bundle's runtime body is loaded inline,
     // not referenced via src.
-    expect(runtimeBlock).toMatch(/data-hyperframes-preview-runtime="1">/);
+    expect(runtimeBlock).toMatch(/data-chalkframes-preview-runtime="1">/);
     expect(runtimeBlock).not.toMatch(/src=""/);
     // The author's specific composition script must NOT be merged INTO the
     // runtime tag — it stays as its own <script> elsewhere in the document.
@@ -215,7 +215,7 @@ describe("bundleToSingleHtml", () => {
     expect(bundled).toContain('document.getElementById("scene")');
   });
 
-  it("binds a mounted composition's scripts to its own file for __hyperframes.assetUrl", async () => {
+  it("binds a mounted composition's scripts to its own file for __chalkframes.assetUrl", async () => {
     const dir = makeTempProject({
       "index.html": `<!doctype html>
 <html><head></head><body>
@@ -225,7 +225,7 @@ describe("bundleToSingleHtml", () => {
   </div>
 </body></html>`,
       "compositions/blk/blk.html": `<div data-composition-id="blk" data-width="1920" data-height="1080">
-  <script>window.__envUrl = __hyperframes.assetUrl("assets/env.hdr");</script>
+  <script>window.__envUrl = __chalkframes.assetUrl("assets/env.hdr");</script>
 </div>`,
     });
 
@@ -250,7 +250,7 @@ describe("bundleToSingleHtml", () => {
   <script type="module" src="./assets/scene.js"></script>
   <script type="module" src="https://cdn.test/mod.js"></script>
   <script type="importmap">{ "imports": { "three": "./assets/three.js", "three/addons/": "./assets/addons/", "cdn": "https://cdn.test/x.js" } }</script>
-  <script type="module">import * as THREE from "three"; window.__url = __hyperframes.assetUrl("assets/leaf.webp");</script>
+  <script type="module">import * as THREE from "three"; window.__url = __chalkframes.assetUrl("assets/leaf.webp");</script>
   <script>window.__classic = 1;</script>
 </div>`,
     });
@@ -274,7 +274,7 @@ describe("bundleToSingleHtml", () => {
     ]);
     const inline = modules.filter((m) => !m.hasAttribute("src"));
     expect(inline).toHaveLength(1);
-    expect(inline[0]!.textContent).toMatch(/^const __hyperframes = /);
+    expect(inline[0]!.textContent).toMatch(/^const __chalkframes = /);
     expect(inline[0]!.textContent).toContain('"compositions/blk/blk.html"');
     expect(inline[0]!.textContent).toContain('import * as THREE from "three";');
     expect(classic.join("")).not.toContain("SCENE");
@@ -295,7 +295,7 @@ describe("bundleToSingleHtml", () => {
       "compositions/blk/blk.html": `<div data-composition-id="blk" data-width="1920" data-height="1080">
   <template id="chip-template">
     <div data-composition-id="chip" data-width="200" data-height="200">
-      <script>window.__chipUrl = __hyperframes.assetUrl("assets/chip.png");</script>
+      <script>window.__chipUrl = __chalkframes.assetUrl("assets/chip.png");</script>
     </div>
   </template>
   <div data-composition-id="chip"></div>
@@ -350,7 +350,7 @@ describe("bundleToSingleHtml", () => {
     expect(bundled).not.toContain("SECRET_MARKER_LEAKED");
   });
 
-  it("produces a self-contained runtime script when no HYPERFRAME_RUNTIME_URL is set", async () => {
+  it("produces a self-contained runtime script when no CHALKFRAME_RUNTIME_URL is set", async () => {
     // Regression guard: hf#XXX. The bundler used to emit
     // <script ... src=""></script> when no runtime URL was configured. An
     // empty src resolves to the page URL itself, which Chrome flags as an
@@ -363,17 +363,17 @@ describe("bundleToSingleHtml", () => {
 </body></html>`,
     });
 
-    const previousUrl = process.env.HYPERFRAME_RUNTIME_URL;
-    delete process.env.HYPERFRAME_RUNTIME_URL;
+    const previousUrl = process.env.CHALKFRAME_RUNTIME_URL;
+    delete process.env.CHALKFRAME_RUNTIME_URL;
     let bundled: string;
     try {
       bundled = await bundleToSingleHtml(dir);
     } finally {
-      if (previousUrl !== undefined) process.env.HYPERFRAME_RUNTIME_URL = previousUrl;
+      if (previousUrl !== undefined) process.env.CHALKFRAME_RUNTIME_URL = previousUrl;
     }
 
     const runtimeBlock = bundled.match(
-      /<script\b[^>]*data-hyperframes-preview-runtime[^>]*>[\s\S]*?<\/script>/i,
+      /<script\b[^>]*data-chalkframes-preview-runtime[^>]*>[\s\S]*?<\/script>/i,
     )?.[0];
     expect(runtimeBlock).toBeDefined();
     // Must NOT have an empty src attribute (would self-fetch).
@@ -403,22 +403,22 @@ describe("bundleToSingleHtml", () => {
 </body></html>`,
     });
 
-    const previousUrl = process.env.HYPERFRAME_RUNTIME_URL;
-    delete process.env.HYPERFRAME_RUNTIME_URL;
+    const previousUrl = process.env.CHALKFRAME_RUNTIME_URL;
+    delete process.env.CHALKFRAME_RUNTIME_URL;
     let bundled: string;
     try {
       bundled = await bundleToSingleHtml(dir);
     } finally {
-      if (previousUrl !== undefined) process.env.HYPERFRAME_RUNTIME_URL = previousUrl;
+      if (previousUrl !== undefined) process.env.CHALKFRAME_RUNTIME_URL = previousUrl;
     }
 
-    const original = getHyperframeRuntimeScript();
+    const original = getChalkframeRuntimeScript();
     // Sanity: the built runtime exercises this regression (no `$&` means the
     // test would tautologically pass even with the broken implementation).
     expect(original).toContain("$&");
 
     const runtimeBlock = bundled.match(
-      /<script\b[^>]*data-hyperframes-preview-runtime[^>]*>([\s\S]*?)<\/script>/i,
+      /<script\b[^>]*data-chalkframes-preview-runtime[^>]*>([\s\S]*?)<\/script>/i,
     );
     expect(runtimeBlock).not.toBeNull();
     const runtimeBody = runtimeBlock?.[1] ?? "";
@@ -995,7 +995,7 @@ describe("bundleToSingleHtml", () => {
   });
 
   it("keeps an installed sub-composition's declared defaults for getVariables", async () => {
-    // `hyperframes add` writes a marker comment above the doctype.
+    // `chalkframes add` writes a marker comment above the doctype.
     const dir = makeTempProject({
       "index.html": `<!doctype html>
 <html><head></head><body>
@@ -1004,12 +1004,12 @@ describe("bundleToSingleHtml", () => {
   </div>
   <script>window.__timelines={};</script>
 </body></html>`,
-      "compositions/blk.html": `<!-- hyperframes-registry-item: blk -->
+      "compositions/blk.html": `<!-- chalkframes-registry-item: blk -->
 <!doctype html>
 <html data-composition-variables='[{"id":"image1","type":"image","default":"assets/blk/one.jpg"}]'>
   <body>
     <div id="blk-root" data-composition-id="blk" data-width="1920" data-height="1080">
-      <script>window.__blkVars = __hyperframes.getVariables();</script>
+      <script>window.__blkVars = __chalkframes.getVariables();</script>
     </div>
   </body>
 </html>`,
@@ -1047,7 +1047,7 @@ describe("bundleToSingleHtml", () => {
     <div id="card-root" data-composition-id="card" data-width="1920" data-height="1080">
       <script>
         window.__timelines = window.__timelines || {};
-        window.__timelines[document.currentScript?.dataset.slot || "missing"] = __hyperframes.getVariables();
+        window.__timelines[document.currentScript?.dataset.slot || "missing"] = __chalkframes.getVariables();
       </script>
     </div>
   </body>
@@ -1138,7 +1138,7 @@ describe("bundleToSingleHtml", () => {
     expect(bundled).toContain('[data-composition-id="scene"] .title { color: red; }');
     expect(bundled).toContain("new Proxy(window.document");
     expect(bundled).toContain("new Proxy(__hfBaseGsap");
-    expect(bundled).toContain("(function(document, gsap, window, __hyperframes)");
+    expect(bundled).toContain("(function(document, gsap, window, __chalkframes)");
     expect(bundled).toContain('tl.to(".title"');
   });
 
@@ -1368,7 +1368,7 @@ describe("bundleToSingleHtml", () => {
       });
       const { document } = parseHTML(await bundleToSingleHtml(dir));
       return [
-        ...document.querySelectorAll("head style:not([data-hyperframes-text-rendering])"),
+        ...document.querySelectorAll("head style:not([data-chalkframes-text-rendering])"),
       ].map((el) => ({
         media: el.getAttribute("media"),
         type: el.getAttribute("type"),
@@ -2058,7 +2058,7 @@ describe("bundleToSingleHtml", () => {
 
     const bundled = await bundleToSingleHtml(dir);
     const { document } = parseHTML(bundled);
-    const styleEls = document.querySelectorAll("style[data-hyperframes-text-rendering]");
+    const styleEls = document.querySelectorAll("style[data-chalkframes-text-rendering]");
 
     expect(styleEls.length).toBe(1);
     expect((styleEls[0]?.textContent || "").replace(/\s+/g, "")).toContain(
@@ -2221,7 +2221,7 @@ describe("bundleToSingleHtml unknown enum values", () => {
     await bundleToSingleHtml(makeSubCompProject('{"accent":"orange"}'));
 
     expect(enumWarnings()).toEqual([
-      '[hyperframes] runtime_unknown_enum_value: card variable "accent" got "orange", ' +
+      '[chalkframes] runtime_unknown_enum_value: card variable "accent" got "orange", ' +
         "which is not a declared option (green, blue, violet). " +
         'Rendering "green" instead.',
     ]);
@@ -2281,7 +2281,7 @@ describe("bundleToSingleHtml unknown enum values", () => {
     await bundleToSingleHtml(dir);
 
     expect(enumWarnings()).toEqual([
-      '[hyperframes] runtime_unknown_enum_value: card variable "accent" got "orange", ' +
+      '[chalkframes] runtime_unknown_enum_value: card variable "accent" got "orange", ' +
         "which is not a declared option (green, blue, violet). " +
         'Rendering "green" instead.',
     ]);
@@ -2640,7 +2640,7 @@ describe("bundleToSingleHtml sceneParts", () => {
     });
     const doc = parseHTML(await bundleToSingleHtml(dir, { sceneParts: true })).document;
     const first = doc.querySelector(
-      "head style:not([data-hf-scene]):not([data-hyperframes-text-rendering])",
+      "head style:not([data-hf-scene]):not([data-chalkframes-text-rendering])",
     );
     expect(
       first?.textContent?.startsWith('@import url("https://fonts.example.com/inter.css")'),

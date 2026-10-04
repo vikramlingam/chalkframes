@@ -4,7 +4,7 @@
  * Phase 1: Capture — Extract HTML, CSS, screenshots, tokens, assets from a URL
  * Phase 2: Split — Decompose into per-section sub-compositions
  * Phase 3: Verify — Validate each section renders correctly
- * Phase 4: Scaffold — Assemble standard HyperFrames project
+ * Phase 4: Scaffold — Assemble standard ChalkFrames project
  */
 
 // ── Phase 1: Capture ────────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ export type CapturePhase =
   | "scaffold"
   | "complete";
 
-export const CAPTURE_PHASE_SCHEMA = "hyperframes.capture.phase.v1" as const;
+export const CAPTURE_PHASE_SCHEMA = "chalkframes.capture.phase.v1" as const;
 
 export interface CapturePhaseProgress {
   schema: typeof CAPTURE_PHASE_SCHEMA;

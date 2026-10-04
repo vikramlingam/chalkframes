@@ -397,7 +397,7 @@ async function openCompositionPage(
   size: FrameSize;
 }> {
   const puppeteer = await import("puppeteer-core");
-  const { buildChromeArgs } = await import("@hyperframes/engine");
+  const { buildChromeArgs } = await import("@chalkframes/engine");
   const size = resolveCompositionViewportFromHtml(html);
   const requestedGpuMode = resolveLocalBrowserGpuMode();
   const resolvedGpuMode = await resolveCaptureBrowserGpuMode(requestedGpuMode, executablePath);
@@ -776,7 +776,7 @@ export async function captureMotionPathShot(
 
   const { ensureBrowser } = await import("../browser/manager.js");
   const { serveStaticProjectHtml } = await import("../utils/staticProjectServer.js");
-  const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+  const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
 
   const html = await bundleToSingleHtml(projectDir, { entryFile: opts.entryFile });
   const server = await serveStaticProjectHtml(

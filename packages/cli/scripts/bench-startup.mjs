@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Times whole CLI runs (spawn to exit) and prints a markdown table of median and p90.
-// Usage: node scripts/bench-startup.mjs <project-dir> [--runs 10] [--cli bin/hyperframes.mjs] [--no-telemetry]
+// Usage: node scripts/bench-startup.mjs <project-dir> [--runs 10] [--cli bin/chalkframes.mjs] [--no-telemetry]
 // Runs with CI=1 (no update check); telemetry stays on unless --no-telemetry, so each run sends real events.
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -19,10 +19,10 @@ const project = resolve(positionals[0] ?? ".");
 const runs = Number(values.runs);
 if (!Number.isInteger(runs) || runs < 1) throw new Error("--runs must be a positive integer");
 const cli = resolve(
-  values.cli ?? fileURLToPath(new URL("../bin/hyperframes.mjs", import.meta.url)),
+  values.cli ?? fileURLToPath(new URL("../bin/chalkframes.mjs", import.meta.url)),
 );
 const env = { ...process.env, CI: "1" };
-if (values["no-telemetry"]) env.HYPERFRAMES_NO_TELEMETRY = "1";
+if (values["no-telemetry"]) env.CHALKFRAMES_NO_TELEMETRY = "1";
 
 const commands = [["--help"], ["lint", "--help"], ["lint"], ["compositions"], ["info"]];
 // Nearest rank: p90 of 10 runs is the 9th fastest, not the slowest.

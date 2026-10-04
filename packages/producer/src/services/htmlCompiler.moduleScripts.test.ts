@@ -38,7 +38,7 @@ describe("compileForRender mounted module scripts", () => {
       "compositions/blk/blk.html": `<div data-composition-id="blk" data-width="320" data-height="180">
   <script type="module" src="./assets/scene.js"></script>
   <script type="importmap">{ "imports": { "three": "./assets/three.js" } }</script>
-  <script type="module">import * as THREE from "three"; window.__url = __hyperframes.assetUrl("assets/leaf.webp");</script>
+  <script type="module">import * as THREE from "three"; window.__url = __chalkframes.assetUrl("assets/leaf.webp");</script>
 </div>`,
     });
     const { html } = await compileForRender(dir, join(dir, "index.html"), join(dir, ".downloads"), {
@@ -57,7 +57,7 @@ describe("compileForRender mounted module scripts", () => {
     ]);
     const inline = modules.filter((m) => !m.hasAttribute("src"));
     expect(inline).toHaveLength(1);
-    expect(inline[0]!.textContent).toMatch(/^const __hyperframes = /);
+    expect(inline[0]!.textContent).toMatch(/^const __chalkframes = /);
     expect(inline[0]!.textContent).toContain('"compositions/blk/blk.html"');
     expect(classic.join("")).not.toContain("SCENE");
     expect(classic.join("")).not.toContain('"imports"');

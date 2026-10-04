@@ -10,7 +10,7 @@
  * codepoints with no kana and no kanji.
  *
  * These tests inject `fetchImpl` (no network) and a temp
- * `HYPERFRAMES_FONT_CACHE_DIR` so they are hermetic.
+ * `CHALKFRAMES_FONT_CACHE_DIR` so they are hermetic.
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
@@ -22,14 +22,14 @@ let cacheDir: string;
 let prevCacheEnv: string | undefined;
 
 beforeAll(() => {
-  prevCacheEnv = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  prevCacheEnv = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   cacheDir = mkdtempSync(join(tmpdir(), "hf-font-subset-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
 });
 
 afterAll(() => {
-  if (prevCacheEnv === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = prevCacheEnv;
+  if (prevCacheEnv === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = prevCacheEnv;
   rmSync(cacheDir, { recursive: true, force: true });
 });
 

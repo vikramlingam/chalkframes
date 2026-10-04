@@ -1,6 +1,6 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * `hyperframes cloud delete <render_id>` — soft-delete a cloud render.
+ * `chalkframes cloud delete <render_id>` — soft-delete a cloud render.
  *
  * Subsequent GET calls return 404. The signed video URL stops working
  * shortly after. There's no undo from the CLI side.

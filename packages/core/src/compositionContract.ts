@@ -1,1 +1,1 @@
-export * from "@hyperframes/parsers/composition-contract";
+export * from "@chalkframes/parsers/composition-contract";

@@ -1,13 +1,13 @@
 /**
  * AUTO-GENERATED from experiment-framework/openapi/external-api.json.
  * DO NOT EDIT MANUALLY. Re-run
- * `python scripts/generate_hyperframes_cli_client.py` in
+ * `python scripts/generate_chalkframes_cli_client.py` in
  * experiment-framework to regenerate.
  */
 
 // Component schemas reachable from the cloud-render endpoint set.
 // Add a new path/method to TARGET_ENDPOINTS in
-// scripts/generate_hyperframes_cli_client.py to extend this list.
+// scripts/generate_chalkframes_cli_client.py to extend this list.
 
 /**
  * Asset input via base64-encoded content.
@@ -28,7 +28,7 @@ export interface AssetBase64 {
 }
 
 /**
- * Asset input via HeyGen asset ID from the asset upload endpoint.
+ * Asset input via Chalkframes asset ID from the asset upload endpoint.
  */
 export interface AssetId {
   /**
@@ -36,7 +36,7 @@ export interface AssetId {
    */
   type: "asset_id";
   /**
-   * HeyGen asset ID from the asset upload endpoint
+   * Chalkframes asset ID from the asset upload endpoint
    */
   asset_id: string;
 }
@@ -152,11 +152,11 @@ export interface CreateAssetUploadResponse {
 }
 
 /**
- * Request body for POST /v3/hyperframes/renders.
+ * Request body for POST /v3/chalkframes/renders.
  */
-export interface CreateHyperframesRenderRequest {
+export interface CreateChalkframesRenderRequest {
   /**
-   * HyperFrames composition .zip — provide as {type: 'url', url: '...'}, {type:
+   * ChalkFrames composition .zip — provide as {type: 'url', url: '...'}, {type:
    * 'asset_id', asset_id: '...'} (pre-uploaded via POST /v3/assets), or {type:
    * 'base64', media_type: 'application/zip', data: '...'}. Zip must contain
    * index.html at the root (or the path you set in `composition`).
@@ -178,12 +178,12 @@ export interface CreateHyperframesRenderRequest {
    * Output resolution tier. Defaults to '1080p'. Pass '4k' for 4K renders
    * (billed at 1.5x).
    */
-  resolution?: HyperframesResolution;
+  resolution?: ChalkframesResolution;
   /**
    * Output aspect ratio. Defaults to '16:9' (landscape). Pass '9:16' for
    * portrait or '1:1' for square.
    */
-  aspect_ratio?: HyperframesAspectRatio;
+  aspect_ratio?: ChalkframesAspectRatio;
   /**
    * Entry HTML file relative to the project root (e.g. compositions/intro.html).
    * Defaults to index.html when omitted.
@@ -209,20 +209,20 @@ export interface CreateHyperframesRenderRequest {
 }
 
 /**
- * Response for POST /v3/hyperframes/renders.
+ * Response for POST /v3/chalkframes/renders.
  */
-export interface CreateHyperframesRenderResponse {
+export interface CreateChalkframesRenderResponse {
   /**
-   * HyperFrames render identifier — poll GET /v3/hyperframes/renders/{render_id}
+   * ChalkFrames render identifier — poll GET /v3/chalkframes/renders/{render_id}
    * for status.
    */
   render_id: string;
 }
 
 /**
- * Response for DELETE /v3/hyperframes/renders/{render_id}.
+ * Response for DELETE /v3/chalkframes/renders/{render_id}.
  */
-export interface DeleteHyperframesRenderResponse {
+export interface DeleteChalkframesRenderResponse {
   /**
    * ID of the deleted render.
    */
@@ -233,12 +233,12 @@ export interface DeleteHyperframesRenderResponse {
  * Output aspect ratio. Supported ratios are ``16:9`` (landscape), ``9:16``
  * (portrait), and ``1:1`` (square).
  */
-export type HyperframesAspectRatio = "16:9" | "9:16" | "1:1";
+export type ChalkframesAspectRatio = "16:9" | "9:16" | "1:1";
 
 /**
- * Detailed HyperFrames render resource.
+ * Detailed ChalkFrames render resource.
  */
-export interface HyperframesRenderDetail {
+export interface ChalkframesRenderDetail {
   /**
    * Unique render identifier.
    */
@@ -246,7 +246,7 @@ export interface HyperframesRenderDetail {
   /**
    * Current lifecycle state.
    */
-  status: HyperframesRenderStatus;
+  status: ChalkframesRenderStatus;
   /**
    * Caller-supplied free-text label.
    */
@@ -283,11 +283,11 @@ export interface HyperframesRenderDetail {
   /**
    * Resolution tier, if one was set.
    */
-  resolution?: HyperframesResolution | null;
+  resolution?: ChalkframesResolution | null;
   /**
    * Aspect ratio, if one was set.
    */
-  aspect_ratio?: HyperframesAspectRatio | null;
+  aspect_ratio?: ChalkframesAspectRatio | null;
   /**
    * Composition entry file path.
    */
@@ -308,14 +308,14 @@ export interface HyperframesRenderDetail {
 }
 
 /**
- * Lifecycle status of a HyperFrames render.
+ * Lifecycle status of a ChalkFrames render.
  */
-export type HyperframesRenderStatus = "queued" | "rendering" | "completed" | "failed";
+export type ChalkframesRenderStatus = "queued" | "rendering" | "completed" | "failed";
 
 /**
  * Output resolution tier. 4K output uses a 1.5x pricing multiplier.
  */
-export type HyperframesResolution = "1080p" | "4k";
+export type ChalkframesResolution = "1080p" | "4k";
 
 export interface StandardAPIError {
   /**

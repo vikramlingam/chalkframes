@@ -1,10 +1,10 @@
 # Templates
 
-Built-in templates available via `npx hyperframes init --example <name>`.
+Built-in templates available via `npx chalkframes init --example <name>`.
 
 ## blank
 
-Centered Inter stage, paused GSAP timeline. Default `hyperframes init` scaffold.
+Centered Inter stage, paused GSAP timeline. Default `chalkframes init` scaffold.
 
 ## title-card
 

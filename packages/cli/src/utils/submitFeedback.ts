@@ -1,7 +1,7 @@
 import { getPublishApiBaseUrl } from "./publishProject.js";
 import { FEEDBACK_RATING_SCALE } from "./feedbackRating.js";
 
-// Match the backend DTO caps (HyperframesFeedbackRequest). Truncate here so an
+// Match the backend DTO caps (ChalkframesFeedbackRequest). Truncate here so an
 // over-long field (e.g. a pasted stack trace) is still forwarded truncated,
 // rather than rejected by the backend with a 422 the best-effort path swallows.
 const MAX_COMMENT = 2000;
@@ -21,7 +21,7 @@ export async function submitFeedback(input: {
 }): Promise<void> {
   try {
     const apiBaseUrl = getPublishApiBaseUrl();
-    await fetch(`${apiBaseUrl}/v1/hyperframes/feedback`, {
+    await fetch(`${apiBaseUrl}/v1/chalkframes/feedback`, {
       method: "POST",
       body: JSON.stringify({
         rating: input.rating,
@@ -60,7 +60,7 @@ export async function submitCatalogSearchMiss(input: {
 }): Promise<void> {
   try {
     const apiBaseUrl = getPublishApiBaseUrl();
-    await fetch(`${apiBaseUrl}/v1/hyperframes/catalog_search_miss`, {
+    await fetch(`${apiBaseUrl}/v1/chalkframes/catalog_search_miss`, {
       method: "POST",
       body: JSON.stringify({
         query: cap(input.query, MAX_QUERY),
@@ -70,7 +70,7 @@ export async function submitCatalogSearchMiss(input: {
       }),
       headers: {
         "content-type": "application/json",
-        heygen_route: "canary",
+        chalkframes_route: "canary",
       },
       signal: AbortSignal.timeout(5000),
     });

@@ -1,4 +1,4 @@
-import type { RenderJob, RenderPerfSummary } from "@hyperframes/producer";
+import type { RenderJob, RenderPerfSummary } from "@chalkframes/producer";
 import type { RenderObservabilityTelemetryPayload } from "./events.js";
 
 type RenderObservabilitySummary = NonNullable<RenderPerfSummary["observability"]>;
@@ -46,7 +46,7 @@ export function renderObservabilityTelemetryPayload(
     captureCompositionElementCountSource: capture.compositionElementCountSource,
     captureCompositionElementTags: capture.compositionElementTags,
     captureArollVideoCount: capture.arollVideoCount,
-    captureHeygenVideoCount: capture.heygenVideoCount,
+    captureChalkframesVideoCount: capture.chalkframesVideoCount,
     captureAdaptersUsed: capture.adaptersUsed,
     captureAudioCount: capture.audioCount,
     captureImageCount: capture.imageCount,

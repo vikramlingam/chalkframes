@@ -91,9 +91,9 @@ describe("GSAP writer capability matrix", () => {
 
   it("defaults to Acorn; recast is an explicit fallback", () => {
     expect(resolveGsapWriter({})).toBe("acorn");
-    expect(resolveGsapWriter({ HYPERFRAMES_GSAP_WRITER: "recast" })).toBe("recast");
-    expect(resolveGsapWriter({ HYPERFRAMES_GSAP_WRITER: "acorn" })).toBe("acorn");
-    expect(() => resolveGsapWriter({ HYPERFRAMES_GSAP_WRITER: "unknown" })).toThrow(
+    expect(resolveGsapWriter({ CHALKFRAMES_GSAP_WRITER: "recast" })).toBe("recast");
+    expect(resolveGsapWriter({ CHALKFRAMES_GSAP_WRITER: "acorn" })).toBe("acorn");
+    expect(() => resolveGsapWriter({ CHALKFRAMES_GSAP_WRITER: "unknown" })).toThrow(
       "expected recast or acorn",
     );
   });

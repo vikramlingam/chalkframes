@@ -4,7 +4,7 @@ import { swallow } from "./diagnostics";
 
 interface HFTestWindow {
   __hfDebug?: boolean;
-  __HYPERFRAMES_DEBUG?: boolean;
+  __CHALKFRAMES_DEBUG?: boolean;
   __hf?: {
     onSwallowed?: (e: { label: string; error: unknown }) => void;
   };
@@ -16,7 +16,7 @@ describe("swallow", () => {
 
   beforeEach(() => {
     delete w.__hfDebug;
-    delete w.__HYPERFRAMES_DEBUG;
+    delete w.__CHALKFRAMES_DEBUG;
     delete w.__hf;
     console.debug = vi.fn();
   });
@@ -24,7 +24,7 @@ describe("swallow", () => {
   afterEach(() => {
     console.debug = originalDebug;
     delete w.__hfDebug;
-    delete w.__HYPERFRAMES_DEBUG;
+    delete w.__CHALKFRAMES_DEBUG;
     delete w.__hf;
   });
 
@@ -37,14 +37,14 @@ describe("swallow", () => {
     w.__hfDebug = true;
     const err = new Error("boom");
     swallow("test.debug", err);
-    expect(console.debug).toHaveBeenCalledWith("[hyperframes] test.debug swallowed:", err);
+    expect(console.debug).toHaveBeenCalledWith("[chalkframes] test.debug swallowed:", err);
   });
 
-  it("also honors window.__HYPERFRAMES_DEBUG (legacy flag)", () => {
-    w.__HYPERFRAMES_DEBUG = true;
+  it("also honors window.__CHALKFRAMES_DEBUG (legacy flag)", () => {
+    w.__CHALKFRAMES_DEBUG = true;
     swallow("test.legacy", "string-error");
     expect(console.debug).toHaveBeenCalledWith(
-      "[hyperframes] test.legacy swallowed:",
+      "[chalkframes] test.legacy swallowed:",
       "string-error",
     );
   });

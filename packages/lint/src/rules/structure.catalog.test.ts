@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter";
+import { lintChalkframeHtml } from "../chalkframeLinter";
 
 const REPO_ROOT = resolve(__dirname, "../../../..");
 const STRUCTURE_CODES = new Set([
@@ -31,7 +31,7 @@ describe("structure rules on the shipped catalog and skills", () => {
     for (const file of files) {
       const isRoot = file.endsWith("/index.html");
       roots += isRoot ? 1 : 0;
-      const { findings } = await lintHyperframeHtml(readFileSync(file, "utf8"), {
+      const { findings } = await lintChalkframeHtml(readFileSync(file, "utf8"), {
         host: "studio",
         filePath: file,
         isSubComposition: !isRoot,

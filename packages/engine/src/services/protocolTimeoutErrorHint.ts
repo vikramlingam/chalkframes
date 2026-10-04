@@ -1,9 +1,9 @@
 /**
  * Augment Puppeteer CDP protocol-timeout errors with actionable guidance that
- * points at the HyperFrames-specific knobs. Puppeteer's stock error text
+ * points at the ChalkFrames-specific knobs. Puppeteer's stock error text
  * ("Runtime.callFunctionOn timed out. Increase the 'protocolTimeout' setting")
  * doesn't tell the user which env var / CLI flag raises this timeout in
- * HyperFrames, or what the currently-applied effective value is — so field
+ * ChalkFrames, or what the currently-applied effective value is — so field
  * reporters have hit this class of failure, given up, and switched to
  * FFmpeg-only encoding rather than raise a knob they didn't know existed
  * (field signal ts=1784047847).
@@ -26,7 +26,7 @@ export function augmentProtocolTimeoutError(err: unknown, effectiveTimeoutMs: nu
   if (!PROTOCOL_TIMEOUT_MATCHER.test(err.message)) return err;
   const augmented = new Error(
     `${err.message}\n\n` +
-      `HyperFrames effective protocolTimeout: ${effectiveTimeoutMs} ms.\n\n` +
+      `ChalkFrames effective protocolTimeout: ${effectiveTimeoutMs} ms.\n\n` +
       `To raise the timeout:\n` +
       `  Env: PRODUCER_PUPPETEER_PROTOCOL_TIMEOUT_MS=<higher-ms>\n` +
       `  CLI: --protocol-timeout <higher-ms>\n\n` +

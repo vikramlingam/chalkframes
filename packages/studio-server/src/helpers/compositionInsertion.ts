@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
-import { readProjectFile } from "@hyperframes/parsers/asset-resolution";
+import { readProjectFile } from "@chalkframes/parsers/asset-resolution";
 import { randomUUID } from "node:crypto";
 import { dirname, relative, resolve, sep } from "node:path";
 import { parseHTML } from "linkedom";
-import { ProjectRootMissingError } from "@hyperframes/core";
+import { ProjectRootMissingError } from "@chalkframes/core";
 import { folderGone, isSafePath, realpath, resolveWithinProject } from "./safePath.js";
 
 export class CompositionInsertionError extends Error {

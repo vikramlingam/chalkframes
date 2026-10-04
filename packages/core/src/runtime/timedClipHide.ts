@@ -14,7 +14,7 @@ const STUDIO_PREVIEW_MARK = `meta[name="${STUDIO_PREVIEW_MARK_META}"]`;
 
 type FirstPassWindow = Window & {
   __hfFirstPassHidden?: boolean;
-  __hyperframeRuntimeBootstrapped?: boolean;
+  __chalkframeRuntimeBootstrapped?: boolean;
 };
 
 function appendStyle(parent: Element, attr: string, css: string): void {
@@ -37,7 +37,7 @@ export function hideTimedClipsUntilFirstPass(): void {
   if (preview && !skipsHiddenImages()) appendStyle(parent, SKIP_ATTR, SKIP_HIDDEN_IMAGES);
   const win = window as FirstPassWindow;
   // A runtime that already initialised may never run another pass to lift a new rule.
-  if (win.__hfFirstPassHidden || win.__hyperframeRuntimeBootstrapped) return;
+  if (win.__hfFirstPassHidden || win.__chalkframeRuntimeBootstrapped) return;
   const css = preview
     ? `${HIDE_UNTIL_FIRST_PASS} ${PREVIEW_HIDE_UNTIL_FIRST_PASS}`
     : HIDE_UNTIL_FIRST_PASS;

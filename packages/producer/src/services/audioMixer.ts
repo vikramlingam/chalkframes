@@ -1,5 +1,5 @@
 /**
- * Re-exported from @hyperframes/engine.
+ * Re-exported from @chalkframes/engine.
  * @see engine/src/services/audioMixer.ts for implementation.
  */
 export {
@@ -8,4 +8,4 @@ export {
   type AudioElement,
   type AudioTrack,
   type MixResult,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";

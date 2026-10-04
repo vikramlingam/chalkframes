@@ -339,7 +339,7 @@ export function analyzeMediaGrade(
       ],
       {
         encoding: "utf8",
-        timeout: Number(process.env.HYPERFRAMES_ANALYZE_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
+        timeout: Number(process.env.CHALKFRAMES_ANALYZE_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
         stdio: ["ignore", "pipe", "pipe"],
         windowsHide: true,
       },

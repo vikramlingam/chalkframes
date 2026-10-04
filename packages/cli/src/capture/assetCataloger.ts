@@ -10,7 +10,7 @@
  */
 
 import type { Page } from "puppeteer-core";
-import { parseAnimatedGifMetadata } from "@hyperframes/core";
+import { parseAnimatedGifMetadata } from "@chalkframes/core";
 
 export interface CatalogedAsset {
   url: string;
@@ -68,7 +68,7 @@ export async function catalogAssets(page: Page): Promise<CatalogedAsset[]> {
         var rect = el.getBoundingClientRect();
         ctx.aboveFold = rect.top < window.innerHeight;
       } catch(e) {}
-      // Structural logo-candidate signals: class-substring alone caught 0/32 SVGs on heygen.com.
+      // Structural logo-candidate signals: class-substring alone caught 0/32 SVGs on chalkframes.com.
       ctx.inBanner = el.closest('header, nav, [role="banner"]') !== null;
       var homeAnchor = el.closest('a[href]');
       if (homeAnchor) {
@@ -76,7 +76,7 @@ export async function catalogAssets(page: Page): Promise<CatalogedAsset[]> {
         ctx.inHomeLink = aHref === '/' || aHref === '#' || aHref === './' ||
                          /^https?:\\/\\/[^/]+\\/?$/.test(aHref);
       }
-      // Brand can be first ("HeyGen - Ideas"), last ("Ideas - HeyGen"), or colon-separated ("Vercel: Build").
+      // Brand can be first ("Chalkframes - Ideas"), last ("Ideas - Chalkframes"), or colon-separated ("Vercel: Build").
       var titleParts = (document.title || '').split(/[-|—:]/);
       if (desc) {
         for (var ti = 0; ti < titleParts.length; ti++) {

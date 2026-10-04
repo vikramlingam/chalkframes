@@ -73,7 +73,7 @@ describe("set-version release options", () => {
   it("tracks both GitHub release and docs changelog artifacts", () => {
     assert.deepEqual(changelogArtifacts("1.2.3"), [
       "releases/v1.2.3.md",
-      "docs/changelog.mdx#HyperFrames v1.2.3",
+      "docs/changelog.mdx#ChalkFrames v1.2.3",
     ]);
   });
 });

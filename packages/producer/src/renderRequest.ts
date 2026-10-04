@@ -4,8 +4,8 @@ import {
   validateEngineConfigSnapshot,
   type EngineConfig,
   type VideoFrameFormat,
-} from "@hyperframes/engine";
-import { VALID_CANVAS_RESOLUTIONS, type CanvasResolution, type Fps } from "@hyperframes/core";
+} from "@chalkframes/engine";
+import { VALID_CANVAS_RESOLUTIONS, type CanvasResolution, type Fps } from "@chalkframes/core";
 import type { ProducerLogger } from "./logger.js";
 import type { RenderConfig } from "./services/renderOrchestrator.js";
 import type { DistributedRenderConfig } from "./services/distributed/plan.js";

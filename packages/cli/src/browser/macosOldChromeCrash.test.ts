@@ -87,13 +87,13 @@ describe("macosOldChromeCrashRemediation", () => {
     ).toBeUndefined();
   });
 
-  it("mentions HYPERFRAMES_BROWSER_PATH and the PRODUCER_HEADLESS_SHELL_PATH alias when firing on darwin", () => {
+  it("mentions CHALKFRAMES_BROWSER_PATH and the PRODUCER_HEADLESS_SHELL_PATH alias when firing on darwin", () => {
     if (process.platform !== "darwin") return;
     const remediation = macosOldChromeCrashRemediation(
       "Failed to launch the browser process. dyld: Symbol not found: _kVTCompressionPropertyKey_ReferenceBufferCount from VideoToolbox",
     );
     expect(remediation).toBeDefined();
-    expect(remediation).toMatch(/HYPERFRAMES_BROWSER_PATH/);
+    expect(remediation).toMatch(/CHALKFRAMES_BROWSER_PATH/);
     expect(remediation).toMatch(/PRODUCER_HEADLESS_SHELL_PATH/);
     expect(remediation).toMatch(/chrome-headless-shell@150/);
   });

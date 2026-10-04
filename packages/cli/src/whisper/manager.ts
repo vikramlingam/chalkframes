@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { findFFmpeg } from "../browser/ffmpeg.js";
 import { downloadFile } from "../utils/download.js";
 
-const MODELS_DIR = join(homedir(), ".cache", "hyperframes", "whisper", "models");
+const MODELS_DIR = join(homedir(), ".cache", "chalkframes", "whisper", "models");
 const DEFAULT_MODEL = "small.en";
 
 export type WhisperSource = "env" | "system" | "brew" | "build";
@@ -59,7 +59,7 @@ function whichBinary(name: string): string | undefined {
 }
 
 function findFromEnv(): WhisperResult | undefined {
-  const envPath = process.env["HYPERFRAMES_WHISPER_PATH"];
+  const envPath = process.env["CHALKFRAMES_WHISPER_PATH"];
   if (envPath && existsSync(envPath)) {
     return { executablePath: envPath, source: "env" };
   }
@@ -83,7 +83,7 @@ function findFromSystem(): WhisperResult | undefined {
 
 // --- Build from source ------------------------------------------------------
 
-const BUILD_DIR = join(homedir(), ".cache", "hyperframes", "whisper", "whisper.cpp");
+const BUILD_DIR = join(homedir(), ".cache", "chalkframes", "whisper", "whisper.cpp");
 const WHISPER_REPO = "https://github.com/ggml-org/whisper.cpp.git";
 
 function findBuiltBinary(): WhisperResult | undefined {
@@ -104,7 +104,7 @@ function buildFromSource(onProgress?: (msg: string) => void): WhisperResult {
 
   if (!existsSync(BUILD_DIR)) {
     onProgress?.("Downloading whisper.cpp...");
-    mkdirSync(join(homedir(), ".cache", "hyperframes", "whisper"), {
+    mkdirSync(join(homedir(), ".cache", "chalkframes", "whisper"), {
       recursive: true,
     });
     execFileSync("git", ["clone", "--depth", "1", WHISPER_REPO, BUILD_DIR], {

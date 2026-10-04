@@ -1,5 +1,5 @@
 /**
- * @hyperframes/producer
+ * @chalkframes/producer
  *
  * Generic HTML-to-video rendering engine using Chrome's BeginFrame API.
  * Framework-agnostic: works with GSAP, Lottie, Three.js, CSS animations,
@@ -88,8 +88,8 @@ export {
   type FileServerHandle,
 } from "./services/fileServer.js";
 
-// ── Video frame injection (Hyperframes-specific hook) ───────────────────────
-export { createVideoFrameInjector } from "@hyperframes/engine";
+// ── Video frame injection (Chalkframes-specific hook) ───────────────────────
+export { createVideoFrameInjector } from "@chalkframes/engine";
 
 // ── Configuration ───────────────────────────────────────────────────────────
 export { resolveConfig, DEFAULT_CONFIG, type ProducerConfig } from "./config.js";
@@ -134,15 +134,15 @@ export { quantizeTimeToFrame } from "./utils/parityContract.js";
 export { resolveRenderPaths, type RenderPaths } from "./utils/paths.js";
 
 export {
-  prepareHyperframeLintBody,
-  runHyperframeLint,
-  type PreparedHyperframeLintInput,
-} from "./services/hyperframeLint.js";
+  prepareChalkframeLintBody,
+  runChalkframeLint,
+  type PreparedChalkframeLintInput,
+} from "./services/chalkframeLint.js";
 
 // ── Distributed render primitives ───────────────────────────────────────────
-// The full surface lives at `@hyperframes/producer/distributed`; we
+// The full surface lives at `@chalkframes/producer/distributed`; we
 // additionally re-export the three activity functions + their result
-// types here so callers that pin `@hyperframes/producer` don't need a
+// types here so callers that pin `@chalkframes/producer` don't need a
 // separate subpath import.
 export {
   assemble,

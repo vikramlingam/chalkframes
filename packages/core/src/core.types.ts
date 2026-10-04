@@ -139,8 +139,8 @@ export function parseFpsWithDefault(input: string | number | undefined): FpsPars
 /** Video orientation / aspect ratio. */
 export type Orientation = "16:9" | "9:16";
 
-// ── Re-exports from @hyperframes/parsers (moved in refactor) ─────────────────
-// @deprecated — import from @hyperframes/parsers directly
+// ── Re-exports from @chalkframes/parsers (moved in refactor) ─────────────────
+// @deprecated — import from @chalkframes/parsers directly
 
 export type {
   Asset,
@@ -173,7 +173,7 @@ export type {
   ElementKeyframes,
   StageZoom,
   StageZoomKeyframe,
-} from "@hyperframes/parsers";
+} from "@chalkframes/parsers";
 
 export {
   CANVAS_DIMENSIONS,
@@ -190,8 +190,8 @@ export {
   isTextElement,
   isMediaElement,
   isCompositionElement,
-} from "@hyperframes/parsers";
+} from "@chalkframes/parsers";
 export type {
   OutputResolutionCompatibility,
   OutputResolutionIssueKind,
-} from "@hyperframes/parsers";
+} from "@chalkframes/parsers";

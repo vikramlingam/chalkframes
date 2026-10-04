@@ -4,7 +4,7 @@
  * Run via: bun run scripts/build-hf-early-stub.ts
  * (also called automatically as part of `bun run build`)
  *
- * Output format mirrors packages/core/scripts/build-hyperframes-runtime-artifact.ts:
+ * Output format mirrors packages/core/scripts/build-chalkframes-runtime-artifact.ts:
  * a TypeScript module exporting a single string-constant getter that is
  * compiled by tsc into dist/ — no esbuild, no file I/O, no dynamic paths at
  * runtime.
@@ -49,7 +49,7 @@ const source = [
   `const HF_EARLY_STUB_IIFE: string = ${escaped};`,
   "",
   "/**",
-  " * Returns the pre-built HyperFrames early stub IIFE as a string constant.",
+  " * Returns the pre-built ChalkFrames early stub IIFE as a string constant.",
   " * Inject into <head> before any other scripts so the GSAP batching",
   " * interceptor is in place when user composition scripts run.",
   " */",

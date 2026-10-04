@@ -1,5 +1,5 @@
 {
-  "package": "@hyperframes/studio-server",
+  "package": "@chalkframes/studio-server",
   "localNodeRuntime": true,
   "subpaths": {
     ".": {

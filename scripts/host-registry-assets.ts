@@ -24,7 +24,7 @@
  *   bun run scripts/host-registry-assets.ts --all --dry-run
  *   bun run scripts/host-registry-assets.ts --all --no-upload   # stage only
  *
- * Requires AWS credentials for the heygen engineering account
+ * Requires AWS credentials for the chalkframes engineering account
  * (profile: engineering-767398024897) with s3:PutObject, unless --no-upload.
  * Contributors without AWS access: open the PR with the assets committed and a
  * maintainer will run this before merging.
@@ -55,8 +55,8 @@ import { ITEM_TYPE_DIRS, type FileTarget, type RegistryItem } from "../packages/
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-const CDN_BASE = "https://static.heygen.ai/hyperframes-oss/registry-assets";
-const S3_DEST = "s3://heygen-public/hyperframes-oss/registry-assets";
+const CDN_BASE = "https://static.chalkframes.dev/chalkframes-oss/registry-assets";
+const S3_DEST = "s3://chalkframes-public/chalkframes-oss/registry-assets";
 const PROFILE = process.env.AWS_PROFILE ?? "engineering-767398024897";
 const STAGING_DIR = resolve(repoRoot, ".registry-assets-staging");
 

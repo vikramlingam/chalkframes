@@ -56,7 +56,7 @@ describe("isPathInside", () => {
   it("handles Windows paths under the parent directory", () => {
     expect(
       isPathInside(
-        win32.resolve("C:\\compiled\\__hyperframes_video_frames\\video\\frame_000001.jpg"),
+        win32.resolve("C:\\compiled\\__chalkframes_video_frames\\video\\frame_000001.jpg"),
         win32.resolve("C:\\compiled"),
         { pathModule: win32 },
       ),
@@ -72,12 +72,12 @@ describe("toExternalAssetKey", () => {
   });
 
   it("converts Windows drive-letter paths to a colonless, slash-delimited key", () => {
-    // GH #321: `D:\coder\reactGin\hyperframes\reading\assets\segment_001.wav`
+    // GH #321: `D:\coder\reactGin\chalkframes\reading\assets\segment_001.wav`
     // used to become `hf-ext/D:\coder\...`, which makes the downstream
     // `path.join(compileDir, key)` absolute on Windows (drive letter wins).
     expect(
-      toExternalAssetKey("D:\\coder\\reactGin\\hyperframes\\reading\\assets\\segment_001.wav"),
-    ).toBe("hf-ext/D/coder/reactGin/hyperframes/reading/assets/segment_001.wav");
+      toExternalAssetKey("D:\\coder\\reactGin\\chalkframes\\reading\\assets\\segment_001.wav"),
+    ).toBe("hf-ext/D/coder/reactGin/chalkframes/reading/assets/segment_001.wav");
   });
 
   it("handles Windows paths with forward slashes (mixed separators)", () => {

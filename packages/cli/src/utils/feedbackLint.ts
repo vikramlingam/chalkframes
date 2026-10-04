@@ -9,7 +9,7 @@ import { FEEDBACK_RATING_SCALE } from "./feedbackRating.js";
  * case-insensitively, word-bounded against the raw comment (so "black" fires
  * on "black frame" but not "blackboard" / "no black frame at all").
  *
- * `"render"` intentionally omitted: `hyperframes render` is the CLI's primary
+ * `"render"` intentionally omitted: `chalkframes render` is the CLI's primary
  * command, so build/perf/hang reports mention it constantly and would drown
  * the structure warning in false positives. Rely on the more specific tokens
  * ("black", "blank", "flicker", "corrupt", "wrong frame") to identify actual
@@ -54,7 +54,7 @@ export interface FeedbackLintWarning {
 }
 
 /**
- * Soft-warn lint on the `hyperframes feedback` comment body. Never blocks
+ * Soft-warn lint on the `chalkframes feedback` comment body. Never blocks
  * submission — some legitimate reports (a one-line "cloudrun quota bumped
  * yesterday, fine now") won't fit the mold. The warning is just a nudge and
  * a pointer to the auto-census helper.

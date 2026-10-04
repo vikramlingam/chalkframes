@@ -95,7 +95,7 @@ const ESPEAK_LANG_OVERRIDES: Partial<Record<SupportedLang, string>> = {
 // Cache the script to avoid rewriting it on every invocation.
 // The filename carries a version suffix so older installs automatically
 // upgrade when the script body changes (e.g., adding the `lang` kwarg).
-const SCRIPT_DIR = join(homedir(), ".cache", "hyperframes", "tts");
+const SCRIPT_DIR = join(homedir(), ".cache", "chalkframes", "tts");
 const SCRIPT_PATH = join(SCRIPT_DIR, "synth-v3.py");
 
 function ensureSynthScript(): string {
@@ -165,13 +165,13 @@ export async function synthesize(
   const python = findPython();
   if (!python) {
     throw new Error(
-      "Python 3 is required for text-to-speech. Install Python 3.10+ and run: pip install kokoro-onnx soundfile (or point HYPERFRAMES_PYTHON at a venv python that has them)",
+      "Python 3 is required for text-to-speech. Install Python 3.10+ and run: pip install kokoro-onnx soundfile (or point CHALKFRAMES_PYTHON at a venv python that has them)",
     );
   }
 
   if (!hasPythonPackage(python, "kokoro_onnx")) {
     throw new Error(
-      "The kokoro-onnx package is not installed. Run: pip install kokoro-onnx soundfile (or point HYPERFRAMES_PYTHON at a venv python that has them)",
+      "The kokoro-onnx package is not installed. Run: pip install kokoro-onnx soundfile (or point CHALKFRAMES_PYTHON at a venv python that has them)",
     );
   }
 

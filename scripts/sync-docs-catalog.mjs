@@ -143,7 +143,7 @@ const groups = groupsOrder
     if (pb === -1) return -1;
     return pa - pb;
   });
-const result = { source: "https://github.com/heygen-com/hyperframes", groups, items };
+const result = { source: "https://github.com/vikramlingam/chalkframes", groups, items };
 fs.writeFileSync(
   path.join(docs, "snippets/catalog-gallery-data.mdx"),
   `export const catalogGalleryData = ${JSON.stringify(result)};\n`,

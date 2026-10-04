@@ -79,7 +79,7 @@ export function parseMotionSpec(raw: unknown): MotionSpecParse {
   if (raw.version !== undefined && raw.version !== 1)
     return {
       ok: false,
-      errors: [`spec version ${raw.version} is not supported — upgrade the hyperframes CLI`],
+      errors: [`spec version ${raw.version} is not supported — upgrade the chalkframes CLI`],
     };
   if (!Array.isArray(raw.assertions))
     return { ok: false, errors: ['spec must have an "assertions" array'] };

@@ -1,4 +1,4 @@
-// In-page motion sampler for `hyperframes inspect` motion verification (#1437).
+// In-page motion sampler for `chalkframes inspect` motion verification (#1437).
 // Runs inside the seeked, paused page (via page.evaluate). For each asserted
 // selector it returns this frame's { rect, opacity, visible }; for each liveness
 // scope it returns a bucketed signature of all visible elements, so the Node-side
@@ -114,7 +114,7 @@
     return liveness;
   }
 
-  window.__hyperframesMotionSample = function motionSample(options) {
+  window.__chalkframesMotionSample = function motionSample(options) {
     const { selectors = [], livenessScopes = [] } = options || {};
     return { data: sampleSelectors(selectors), liveness: sampleLiveness(livenessScopes) };
   };

@@ -7,9 +7,9 @@
 // ---------------------------------------------------------------------------
 
 import { freemem } from "node:os";
-import type { CanvasResolution, Fps } from "@hyperframes/core";
-import { fpsToNumber } from "@hyperframes/core";
-import type { RenderJob, RenderPerfSummary } from "@hyperframes/producer";
+import type { CanvasResolution, Fps } from "@chalkframes/core";
+import { fpsToNumber } from "@chalkframes/core";
+import type { RenderJob, RenderPerfSummary } from "@chalkframes/producer";
 import { trackRenderComplete, trackRenderError } from "../telemetry/events.js";
 import {
   renderJobObservabilityTelemetryPayload,

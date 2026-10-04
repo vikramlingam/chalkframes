@@ -7,7 +7,7 @@ import { parseStoryboard as coreParse } from "./parseStoryboard.js";
 //
 // Each standalone skill ships a plain-JS copy of this parser at
 // scripts/lib/storyboard.mjs — skills install via `npx skills add`, where a
-// script can't reach @hyperframes/core (and the core export is .ts that node
+// script can't reach @chalkframes/core (and the core export is .ts that node
 // can't load). The copies MUST stay in lockstep with core. This test fails the
 // moment they drift, so a parser change can't silently leave the skills behind:
 //   1. every vendored copy is byte-identical to the others, and

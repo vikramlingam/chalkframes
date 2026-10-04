@@ -72,7 +72,7 @@ class VisionRequestTimeoutError extends Error {
 }
 
 function resolveVisionRequestTimeoutMs(): number {
-  const configured = Number(process.env.HYPERFRAMES_VISION_TIMEOUT_MS);
+  const configured = Number(process.env.CHALKFRAMES_VISION_TIMEOUT_MS);
   return Number.isFinite(configured) && configured > 0
     ? configured
     : DEFAULT_VISION_REQUEST_TIMEOUT_MS;
@@ -279,8 +279,8 @@ export async function captionImagesWithGemini(
   // deployments have those; they often do not have a working Gemini API key, and a rejected
   // key is indistinguishable from an unset one in the output — every request simply returns
   // nothing and the capture reports "0 images captioned".
-  const vertexProject = process.env.HYPERFRAMES_VERTEX_PROJECT_ID;
-  const vertexServiceAccount = process.env.HYPERFRAMES_VERTEX_SERVICE_ACCOUNT;
+  const vertexProject = process.env.CHALKFRAMES_VERTEX_PROJECT_ID;
+  const vertexServiceAccount = process.env.CHALKFRAMES_VERTEX_SERVICE_ACCOUNT;
   const useVertex = Boolean(vertexProject && vertexServiceAccount);
   if (!openRouterKey && !useVertex && !geminiKey) {
     reportOutcome();
@@ -299,13 +299,13 @@ export async function captionImagesWithGemini(
   const providerName = { openrouter: "OpenRouter", vertex: "Vertex AI", gemini: "Gemini" }[
     provider
   ];
-  // Override per provider via HYPERFRAMES_OPENROUTER_MODEL / HYPERFRAMES_VERTEX_MODEL /
-  // HYPERFRAMES_GEMINI_MODEL. Vertex publishes a different model set than the Gemini API —
+  // Override per provider via CHALKFRAMES_OPENROUTER_MODEL / CHALKFRAMES_VERTEX_MODEL /
+  // CHALKFRAMES_GEMINI_MODEL. Vertex publishes a different model set than the Gemini API —
   // the API's flash-lite preview id is not resolvable there — so it carries its own default.
   const model = {
-    openrouter: process.env.HYPERFRAMES_OPENROUTER_MODEL || "google/gemini-3.1-flash-lite",
-    vertex: process.env.HYPERFRAMES_VERTEX_MODEL || "gemini-2.5-flash",
-    gemini: process.env.HYPERFRAMES_GEMINI_MODEL || "gemini-3.1-flash-lite-preview",
+    openrouter: process.env.CHALKFRAMES_OPENROUTER_MODEL || "google/gemini-3.1-flash-lite",
+    vertex: process.env.CHALKFRAMES_VERTEX_MODEL || "gemini-2.5-flash",
+    gemini: process.env.CHALKFRAMES_GEMINI_MODEL || "gemini-3.1-flash-lite-preview",
   }[provider];
   const requestTimeoutMs = resolveVisionRequestTimeoutMs();
 
@@ -378,7 +378,7 @@ export async function captionImagesWithGemini(
           credentials = JSON.parse(vertexServiceAccount) as Record<string, unknown>;
         } catch {
           warnings.push(
-            "HYPERFRAMES_VERTEX_SERVICE_ACCOUNT is not valid JSON; skipped vision captioning.",
+            "CHALKFRAMES_VERTEX_SERVICE_ACCOUNT is not valid JSON; skipped vision captioning.",
           );
           internalError = true;
           reportOutcome();
@@ -387,7 +387,7 @@ export async function captionImagesWithGemini(
         ai = new GoogleGenAI({
           vertexai: true,
           project: vertexProject,
-          location: process.env.HYPERFRAMES_VERTEX_LOCATION || "us-central1",
+          location: process.env.CHALKFRAMES_VERTEX_LOCATION || "us-central1",
           googleAuthOptions: { credentials },
         });
       } else {

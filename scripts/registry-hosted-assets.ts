@@ -2,7 +2,7 @@
  * Where a CDN-hosted registry asset is referenced from, and by what name.
  *
  * A `files[]` entry with `url` keeps its `path`: that is still where the file
- * lands when someone runs `hyperframes add`, and an installed project reads it
+ * lands when someone runs `chalkframes add`, and an installed project reads it
  * from disk exactly as before. The Catalog is the one consumer that never
  * installs anything — it publishes a payload the browser fetches — so for that
  * one path the local name has to become the CDN URL, or the bytes get copied
@@ -60,5 +60,5 @@ export function withHostedDefaults<T extends { default?: unknown }>(
 
 /** Does this file's declared type stay in the repository? */
 export function isLocalAsset(file: { type?: string; url?: string }): boolean {
-  return file.type === "hyperframes:asset" && file.url === undefined;
+  return file.type === "chalkframes:asset" && file.url === undefined;
 }

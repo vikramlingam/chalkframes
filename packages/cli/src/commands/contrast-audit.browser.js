@@ -41,7 +41,7 @@
 //
 // NOTE: this logic (DOM-walk, foreground/paint-hide, background sampling)
 // plus the pure WCAG math (relLum, wcagRatio, median) is duplicated in
-// skills/hyperframes-creative/scripts/contrast-report.mjs — keep in sync.
+// skills/chalkframes-creative/scripts/contrast-report.mjs — keep in sync.
 // The pure "which rect to sample" decision is also mirrored in
 // contrast-sample.ts (unit-tested there since this file can't import).
 

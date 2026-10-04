@@ -6,7 +6,7 @@ import { readTagCI } from "./ffprobe.js";
 /**
  * Hidden render provenance.
  *
- * HyperFrames stamps the *container* — never the picture — with the renderer
+ * ChalkFrames stamps the *container* — never the picture — with the renderer
  * name and version, so a rendered file carries a machine-readable note about
  * what produced it, with no visible watermark burned into the frames.
  *
@@ -17,8 +17,8 @@ import { readTagCI } from "./ffprobe.js";
  *
  * **An unauthenticated hint — not an authenticity or attribution boundary.**
  * These are ordinary unsigned container keys that any tool can write, so a
- * present tag means the file *claims* to be HyperFrames output, not that
- * HyperFrames produced it: one `ffmpeg -metadata hyperframes_renderer=...`
+ * present tag means the file *claims* to be ChalkFrames output, not that
+ * ChalkFrames produced it: one `ffmpeg -metadata chalkframes_renderer=...`
  * forges it. Absence proves just as little, since re-encoding, remuxing, or
  * any tool that drops unknown keys strips them, and files rendered before this
  * feature never had them. Good for diagnostics and support ("what wrote this
@@ -27,9 +27,9 @@ import { readTagCI } from "./ffprobe.js";
  * this deliberately is not.
  */
 
-export const PROVENANCE_RENDERER_TAG = "hyperframes_renderer";
-export const PROVENANCE_VERSION_TAG = "hyperframes_version";
-export const PROVENANCE_RENDERER_NAME = "hyperframes";
+export const PROVENANCE_RENDERER_TAG = "chalkframes_renderer";
+export const PROVENANCE_VERSION_TAG = "chalkframes_version";
+export const PROVENANCE_RENDERER_NAME = "chalkframes";
 
 /**
  * Deliberately not semver-shaped. A failed lookup must never break a render,
@@ -41,7 +41,7 @@ export const PROVENANCE_RENDERER_NAME = "hyperframes";
 const UNRESOLVED_VERSION = "unresolved";
 
 /** The package this file belongs to, whether built standalone or bundled. */
-const OWN_PACKAGE_NAME = /^(?:hyperframes|@hyperframes\/[^/]+)$/;
+const OWN_PACKAGE_NAME = /^(?:chalkframes|@chalkframes\/[^/]+)$/;
 
 /** Depth cap: a package root is a handful of levels up, never tens. */
 const MAX_WALK_DEPTH = 12;

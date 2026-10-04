@@ -10,13 +10,13 @@ test("indexing preserves authored example manifests and indexes source-only addi
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const dir of ["blocks", "components", "examples"])
     mkdirSync(join(root, "registry", dir), { recursive: true });
-  const example = '{"name":"starter","type":"hyperframes:example","custom":"preserve me"}\n';
+  const example = '{"name":"starter","type":"chalkframes:example","custom":"preserve me"}\n';
   mkdirSync(join(root, "registry/examples/starter"));
   writeFileSync(join(root, "registry/examples/starter/registry-item.json"), example);
   mkdirSync(join(root, "registry/components/new"));
   writeFileSync(
     join(root, "registry/components/new/registry-item.json"),
-    '{"name":"new","type":"hyperframes:component"}',
+    '{"name":"new","type":"chalkframes:component"}',
   );
   generateRegistryManifest(root);
   assert.equal(
@@ -25,7 +25,7 @@ test("indexing preserves authored example manifests and indexes source-only addi
   );
   const manifest = JSON.parse(readFileSync(join(root, "registry/registry.json"), "utf8"));
   assert.deepEqual(manifest.items, [
-    { name: "starter", type: "hyperframes:example" },
-    { name: "new", type: "hyperframes:component" },
+    { name: "starter", type: "chalkframes:example" },
+    { name: "new", type: "chalkframes:component" },
   ]);
 });

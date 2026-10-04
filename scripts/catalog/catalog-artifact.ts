@@ -1,7 +1,7 @@
 /**
  * Build the published video-primitive catalog artifact.
  *
- * HyperFrames owns the shelf, so HyperFrames owns this job. Descriptions and
+ * ChalkFrames owns the shelf, so ChalkFrames owns this job. Descriptions and
  * their vectors publish together as one version, because a consumer that loads
  * a new description against an old vector produces a ranking that is wrong in a
  * way nothing alarms on.

@@ -15,15 +15,15 @@ import { ensureProjectId } from "../utils/projectLink.js";
 
 describe("parseUpdateTarget", () => {
   it("extracts the id from a full published URL", () => {
-    expect(parseUpdateTarget("https://hyperframes.dev/p/hfp_abc123")).toBe("hfp_abc123");
+    expect(parseUpdateTarget("https://chalkframes.dev/p/hfp_abc123")).toBe("hfp_abc123");
   });
 
   it("handles a scheme-less URL (which new URL() rejects)", () => {
-    expect(parseUpdateTarget("hyperframes.dev/p/hfp_abc123")).toBe("hfp_abc123");
+    expect(parseUpdateTarget("chalkframes.dev/p/hfp_abc123")).toBe("hfp_abc123");
   });
 
   it("strips a trailing query and hash", () => {
-    expect(parseUpdateTarget("https://hyperframes.dev/p/hfp_abc123?claim_token=x#frag")).toBe(
+    expect(parseUpdateTarget("https://chalkframes.dev/p/hfp_abc123?claim_token=x#frag")).toBe(
       "hfp_abc123",
     );
   });
@@ -56,7 +56,7 @@ describe("publish default-entry preflight", () => {
       fileCount: 2,
       claimed: true,
       projectId: "project-id",
-      url: "https://hyperframes.dev/p/project-id",
+      url: "https://chalkframes.dev/p/project-id",
       claimToken: "",
     });
     const lines: string[] = [];
@@ -79,7 +79,7 @@ describe("publish default-entry preflight", () => {
   it("suggests a nested index.html directory with the re-rooting caveat", async () => {
     const output = await runEntryMismatch("compositions/brand/index.html");
 
-    expect(output).toContain("hyperframes publish <project>/compositions/brand");
+    expect(output).toContain("chalkframes publish <project>/compositions/brand");
     expect(output).toContain("assets are self-contained under that directory");
   });
 
@@ -87,7 +87,7 @@ describe("publish default-entry preflight", () => {
     const output = await runEntryMismatch("compositions/card.html");
 
     expect(output).toContain("compositions/card.html");
-    expect(output).not.toContain("hyperframes publish <project>/compositions");
+    expect(output).not.toContain("chalkframes publish <project>/compositions");
     expect(output).toContain("publish accepts project directories, not individual HTML files");
   });
 
@@ -119,7 +119,7 @@ describe("publish visibility messaging", () => {
       fileCount: 1,
       claimed: options.claimed ?? true,
       projectId,
-      url: `https://hyperframes.dev/p/${projectId}`,
+      url: `https://chalkframes.dev/p/${projectId}`,
       claimToken: "claim-secret",
     });
     const lines: string[] = [];
@@ -158,7 +158,7 @@ describe("publish visibility messaging", () => {
 
   // A re-publish without --public sends no visibility, so the server keeps whatever the
   // project already had. Claiming "Private" here would tell someone a public link is locked
-  // down. This is the plain `hyperframes publish` path in an already-published directory,
+  // down. This is the plain `chalkframes publish` path in an already-published directory,
   // not just --update — the same branch serves all three routes to an in-place update.
   it("does not claim private when re-publishing in place without --public", async () => {
     const output = await runPublish({ public: false, inPlace: true });

@@ -20,19 +20,19 @@ vi.mock("node:fs", async (importOriginal) => {
   return { ...actual, writeFileSync: vi.fn(actual.writeFileSync) };
 });
 
-const SCHEMA = "https://hyperframes.heygen.com/schema/registry-item.json";
+const SCHEMA = "https://chalkframes.dev/schema/registry-item.json";
 // Names no other test uses: the registry cache is shared by every test in a run.
 const block = (name: string, dependencies?: string[]) => ({
   $schema: SCHEMA,
   name,
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   title: name,
   description: "Block for tests",
   dimensions: { width: 1080, height: 1350 },
   duration: 6,
   ...(dependencies ? { registryDependencies: dependencies } : {}),
   files: [
-    { path: `${name}.html`, target: `compositions/${name}.html`, type: "hyperframes:composition" },
+    { path: `${name}.html`, target: `compositions/${name}.html`, type: "chalkframes:composition" },
   ],
 });
 const ITEMS = [
@@ -42,14 +42,14 @@ const ITEMS = [
   {
     $schema: SCHEMA,
     name: "studio-drop-part",
-    type: "hyperframes:component",
+    type: "chalkframes:component",
     title: "part",
     description: "Component for tests",
     files: [
       {
         path: "studio-drop-part.html",
         target: "compositions/components/studio-drop-part.html",
-        type: "hyperframes:snippet",
+        type: "chalkframes:snippet",
       },
     ],
   },
@@ -65,7 +65,7 @@ afterEach(() => {
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
-/** A project behind a symlink whose hyperframes.json points at a stubbed registry; `fetched` logs every URL. */
+/** A project behind a symlink whose chalkframes.json points at a stubbed registry; `fetched` logs every URL. */
 function projectWithRegistry(onItemFetch?: () => void): {
   link: string;
   real: string;
@@ -83,7 +83,7 @@ function projectWithRegistry(onItemFetch?: () => void): {
       if (!url.startsWith(registry)) return new Response("not found", { status: 404 });
       if (url.endsWith("/registry.json")) {
         const items = ITEMS.map(({ name, type }) => ({ name, type }));
-        const $schema = "https://hyperframes.heygen.com/schema/registry.json";
+        const $schema = "https://chalkframes.dev/schema/registry.json";
         return new Response(
           JSON.stringify({ $schema, name: "t", homepage: "https://example.com", items }),
         );
@@ -109,7 +109,7 @@ function projectWithRegistry(onItemFetch?: () => void): {
   symlinkSync(real, link, "junction");
   writeFileSync(join(real, "index.html"), '<div data-width="1920" data-height="1080"></div>');
   writeFileSync(
-    join(real, "hyperframes.json"),
+    join(real, "chalkframes.json"),
     JSON.stringify({ registry, paths: { blocks: "scenes" } }),
   );
   server = createStudioServer({ projectDir: link });
@@ -166,11 +166,11 @@ describe("Studio catalog install", () => {
       expect.objectContaining({ item: "studio-drop-block", source: "studio" }),
     );
     expect(existsSync(join(real, "compositions/studio-drop-block.html"))).toBe(false);
-    const config = JSON.parse(readFileSync(join(real, "hyperframes.json"), "utf-8"));
+    const config = JSON.parse(readFileSync(join(real, "chalkframes.json"), "utf-8"));
     expect(config.registryItems).toEqual([
       {
         name: "studio-drop-block",
-        type: "hyperframes:block",
+        type: "chalkframes:block",
         target: "scenes/studio-drop-block.html",
       },
     ]);

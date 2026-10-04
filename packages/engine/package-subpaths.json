@@ -1,5 +1,5 @@
 {
-  "package": "@hyperframes/engine",
+  "package": "@chalkframes/engine",
   "subpaths": {
     ".": {
       "source": "./src/index.ts",

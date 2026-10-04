@@ -43,7 +43,7 @@ describe("launchBackgroundChecks", () => {
     spawn.mockClear();
     disk.config = {};
     env.dev = false;
-    for (const name of ["CI", "HYPERFRAMES_NO_UPDATE_CHECK", "HYPERFRAMES_SKIP_SKILLS"]) {
+    for (const name of ["CI", "CHALKFRAMES_NO_UPDATE_CHECK", "CHALKFRAMES_SKIP_SKILLS"]) {
       vi.stubEnv(name, "");
     }
     origTTY = process.stderr.isTTY;
@@ -114,8 +114,8 @@ describe("launchBackgroundChecks", () => {
     ["dev mode", () => (env.dev = true), null],
     ["CI=1", () => vi.stubEnv("CI", "1"), null],
     ["CI=true", () => vi.stubEnv("CI", "true"), null],
-    ["HYPERFRAMES_NO_UPDATE_CHECK=1", () => vi.stubEnv("HYPERFRAMES_NO_UPDATE_CHECK", "1"), null],
-    ["HYPERFRAMES_SKIP_SKILLS=1", () => vi.stubEnv("HYPERFRAMES_SKIP_SKILLS", "1"), ["update"]],
+    ["CHALKFRAMES_NO_UPDATE_CHECK=1", () => vi.stubEnv("CHALKFRAMES_NO_UPDATE_CHECK", "1"), null],
+    ["CHALKFRAMES_SKIP_SKILLS=1", () => vi.stubEnv("CHALKFRAMES_SKIP_SKILLS", "1"), ["update"]],
     [
       "no terminal",
       () => Object.defineProperty(process.stderr, "isTTY", { value: false, configurable: true }),

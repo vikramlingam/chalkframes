@@ -9,20 +9,20 @@ import { isAttendedTerminal } from "../utils/attendedTerminal.js";
 import { withFileLock } from "../media-use/lib/config-lock.mjs";
 
 // ---------------------------------------------------------------------------
-// Config directory: ~/.hyperframes/
+// Config directory: ~/.chalkframes/
 // ---------------------------------------------------------------------------
 
-const CONFIG_DIR = join(homedir(), ".hyperframes");
+const CONFIG_DIR = join(homedir(), ".chalkframes");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
 // ---------------------------------------------------------------------------
-// Install-state file: ~/.hyperframes/install-state.json
+// Install-state file: ~/.chalkframes/install-state.json
 //
 // A separate FILE, but deliberately the same DIRECTORY as config.json, so
-// `rm -rf ~/.hyperframes` really is a full reset. It previously lived in
-// ~/.local/state/hyperframes/ specifically to survive that delete; review
-// rejected that ("if someone is deleting their hyperframes config it should
-// wipe all hyperframes state — I'm not sure we should try and persist state
+// `rm -rf ~/.chalkframes` really is a full reset. It previously lived in
+// ~/.local/state/chalkframes/ specifically to survive that delete; review
+// rejected that ("if someone is deleting their chalkframes config it should
+// wipe all chalkframes state — I'm not sure we should try and persist state
 // elsewhere to get around this"), and the measurement agreed: the churn this
 // actually defends against is not users running `rm -rf`.
 //
@@ -36,7 +36,7 @@ const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 // It carries exactly three facts, and no telemetry identity — no anonymousId,
 // no counters, nothing emitted that links the old install to the new one:
 //
-//   1. `markerAt` — "a hyperframes install existed on this machine". Now that
+//   1. `markerAt` — "a chalkframes install existed on this machine". Now that
 //      it shares CONFIG_DIR, `predecessorFound` measures the churn we care
 //      about (config.json lost, install-state survived => corruption/re-mint)
 //      rather than deliberate directory deletion, which takes both.
@@ -48,7 +48,7 @@ const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 //      true/false assignments are. Sharing CONFIG_DIR is what keeps it from
 //      being a persistent identifier that outlives the user's reset.
 //
-// Removal path: delete ~/.hyperframes (or just this file). `hyperframes
+// Removal path: delete ~/.chalkframes (or just this file). `chalkframes
 // telemetry status` prints its exact location.
 // ---------------------------------------------------------------------------
 
@@ -57,18 +57,18 @@ const STATE_FILE = join(CONFIG_DIR, "install-state.json");
 // Pre-move location. Read once, migrated, then deleted — an install that
 // wrote state under the old scheme keeps its tripped breaker instead of
 // silently re-enrolling, and no file is left behind outside CONFIG_DIR.
-const LEGACY_STATE_FILE = join(homedir(), ".local", "state", "hyperframes", "install-state.json");
+const LEGACY_STATE_FILE = join(homedir(), ".local", "state", "chalkframes", "install-state.json");
 
 interface InstallState {
   /** ISO timestamp of when the marker was first written. */
   markerAt: string;
-  /** Rolled-over circuit-breaker state — see HyperframesConfig's field. */
+  /** Rolled-over circuit-breaker state — see ChalkframesConfig's field. */
   deParallelRouterTrialFired?: boolean;
   /**
-   * The canary bucketing seed — see HyperframesConfig's field. Write-once
+   * The canary bucketing seed — see ChalkframesConfig's field. Write-once
    * within this config dir: the first install's seed wins forever, so a
    * config.json re-mint re-rolls the telemetry id but NOT the canary cohorts.
-   * Deleting ~/.hyperframes takes the seed with it, by design.
+   * Deleting ~/.chalkframes takes the seed with it, by design.
    */
   bucketSeed?: string;
 }
@@ -122,7 +122,7 @@ let seedBackfillWarned = false;
 /**
  * The seed backfill could not be persisted, so this install will mint a
  * different seed next invocation and silently churn its canary cohort. Rare
- * (unwritable ~/.hyperframes) but invisible without this, and it makes the
+ * (unwritable ~/.chalkframes) but invisible without this, and it makes the
  * "backfilled once" contract in the field's docstring false.
  */
 function warnSeedBackfillFailed(error: string | undefined): void {
@@ -132,10 +132,10 @@ function warnSeedBackfillFailed(error: string | undefined): void {
   // of the failed write is unstable CANARY cohorts, and an opted-out install
   // is not enrolled in any. Printing anyway put an unsilenceable line into
   // CI render logs on every invocation for a user who wants no telemetry at
-  // all. `hyperframes doctor` still surfaces it on demand.
+  // all. `chalkframes doctor` still surfaces it on demand.
   if (telemetryRuntimeOverride() !== null) return;
   console.warn(
-    `[hyperframes] Could not persist telemetry config${error ? `: ${error}` : ""}. ` +
+    `[chalkframes] Could not persist telemetry config${error ? `: ${error}` : ""}. ` +
       "Canary cohort assignment will not be stable across runs.",
   );
 }
@@ -145,12 +145,12 @@ function warnSeedBackfillFailed(error: string | undefined): void {
  * previous install recorded, else mint. Mutates `config` in place.
  *
  * Persisting is the whole point — an unpersisted seed re-rolls next process,
- * silently churning this install's cohort on every invocation. `~/.hyperframes`
+ * silently churning this install's cohort on every invocation. `~/.chalkframes`
  * being unwritable (root-owned after a sudo mishap, read-only mount, disk full)
  * is exactly when that happens, so it says so once rather than failing
  * invisibly.
  */
-function backfillBucketSeed(config: HyperframesConfig): ConfigWriteResult {
+function backfillBucketSeed(config: ChalkframesConfig): ConfigWriteResult {
   const recorded = readInstallState();
   config.bucketSeed = (isInstallState(recorded) ? recorded.bucketSeed : undefined) ?? randomUUID();
   const write = writeConfigWithResult(config);
@@ -189,7 +189,7 @@ function installStateLatchedFired(): boolean {
  * Deliberately NOT memoized, unlike the latch above. This is only reached on a
  * `readConfig` cache miss, so a memo saved one `readFileSync` per re-parse —
  * and cost the documented full reset: a long-lived preview that had read seed
- * A, observed `rm -rf ~/.hyperframes`, and minted B would still be handed the
+ * A, observed `rm -rf ~/.chalkframes`, and minted B would still be handed the
  * cached A, resurrecting the cohort the user just cleared. The latch memo is
  * different on purpose: it caches only `true`, and a breaker that survives a
  * reset fails safe.
@@ -222,9 +222,9 @@ function readInstallState(): InstallState | InstallStateMiss {
   const legacy = parseInstallState(LEGACY_STATE_FILE);
   if (!isInstallState(legacy)) {
     // Unreadable legacy copy: nothing to migrate, so drop it here too. It
-    // used to survive, and since it lives OUTSIDE ~/.hyperframes it then
+    // used to survive, and since it lives OUTSIDE ~/.chalkframes it then
     // reported predecessorFound/stateFileCorrupt forever on a machine the
-    // user had already reset with `rm -rf ~/.hyperframes` — poisoning the one
+    // user had already reset with `rm -rf ~/.chalkframes` — poisoning the one
     // metric this file exists to produce.
     if (legacy === "corrupt") removeLegacyStateFile();
     // Corruption at EITHER location still means this machine had an install.
@@ -283,7 +283,7 @@ function sameInstallState(a: InstallState, b: InstallState): boolean {
 }
 
 /** Latching: once tripped (by any install in this config dir), stays tripped. */
-function latchedFired(state: InstallState | null, config: HyperframesConfig): true | undefined {
+function latchedFired(state: InstallState | null, config: ChalkframesConfig): true | undefined {
   return (
     state?.deParallelRouterTrialFired === true ||
     config.deParallelRouterTrialFired === true ||
@@ -294,7 +294,7 @@ function latchedFired(state: InstallState | null, config: HyperframesConfig): tr
 /** What the state file should say after this config write; null = already correct. */
 function nextInstallState(
   state: InstallState | null,
-  config: HyperframesConfig,
+  config: ChalkframesConfig,
 ): InstallState | null {
   const next: InstallState = {
     markerAt: state?.markerAt ?? new Date().toISOString(),
@@ -309,7 +309,7 @@ function nextInstallState(
 
 /** @returns false if the mirror could not be written this call. */
 /** The write half, split out to keep the memo bookkeeping legible. */
-function applyInstallState(config: HyperframesConfig, wantFired: boolean): void {
+function applyInstallState(config: ChalkframesConfig, wantFired: boolean): void {
   const read = readInstallState();
   const state = isInstallState(read) ? read : null;
   const next = nextInstallState(state, config);
@@ -319,10 +319,10 @@ function applyInstallState(config: HyperframesConfig, wantFired: boolean): void 
   if (wantFired) latchedFiredSeen = true;
 }
 
-function syncInstallState(config: HyperframesConfig): boolean {
+function syncInstallState(config: ChalkframesConfig): boolean {
   const wantFired = config.deParallelRouterTrialFired === true;
   // The memo says "this process already wrote the state file". That is only
-  // true while the file is still there. `rm -rf ~/.hyperframes` under a
+  // true while the file is still there. `rm -rf ~/.chalkframes` under a
   // long-lived preview left the memo set, so the mirror was never recreated:
   // the freshly minted seed lived in config.json alone, and the NEXT
   // config-only re-mint rolled a third seed instead of inheriting the second.
@@ -346,11 +346,11 @@ function syncInstallState(config: HyperframesConfig): boolean {
  *
  * Without the unconditional cache the next readConfig in the same process
  * re-minted, re-rolling bucketSeed along with the id — and across processes an
- * unwritable ~/.hyperframes (read-only mount, root-owned after a sudo run,
+ * unwritable ~/.chalkframes (read-only mount, root-owned after a sudo run,
  * full disk) meant a fresh cohort on every single command, which is exactly
  * the unbounded cumulative exposure the seed exists to prevent.
  */
-function mintAndCacheConfig(): HyperframesConfig {
+function mintAndCacheConfig(): ChalkframesConfig {
   const config = mintConfig();
   const write = writeConfigWithResult(config);
   if (!write.ok) warnSeedBackfillFailed(write.error);
@@ -368,7 +368,7 @@ function mintAndCacheConfig(): HyperframesConfig {
  * consulting the install-state file for what a previous install on this
  * machine left behind.
  */
-function mintConfig(): HyperframesConfig {
+function mintConfig(): ChalkframesConfig {
   const read = readInstallState();
   const state = isInstallState(read) ? read : null;
   return {
@@ -388,7 +388,7 @@ function mintConfig(): HyperframesConfig {
   };
 }
 
-export interface HyperframesConfig {
+export interface ChalkframesConfig {
   /** Has the user agreed to download the on-device search model? Undefined means never asked. */
   localEmbeddingEnabled?: boolean;
   /** Whether anonymous telemetry is enabled (default: true in production) */
@@ -492,7 +492,7 @@ export interface HyperframesConfig {
    *
    * A re-mint is the churn that actually happens — config.json is rewritten on
    * every command and every render, and readConfig recovers from any
-   * parse/permission/IO failure by minting fresh. Deleting ~/.hyperframes
+   * parse/permission/IO failure by minting fresh. Deleting ~/.chalkframes
    * deliberately does NOT survive: install-state lives in that same directory
    * precisely so the user's reset is a real reset. A seed that outlived it
    * would be a persistent identifier defeating the only lever they have.
@@ -503,7 +503,7 @@ export interface HyperframesConfig {
    */
   bucketSeed?: string;
   /**
-   * Ring of the last few local renders (newest last). `hyperframes feedback`
+   * Ring of the last few local renders (newest last). `chalkframes feedback`
    * attaches these ids — which are the `render_job_id` /
    * `observability_render_job_id` on this install's PostHog events — to the
    * feedback it submits, so a wild bug report can be joined to the exact
@@ -512,7 +512,7 @@ export interface HyperframesConfig {
   recentRenders?: RecentRenderRecord[];
 }
 
-/** One entry in {@link HyperframesConfig.recentRenders}. */
+/** One entry in {@link ChalkframesConfig.recentRenders}. */
 export interface RecentRenderRecord {
   /** The render job id (`RenderJob.id` — the telemetry `render_job_id`). */
   id: string;
@@ -522,7 +522,7 @@ export interface RecentRenderRecord {
   ok: boolean;
 }
 
-/** Ring size for {@link HyperframesConfig.recentRenders}. */
+/** Ring size for {@link ChalkframesConfig.recentRenders}. */
 const MAX_RECENT_RENDERS = 5;
 
 /**
@@ -537,7 +537,7 @@ export function recordRecentRender(id: string, ok: boolean): void {
   writeConfig(config);
 }
 
-const DEFAULT_CONFIG: HyperframesConfig = {
+const DEFAULT_CONFIG: ChalkframesConfig = {
   telemetryEnabled: true,
   anonymousId: "",
   telemetryNoticeShown: false,
@@ -546,7 +546,7 @@ const DEFAULT_CONFIG: HyperframesConfig = {
   lastFeedbackPromptAt: 0,
 };
 
-let cachedConfig: HyperframesConfig | null = null;
+let cachedConfig: ChalkframesConfig | null = null;
 
 // ---------------------------------------------------------------------------
 // Identity-persistence classification — one sticky verdict per anonymous id
@@ -647,7 +647,7 @@ function parseRecentRenders(value: unknown): RecentRenderRecord[] | undefined {
  * otherwise one long object literal plus four control-flow branches.
  */
 /** Fields that are pure passthrough — no default, no validation. */
-function passthroughFields(parsed: Partial<HyperframesConfig>): Partial<HyperframesConfig> {
+function passthroughFields(parsed: Partial<ChalkframesConfig>): Partial<ChalkframesConfig> {
   return {
     lastUpdateCheck: parsed.lastUpdateCheck,
     latestVersion: parsed.latestVersion,
@@ -669,7 +669,7 @@ function passthroughFields(parsed: Partial<HyperframesConfig>): Partial<Hyperfra
  * Fields that need an explicit type guard or a cross-store merge, split from
  * the plain defaults so neither block is complex on its own.
  */
-function guardedFields(parsed: Partial<HyperframesConfig>): Partial<HyperframesConfig> {
+function guardedFields(parsed: Partial<ChalkframesConfig>): Partial<ChalkframesConfig> {
   return {
     // Explicit `=== true`/typeof-number checks rather than a truthy/nullish
     // read — a hand-edited or corrupted config could plausibly carry a
@@ -697,7 +697,7 @@ function guardedFields(parsed: Partial<HyperframesConfig>): Partial<HyperframesC
   };
 }
 
-function materializeConfig(parsed: Partial<HyperframesConfig>): HyperframesConfig {
+function materializeConfig(parsed: Partial<ChalkframesConfig>): ChalkframesConfig {
   return {
     ...passthroughFields(parsed),
     telemetryEnabled: parsed.telemetryEnabled ?? DEFAULT_CONFIG.telemetryEnabled,
@@ -711,14 +711,14 @@ function materializeConfig(parsed: Partial<HyperframesConfig>): HyperframesConfi
   };
 }
 
-export function readConfig(): HyperframesConfig {
+export function readConfig(): ChalkframesConfig {
   if (cachedConfig) return { ...cachedConfig };
 
   if (!existsSync(CONFIG_FILE)) return mintAndCacheConfig();
 
   try {
     const raw = readFileSync(CONFIG_FILE, "utf-8");
-    const parsed = JSON.parse(raw) as Partial<HyperframesConfig>;
+    const parsed = JSON.parse(raw) as Partial<ChalkframesConfig>;
 
     const config = materializeConfig(parsed);
 
@@ -784,7 +784,7 @@ export function readConfig(): HyperframesConfig {
  * lost update against a concurrently-running CLI process that wrote other
  * fields in the meantime.
  */
-export function readConfigFresh(): HyperframesConfig {
+export function readConfigFresh(): ChalkframesConfig {
   cachedConfig = null;
   return readConfig();
 }
@@ -805,7 +805,7 @@ export function readConfigFresh(): HyperframesConfig {
  * certainty (e.g. the DE parallel-router trial's off-switch) can react
  * instead of re-implementing read-back verification.
  */
-export function writeConfig(config: HyperframesConfig): boolean {
+export function writeConfig(config: ChalkframesConfig): boolean {
   return writeConfigWithResult(config).ok;
 }
 
@@ -819,7 +819,7 @@ export type ConfigWriteResult =
  * Persist config and retain the failure reason for user-facing commands that
  * must distinguish a durable preference write from a best-effort update.
  */
-export function writeConfigWithResult(config: HyperframesConfig): ConfigWriteResult {
+export function writeConfigWithResult(config: ChalkframesConfig): ConfigWriteResult {
   try {
     // The consent answer changes only through updateLocalModelConsent; a copy read earlier must not undo one.
     return withConfigLock(() =>
@@ -843,7 +843,7 @@ function warnSettingsLockedOnce(error: unknown): void {
     process.argv.some((arg) => arg === "--json" || arg.startsWith("--json="))
   )
     return;
-  console.error(`${(error as Error).message} (see \`hyperframes doctor\`).`);
+  console.error(`${(error as Error).message} (see \`chalkframes doctor\`).`);
 }
 
 export function updateLocalModelConsent(
@@ -896,7 +896,7 @@ function withConfigLock<T>(task: () => T): T {
   });
 }
 
-function persistConfig(config: HyperframesConfig): ConfigWriteResult {
+function persistConfig(config: ChalkframesConfig): ConfigWriteResult {
   try {
     mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
     const tmpFile = `${CONFIG_FILE}.${process.pid}.tmp`;

@@ -5,10 +5,10 @@ import { validRegistryName, validRegistryManifest, validRegistryItem } from "./v
 
 const item = {
   name: "demo",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   title: "Demo",
   description: "Example",
-  files: [{ path: "demo.html", target: "components/demo.html", type: "hyperframes:snippet" }],
+  files: [{ path: "demo.html", target: "components/demo.html", type: "chalkframes:snippet" }],
 };
 
 describe("registry manifest boundary", () => {
@@ -18,14 +18,14 @@ describe("registry manifest boundary", () => {
     expect(validRegistryName("demo-2")).toBe(true);
   });
   it("validates the published item schema and requested identity", () => {
-    expect(validRegistryItem(item, "demo", "hyperframes:component")).toBe(true);
-    expect(validRegistryItem(item, "other", "hyperframes:component")).toBe(false);
-    expect(validRegistryItem(item, "demo", "hyperframes:block")).toBe(false);
+    expect(validRegistryItem(item, "demo", "chalkframes:component")).toBe(true);
+    expect(validRegistryItem(item, "other", "chalkframes:component")).toBe(false);
+    expect(validRegistryItem(item, "demo", "chalkframes:block")).toBe(false);
     expect(
       validRegistryItem(
         { ...item, files: [{ ...item.files[0], target: "../outside" }] },
         "demo",
-        "hyperframes:component",
+        "chalkframes:component",
       ),
     ).toBe(false);
   });
@@ -33,7 +33,7 @@ describe("registry manifest boundary", () => {
     const manifest = {
       name: "registry",
       homepage: "https://registry.example",
-      items: [{ name: "demo", type: "hyperframes:component" }],
+      items: [{ name: "demo", type: "chalkframes:component" }],
     };
     expect(validRegistryManifest(manifest)).toBe(true);
     expect(validRegistryManifest({ ...manifest, items: [{ name: "../outside" }] })).toBe(false);

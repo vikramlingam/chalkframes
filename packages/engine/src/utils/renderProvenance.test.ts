@@ -63,16 +63,16 @@ describe("renderProvenanceArgs", () => {
 describe("readRenderProvenance", () => {
   it("reads mp4-cased tags", () => {
     expect(
-      readRenderProvenance({ hyperframes_renderer: "hyperframes", hyperframes_version: "1.2.3" }),
-    ).toEqual({ renderer: "hyperframes", version: "1.2.3" });
+      readRenderProvenance({ chalkframes_renderer: "chalkframes", chalkframes_version: "1.2.3" }),
+    ).toEqual({ renderer: "chalkframes", version: "1.2.3" });
   });
 
   it("reads matroska-uppercased tags", () => {
     // Matroska uppercases keys on read; a case-sensitive lookup would work on
     // mp4 and miss every webm.
     expect(
-      readRenderProvenance({ HYPERFRAMES_RENDERER: "hyperframes", HYPERFRAMES_VERSION: "1.2.3" }),
-    ).toEqual({ renderer: "hyperframes", version: "1.2.3" });
+      readRenderProvenance({ CHALKFRAMES_RENDERER: "chalkframes", CHALKFRAMES_VERSION: "1.2.3" }),
+    ).toEqual({ renderer: "chalkframes", version: "1.2.3" });
   });
 
   it("returns null when there is no provenance", () => {
@@ -283,18 +283,18 @@ describe("resolveOwnVersionFrom", () => {
   });
 
   it("finds the version at the package root itself", () => {
-    write(".", { name: "hyperframes", version: "1.2.3" });
+    write(".", { name: "chalkframes", version: "1.2.3" });
     expect(resolveOwnVersionFrom(root)).toBe("1.2.3");
   });
 
   it("walks up from a nested build directory — the published <pkg>/dist/ layout", () => {
-    write(".", { name: "hyperframes", version: "0.8.71" });
+    write(".", { name: "chalkframes", version: "0.8.71" });
     mkdirSync(join(root, "dist"), { recursive: true });
     expect(resolveOwnVersionFrom(join(root, "dist"))).toBe("0.8.71");
   });
 
   it("walks up from the repo src/utils depth too", () => {
-    write("packages/engine", { name: "@hyperframes/engine", version: "4.5.6" });
+    write("packages/engine", { name: "@chalkframes/engine", version: "4.5.6" });
     mkdirSync(join(root, "packages/engine/src/utils"), { recursive: true });
     expect(resolveOwnVersionFrom(join(root, "packages/engine/src/utils"))).toBe("4.5.6");
   });
@@ -304,25 +304,25 @@ describe("resolveOwnVersionFrom", () => {
     // found while walking up" returns 9.9.9 here: a confident wrong version,
     // which is the same class of defect as the sentinel it replaces.
     write(".", { name: "some-consumer-app", version: "9.9.9" });
-    mkdirSync(join(root, "node_modules/hyperframes/dist"), { recursive: true });
-    expect(resolveOwnVersionFrom(join(root, "node_modules/hyperframes/dist"))).toBe("unresolved");
+    mkdirSync(join(root, "node_modules/chalkframes/dist"), { recursive: true });
+    expect(resolveOwnVersionFrom(join(root, "node_modules/chalkframes/dist"))).toBe("unresolved");
   });
 
   it("prefers our own root over a foreign one further up", () => {
     write(".", { name: "some-consumer-app", version: "9.9.9" });
-    write("node_modules/hyperframes", { name: "hyperframes", version: "0.8.71" });
-    mkdirSync(join(root, "node_modules/hyperframes/dist"), { recursive: true });
-    expect(resolveOwnVersionFrom(join(root, "node_modules/hyperframes/dist"))).toBe("0.8.71");
+    write("node_modules/chalkframes", { name: "chalkframes", version: "0.8.71" });
+    mkdirSync(join(root, "node_modules/chalkframes/dist"), { recursive: true });
+    expect(resolveOwnVersionFrom(join(root, "node_modules/chalkframes/dist"))).toBe("0.8.71");
   });
 
   it("returns the sentinel, not a foreign version, when our root declares none", () => {
     write(".", { name: "some-consumer-app", version: "9.9.9" });
-    write("node_modules/hyperframes", { name: "hyperframes" });
-    expect(resolveOwnVersionFrom(join(root, "node_modules/hyperframes"))).toBe("unresolved");
+    write("node_modules/chalkframes", { name: "chalkframes" });
+    expect(resolveOwnVersionFrom(join(root, "node_modules/chalkframes"))).toBe("unresolved");
   });
 
   it("steps over a malformed package.json and keeps walking", () => {
-    write("pkg", { name: "hyperframes", version: "7.7.7" });
+    write("pkg", { name: "chalkframes", version: "7.7.7" });
     mkdirSync(join(root, "pkg/dist"), { recursive: true });
     writeFileSync(join(root, "pkg/dist/package.json"), "{ not json");
     expect(resolveOwnVersionFrom(join(root, "pkg/dist"))).toBe("7.7.7");

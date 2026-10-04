@@ -6,8 +6,8 @@ import { createReadStream, existsSync, statSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
-import { getMimeType } from "@hyperframes/studio-server";
-import { injectTagsAtHeadStart } from "@hyperframes/core/compiler/html-document";
+import { getMimeType } from "@chalkframes/studio-server";
+import { injectTagsAtHeadStart } from "@chalkframes/core/compiler/html-document";
 
 /**
  * `window.__HF_MEDIA_CODEC_MAP__` injection + proxy pre-warm for HTML served
@@ -16,7 +16,7 @@ import { injectTagsAtHeadStart } from "@hyperframes/core/compiler/html-document"
  * `packages/studio-server/src/helpers/mediaProxyPreview.ts` (also used by the
  * studio preview route) so injection behavior cannot drift between surfaces.
  */
-export { injectMediaCodecMapIntoHtml as injectMediaCodecMap } from "@hyperframes/studio-server/media-proxy-preview";
+export { injectMediaCodecMapIntoHtml as injectMediaCodecMap } from "@chalkframes/studio-server/media-proxy-preview";
 
 /** Minimal surface of a listening server (satisfied by @hono/node-server's ServerType). */
 interface PortBindable {
@@ -37,10 +37,10 @@ function helperDir(): string {
 export function resolveRuntimePath(): string | null {
   const d = helperDir();
   const candidates = [
-    resolve(d, "hyperframe-runtime.js"),
-    resolve(d, "..", "hyperframe-runtime.js"),
+    resolve(d, "chalkframe-runtime.js"),
+    resolve(d, "..", "chalkframe-runtime.js"),
     // Monorepo dev: src/<dir>/ → src/ → cli/ → packages/ then into core/dist/
-    resolve(d, "..", "..", "..", "core", "dist", "hyperframe.runtime.iife.js"),
+    resolve(d, "..", "..", "..", "core", "dist", "chalkframe.runtime.iife.js"),
   ];
   return candidates.find((p) => existsSync(p)) ?? null;
 }
@@ -48,9 +48,9 @@ export function resolveRuntimePath(): string | null {
 export function resolvePlayerPath(): string | null {
   const d = helperDir();
   const candidates = [
-    resolve(d, "..", "..", "..", "player", "dist", "hyperframes-player.global.js"),
-    resolve(d, "hyperframes-player.global.js"),
-    resolve(d, "..", "hyperframes-player.global.js"),
+    resolve(d, "..", "..", "..", "player", "dist", "chalkframes-player.global.js"),
+    resolve(d, "chalkframes-player.global.js"),
+    resolve(d, "..", "chalkframes-player.global.js"),
   ];
   return candidates.find((p) => existsSync(p)) ?? null;
 }
@@ -58,16 +58,16 @@ export function resolvePlayerPath(): string | null {
 export function resolveSlideshowPath(): string | null {
   const d = helperDir();
   const candidates = [
-    resolve(d, "..", "..", "..", "player", "dist", "slideshow", "hyperframes-slideshow.global.js"),
-    resolve(d, "hyperframes-slideshow.global.js"),
-    resolve(d, "..", "hyperframes-slideshow.global.js"),
+    resolve(d, "..", "..", "..", "player", "dist", "slideshow", "chalkframes-slideshow.global.js"),
+    resolve(d, "chalkframes-slideshow.global.js"),
+    resolve(d, "..", "chalkframes-slideshow.global.js"),
   ];
   return candidates.find((p) => existsSync(p)) ?? null;
 }
 
 /**
  * Inject the runtime <script> at the top of the composition's <head>, ahead of
- * every author script. Compositions read `window.__hyperframes.getVariables()`
+ * every author script. Compositions read `window.__chalkframes.getVariables()`
  * from an inline script at init, so a runtime appended before </body> is not
  * loaded yet at that point and the documented API is undefined. The compiled
  * render path hoists the runtime into <head> the same way; this keeps the

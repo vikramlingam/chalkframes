@@ -36,7 +36,7 @@ const deviceChallenge = vi.hoisted(() => ({
 const deviceAuth = vi.hoisted(() => ({
   start: vi.fn(async (options?: { onChallenge?: (value: unknown) => void }) => {
     options?.onChallenge?.({
-      verificationUri: "https://app.heygen.com/oauth/device",
+      verificationUri: "https://app.chalkframes.com/oauth/device",
       ...(deviceChallenge.verificationUriComplete
         ? { verificationUriComplete: deviceChallenge.verificationUriComplete }
         : {}),
@@ -260,8 +260,8 @@ describe("auth login", () => {
   });
 
   it("preserves an unknown/foreign top-level key across a successful re-login", async () => {
-    // Cross-CLI invariant end-to-end: a key heygen-cli (or a future
-    // version) wrote must survive a hyperframes-cli login round-trip.
+    // Cross-CLI invariant end-to-end: a key chalkframes-cli (or a future
+    // version) wrote must survive a chalkframes-cli login round-trip.
     await fs.writeFile(join(dir, "credentials"), JSON.stringify({ future_field: { x: 1 } }), {
       mode: 0o600,
     });
@@ -279,7 +279,7 @@ describe("auth login", () => {
     await expect(runCommand({})).rejects.toThrow(/Invalid command usage/);
     expect(deviceAuth.start).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("hyperframes auth login --device"),
+      expect.stringContaining("chalkframes auth login --device"),
     );
   });
 
@@ -297,12 +297,12 @@ describe("auth login", () => {
 
   it("opens verification_uri_complete without asking the user to re-enter the code", async () => {
     deviceChallenge.verificationUriComplete =
-      "https://app.heygen.com/oauth/device?user_code=ABCD-2345";
+      "https://app.chalkframes.com/oauth/device?user_code=ABCD-2345";
 
     await runCommand({ device: true });
 
     expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining("https://app.heygen.com/oauth/device?user_code=ABCD-2345"),
+      expect.stringContaining("https://app.chalkframes.com/oauth/device?user_code=ABCD-2345"),
     );
     expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Enter code"));
   });

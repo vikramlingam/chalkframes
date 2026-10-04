@@ -31,7 +31,7 @@ vi.mock("node:path", async (importOriginal) => {
   };
 });
 
-// A real filename from `bun run --filter @hyperframes/studio build`.
+// A real filename from `bun run --filter @chalkframes/studio build`.
 const HASHED_BUNDLE = "index-BRr1JoHX.js";
 const BUNDLE_BYTES = "export const studio = 1;";
 // Hand-authored, hyphenated, carrying capitals and digits — the shape no

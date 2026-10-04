@@ -31,7 +31,7 @@ test("probe does not execute shell metacharacters in a filename", () => {
 });
 
 test(
-  "probe runs the ffprobe HYPERFRAMES_FFPROBE_PATH names",
+  "probe runs the ffprobe CHALKFRAMES_FFPROBE_PATH names",
   { skip: process.platform === "win32" },
   () => {
     const dir = mkdtempSync(join(tmpdir(), "probe-ffprobe-path-"));
@@ -41,8 +41,8 @@ test(
       `#!/bin/sh\n[ "$1" = -version ] && echo 'ffprobe version fake' && exit 0\necho '{"streams":[{"width":7,"height":3,"codec_name":"fake"}]}'\n`,
     );
     chmodSync(fake, 0o755);
-    const configured = process.env.HYPERFRAMES_FFPROBE_PATH;
-    process.env.HYPERFRAMES_FFPROBE_PATH = fake;
+    const configured = process.env.CHALKFRAMES_FFPROBE_PATH;
+    process.env.CHALKFRAMES_FFPROBE_PATH = fake;
     try {
       assert.deepEqual(probe(join(dir, "clip.png")), {
         duration: null,
@@ -51,46 +51,46 @@ test(
         codec: "fake",
       });
     } finally {
-      if (configured === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-      else process.env.HYPERFRAMES_FFPROBE_PATH = configured;
+      if (configured === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+      else process.env.CHALKFRAMES_FFPROBE_PATH = configured;
       rmSync(dir, { recursive: true, force: true });
     }
   },
 );
 
-test("probe refuses an HYPERFRAMES_FFPROBE_PATH that cannot run instead of reporting no metadata", () => {
-  const configured = process.env.HYPERFRAMES_FFPROBE_PATH;
-  process.env.HYPERFRAMES_FFPROBE_PATH = join(tmpdir(), "no-ffprobe-here", "ffprobe");
+test("probe refuses an CHALKFRAMES_FFPROBE_PATH that cannot run instead of reporting no metadata", () => {
+  const configured = process.env.CHALKFRAMES_FFPROBE_PATH;
+  process.env.CHALKFRAMES_FFPROBE_PATH = join(tmpdir(), "no-ffprobe-here", "ffprobe");
   try {
     assert.throws(
       () => probe("clip.wav"),
-      /HYPERFRAMES_FFPROBE_PATH names ".*no-ffprobe-here.*fix it or unset it/,
+      /CHALKFRAMES_FFPROBE_PATH names ".*no-ffprobe-here.*fix it or unset it/,
     );
   } finally {
-    if (configured === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-    else process.env.HYPERFRAMES_FFPROBE_PATH = configured;
+    if (configured === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+    else process.env.CHALKFRAMES_FFPROBE_PATH = configured;
   }
 });
 
-test("probe refuses an HYPERFRAMES_FFPROBE_PATH that names a folder", () => {
-  const configured = process.env.HYPERFRAMES_FFPROBE_PATH;
-  process.env.HYPERFRAMES_FFPROBE_PATH = tmpdir();
+test("probe refuses an CHALKFRAMES_FFPROBE_PATH that names a folder", () => {
+  const configured = process.env.CHALKFRAMES_FFPROBE_PATH;
+  process.env.CHALKFRAMES_FFPROBE_PATH = tmpdir();
   try {
-    assert.throws(() => probe("clip.wav"), /HYPERFRAMES_FFPROBE_PATH names .*fix it or unset it/);
+    assert.throws(() => probe("clip.wav"), /CHALKFRAMES_FFPROBE_PATH names .*fix it or unset it/);
   } finally {
-    if (configured === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-    else process.env.HYPERFRAMES_FFPROBE_PATH = configured;
+    if (configured === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+    else process.env.CHALKFRAMES_FFPROBE_PATH = configured;
   }
 });
 
 function withFfprobePath(value, run) {
-  const configured = process.env.HYPERFRAMES_FFPROBE_PATH;
-  process.env.HYPERFRAMES_FFPROBE_PATH = value;
+  const configured = process.env.CHALKFRAMES_FFPROBE_PATH;
+  process.env.CHALKFRAMES_FFPROBE_PATH = value;
   try {
     return run();
   } finally {
-    if (configured === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-    else process.env.HYPERFRAMES_FFPROBE_PATH = configured;
+    if (configured === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+    else process.env.CHALKFRAMES_FFPROBE_PATH = configured;
   }
 }
 
@@ -113,7 +113,7 @@ test(
         withFfprobePath(broken, () =>
           assert.throws(
             () => probe("clip.wav"),
-            /HYPERFRAMES_FFPROBE_PATH names .*fix it or unset it/,
+            /CHALKFRAMES_FFPROBE_PATH names .*fix it or unset it/,
           ),
         );
       }
@@ -124,7 +124,7 @@ test(
 );
 
 test(
-  "probe runs a relative HYPERFRAMES_FFPROBE_PATH from the working folder, not from PATH",
+  "probe runs a relative CHALKFRAMES_FFPROBE_PATH from the working folder, not from PATH",
   {
     skip: process.platform === "win32",
   },

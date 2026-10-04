@@ -1,5 +1,5 @@
 /**
- * Build the argument array for `docker run` that invokes the Hyperframes
+ * Build the argument array for `docker run` that invokes the Chalkframes
  * renderer inside a container.
  *
  * Pure function with no I/O so it can be snapshot-tested. Any new render
@@ -7,7 +7,7 @@
  * a test in `dockerRunArgs.test.ts` — that combination is what catches
  * silent-drop regressions like the one that lost `--hdr` historically.
  */
-import { fpsToFfmpegArg, type Fps } from "@hyperframes/core";
+import { fpsToFfmpegArg, type Fps } from "@chalkframes/core";
 
 export interface DockerRunArgsInput {
   imageTag: string;
@@ -32,7 +32,7 @@ export interface DockerRunArgsInput {
 
 export interface DockerRenderOptions {
   /**
-   * Frame rate as an exact rational; see `Fps` in @hyperframes/core. The
+   * Frame rate as an exact rational; see `Fps` in @chalkframes/core. The
    * docker-run arg builder serializes this back to a `--fps` string
    * (`"30"` or `"30000/1001"`) which the in-container CLI re-parses with
    * `parseFps`, so the rational survives the host → container hop.
@@ -78,7 +78,7 @@ export interface DockerRenderOptions {
  * the two architectures the renderer actively supports — arm64 hosts (Apple
  * Silicon, Graviton, Ampere) and everything else (treated as amd64).
  *
- * Honors `HYPERFRAMES_DOCKER_PLATFORM` as an escape hatch (typed loosely so
+ * Honors `CHALKFRAMES_DOCKER_PLATFORM` as an escape hatch (typed loosely so
  * the override can target future platforms without a CLI release):
  *
  * - Apple Silicon users running an x64 Node binary under Rosetta (where
@@ -93,7 +93,7 @@ export function resolveDockerPlatform(
   arch: string = process.arch,
   env: NodeJS.ProcessEnv = process.env,
 ): string {
-  const override = env.HYPERFRAMES_DOCKER_PLATFORM;
+  const override = env.CHALKFRAMES_DOCKER_PLATFORM;
   if (override && override.trim() !== "") return override.trim();
   return arch === "arm64" ? "linux/arm64" : "linux/amd64";
 }

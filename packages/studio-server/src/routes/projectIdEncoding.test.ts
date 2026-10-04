@@ -81,7 +81,7 @@ describe("project ids that percent-encode in a URL", () => {
 
 // A Home sentence with an @ mention names the project; Hono leaves %40 %25 %23 %26 %3F encoded in c.req.path.
 const RESERVED_NAMES = [
-  "A @HyperFrames launch",
+  "A @ChalkFrames launch",
   "50% off",
   "#2 take",
   "Tom & Jerry",

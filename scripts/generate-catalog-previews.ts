@@ -54,10 +54,10 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
 const registryDir = resolve(repoRoot, "registry");
 
-if (!process.env.PRODUCER_HYPERFRAME_MANIFEST_PATH) {
-  process.env.PRODUCER_HYPERFRAME_MANIFEST_PATH = resolve(
+if (!process.env.PRODUCER_CHALKFRAME_MANIFEST_PATH) {
+  process.env.PRODUCER_CHALKFRAME_MANIFEST_PATH = resolve(
     repoRoot,
-    "packages/core/dist/hyperframe.manifest.json",
+    "packages/core/dist/chalkframe.manifest.json",
   );
 }
 
@@ -85,7 +85,7 @@ const catalogKinds: { kind: ItemKind; dir: string }[] = [
 function compositionEntry(manifestPath: string, name: string): string {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
   const compFile = manifest.files?.find(
-    (f: { type: string }) => f.type === "hyperframes:composition",
+    (f: { type: string }) => f.type === "chalkframes:composition",
   );
   return compFile?.path ?? `${name}.html`;
 }
@@ -179,7 +179,7 @@ function pointHostedAssetsAtCdn(projectDir: string): void {
 
 /** The item's own composition file, when it is where the manifest says it is. */
 function compositionPathOf(projectDir: string, manifest: RegistryItem): string | undefined {
-  const entry = manifest.files?.find((file) => file.type === "hyperframes:composition");
+  const entry = manifest.files?.find((file) => file.type === "chalkframes:composition");
   if (entry === undefined) return undefined;
   const entryPath = join(projectDir, entry.path);
   return existsSync(entryPath) ? entryPath : undefined;
@@ -344,7 +344,7 @@ function manifestSize(manifest: WrapperManifest): { width: number; height: numbe
 
 /**
  * Mount the mirrored install-layout copy when one exists: blocks reference assets the way they
- * will after `hyperframes add`, which only resolves from the target path.
+ * will after `chalkframes add`, which only resolves from the target path.
  */
 function wrapperEntrySrc(tmpDir: string, manifest: WrapperManifest, entryFile: string): string {
   const target = manifest.files?.find((f) => f.path === entryFile)?.target;

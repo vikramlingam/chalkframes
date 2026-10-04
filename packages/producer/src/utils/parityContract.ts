@@ -1,5 +1,5 @@
 /**
- * Re-exported from @hyperframes/engine.
+ * Re-exported from @chalkframes/engine.
  * @see engine/src/utils/parityContract.ts for implementation.
  */
-export { quantizeTimeToFrame, MEDIA_VISUAL_STYLE_PROPERTIES } from "@hyperframes/engine";
+export { quantizeTimeToFrame, MEDIA_VISUAL_STYLE_PROPERTIES } from "@chalkframes/engine";

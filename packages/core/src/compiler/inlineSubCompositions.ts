@@ -38,7 +38,7 @@ import {
 import {
   checkSubCompositionUsability,
   resolveSubCompositionContent,
-} from "@hyperframes/parsers/sub-composition-validity";
+} from "@chalkframes/parsers/sub-composition-validity";
 import {
   enumerateNestedCompositionHosts,
   planCompositionAssembly,
@@ -214,7 +214,7 @@ export interface InlineSubCompositionsOptions {
 
   /**
    * Error label prefix used in wrapped composition scripts.
-   * Defaults to `"[HyperFrames] composition script error:"`.
+   * Defaults to `"[ChalkFrames] composition script error:"`.
    */
   scriptErrorLabel?: string;
 
@@ -278,7 +278,7 @@ export interface InlineSubCompositionsResult {
   variablesByComp: Record<string, Record<string, unknown>>;
   /** Mounted files' import maps, addresses rebased; emit with `emitMountedModuleScripts`. */
   importMaps: ImportMap[];
-  /** Mounted files' inline module scripts, each already carrying its scoped `__hyperframes`. */
+  /** Mounted files' inline module scripts, each already carrying its scoped `__chalkframes`. */
   moduleScripts: string[];
 }
 
@@ -326,7 +326,7 @@ export function inlineSubCompositions(
     readVariableDefaults,
     parseHostVariables,
     buildScopeSelector = defaultBuildScopeSelector,
-    scriptErrorLabel = "[HyperFrames] composition script error:",
+    scriptErrorLabel = "[ChalkFrames] composition script error:",
     onMissingComposition,
     assetExists,
     tagScenes = false,
@@ -355,7 +355,7 @@ export function inlineSubCompositions(
     if (!src) continue;
 
     const compHtml = resolveHtml(src);
-    // Shared with lint + render pre-flight (@hyperframes/parsers'
+    // Shared with lint + render pre-flight (@chalkframes/parsers'
     // subCompositionValidity.ts) so all three callers agree on what counts
     // as a usable sub-composition file. This path stays intentionally
     // tolerant (skip, don't throw) — preview and studio must keep bundling
@@ -527,7 +527,7 @@ export function inlineSubCompositions(
           return authored.endsWith("/") && !urlLike.endsWith("/") ? `${urlLike}/` : urlLike;
         });
         if (map) importMaps.push(map);
-        else console.warn(`[HyperFrames] ${src}: import map is not valid JSON, so it is skipped.`);
+        else console.warn(`[ChalkFrames] ${src}: import map is not valid JSON, so it is skipped.`);
       } else if (type === "module" && !externalSrc) {
         const prelude = scriptCompositionId
           ? scopedModulePrelude(runtimeCompId || scopeCompId || scriptCompositionId, src)

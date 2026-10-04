@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import type { VideoColorSpace } from "@hyperframes/engine";
-import { resolveProjectRelativeSrc } from "@hyperframes/engine";
+import type { VideoColorSpace } from "@chalkframes/engine";
+import { resolveProjectRelativeSrc } from "@chalkframes/engine";
 import { inspectHdrAutoPromotion } from "./hdrPromotion.js";
 
 const PROJECT = { dir: "/project", name: "hdr-check", indexPath: "/project/index.html" };

@@ -1,5 +1,5 @@
 /**
- * `hyperframes figma component <ref>` — Phase 3: node tree → editable HTML
+ * `chalkframes figma component <ref>` — Phase 3: node tree → editable HTML
  * component with the §7.1 binding pass, per-node rasterize fallback via
  * Phase-1 asset import, packaged as a registry item.
  */
@@ -17,7 +17,7 @@ import {
   type FigmaClient,
   type NodeToHtmlResult,
   type RasterizeRequest,
-} from "@hyperframes/core/figma";
+} from "@chalkframes/core/figma";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
@@ -81,20 +81,20 @@ export async function runComponentImport(
 
   const registryItem = {
     name,
-    type: "hyperframes:component",
+    type: "chalkframes:component",
     description: `Imported from figma ${ref.fileKey}/${ref.nodeId}`,
     files: [
       {
         path: `${name}.html`,
         target: `compositions/components/${name}/${name}.html`,
-        type: "hyperframes:snippet",
+        type: "chalkframes:snippet",
       },
       // The paths the frozen files ACTUALLY landed at (image_NNN.svg), which
       // is also what the emitted HTML references — not the slug names.
       ...frozenAssets.map((p) => ({
         path: p.split("/").pop() ?? p,
         target: p.replaceAll("\\", "/"),
-        type: "hyperframes:asset",
+        type: "chalkframes:asset",
       })),
     ],
   };
@@ -212,7 +212,7 @@ export default defineCommand({
       }
       if (result.unresolved.length > 0) {
         console.log(
-          `${result.unresolved.length} binding(s) reference tokens not yet imported — colors baked as literals (flagged data-figma-unresolved). Run \`hyperframes figma tokens\` on the source/library file, then re-import to link them.`,
+          `${result.unresolved.length} binding(s) reference tokens not yet imported — colors baked as literals (flagged data-figma-unresolved). Run \`chalkframes figma tokens\` on the source/library file, then re-import to link them.`,
         );
       }
       const { trackFigmaImport } = await import("../../telemetry/index.js");

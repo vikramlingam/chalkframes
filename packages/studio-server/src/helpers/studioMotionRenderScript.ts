@@ -2,7 +2,7 @@ export interface StudioMotionRenderScriptOptions {
   activeCompositionPath?: string | null;
 }
 
-export const STUDIO_MOTION_PATH = ".hyperframes/studio-motion.json";
+export const STUDIO_MOTION_PATH = ".chalkframes/studio-motion.json";
 
 function hasStudioMotionEntries(manifestContent: string): boolean {
   try {

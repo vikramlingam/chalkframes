@@ -2,7 +2,7 @@ import type { RuntimeDeterministicAdapter } from "../types";
 import { swallow } from "../diagnostics";
 
 /**
- * Lottie adapter for HyperFrames
+ * Lottie adapter for ChalkFrames
  *
  * Supports lottie-web and @lottiefiles/dotlottie-web.
  *

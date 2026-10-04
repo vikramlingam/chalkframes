@@ -42,7 +42,7 @@ function deviceAuthorizationResponse(overrides: Record<string, unknown> = {}): R
     JSON.stringify({
       device_code: "secret-device-code",
       user_code: "ABCD-2345",
-      verification_uri: "https://app.heygen.com/oauth/device",
+      verification_uri: "https://app.chalkframes.com/oauth/device",
       expires_in: 600,
       interval: 5,
       ...overrides,
@@ -81,7 +81,7 @@ describe("auth/oauth", () => {
 
   describe("resolveClientId", () => {
     it("returns the env override when set", () => {
-      process.env["HYPERFRAMES_OAUTH_CLIENT_ID"] = "test_client_id";
+      process.env["CHALKFRAMES_OAUTH_CLIENT_ID"] = "test_client_id";
       expect(resolveClientId()).toBe("test_client_id");
     });
 
@@ -171,7 +171,7 @@ describe("auth/oauth", () => {
 
   describe("refreshTokens", () => {
     it("posts grant_type=refresh_token and persists the response", async () => {
-      process.env["HEYGEN_API_URL"] = "https://api.test.example";
+      process.env["CHALKFRAMES_API_URL"] = "https://api.test.example";
       let capturedBody: string | undefined;
       const fetchImpl = (async (_url: string, init?: RequestInit) => {
         capturedBody = init?.body as string;
@@ -307,7 +307,7 @@ describe("auth/oauth", () => {
     });
 
     it("returns silently when client_id is unconfigured (no throw)", async () => {
-      process.env["HYPERFRAMES_OAUTH_CLIENT_ID"] = "";
+      process.env["CHALKFRAMES_OAUTH_CLIENT_ID"] = "";
       // With the baked-in default cleared from env, revokeTokens still has
       // the build-time default. Force it to fail by setting the override to
       // a value AND nulling the default isn't possible from a test — instead
@@ -456,7 +456,7 @@ describe("auth/oauth", () => {
           JSON.stringify({
             device_code: "secret-device-code",
             user_code: "ABCD-2345",
-            verification_uri: "https://app.heygen.com/oauth/device",
+            verification_uri: "https://app.chalkframes.com/oauth/device",
             expires_in: 600,
             interval: 5,
           }),
@@ -505,7 +505,7 @@ describe("auth/oauth", () => {
       expect(challenges).toEqual([
         {
           userCode: "ABCD-2345",
-          verificationUri: "https://app.heygen.com/oauth/device",
+          verificationUri: "https://app.chalkframes.com/oauth/device",
         },
       ]);
       expect(sleeps).toEqual([5_000, 5_000, 10_000]);
@@ -524,7 +524,7 @@ describe("auth/oauth", () => {
       const responses = [
         deviceAuthorizationResponse({
           interval: undefined,
-          verification_uri_complete: "https://app.heygen.com/oauth/device?user_code=ABCD-2345",
+          verification_uri_complete: "https://app.chalkframes.com/oauth/device?user_code=ABCD-2345",
         }),
         new Response(JSON.stringify({ access_token: "device-at" }), { status: 200 }),
       ];
@@ -551,8 +551,8 @@ describe("auth/oauth", () => {
       expect(challenges).toEqual([
         {
           userCode: "ABCD-2345",
-          verificationUri: "https://app.heygen.com/oauth/device",
-          verificationUriComplete: "https://app.heygen.com/oauth/device?user_code=ABCD-2345",
+          verificationUri: "https://app.chalkframes.com/oauth/device",
+          verificationUriComplete: "https://app.chalkframes.com/oauth/device?user_code=ABCD-2345",
         },
       ]);
     });
@@ -650,7 +650,7 @@ describe("auth/oauth", () => {
               JSON.stringify({
                 device_code: "never-log-this-device-code",
                 user_code: "ABCD-2345",
-                verification_uri: "https://app.heygen.com/oauth/device",
+                verification_uri: "https://app.chalkframes.com/oauth/device",
                 expires_in: 600,
                 interval: 5,
               }),
@@ -678,10 +678,10 @@ describe("auth/oauth", () => {
     );
 
     it.each([
-      ["credential-bearing URL", "https://user:pass@app.heygen.com/oauth/device", 600, 5],
-      ["control-character URL", "https://app.heygen.com/oauth/\u001b[31m", 600, 5],
-      ["prefix-parsed expiry", "https://app.heygen.com/oauth/device", "600seconds", 5],
-      ["prefix-parsed interval", "https://app.heygen.com/oauth/device", 600, "5seconds"],
+      ["credential-bearing URL", "https://user:pass@app.chalkframes.com/oauth/device", 600, 5],
+      ["control-character URL", "https://app.chalkframes.com/oauth/\u001b[31m", 600, 5],
+      ["prefix-parsed expiry", "https://app.chalkframes.com/oauth/device", "600seconds", 5],
+      ["prefix-parsed interval", "https://app.chalkframes.com/oauth/device", 600, "5seconds"],
     ])("rejects an unsafe or malformed %s response", async (_name, uri, expiresIn, interval) => {
       const fetchImpl = (async () =>
         new Response(

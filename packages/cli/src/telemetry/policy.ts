@@ -3,7 +3,7 @@ import { POSTHOG_API_KEY } from "./posthogKey.js";
 
 export type TelemetryStatusSource =
   | "config"
-  | "HYPERFRAMES_NO_TELEMETRY"
+  | "CHALKFRAMES_NO_TELEMETRY"
   | "DO_NOT_TRACK"
   | "dev_mode"
   | "telemetry_disabled_build";
@@ -29,8 +29,8 @@ function isEnvOptOutValue(value: string | undefined): boolean {
  * persisted preference is considered.
  */
 export function telemetryRuntimeOverride(): Exclude<TelemetryStatusSource, "config"> | null {
-  if (isEnvOptOutValue(process.env["HYPERFRAMES_NO_TELEMETRY"])) {
-    return "HYPERFRAMES_NO_TELEMETRY";
+  if (isEnvOptOutValue(process.env["CHALKFRAMES_NO_TELEMETRY"])) {
+    return "CHALKFRAMES_NO_TELEMETRY";
   }
   if (isEnvOptOutValue(process.env["DO_NOT_TRACK"])) {
     return "DO_NOT_TRACK";

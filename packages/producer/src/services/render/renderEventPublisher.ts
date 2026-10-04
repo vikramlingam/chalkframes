@@ -1,4 +1,4 @@
-import { cloneCaptureWarnings } from "@hyperframes/engine";
+import { cloneCaptureWarnings } from "@chalkframes/engine";
 import type { ProducerLogger } from "../../logger.js";
 import type { ProgressCallback, RenderJob } from "../renderOrchestrator.js";
 import { updateJobStatus } from "./shared.js";

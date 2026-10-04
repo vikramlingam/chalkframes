@@ -44,7 +44,7 @@ vi.mock("node:path", async (importOriginal) => {
         return hooks.studioDir;
       if (
         hooks.runtimeDir &&
-        ["hyperframe-runtime.js", "hyperframe.runtime.iife.js"].includes(parts.at(-1) ?? "")
+        ["chalkframe-runtime.js", "chalkframe.runtime.iife.js"].includes(parts.at(-1) ?? "")
       ) {
         return actual.resolve(hooks.runtimeDir, parts.at(-1) ?? "");
       }
@@ -99,7 +99,7 @@ describe("Studio bundle file reads", () => {
     hooks.studioDir = path.join(root, "studio");
     hooks.runtimeDir = path.join(root, "runtime");
     fs.mkdirSync(hooks.runtimeDir);
-    fs.writeFileSync(path.join(hooks.runtimeDir, "hyperframe-runtime.js"), "checked runtime");
+    fs.writeFileSync(path.join(hooks.runtimeDir, "chalkframe-runtime.js"), "checked runtime");
     const projectDir = path.join(root, "project");
     fs.mkdirSync(projectDir);
     fs.mkdirSync(hooks.studioDir);
@@ -181,7 +181,7 @@ describe("Studio bundle file reads", () => {
 
   it("serves the checked runtime fallback despite replacement", async () => {
     hooks.useRuntimeFallback = true;
-    const file = path.join(hooks.runtimeDir, "hyperframe-runtime.js");
+    const file = path.join(hooks.runtimeDir, "chalkframe-runtime.js");
     hooks.checked = (checked) => {
       if (checked !== file) return;
       hooks.checked = () => {};
@@ -243,7 +243,7 @@ describe("Studio bundle file reads", () => {
     fs.unlinkSync(path.join(hooks.studioDir, "index.html"));
     const response = await server.app.request("/");
     expect(response.status).toBe(500);
-    expect(await response.text()).toContain("HyperFrames Studio unavailable");
+    expect(await response.text()).toContain("ChalkFrames Studio unavailable");
   });
 
   it("still injects runtime environment into the SPA fallback", async () => {

@@ -22,7 +22,7 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { CaptureOptions } from "@hyperframes/engine";
+import type { CaptureOptions } from "@chalkframes/engine";
 import { HOST_CHROME_FAILURE_PATTERNS } from "./__test_utils__/hostChromeFailures.js";
 import { plan } from "./plan.js";
 import {
@@ -70,7 +70,7 @@ beforeAll(async () => {
   // contract is exercised.
   try {
     const { createCaptureSession, initializeSession, closeCaptureSession } =
-      await import("@hyperframes/engine");
+      await import("@chalkframes/engine");
     const { createFileServer } = await import("../fileServer.js");
     const smokeDir = join(runRoot, "smoke");
     mkdirSync(join(smokeDir, "compiled"), { recursive: true });

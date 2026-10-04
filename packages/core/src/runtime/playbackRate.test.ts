@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import * as parsersBounds from "@hyperframes/parsers/media-duration";
-import { MEDIA_DURATION_FIXTURES } from "@hyperframes/parsers/media-duration-fixtures";
+import * as parsersBounds from "@chalkframes/parsers/media-duration";
+import { MEDIA_DURATION_FIXTURES } from "@chalkframes/parsers/media-duration-fixtures";
 import {
   resolveMediaElementDurationSeconds,
   resolveNaturalMediaTimelineDuration,

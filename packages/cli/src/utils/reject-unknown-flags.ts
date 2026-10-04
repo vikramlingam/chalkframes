@@ -56,7 +56,7 @@ function unknownFlagIn(tok: string, known: Set<string>): string | null {
 export function assertKnownFlags(cmd: CommandDef<ArgsDef>, rawArgs: string[]): void {
   if (!Array.isArray(rawArgs)) return;
   // citty types `args` as Resolvable<ArgsDef> (it may be a fn/promise); every
-  // hyperframes command uses a static object, so treat anything else as "no
+  // chalkframes command uses a static object, so treat anything else as "no
   // declared args" and skip validation rather than risk a wrong rejection.
   const rawDef = cmd.args;
   const args = rawDef && typeof rawDef === "object" ? (rawDef as ArgsDef) : undefined;

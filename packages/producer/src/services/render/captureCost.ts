@@ -10,7 +10,7 @@
  */
 
 import { join } from "node:path";
-import { fpsToNumber } from "@hyperframes/core";
+import { fpsToNumber } from "@chalkframes/core";
 import {
   type BeforeCaptureHook,
   type CaptureOptions,
@@ -23,7 +23,7 @@ import {
   computeWorkerSizing,
   createCaptureSession,
   initializeSession,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { CompiledComposition } from "../htmlCompiler.js";
 import type { FileServerHandle } from "../fileServer.js";
 import { defaultLogger, type ProducerLogger } from "../../logger.js";
@@ -119,7 +119,7 @@ function combineCaptureCostEstimates(
  * - Not enforced as a cap yet — the per-worker budget constant is derived
  *   from one field report; the `workers_heap_*` telemetry emitted with the
  *   sizing decides whether to enforce (see the TODO on HEAP_PER_WORKER_MB in
- *   @hyperframes/engine's parallelCoordinator). The message gives the
+ *   @chalkframes/engine's parallelCoordinator). The message gives the
  *   operator the actionable knobs today.
  *
  * Pure so the message shape + firing condition are unit-testable with a

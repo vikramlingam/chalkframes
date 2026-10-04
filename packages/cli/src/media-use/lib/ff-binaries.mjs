@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
-// The binaries media-use spawns: HYPERFRAMES_FFMPEG_PATH / HYPERFRAMES_FFPROBE_PATH when set, else PATH.
+// The binaries media-use spawns: CHALKFRAMES_FFMPEG_PATH / CHALKFRAMES_FFPROBE_PATH when set, else PATH.
 // A set path that is not a working ffmpeg/ffprobe throws, so a broken override never reads as "no metadata".
 const runsByPath = new Map();
 
@@ -33,5 +33,5 @@ function isWorking(path, name) {
   }
 }
 
-export const ffmpegBinary = () => configuredOr("ffmpeg", "HYPERFRAMES_FFMPEG_PATH");
-export const ffprobeBinary = () => configuredOr("ffprobe", "HYPERFRAMES_FFPROBE_PATH");
+export const ffmpegBinary = () => configuredOr("ffmpeg", "CHALKFRAMES_FFMPEG_PATH");
+export const ffprobeBinary = () => configuredOr("ffprobe", "CHALKFRAMES_FFPROBE_PATH");

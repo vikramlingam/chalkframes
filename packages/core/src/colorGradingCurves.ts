@@ -1,4 +1,4 @@
-import { COLOR_GRADING_MAX_CURVE_POINTS } from "@hyperframes/parsers/color-grading-contract";
+import { COLOR_GRADING_MAX_CURVE_POINTS } from "@chalkframes/parsers/color-grading-contract";
 
 export type HfColorCurvePoint = readonly [input: number, output: number];
 export type HfHueCurvePoint = readonly [hueDegrees: number, delta: number];

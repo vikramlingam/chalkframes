@@ -235,7 +235,7 @@ describe("resolveDefaultFpsArg", () => {
     entryFile: string;
     cleanup: () => void;
   } {
-    const dir = mkdtempSync(join(tmpdir(), "hyperframes-render-fps-"));
+    const dir = mkdtempSync(join(tmpdir(), "chalkframes-render-fps-"));
     const indexPath = join(dir, "index.html");
     const entryFile = "compositions/intro.html";
     const entryPath = join(dir, entryFile);

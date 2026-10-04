@@ -2,8 +2,8 @@
  * Browser-safe static scan for composition-variable reads in script text.
  *
  * Compositions read variables by calling the runtime API — `getVariables()`
- * bare (sub-comp scoped shadow) or via `__hyperframes.getVariables()` /
- * `window.__hyperframes.getVariables()` — and there is no DOM-attribute
+ * bare (sub-comp scoped shadow) or via `__chalkframes.getVariables()` /
+ * `window.__chalkframes.getVariables()` — and there is no DOM-attribute
  * binding to scan, so "which variables does this composition use" can only be
  * derived from the scripts. This is a best-effort static analysis: the
  * patterns agents actually write (destructuring, member access, a single

@@ -451,7 +451,7 @@ const EXTRACT_DESIGN_STYLES_SCRIPT = `(() => {
     .map(function(e) { return { value: e.value, area: e.area }; });
 
   // ── 9. Frosted-glass panels (backdrop-filter) ──
-  // A defining material on modern hero UIs (HeyGen's prompt box, Stripe's floating chrome): a
+  // A defining material on modern hero UIs (Chalkframes's prompt box, Stripe's floating chrome): a
   // translucent surface with a backdrop blur. Capture the RAW fill (rgba/gradient — alpha preserved,
   // unlike rgbToHex) + the blur, ranked by area. This is what lets a frame render a real frosted card.
   var glassSamples = Array.from(document.querySelectorAll(

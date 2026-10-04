@@ -213,7 +213,7 @@ describe("wrapWhisperTimeoutError", () => {
     // timeout, and cite the model so slow-CPU reporters see the knob.
     expect(wrapped).not.toBe(original);
     expect(wrapped.message).toContain("--timeout");
-    expect(wrapped.message).toContain("HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS");
+    expect(wrapped.message).toContain("CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS");
     expect(wrapped.message).toContain("1260s");
     expect(wrapped.message).toContain("medium.en");
     expect((wrapped as { cause?: unknown }).cause).toBe(original);
@@ -308,17 +308,17 @@ describe.skipIf(process.platform === "win32")("prepareWav", () => {
     );
     chmodSync(ffmpeg, 0o755);
     const leftovers = () =>
-      readdirSync(tmpdir()).filter((f) => f.startsWith(`hyperframes-audio-${process.pid}-`));
-    const saved = process.env.HYPERFRAMES_FFMPEG_PATH;
-    process.env.HYPERFRAMES_FFMPEG_PATH = ffmpeg;
+      readdirSync(tmpdir()).filter((f) => f.startsWith(`chalkframes-audio-${process.pid}-`));
+    const saved = process.env.CHALKFRAMES_FFMPEG_PATH;
+    process.env.CHALKFRAMES_FFMPEG_PATH = ffmpeg;
     try {
       for (const input of ["talk.mp3", "talk.mp4"]) {
         expect(() => prepareWav(join(dir, input))).toThrow(/Command failed/);
         expect(leftovers()).toEqual([]);
       }
     } finally {
-      if (saved === undefined) delete process.env.HYPERFRAMES_FFMPEG_PATH;
-      else process.env.HYPERFRAMES_FFMPEG_PATH = saved;
+      if (saved === undefined) delete process.env.CHALKFRAMES_FFMPEG_PATH;
+      else process.env.CHALKFRAMES_FFMPEG_PATH = saved;
       rmSync(dir, { recursive: true, force: true });
     }
   });
@@ -328,15 +328,15 @@ describe.skipIf(process.platform === "win32")("prepareWav", () => {
     const ffmpeg = join(dir, "ffmpeg");
     writeFileSync(ffmpeg, `#!${process.execPath}\n${script}\n`);
     chmodSync(ffmpeg, 0o755);
-    const saved = process.env.HYPERFRAMES_FFMPEG_PATH;
-    process.env.HYPERFRAMES_FFMPEG_PATH = ffmpeg;
+    const saved = process.env.CHALKFRAMES_FFMPEG_PATH;
+    process.env.CHALKFRAMES_FFMPEG_PATH = ffmpeg;
     try {
       prepareWav(join(dir, "talk.mp3"));
     } catch (err) {
       return err;
     } finally {
-      if (saved === undefined) delete process.env.HYPERFRAMES_FFMPEG_PATH;
-      else process.env.HYPERFRAMES_FFMPEG_PATH = saved;
+      if (saved === undefined) delete process.env.CHALKFRAMES_FFMPEG_PATH;
+      else process.env.CHALKFRAMES_FFMPEG_PATH = saved;
       rmSync(dir, { recursive: true, force: true });
     }
     throw new Error("prepareWav did not fail");

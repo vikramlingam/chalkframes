@@ -5,7 +5,7 @@ import {
   STUDIO_HEIGHT_PROP,
   STUDIO_MANUAL_EDIT_GESTURE_ATTR,
 } from "./draftMarkers.js";
-import { readClipTiming } from "@hyperframes/core/composition-contract";
+import { readClipTiming } from "@chalkframes/core/composition-contract";
 
 export type DraftPayload =
   | { type: "move"; hfId: string; dx: number; dy: number }

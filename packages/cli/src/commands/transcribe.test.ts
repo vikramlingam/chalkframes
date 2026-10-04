@@ -123,7 +123,7 @@ describe("transcribe command", () => {
       execFileMock.mockReset();
       execFileMock.mockImplementation((_cmd, _args, _opts, done) => {
         const windows = [{ offset: 60, tokens: [" sherpa"], timestamps: [0.5], durations: [0.25] }];
-        done(null, `HYPERFRAMES_PARAKEET_RESULT:${JSON.stringify(windows)}\n`, "");
+        done(null, `CHALKFRAMES_PARAKEET_RESULT:${JSON.stringify(windows)}\n`, "");
       });
       vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(process.report, "getReport").mockReturnValue({
@@ -230,7 +230,7 @@ describe("transcribe command", () => {
       await expect(
         transcribeCmd.run!({ args: { input, json: true, engine: "parakeet" } } as never),
       ).rejects.toThrow(CliRuntimeError);
-      expect(lastJson().error).toContain("hyperframes models install parakeet");
+      expect(lastJson().error).toContain("chalkframes models install parakeet");
       expect(transcribeMock).not.toHaveBeenCalled();
     });
 
@@ -261,7 +261,7 @@ describe("transcribe command", () => {
       const warnings = vi.mocked(console.error).mock.calls.map(([line]) => String(line));
       expect(warnings).toHaveLength(1);
       expect(warnings[0]).toMatch(
-        /^.*Parakeet failed: .*SIGABRT.*Ort::Exception.*hyperframes models install parakeet.*Using whisper/,
+        /^.*Parakeet failed: .*SIGABRT.*Ort::Exception.*chalkframes models install parakeet.*Using whisper/,
       );
     });
 
@@ -271,7 +271,7 @@ describe("transcribe command", () => {
       const { exitCode, out } = await transcribeFails("parakeet");
       expect(exitCode).toBe(1);
       expect(out.error).toMatch(
-        /^Parakeet failed: .*Protobuf parsing failed\. To repair it, run: hyperframes models install parakeet$/,
+        /^Parakeet failed: .*Protobuf parsing failed\. To repair it, run: chalkframes models install parakeet$/,
       );
       expect(transcribeMock).not.toHaveBeenCalled();
     });
@@ -279,7 +279,7 @@ describe("transcribe command", () => {
     it("keeps a long decoder error whole up to a bound", async () => {
       crashChild(
         "SIGABRT",
-        `HYPERFRAMES_PARAKEET_ERROR:${"a".repeat(590)} tail ${"b".repeat(2000)}\n`,
+        `CHALKFRAMES_PARAKEET_ERROR:${"a".repeat(590)} tail ${"b".repeat(2000)}\n`,
       );
       Object.assign(runners, { sherpa: true, mlx: false });
       const { out } = await transcribeFails("parakeet");
@@ -331,7 +331,7 @@ describe("transcribe command", () => {
         const script = `process.stderr.write(${JSON.stringify(`${said}\n`)}); process.exit(255);`;
         writeFileSync(ffmpeg, `#!${process.execPath}\n${script}\n`);
         chmodSync(ffmpeg, 0o755);
-        vi.stubEnv("HYPERFRAMES_FFMPEG_PATH", ffmpeg);
+        vi.stubEnv("CHALKFRAMES_FFMPEG_PATH", ffmpeg);
         Object.assign(runners, { sherpa: true, mlx: false });
         const { exitCode, out } = await transcribeFails("auto");
         expect(exitCode).toBe(code);
@@ -370,7 +370,7 @@ describe("transcribe command", () => {
       });
       expect(prepared).toHaveLength(1);
       const sherpaInput = JSON.parse(
-        execFileMock.mock.calls[0]?.[2].env.HYPERFRAMES_PARAKEET_INPUT,
+        execFileMock.mock.calls[0]?.[2].env.CHALKFRAMES_PARAKEET_INPUT,
       );
       expect(sherpaInput.wavPath).toBe(prepared[0]);
       expect(transcribeMock.mock.calls[0]?.[0]).toBe(prepared[0]);
@@ -394,7 +394,7 @@ describe("transcribe command", () => {
 
     it("succeeds with 0 words when the audio has no speech", async () => {
       execFileMock.mockImplementation((_cmd, _args, _opts, done) => {
-        done(null, `HYPERFRAMES_PARAKEET_RESULT:${JSON.stringify([])}\n`, "");
+        done(null, `CHALKFRAMES_PARAKEET_RESULT:${JSON.stringify([])}\n`, "");
       });
       Object.assign(runners, { sherpa: true, mlx: false });
       const { dir, input } = dummyAudio();

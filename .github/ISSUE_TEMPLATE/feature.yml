@@ -1,11 +1,11 @@
 name: Feature Request
-description: Suggest an idea for Hyperframes
+description: Suggest an idea for Chalkframes
 labels: ["enhancement", "triage/needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting an improvement! Please search [existing issues](https://github.com/heygen-com/hyperframes/issues) first to avoid duplicates.
+        Thanks for suggesting an improvement! Please search [existing issues](https://github.com/vikramlingam/chalkframes/issues) first to avoid duplicates.
 
   - type: textarea
     id: problem

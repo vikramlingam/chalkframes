@@ -4,12 +4,12 @@ import {
   HF_AUDIO_AUTOMATION_ATTR,
   parseAutomation,
   resolveAutomation,
-} from "@hyperframes/core/audio-automation";
-import { HF_AUDIO_FX_ATTR, parseAudioFxChain } from "@hyperframes/core/audio-fx";
-import { HF_AUDIO_GROUP_ATTR } from "@hyperframes/core/audio-groups";
-import { byStart, type ClipFact, type ClipLane } from "@hyperframes/core/clip-facts";
-import { fpsToNumber, parseFpsWithDefault, parseNumeric } from "@hyperframes/core";
-import { findSyncPartner, readLinkTiming, syncOffsetFrames } from "@hyperframes/core/media-link";
+} from "@chalkframes/core/audio-automation";
+import { HF_AUDIO_FX_ATTR, parseAudioFxChain } from "@chalkframes/core/audio-fx";
+import { HF_AUDIO_GROUP_ATTR } from "@chalkframes/core/audio-groups";
+import { byStart, type ClipFact, type ClipLane } from "@chalkframes/core/clip-facts";
+import { fpsToNumber, parseFpsWithDefault, parseNumeric } from "@chalkframes/core";
+import { findSyncPartner, readLinkTiming, syncOffsetFrames } from "@chalkframes/core/media-link";
 import { readCompositionFps } from "../utils/compositionFps.js";
 import {
   readMediaOffsetSeconds,
@@ -17,20 +17,20 @@ import {
   resolveMediaDuration,
   type MediaDurationSource,
   type MediaTag,
-} from "@hyperframes/parsers/media-duration";
+} from "@chalkframes/parsers/media-duration";
 import {
   topLevelElements,
   trackKindOf,
   type StructureNode,
   type TrackKind,
-} from "@hyperframes/parsers";
-import { resolveMediaStartSeconds } from "@hyperframes/core/media-timing";
+} from "@chalkframes/parsers";
+import { resolveMediaStartSeconds } from "@chalkframes/core/media-timing";
 import {
   extractAudioMetadata,
   extractMediaMetadata,
   resolveReferencedDuration,
   resolveReferencedStart,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 
 /** How `duration` was determined: the parsers resolver's names for media, "inner" for a composition host. */
 export type DurationSource = MediaDurationSource | "inner";

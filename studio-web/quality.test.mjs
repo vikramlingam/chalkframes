@@ -670,7 +670,12 @@ test("vector-cluster-graph alias normalization, validation enrichment, and SVG r
   // Enriched with safe fallbacks
   assert.ok(Array.isArray(scene.clusters) && scene.clusters.length === 3);
   assert.ok(scene.stats && scene.stats.metric);
-  assert.match(scene.queryLabel, /q = embed/);
+  // Zero topic leakage: fallback copy comes from the scene's own words, never stock jargon.
+  assert.match(scene.queryLabel, /Semantic|Vector|Search/);
+  assert.doesNotMatch(
+    JSON.stringify([scene.clusters, scene.stats, scene.queryLabel]),
+    /embed|HNSW|Cosine|Recall|Syntactic|Pruned|10M/i,
+  );
 
   const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
     scene,

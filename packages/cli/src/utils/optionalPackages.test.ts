@@ -131,14 +131,14 @@ describe("loadOptionalPackage", () => {
 });
 
 describe("a copy installed beside the CLI", () => {
-  // node_modules/hyperframes/dist/cli.js with onnxruntime-node installed next to hyperframes.
+  // node_modules/chalkframes/dist/cli.js with onnxruntime-node installed next to chalkframes.
   function layout(version: string) {
     const root = mkdtempSync(join(tmpdir(), "hf-beside-"));
     const pkg = join(root, "node_modules", "onnxruntime-node");
     mkdirSync(pkg, { recursive: true });
     writeFileSync(join(pkg, "package.json"), JSON.stringify({ version, main: "index.js" }));
     writeFileSync(join(pkg, "index.js"), `module.exports = { copy: "beside ${version}" };`);
-    const cliUrl = pathToFileURL(join(root, "node_modules", "hyperframes", "dist", "cli.js")).href;
+    const cliUrl = pathToFileURL(join(root, "node_modules", "chalkframes", "dist", "cli.js")).href;
     return { root, cliUrl };
   }
 
@@ -166,7 +166,7 @@ describe("a copy installed beside the CLI", () => {
 
   it("checks the copy require would load first, not a later pinned one", () => {
     const { root, cliUrl } = layout(OPTIONAL_PACKAGES["onnxruntime-node"]);
-    const nearer = join(root, "node_modules", "hyperframes", "node_modules", "onnxruntime-node");
+    const nearer = join(root, "node_modules", "chalkframes", "node_modules", "onnxruntime-node");
     mkdirSync(nearer, { recursive: true });
     writeFileSync(join(nearer, "index.js"), `module.exports = { copy: "unversioned" };`);
     try {
@@ -228,7 +228,7 @@ console.log(JSON.stringify([m.loadBesideCli("onnxruntime-node", url),
   it("looks past an empty folder that require skips", () => {
     const pin = OPTIONAL_PACKAGES["onnxruntime-node"];
     const { root, cliUrl } = layout(pin);
-    mkdirSync(join(root, "node_modules", "hyperframes", "node_modules", "onnxruntime-node"), {
+    mkdirSync(join(root, "node_modules", "chalkframes", "node_modules", "onnxruntime-node"), {
       recursive: true,
     });
     try {
@@ -240,7 +240,7 @@ console.log(JSON.stringify([m.loadBesideCli("onnxruntime-node", url),
 
   it("ignores a file require would load before the pinned folder", () => {
     const { root, cliUrl } = layout(OPTIONAL_PACKAGES["onnxruntime-node"]);
-    const nearer = join(root, "node_modules", "hyperframes", "node_modules");
+    const nearer = join(root, "node_modules", "chalkframes", "node_modules");
     mkdirSync(nearer, { recursive: true });
     writeFileSync(join(nearer, "onnxruntime-node.js"), `module.exports = { copy: "file" };`);
     try {

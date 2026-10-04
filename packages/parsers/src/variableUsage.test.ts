@@ -4,7 +4,7 @@ import { scanVariableUsage } from "./variableUsage.js";
 describe("scanVariableUsage", () => {
   it("collects ids from direct destructuring with defaults", () => {
     const scan = scanVariableUsage(`
-      const { title = "Untitled", accent } = __hyperframes.getVariables();
+      const { title = "Untitled", accent } = __chalkframes.getVariables();
       document.querySelector("h1").textContent = title;
     `);
     expect(scan.usedIds).toEqual(["title", "accent"]);
@@ -13,15 +13,15 @@ describe("scanVariableUsage", () => {
 
   it("handles bare getVariables (sub-comp scoped shadow) and window-qualified calls", () => {
     expect(scanVariableUsage(`const { a } = getVariables();`).usedIds).toEqual(["a"]);
-    expect(scanVariableUsage(`const { b } = window.__hyperframes.getVariables();`).usedIds).toEqual(
+    expect(scanVariableUsage(`const { b } = window.__chalkframes.getVariables();`).usedIds).toEqual(
       ["b"],
     );
   });
 
   it("collects ids from member access on the call and on an alias", () => {
     const scan = scanVariableUsage(`
-      const x = __hyperframes.getVariables().headline;
-      const vars = __hyperframes.getVariables();
+      const x = __chalkframes.getVariables().headline;
+      const vars = __chalkframes.getVariables();
       el.style.color = vars.accent;
       const size = vars["font-size"];
       const { title } = vars;

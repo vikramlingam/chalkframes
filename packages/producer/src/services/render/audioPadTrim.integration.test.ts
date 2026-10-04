@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { getFfmpegBinary, muxVideoWithAudio } from "@hyperframes/engine";
+import { getFfmpegBinary, muxVideoWithAudio } from "@chalkframes/engine";
 import { padOrTrimAudioToVideoFrameCount } from "./audioPadTrim.js";
 
 const dirs: string[] = [];

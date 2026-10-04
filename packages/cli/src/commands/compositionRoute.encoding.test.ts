@@ -9,7 +9,7 @@ import { registerPresentCompositionRoute } from "./present.js";
 
 // Hono's c.req.path leaves %40 %25 %23 %26 %3F encoded; Windows file names cannot hold "?".
 const NAMES = [
-  "A @HyperFrames launch",
+  "A @ChalkFrames launch",
   "50% off",
   "#2 take",
   "Tom & Jerry",

@@ -1,10 +1,10 @@
-# HyperFrames Composition Project
+# ChalkFrames Composition Project
 
 ## Skills — USE THESE FIRST
 
 **Always invoke the relevant skill before writing or modifying compositions.** Skills encode framework-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.
 
-**Doing anything with HyperFrames?** Start at `/hyperframes` — it tells you what HyperFrames can do and which skill or workflow handles your intent (make a video, TTS / BGM, prep footage, author / animate, render, install blocks), confirms your brief up front (the intent layer), and routes every "make me a…" request (a video, a deck, a composition port) to the right workflow. Read it first, especially when there's no project context to orient you. The workflows it routes to:
+**Doing anything with ChalkFrames?** Start at `/chalkframes` — it tells you what ChalkFrames can do and which skill or workflow handles your intent (make a video, TTS / BGM, prep footage, author / animate, render, install blocks), confirms your brief up front (the intent layer), and routes every "make me a…" request (a video, a deck, a composition port) to the right workflow. Read it first, especially when there's no project context to orient you. The workflows it routes to:
 
 - `/product-launch-video` — any **website** URL or brief / script → a product launch / SaaS / promo video, or a site tour / showcase featuring the site's own captured visuals.
 - `/faceless-explainer` — arbitrary text (topic / article / notes), **no URL, no website capture** → 60-90s faceless explainer.
@@ -14,23 +14,23 @@
 - `/motion-graphics` — a short (typically under 10s) design-led **motion graphic**, motion-is-the-message, no narration: kinetic type, a stat / number count-up, a chart, a logo sting, a lower-third / overlay, or an animated tweet / headline / captured-page highlight; rendered to MP4 or a transparent overlay. Longer / narrated / custom → `/general-video`.
 - `/music-to-video` — a **music track** (audio file, video to pull audio from, or one generated from a mood brief) → beat-synced video (lyric / slideshow / kinetic promo). Music drives pacing; user-supplied images / videos are cut onto the same beat grid.
 - `/slideshow` — a **presentation / pitch deck / interactive deck** — discrete slides, fragment reveals, branching, hotspot navigation, presenter mode. Output is a navigable deck, not a rendered video.
-- `/general-video` — fallback for any other video (title card, longer brand / sizzle reel, multi-scene montage, static loop, custom composition) and the home of **companion mode** — co-create with the full HyperFrames toolbox; the original hyperframes authoring flow, any length.
+- `/general-video` — fallback for any other video (title card, longer brand / sizzle reel, multi-scene montage, static loop, custom composition) and the home of **companion mode** — co-create with the full ChalkFrames toolbox; the original chalkframes authoring flow, any length.
 
-**Porting an existing composition?** `/remotion-to-hyperframes` translates a Remotion (React) composition into HyperFrames HTML — a source migration, separate from the creation workflows above.
+**Porting an existing composition?** `/remotion-to-chalkframes` translates a Remotion (React) composition into ChalkFrames HTML — a source migration, separate from the creation workflows above.
 
-The domain skills (`/hyperframes-core`, `/hyperframes-animation`, `/hyperframes-keyframes`, `/hyperframes-creative`, `/hyperframes-cli`, `/media-use`, `/hyperframes-audio`, `/hyperframes-registry`, `/figma`) and the full capability map live inside `/hyperframes` — it is the single source of truth for which skill handles which intent.
+The domain skills (`/chalkframes-core`, `/chalkframes-animation`, `/chalkframes-keyframes`, `/chalkframes-creative`, `/chalkframes-cli`, `/media-use`, `/chalkframes-audio`, `/chalkframes-registry`, `/figma`) and the full capability map live inside `/chalkframes` — it is the single source of truth for which skill handles which intent.
 
 **Changing how real footage or images look or reveal?** Load `/media-use` and read its `references/media-treatments.md` before editing, even when the request only says dark, flat, boring, retro, private, or “make the reveal cooler.” It governs how footage is treated, never whether media may be used. Use canonical media treatments and seek-safe motion; do not improvise equivalent CSS/SVG filters or overlays.
 
-> **Tailwind v4 projects** (`hyperframes init --tailwind`): see `/hyperframes-core` → `references/tailwind.md`.
+> **Tailwind v4 projects** (`chalkframes init --tailwind`): see `/chalkframes-core` → `references/tailwind.md`.
 
-> **Using a HyperFrames plugin?** Load skills from that installed bundle and follow
-> its `hyperframes/references/plugin-installation.md` execution rules. Update via
+> **Using a ChalkFrames plugin?** Load skills from that installed bundle and follow
+> its `chalkframes/references/plugin-installation.md` execution rules. Update via
 > the plugin manager, not the standalone commands below.
 >
-> **Standalone skill missing or stale?** Run `npx hyperframes skills update <name>` to install/refresh
-> the specific skill you need (the `/hyperframes` router does this automatically before
-> entering a workflow), or bare `npx hyperframes skills update` to refresh the core set plus
+> **Standalone skill missing or stale?** Run `npx chalkframes skills update <name>` to install/refresh
+> the specific skill you need (the `/chalkframes` router does this automatically before
+> entering a workflow), or bare `npx chalkframes skills update` to refresh the core set plus
 > everything already installed — neither pulls the full set. Restart the agent session so
 > newly installed skills load.
 
@@ -38,31 +38,31 @@ The domain skills (`/hyperframes-core`, `/hyperframes-animation`, `/hyperframes-
 
 ```bash
 npm run dev          # human-operated foreground preview (blocks until stopped)
-npx hyperframes preview --background  # agent-safe persistent Studio preview
-npx hyperframes preview --status      # verify the persistent preview is listening
-npx hyperframes preview --stop        # stop it when review is finished
+npx chalkframes preview --background  # agent-safe persistent Studio preview
+npx chalkframes preview --status      # verify the persistent preview is listening
+npx chalkframes preview --stop        # stop it when review is finished
 npm run check        # lint + runtime + layout + motion + contrast (one command)
 npm run render       # render to MP4
 npm run publish      # publish and get a shareable link
-npx hyperframes lint --verbose  # include info-level findings
-npx hyperframes lint --json     # machine-readable output for CI
-npx hyperframes docs <topic> # reference docs in terminal
+npx chalkframes lint --verbose  # include info-level findings
+npx chalkframes lint --json     # machine-readable output for CI
+npx chalkframes docs <topic> # reference docs in terminal
 ```
 
-> **Agents must use `npx hyperframes preview --background` for Studio handoff.** Do not rely
+> **Agents must use `npx chalkframes preview --background` for Studio handoff.** Do not rely
 > on a shell/tool `run_in_background` wrapper around `npm run dev`: that foreground process
 > remains owned by the invoking session and can disappear while the browser stays open,
 > leaving refreshes at `ERR_CONNECTION_TIMED_OUT`. Verify with `preview --status`, keep it
 > alive through review, and stop it explicitly with `preview --stop` afterward.
 
-> **Pinned CLI version.** These scripts pin an exact `hyperframes@X.Y.Z` so this project re-renders identically over time. Weeks later that pin lags fixes shipped since. To move up: `npx hyperframes@latest upgrade --project . --check` (shows the delta), then `npx hyperframes@latest upgrade --project .` to rewrite the pins. Always unpinned — the pinned script re-runs the old version against itself.
+> **Pinned CLI version.** These scripts pin an exact `chalkframes@X.Y.Z` so this project re-renders identically over time. Weeks later that pin lags fixes shipped since. To move up: `npx chalkframes@latest upgrade --project . --check` (shows the delta), then `npx chalkframes@latest upgrade --project .` to rewrite the pins. Always unpinned — the pinned script re-runs the old version against itself.
 
 ## Documentation
 
 **For quick reference**, use the local CLI docs command (no network required):
 
 ```bash
-npx hyperframes docs <topic>
+npx chalkframes docs <topic>
 ```
 
 Topics: `data-attributes`, `gsap`, `compositions`, `rendering`, `examples`, `troubleshooting`
@@ -70,7 +70,7 @@ Topics: `data-attributes`, `gsap`, `compositions`, `rendering`, `examples`, `tro
 **For full documentation**, discover pages via the machine-readable index — do NOT guess URLs:
 
 ```
-https://hyperframes.heygen.com/llms.txt
+https://chalkframes.dev/llms.txt
 ```
 
 ## Project Structure

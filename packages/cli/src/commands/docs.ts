@@ -4,10 +4,10 @@ import type { Example } from "./_examples.js";
 import { readFileSync, existsSync } from "node:fs";
 
 export const examples: Example[] = [
-  ["List all available topics", "hyperframes docs"],
-  ["Read about data attributes", "hyperframes docs data-attributes"],
-  ["Read about rendering", "hyperframes docs rendering"],
-  ["Read about GSAP integration", "hyperframes docs gsap"],
+  ["List all available topics", "chalkframes docs"],
+  ["Read about data attributes", "chalkframes docs data-attributes"],
+  ["Read about rendering", "chalkframes docs rendering"],
+  ["Read about GSAP integration", "chalkframes docs gsap"],
 ];
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,7 +115,7 @@ export default defineCommand({
         console.log(`  ${c.accent(name.padEnd(20))} ${c.dim(entry.description)}`);
       }
       console.log();
-      console.log(c.dim(`Run ${c.accent("hyperframes docs <topic>")} to view a topic.`));
+      console.log(c.dim(`Run ${c.accent("chalkframes docs <topic>")} to view a topic.`));
       return;
     }
 

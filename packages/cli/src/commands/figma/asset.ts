@@ -1,5 +1,5 @@
 /**
- * `hyperframes figma asset <ref>` — Phase 1 of the figma integration:
+ * `chalkframes figma asset <ref>` — Phase 1 of the figma integration:
  * render a node over REST, sanitize (svg), freeze under .media/, record
  * provenance in the shared manifest, print a composition snippet.
  */
@@ -22,7 +22,7 @@ import {
   type FigmaAssetFormat,
   type FigmaClient,
   type FigmaManifestRecord,
-} from "@hyperframes/core/figma";
+} from "@chalkframes/core/figma";
 import { existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { downloadRender } from "./download.js";

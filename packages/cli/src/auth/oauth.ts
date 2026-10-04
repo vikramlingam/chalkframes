@@ -1,6 +1,6 @@
 import { failCommand } from "../utils/commandResult.js";
 /**
- * OAuth 2.0 + PKCE driver for the HeyGen public OAuth flow.
+ * OAuth 2.0 + PKCE driver for the Chalkframes public OAuth flow.
  *
  * Entry points:
  *   - `startAuthorizationCodeFlow()` — full interactive login (browser
@@ -9,27 +9,27 @@ import { failCommand } from "../utils/commandResult.js";
  *   - `revokeTokens()` — best-effort POST <revoke-endpoint>.
  *
  * Endpoints split across two hosts (verified live):
- *   - **Authorize** — GET https://app.heygen.com/oauth/authorize
+ *   - **Authorize** — GET https://app.chalkframes.com/oauth/authorize
  *     Renders the consent screen, has to live on the same origin as the
  *     user's web session (cookies). The Next.js SPA shell serves this.
- *   - **Token** — POST https://api2.heygen.com/v1/oauth/token
- *     Server-to-server JSON API. `app.heygen.com/oauth/token` returns
+ *   - **Token** — POST https://api.chalkframes.dev/v1/oauth/token
+ *     Server-to-server JSON API. `app.chalkframes.com/oauth/token` returns
  *     the SPA HTML for direct POSTs — confirmed by curl; only the api2
  *     route returns JSON OAuth responses.
- *   - **Revoke** — POST https://api2.heygen.com/v1/oauth/revoke
+ *   - **Revoke** — POST https://api.chalkframes.dev/v1/oauth/revoke
  *     Same host/prefix as token.
  *
- * The `heygen-oauth-urls.ts` default in `hyperframes-internal/demo-next`
- * lists `app.heygen.com/oauth/token` as the default — that's either
- * proxied via a Next.js rewrite or set via `HEYGEN_OAUTH_TOKEN_URL` in
+ * The `chalkframes-oauth-urls.ts` default in `chalkframes-internal/demo-next`
+ * lists `app.chalkframes.com/oauth/token` as the default — that's either
+ * proxied via a Next.js rewrite or set via `CHALKFRAMES_OAUTH_TOKEN_URL` in
  * their prod env. A direct fetch to it returns the SPA shell, so we
  * use the api2 endpoint here.
  *
  * Overrides:
- *   - `HYPERFRAMES_OAUTH_AUTHORIZE_URL`
- *   - `HYPERFRAMES_OAUTH_TOKEN_URL`
- *   - `HYPERFRAMES_OAUTH_REVOKE_URL`
- *   - `HYPERFRAMES_OAUTH_CLIENT_ID`
+ *   - `CHALKFRAMES_OAUTH_AUTHORIZE_URL`
+ *   - `CHALKFRAMES_OAUTH_TOKEN_URL`
+ *   - `CHALKFRAMES_OAUTH_REVOKE_URL`
+ *   - `CHALKFRAMES_OAUTH_CLIENT_ID`
  *
  * Public client — no `client_secret`.
  */
@@ -60,7 +60,7 @@ const MIN_EXPIRES_IN_SECONDS = 30;
 
 /**
  * Default OAuth client_id baked at build time. Override with the
- * `HYPERFRAMES_OAUTH_CLIENT_ID` env var. Empty string means "not
+ * `CHALKFRAMES_OAUTH_CLIENT_ID` env var. Empty string means "not
  * configured" — `resolveClientId()` errors cleanly with a pointer
  * at `--api-key`.
  */
@@ -69,10 +69,10 @@ const DEFAULT_SCOPES = "openid profile email";
 
 // Endpoint defaults — see file-header comment for why these straddle two
 // hosts. Each is independently overridable.
-const DEFAULT_AUTHORIZE_URL = "https://app.heygen.com/oauth/authorize";
-const DEFAULT_TOKEN_URL = "https://api2.heygen.com/v1/oauth/token";
-const DEFAULT_REVOKE_URL = "https://api2.heygen.com/v1/oauth/revoke";
-const DEFAULT_DEVICE_AUTHORIZATION_URL = "https://api2.heygen.com/v1/oauth/device_authorization";
+const DEFAULT_AUTHORIZE_URL = "https://app.chalkframes.com/oauth/authorize";
+const DEFAULT_TOKEN_URL = "https://api.chalkframes.dev/v1/oauth/token";
+const DEFAULT_REVOKE_URL = "https://api.chalkframes.dev/v1/oauth/revoke";
+const DEFAULT_DEVICE_AUTHORIZATION_URL = "https://api.chalkframes.dev/v1/oauth/device_authorization";
 const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code";
 const MAX_DEVICE_FLOW_SECONDS = 30 * 60;
 const MIN_DEVICE_POLL_SECONDS = 5;
@@ -81,16 +81,16 @@ const MAX_DEVICE_RESPONSE_BYTES = 64 * 1024;
 const DEVICE_REQUEST_TIMEOUT_MS = 15_000;
 
 function authorizeEndpoint(): string {
-  return process.env["HYPERFRAMES_OAUTH_AUTHORIZE_URL"] || DEFAULT_AUTHORIZE_URL;
+  return process.env["CHALKFRAMES_OAUTH_AUTHORIZE_URL"] || DEFAULT_AUTHORIZE_URL;
 }
 function tokenEndpoint(): string {
-  return process.env["HYPERFRAMES_OAUTH_TOKEN_URL"] || DEFAULT_TOKEN_URL;
+  return process.env["CHALKFRAMES_OAUTH_TOKEN_URL"] || DEFAULT_TOKEN_URL;
 }
 function revokeEndpoint(): string {
-  return process.env["HYPERFRAMES_OAUTH_REVOKE_URL"] || DEFAULT_REVOKE_URL;
+  return process.env["CHALKFRAMES_OAUTH_REVOKE_URL"] || DEFAULT_REVOKE_URL;
 }
 function deviceAuthorizationEndpoint(): string {
-  return process.env["HYPERFRAMES_OAUTH_DEVICE_URL"] || DEFAULT_DEVICE_AUTHORIZATION_URL;
+  return process.env["CHALKFRAMES_OAUTH_DEVICE_URL"] || DEFAULT_DEVICE_AUTHORIZATION_URL;
 }
 
 export interface AuthorizeFlowOptions {
@@ -135,7 +135,7 @@ export interface DeviceAuthorizationFlowOptions {
 
 /** Read the client_id, throwing `ErrOAuthNotConfigured` when unset. */
 export function resolveClientId(): string {
-  const override = process.env["HYPERFRAMES_OAUTH_CLIENT_ID"];
+  const override = process.env["CHALKFRAMES_OAUTH_CLIENT_ID"];
   const id = override && override.length > 0 ? override : DEFAULT_CLIENT_ID;
   if (!id || id.length === 0) throw ErrOAuthNotConfigured();
   return id;
@@ -517,7 +517,7 @@ async function exchangeCodeForTokens(args: {
     // The authorization code is single-use and short-lived. A 400/401
     // here almost always means it expired during the loopback wait or
     // was already redeemed — surface an actionable message instead of
-    // a bare "HeyGen API error (400)".
+    // a bare "Chalkframes API error (400)".
     const detail = (await safeText(res)) || res.statusText;
     throw ErrRefreshFailed(
       `authorization code rejected (${detail}); please run \`auth login\` again`,

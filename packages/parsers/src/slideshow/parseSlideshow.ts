@@ -7,7 +7,7 @@ import type {
   ResolvedSlideSequence,
 } from "./slideshow.types";
 
-export const SLIDESHOW_ISLAND_TYPE = "application/hyperframes-slideshow+json";
+export const SLIDESHOW_ISLAND_TYPE = "application/chalkframes-slideshow+json";
 
 /**
  * Builds the island <script> matcher. Capture group 1 = inner JSON.
@@ -31,7 +31,7 @@ interface SceneRange {
 
 /** Extract the JSON island from composition HTML. Returns null if absent. */
 export function parseSlideshowManifest(html: string): SlideshowManifest | null {
-  // Match <script type="application/hyperframes-slideshow+json"> ... </script>
+  // Match <script type="application/chalkframes-slideshow+json"> ... </script>
   const re = slideshowIslandRegex("i");
   const match = re.exec(html);
   if (!match || match[1] === undefined) return null;

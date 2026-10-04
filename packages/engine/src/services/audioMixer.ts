@@ -11,8 +11,8 @@ import { join, dirname, isAbsolute, relative } from "path";
 import { parseHTML } from "linkedom";
 import { extractAudioMetadata } from "../utils/ffprobe.js";
 import { isNotMediaPayload } from "../utils/notMediaPayload.js";
-import { clampAudioGain } from "@hyperframes/core/audio-gain";
-import { clampFadesToDuration, readElementFades } from "@hyperframes/core/audio-fade";
+import { clampAudioGain } from "@chalkframes/core/audio-gain";
+import { clampFadesToDuration, readElementFades } from "@chalkframes/core/audio-fade";
 import {
   downloadToTemp,
   isHttpUrl,
@@ -33,7 +33,7 @@ import type {
   MixResult,
 } from "./audioMixer.types.js";
 import { applyVolumeEnvelopeToWav } from "./audioVolumeEnvelope.js";
-import { HF_AUDIO_FX_ATTR, parseAudioFxChain } from "@hyperframes/core/audio-fx";
+import { HF_AUDIO_FX_ATTR, parseAudioFxChain } from "@chalkframes/core/audio-fx";
 import {
   HF_AUDIO_AUTOMATION_ATTR,
   parseAutomation,
@@ -41,8 +41,8 @@ import {
   sampleAutomationLane,
   VOLUME_TARGET,
   type HfAutomationLane,
-} from "@hyperframes/core/audio-automation";
-import { chainTailSeconds } from "@hyperframes/core/audio-fx-tail";
+} from "@chalkframes/core/audio-automation";
+import { chainTailSeconds } from "@chalkframes/core/audio-fx-tail";
 import {
   isAudibleVideoElement,
   MEDIA_RENDER_ID_ATTR,
@@ -54,8 +54,8 @@ import {
   sourceTimeAt,
   timeAtSourceTime,
   type RateSpec,
-} from "@hyperframes/core";
-import { resolveAudioGroups } from "@hyperframes/core/audio-groups";
+} from "@chalkframes/core";
+import { resolveAudioGroups } from "@chalkframes/core/audio-groups";
 import { applyAudioFxChain, AudioFxRenderError } from "./audioFxRender.js";
 import type { AudioVolumeKeyframe } from "./audioMixer.types.js";
 

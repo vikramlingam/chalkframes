@@ -5,9 +5,9 @@ import {
   rewriteAssetPaths,
   rewriteCssAssetUrls,
   rewriteInlineStyleAssetUrls,
-} from "@hyperframes/core";
-import { stripEmbeddedRuntimeScripts } from "@hyperframes/core/compiler";
-import { isFullHtmlDocument } from "@hyperframes/core/compiler/html-document";
+} from "@chalkframes/core";
+import { stripEmbeddedRuntimeScripts } from "@chalkframes/core/compiler";
+import { isFullHtmlDocument } from "@chalkframes/core/compiler/html-document";
 
 /**
  * Rewrite relative asset paths in a parsed DOM tree. Shared across all
@@ -300,7 +300,7 @@ export function buildSubCompositionHtml(
   }
 
   // A composition file may ship a baked inline runtime (from a prior export:
-  // data-hyperframes-runtime / __hyperframeRuntime…). The studio injects its own
+  // data-chalkframes-runtime / __chalkframeRuntime…). The studio injects its own
   // preview runtime below, so strip the baked one from the body — otherwise it's
   // double-loaded AND the baked inline copy can fail to parse inline (the
   // "Unexpected token '<'" SyntaxError seen on comps with a baked runtime).
@@ -341,10 +341,10 @@ export function buildSubCompositionHtml(
 
   // Ensure runtime is present (might differ from the one in index.html)
   if (
-    !headContent.includes("hyperframe.runtime") &&
-    !headContent.includes("hyperframes-preview-runtime")
+    !headContent.includes("chalkframe.runtime") &&
+    !headContent.includes("chalkframes-preview-runtime")
   ) {
-    headContent += `\n<script data-hyperframes-preview-runtime="1" src="${runtimeUrl}"></script>`;
+    headContent += `\n<script data-chalkframes-preview-runtime="1" src="${runtimeUrl}"></script>`;
   }
 
   // Fallback: if no index.html head was found, add minimal deps

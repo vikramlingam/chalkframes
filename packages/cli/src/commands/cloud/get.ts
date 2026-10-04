@@ -1,5 +1,5 @@
 /**
- * `hyperframes cloud get <render_id>` — fetch detail for a single render.
+ * `chalkframes cloud get <render_id>` — fetch detail for a single render.
  *
  * Includes the signed `video_url` and `thumbnail_url` when status is
  * `completed`. The signed URLs are short-lived; don't paste them into
@@ -11,7 +11,7 @@ import { createCloudClient } from "../../cloud/index.js";
 import { reportApiError } from "../../cloud/errors.js";
 import { colorStatus } from "../../cloud/statusColor.js";
 import { withMeta } from "../../utils/updateCheck.js";
-import type { HyperframesRenderDetail } from "../../cloud/index.js";
+import type { ChalkframesRenderDetail } from "../../cloud/index.js";
 import { c } from "../../ui/colors.js";
 
 export default defineCommand({
@@ -46,7 +46,7 @@ export default defineCommand({
 });
 
 // fallow-ignore-next-line complexity
-function printHuman(detail: HyperframesRenderDetail): void {
+function printHuman(detail: ChalkframesRenderDetail): void {
   const rows: [string, string | undefined][] = [
     ["Render ID:", c.accent(detail.render_id)],
     ["Status:   ", colorStatus(detail.status)],

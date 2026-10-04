@@ -1,4 +1,4 @@
-import type { MotionBlurOptions } from "@hyperframes/engine";
+import type { MotionBlurOptions } from "@chalkframes/engine";
 
 /**
  * The format a render captures its frames in.

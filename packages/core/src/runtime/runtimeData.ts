@@ -88,7 +88,7 @@ export function registerRuntimeDataHandler(
   handler: RuntimeDataHandler,
 ): () => void {
   if (!validChannel(channel))
-    throw new Error(`Invalid HyperFrames runtime-data channel: ${channel}`);
+    throw new Error(`Invalid ChalkFrames runtime-data channel: ${channel}`);
   handlers.set(channel, handler);
   const retainedData = retained.get(channel);
   if (retainedData) deliver(channel, retainedData);

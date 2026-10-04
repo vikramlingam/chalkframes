@@ -1,6 +1,6 @@
 import { closeSync, constants, mkdirSync, openSync, readFileSync, writeSync } from "node:fs";
 import { dirname } from "node:path";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 
 export interface HistoryWho {
   kind: "person" | "agent" | "outside";

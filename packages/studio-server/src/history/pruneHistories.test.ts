@@ -205,7 +205,7 @@ describe("pruneGoneProjectHistories", () => {
       editRecord(historyRoot, id, (record) => ({ ...record, dev: Number(record.dev) + 1 }));
     rmSync(dirname(onDrive.projectDir), { recursive: true, force: true });
     // What an unmounted drive leaves at its mount point: the folder, without the project in it.
-    rmSync(join(mountPoint.projectDir, ".hyperframes"), { recursive: true, force: true });
+    rmSync(join(mountPoint.projectDir, ".chalkframes"), { recursive: true, force: true });
     rmSync(dirname(deleted.projectDir), { recursive: true, force: true });
 
     const later = pastKeepWindow();
@@ -224,7 +224,7 @@ describe("pruneGoneProjectHistories", () => {
     const all = [emptied, folderGone, parentGone];
     await Promise.all(all.map(({ history }) => history.close()));
     for (const { id } of all) editRecord(historyRoot, id, ({ dev: _dev, ...record }) => record);
-    rmSync(join(emptied.projectDir, ".hyperframes"), { recursive: true, force: true });
+    rmSync(join(emptied.projectDir, ".chalkframes"), { recursive: true, force: true });
     // An unmounted disk leaves its mount point, so a missing folder under it may just be unplugged.
     rmSync(folderGone.projectDir, { recursive: true, force: true });
     rmSync(dirname(parentGone.projectDir), { recursive: true, force: true });
@@ -279,7 +279,7 @@ describe("pruneGoneProjectHistories", () => {
     const historyRoot = tempDir("hf-prune-root-");
     const unreadable = await projectWithHistory(historyRoot);
     await unreadable.history.close();
-    mkdirSync(join(unreadable.projectDir, ".hyperframes"), { recursive: true });
+    mkdirSync(join(unreadable.projectDir, ".chalkframes"), { recursive: true });
     writeFileSync(join(unreadable.projectDir, ID_PATH), "not an id\n");
 
     expect(await prunedIds(historyRoot)).toEqual([]);

@@ -75,7 +75,7 @@ const corpus = catalogFromRegistry(
 // projects a user scaffolds, never something `catalog` ranks, so the artifact
 // deliberately carries no vector for them and demanding one would keep this
 // gate permanently red.
-const SEARCHABLE = new Set(["hyperframes:block", "hyperframes:component"]);
+const SEARCHABLE = new Set(["chalkframes:block", "chalkframes:component"]);
 const registryNames = new Set(
   registry.items.filter((i) => SEARCHABLE.has(i.type ?? "")).map((i) => i.name),
 );

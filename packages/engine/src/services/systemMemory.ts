@@ -99,7 +99,7 @@ export function getCgroupMemoryLimitMb(): number | null {
   if (_cachedCgroupLimitMb !== null) {
     // stderr, not stdout: this is a diagnostic notice, and commands like `check --json`
     // write their machine-readable payload to stdout. A banner on stdout corrupts that
-    // payload for any JSON consumer (it broke the Video Agent's hyperframes check parse).
+    // payload for any JSON consumer (it broke the Video Agent's chalkframes check parse).
     console.warn(
       `[SystemMemory] cgroup memory limit detected: ${_cachedCgroupLimitMb} MiB — ` +
         `it governs memory-adaptive render behaviour instead of host RAM.`,
@@ -154,7 +154,7 @@ export function getSystemTotalMb(): number {
 /**
  * Total-RAM ceiling (MiB) at or below which the host is treated as
  * memory-constrained. Tuned to the 8 GB laptops in
- * heygen-com/hyperframes#1218 / #1219: on those boxes the default render
+ * vikramlingam/chalkframes#1218 / #1219: on those boxes the default render
  * shape (probe Chrome + a throwaway calibration Chrome + N capture
  * workers) thrashes, so the pipeline collapses to its cheapest form.
  *

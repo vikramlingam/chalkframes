@@ -1,8 +1,8 @@
 // CLI facade: the linter stays reusable without the CLI, while command-specific gates live here.
-export { lintProject, shouldBlockRender } from "@hyperframes/lint";
-export type { ProjectLintResult } from "@hyperframes/lint";
+export { lintProject, shouldBlockRender } from "@chalkframes/lint";
+export type { ProjectLintResult } from "@chalkframes/lint";
 
-import type { ProjectLintResult } from "@hyperframes/lint";
+import type { ProjectLintResult } from "@chalkframes/lint";
 
 export function hasDefinitiveEntryMismatch(result: ProjectLintResult): boolean {
   return result.results.some((entry) =>

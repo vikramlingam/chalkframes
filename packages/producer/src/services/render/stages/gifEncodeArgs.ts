@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import type { Fps } from "@hyperframes/core";
+import type { Fps } from "@chalkframes/core";
 
 export interface GifEncodeArgsInput {
   framesDir: string;

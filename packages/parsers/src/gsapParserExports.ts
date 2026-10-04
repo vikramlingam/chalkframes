@@ -1,8 +1,8 @@
 /**
- * @hyperframes/core/gsap-parser subpath entry.
+ * @chalkframes/core/gsap-parser subpath entry.
  *
  * Re-exports all public types and helpers that external packages (studio, sdk,
- * registry) import via the `@hyperframes/core/gsap-parser` subpath.
+ * registry) import via the `@chalkframes/core/gsap-parser` subpath.
  *
  * The recast-based AST parser (gsapParser.ts) was retired in WS-3.F. The read
  * path now uses `parseGsapScriptAcorn` from gsapParserAcorn; the write path

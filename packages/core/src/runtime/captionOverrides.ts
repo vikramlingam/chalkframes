@@ -124,7 +124,7 @@ const parseOverrides = (data: unknown): readonly CaptionOverride[] =>
 
 function logInvalidOverrides(error: unknown): void {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`[HyperFrames] Invalid caption-overrides.json: ${message}`);
+  console.error(`[ChalkFrames] Invalid caption-overrides.json: ${message}`);
 }
 
 /** The page's caption overrides; empty when there are none or no GSAP to apply them with. */

@@ -1,15 +1,15 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-// The suppression half of the cross-process opt-out. `hyperframes preview` is
+// The suppression half of the cross-process opt-out. `chalkframes preview` is
 // long-lived, and Studio has no poller for /api/telemetry-identity, so a
-// render that finishes AFTER `hyperframes telemetry disable` ran in another
+// render that finishes AFTER `chalkframes telemetry disable` ran in another
 // terminal used to report its outcome anyway: shouldTrack() had cached `true`
 // at boot and nothing ever asked again.
 //
 // This pins the mechanism the render-outcome path depends on — refresh, then
 // emit — at the layer where the event is actually dropped.
 
-vi.stubEnv("HYPERFRAMES_NO_TELEMETRY", "");
+vi.stubEnv("CHALKFRAMES_NO_TELEMETRY", "");
 vi.stubEnv("DO_NOT_TRACK", "");
 
 const configState = { telemetryEnabled: true };
@@ -42,7 +42,7 @@ describe("telemetry posture refresh", () => {
     trackEvent("render_complete", {});
     expect(enqueue).toHaveBeenCalledTimes(1);
 
-    // `hyperframes telemetry disable` elsewhere, mid-render.
+    // `chalkframes telemetry disable` elsewhere, mid-render.
     configState.telemetryEnabled = false;
     resetTelemetryPostureCache();
 

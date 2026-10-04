@@ -1,7 +1,7 @@
 /**
  * Authoring gain for a media clip.
  *
- * HTMLMediaElement.volume is limited to 0..1, but HyperFrames' Web Audio
+ * HTMLMediaElement.volume is limited to 0..1, but ChalkFrames' Web Audio
  * preview and FFmpeg render paths both support gain above unity. Keep the
  * shared ceiling here so Studio, preview, and render cannot drift.
  */

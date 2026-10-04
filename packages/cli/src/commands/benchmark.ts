@@ -4,9 +4,9 @@ import type { Example } from "./_examples.js";
 import { existsSync, statSync } from "node:fs";
 
 export const examples: Example[] = [
-  ["Run benchmarks with default settings (3 runs)", "hyperframes benchmark"],
-  ["Run 5 iterations per config", "hyperframes benchmark --runs 5"],
-  ["Output results as JSON", "hyperframes benchmark --json"],
+  ["Run benchmarks with default settings (3 runs)", "chalkframes benchmark"],
+  ["Run 5 iterations per config", "chalkframes benchmark --runs 5"],
+  ["Output results as JSON", "chalkframes benchmark --json"],
 ];
 import { resolve, join } from "node:path";
 import { resolveProject } from "../utils/project.js";
@@ -15,11 +15,11 @@ import { c } from "../ui/colors.js";
 import { formatBytes, formatDuration, errorBox } from "../ui/format.js";
 import * as clack from "@clack/prompts";
 import { withMeta } from "../utils/updateCheck.js";
-import { fpsToFfmpegArg } from "@hyperframes/core";
+import { fpsToFfmpegArg } from "@chalkframes/core";
 
 interface BenchmarkConfig {
   label: string;
-  fps: import("@hyperframes/core").Fps;
+  fps: import("@chalkframes/core").Fps;
   quality: "draft" | "standard" | "high";
   workers: number;
 }
@@ -37,8 +37,8 @@ interface ConfigResult {
   avgSize: number | null;
 }
 
-const FPS_30: import("@hyperframes/core").Fps = { num: 30, den: 1 };
-const FPS_60: import("@hyperframes/core").Fps = { num: 60, den: 1 };
+const FPS_30: import("@chalkframes/core").Fps = { num: 30, den: 1 };
+const FPS_60: import("@chalkframes/core").Fps = { num: 60, den: 1 };
 const DEFAULT_CONFIGS: BenchmarkConfig[] = [
   { label: "30fps \u00B7 draft \u00B7 2w", fps: FPS_30, quality: "draft", workers: 2 },
   { label: "30fps \u00B7 standard \u00B7 2w", fps: FPS_30, quality: "standard", workers: 2 },
@@ -86,7 +86,7 @@ export default defineCommand({
         errorBox(
           "Producer module not available",
           "The rendering pipeline could not be loaded.",
-          "Ensure @hyperframes/producer is built and linked.",
+          "Ensure @chalkframes/producer is built and linked.",
         );
       }
       failCommand();

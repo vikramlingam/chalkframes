@@ -40,7 +40,7 @@ function variableManifest(dir: string): Manifest | null {
 }
 
 function snippetPathIn(dir: string, manifest: Manifest): string | null {
-  const relative = manifest.files?.find((f) => f.type === "hyperframes:snippet")?.path;
+  const relative = manifest.files?.find((f) => f.type === "chalkframes:snippet")?.path;
   return relative ? existingPath(join(dir, relative)) : null;
 }
 

@@ -9,7 +9,7 @@
 type VariablesWindow = Window & {
   __hfVariables?: Record<string, unknown>;
   __hfVariablesByComp?: Record<string, Record<string, unknown>>;
-  __hyperframes?: { getVariables?: () => Record<string, unknown> };
+  __chalkframes?: { getVariables?: () => Record<string, unknown> };
 };
 
 export function readVariablesForElement(element: Element): Record<string, unknown> {
@@ -18,7 +18,7 @@ export function readVariablesForElement(element: Element): Record<string, unknow
   const compositionId = scope?.getAttribute("data-composition-id")?.trim() ?? "";
   const scoped = compositionId ? win.__hfVariablesByComp?.[compositionId] : undefined;
   if (scoped) return scoped;
-  const fromHelper = win.__hyperframes?.getVariables?.();
+  const fromHelper = win.__chalkframes?.getVariables?.();
   if (fromHelper && typeof fromHelper === "object") {
     return fromHelper;
   }

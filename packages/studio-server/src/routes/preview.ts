@@ -9,10 +9,10 @@ import {
   insertBeforeCloseTag,
   stripEmbeddedRuntimeScripts,
   type BundleOptions,
-} from "@hyperframes/core/compiler";
-import { STUDIO_PREVIEW_MARK_META } from "@hyperframes/core/studio-preview-mark";
-import { injectTagsAtHeadStart } from "@hyperframes/core/compiler/html-document";
-import { isWithinProjectRoot } from "@hyperframes/parsers/asset-resolution";
+} from "@chalkframes/core/compiler";
+import { STUDIO_PREVIEW_MARK_META } from "@chalkframes/core/studio-preview-mark";
+import { injectTagsAtHeadStart } from "@chalkframes/core/compiler/html-document";
+import { isWithinProjectRoot } from "@chalkframes/parsers/asset-resolution";
 import type { ResolvedProject, StudioApiAdapter } from "../types.js";
 import { isProjectRootMissing, resolveWithinProject } from "../helpers/safePath.js";
 import { getMimeType } from "../helpers/mime.js";
@@ -26,7 +26,7 @@ import {
   createStudioMotionRenderBodyScript,
   STUDIO_MOTION_PATH,
 } from "../helpers/studioMotionRenderScript.js";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import { settledFileTag } from "../helpers/fileVersion.js";
 import {
   recordPreviewBuilt,
@@ -62,7 +62,7 @@ import {
 import { requestSubPath } from "../helpers/requestSubPath.js";
 import { lazyPreviewImages } from "../helpers/lazyPreviewImages.js";
 
-const PROJECT_SIGNATURE_META = "hyperframes-project-signature";
+const PROJECT_SIGNATURE_META = "chalkframes-project-signature";
 const GSAP_CDN_VERSION = "3.15.0";
 const GSAP_CDN_SCRIPT = `<script src="https://cdn.jsdelivr.net/npm/gsap@${GSAP_CDN_VERSION}/dist/gsap.min.js"></script>`;
 const GSAP_CUSTOM_EASE_CDN_SCRIPT = `<script src="https://cdn.jsdelivr.net/npm/gsap@${GSAP_CDN_VERSION}/dist/CustomEase.min.js"></script>`;
@@ -405,8 +405,8 @@ export function registerPreviewRoutes(api: Hono, adapter: PreviewApiAdapter): vo
 
       // Inject runtime if not already present (check URL pattern and bundler attribute)
       if (
-        !bundled.includes("hyperframe.runtime") &&
-        !bundled.includes("hyperframes-preview-runtime")
+        !bundled.includes("chalkframe.runtime") &&
+        !bundled.includes("chalkframes-preview-runtime")
       ) {
         const runtimeTag = `<script src="${adapter.runtimeUrl}"></script>`;
         bundled =

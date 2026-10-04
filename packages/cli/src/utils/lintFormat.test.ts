@@ -2,22 +2,22 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, onTestFinished } from "vitest";
-import type { HyperframeLintFinding } from "@hyperframes/core/lint";
+import type { ChalkframeLintFinding } from "@chalkframes/core/lint";
 import { formatLintFindings, formatLintStartupMessage } from "./lintFormat.js";
 import { lintProject, type ProjectLintResult } from "./lintProject.js";
 
 function finding(
-  severity: HyperframeLintFinding["severity"],
-  overrides: Partial<HyperframeLintFinding> = {},
-): HyperframeLintFinding {
+  severity: ChalkframeLintFinding["severity"],
+  overrides: Partial<ChalkframeLintFinding> = {},
+): ChalkframeLintFinding {
   return { code: `${severity}-code`, severity, message: `${severity} message`, ...overrides };
 }
 
 function project(
-  files: Array<{ file: string; findings: HyperframeLintFinding[] }>,
+  files: Array<{ file: string; findings: ChalkframeLintFinding[] }>,
 ): ProjectLintResult {
   const all = files.flatMap((f) => f.findings);
-  const count = (severity: HyperframeLintFinding["severity"]) =>
+  const count = (severity: ChalkframeLintFinding["severity"]) =>
     all.filter((f) => f.severity === severity).length;
   return {
     results: files.map(({ file, findings }) => ({
@@ -228,7 +228,7 @@ describe("formatLintStartupMessage", () => {
   it("names the Studio badge and the lint command when pointer is 'studio'", () => {
     const lines = formatLintStartupMessage(result, { kind: "summary", pointer: "studio" });
     expect(lines[0]).toContain("Lint badge in Studio");
-    expect(lines[0]).toContain("hyperframes lint");
+    expect(lines[0]).toContain("chalkframes lint");
   });
 
   it("does not print individual findings in the default summary", () => {

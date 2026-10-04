@@ -1,6 +1,6 @@
-import type { CanvasResolution } from "@hyperframes/parsers";
-import type { RegistryItem } from "@hyperframes/core";
-import type { BundleOptions } from "@hyperframes/core/compiler";
+import type { CanvasResolution } from "@chalkframes/parsers";
+import type { RegistryItem } from "@chalkframes/core";
+import type { BundleOptions } from "@chalkframes/core/compiler";
 import type { ProjectHistory } from "./history/projectHistory.js";
 
 /** Resolved info about a single project. */
@@ -111,7 +111,7 @@ export interface StudioApiAdapter {
 
   /**
    * Optional: the project's current history. A history refuses every call once its folder is replaced (a
-   * deleted `.hyperframes`, a new project there), so keep them in `historyCache`, which reopens. Else routes 404.
+   * deleted `.chalkframes`, a new project there), so keep them in `historyCache`, which reopens. Else routes 404.
    */
   history?: (project: ResolvedProject) => Promise<ProjectHistory | null> | ProjectHistory | null;
 
@@ -138,7 +138,7 @@ export interface StudioApiAdapter {
    */
   lintProject?: (projectDir: string) => Promise<ProjectLintResult> | ProjectLintResult;
 
-  /** URL to the hyperframe runtime JS (injected into preview HTML). */
+  /** URL to the chalkframe runtime JS (injected into preview HTML). */
   runtimeUrl: string;
 
   /**
@@ -169,7 +169,7 @@ export interface StudioApiAdapter {
      * route normalizes both into `Fps` before invoking the adapter, so
      * adapter implementations only ever see the rational form.
      */
-    fps: import("@hyperframes/core").Fps;
+    fps: import("@chalkframes/core").Fps;
     quality: string;
     jobId: string;
     /**
@@ -189,7 +189,7 @@ export interface StudioApiAdapter {
     /**
      * Composition-variable overrides ({variableId: value}), forwarded to the
      * producer's RenderConfig.variables and injected as window.__hfVariables —
-     * the same channel `hyperframes render --variables` uses.
+     * the same channel `chalkframes render --variables` uses.
      */
     variables?: Record<string, unknown>;
     /**

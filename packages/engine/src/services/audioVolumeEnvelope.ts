@@ -18,7 +18,7 @@
 import { mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import type { AudioVolumeKeyframe } from "./audioMixer.types.js";
-import { normaliseEnvelope } from "@hyperframes/core/media-volume-envelope";
+import { normaliseEnvelope } from "@chalkframes/core/media-volume-envelope";
 import { riffChunks, wavFormatTag } from "./wavChunks.js";
 
 const PCM_FORMAT = 1; // WAVE_FORMAT_PCM

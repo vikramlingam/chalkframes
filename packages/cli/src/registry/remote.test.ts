@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // The cache lives under homedir(), so the whole suite runs against a scratch
-// home rather than the developer's own ~/.hyperframes.
+// home rather than the developer's own ~/.chalkframes.
 const scratchHome = mkdtempSync(join(tmpdir(), "hf-remote-"));
 vi.mock("node:os", async (importOriginal) => ({
   ...(await importOriginal<typeof import("node:os")>()),
@@ -22,16 +22,16 @@ const {
 } = await import("./remote.js");
 
 const MANIFEST = {
-  name: "hyperframes",
-  homepage: "https://hyperframes.heygen.com",
-  items: [{ name: "count-up", type: "hyperframes:component" }],
+  name: "chalkframes",
+  homepage: "https://chalkframes.dev",
+  items: [{ name: "count-up", type: "chalkframes:component" }],
 };
 const ITEM = {
   name: "count-up",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   title: "Count up",
   description: "Counter",
-  files: [{ path: "count.html", target: "count.html", type: "hyperframes:snippet" }],
+  files: [{ path: "count.html", target: "count.html", type: "chalkframes:snippet" }],
 };
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -63,7 +63,7 @@ async function staleAfterPriming(
 }
 
 beforeEach(() => {
-  rmSync(join(scratchHome, ".hyperframes"), { recursive: true, force: true });
+  rmSync(join(scratchHome, ".chalkframes"), { recursive: true, force: true });
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
@@ -80,13 +80,13 @@ describe("fetchRegistryManifest", () => {
   it("rejects poisoned stale cache data instead of returning it on network failure", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(ok(MANIFEST));
     await fetchRegistryManifest(DEFAULT_REGISTRY_URL);
-    const cache = join(scratchHome, ".hyperframes/cache");
+    const cache = join(scratchHome, ".chalkframes/cache");
     const file = readdirSync(cache)[0]!;
     writeFileSync(
       join(cache, file),
       JSON.stringify({
         fetchedAt: 0,
-        data: { ...MANIFEST, items: [{ name: "../../outside", type: "hyperframes:component" }] },
+        data: { ...MANIFEST, items: [{ name: "../../outside", type: "chalkframes:component" }] },
       }),
     );
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
@@ -154,8 +154,8 @@ describe("fetchRegistryManifest", () => {
     const fresher = {
       ...MANIFEST,
       items: [
-        { name: "count-up", type: "hyperframes:component" },
-        { name: "push-in", type: "hyperframes:component" },
+        { name: "count-up", type: "chalkframes:component" },
+        { name: "push-in", type: "chalkframes:component" },
       ],
     };
     vi.spyOn(globalThis, "fetch").mockResolvedValue(ok(fresher));
@@ -170,13 +170,13 @@ describe("fetchItemManifest", () => {
   it("rejects a cache escape name before fetching", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     await expect(
-      fetchItemManifest("x/../../../.config/tool", "hyperframes:component"),
+      fetchItemManifest("x/../../../.config/tool", "chalkframes:component"),
     ).rejects.toThrow(/Invalid registry item/);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
   it("rejects a response for a different requested item", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(ok(ITEM));
-    await expect(fetchItemManifest("other", "hyperframes:component")).rejects.toThrow(
+    await expect(fetchItemManifest("other", "chalkframes:component")).rejects.toThrow(
       /Invalid registry manifest/,
     );
   });
@@ -186,18 +186,18 @@ describe("fetchItemManifest", () => {
       headers: { "content-length": "20000000" },
     });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
-    await expect(fetchItemManifest("count-up", "hyperframes:component")).rejects.toThrow(
+    await expect(fetchItemManifest("count-up", "chalkframes:component")).rejects.toThrow(
       /download limit/,
     );
     expect(cancel).toHaveBeenCalledOnce();
   });
   it("serves the expired cache when the item fetch fails", async () => {
     const fetchSpy = await staleAfterPriming(ITEM, () =>
-      fetchItemManifest("count-up", "hyperframes:component", DEFAULT_REGISTRY_URL),
+      fetchItemManifest("count-up", "chalkframes:component", DEFAULT_REGISTRY_URL),
     );
 
     await expect(
-      fetchItemManifest("count-up", "hyperframes:component", DEFAULT_REGISTRY_URL),
+      fetchItemManifest("count-up", "chalkframes:component", DEFAULT_REGISTRY_URL),
     ).resolves.toEqual(ITEM);
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
@@ -208,7 +208,7 @@ describe("fetchItemManifest", () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("The operation was aborted"));
 
     await expect(
-      fetchItemManifest("never-fetched", "hyperframes:component", DEFAULT_REGISTRY_URL),
+      fetchItemManifest("never-fetched", "chalkframes:component", DEFAULT_REGISTRY_URL),
     ).rejects.toThrow("The operation was aborted");
   });
 
@@ -220,7 +220,7 @@ describe("fetchItemManifest", () => {
     } as unknown as Response);
 
     await expect(
-      fetchItemManifest("no-such-move", "hyperframes:component", DEFAULT_REGISTRY_URL),
+      fetchItemManifest("no-such-move", "chalkframes:component", DEFAULT_REGISTRY_URL),
     ).rejects.toThrow("HTTP 404");
   });
 });
@@ -270,7 +270,7 @@ describe("describeCauseChain", () => {
 });
 
 describe("assetSourceUrl", () => {
-  const item = { name: "carousel-orbit-1", type: "hyperframes:block" } as never;
+  const item = { name: "carousel-orbit-1", type: "chalkframes:block" } as never;
 
   it("resolves a plain file against the registry base", () => {
     const file = { path: "carousel-orbit-1.html" } as never;
@@ -341,7 +341,7 @@ describe("bounded registry file downloads", () => {
 });
 
 describe("fetchItemFile retries", () => {
-  const item = { name: "blur-in", type: "hyperframes:component" } as never;
+  const item = { name: "blur-in", type: "chalkframes:component" } as never;
   const file = { path: "blur-in.html", target: "compositions/components/blur-in.html" } as never;
 
   it("recovers from a transient blip instead of failing the whole install", async () => {

@@ -6,7 +6,7 @@ import type {
   SceneAnimation,
 } from "./types";
 import type { RuntimeColorGradingApi } from "./colorGrading";
-import type { HyperframePickerApi } from "../inline-scripts/pickerApi";
+import type { ChalkframePickerApi } from "../inline-scripts/pickerApi";
 import type { PlayerAPI } from "../core.types";
 import type { ClipTree } from "./clipTree";
 
@@ -36,7 +36,7 @@ declare global {
   interface Window {
     __timelines: Record<string, RuntimeTimelineLike>;
     __player?: PlayerAPI;
-    __hyperframes?: {
+    __chalkframes?: {
       /** A path the calling composition wrote relative to its own file, as a URL the page can load. */
       assetUrl?: (path: string) => string;
       registerRuntimeDataHandler?: (
@@ -134,7 +134,7 @@ declare global {
      * restoration, and arbitrary composition nesting cannot drift.
      */
     __hfResolveMediaStartSeconds?: (element: Element) => number;
-    __HF_PICKER_API?: HyperframePickerApi;
+    __HF_PICKER_API?: ChalkframePickerApi;
     gsap?: {
       timeline: (params?: { paused?: boolean }) => RuntimeTimelineLike;
       set?: (target: Element, vars: Record<string, unknown>) => unknown;
@@ -224,9 +224,9 @@ declare global {
     __hfD3?: unknown[];
     /**
      * Render-time variable overrides injected by the engine when the user
-     * passes `hyperframes render --variables '<json>'`. Read indirectly via
-     * `window.__hyperframes.getVariables()` (or the named `getVariables`
-     * export from `@hyperframes/core`), which merges these over the
+     * passes `chalkframes render --variables '<json>'`. Read indirectly via
+     * `window.__chalkframes.getVariables()` (or the named `getVariables`
+     * export from `@chalkframes/core`), which merges these over the
      * declared defaults from `<html data-composition-variables="...">`.
      */
     __hfVariables?: Record<string, unknown>;

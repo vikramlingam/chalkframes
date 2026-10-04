@@ -8,7 +8,7 @@
  * mistake — especially from AI agents that pick a preset by habit rather than
  * by inspecting the composition. Historically this surfaced as a cryptic
  * `Error` thrown deep inside the render compiler (`resolveDeviceScaleFactor`
- * in `@hyperframes/producer`), after the browser and ffmpeg had already spun
+ * in `@chalkframes/producer`), after the browser and ffmpeg had already spun
  * up, with a message that named the mismatch but not the fix.
  *
  * This module gives every consumer (the render pre-flight in the CLI, the
@@ -18,7 +18,7 @@
  * so the same check can run *before* a render is attempted (loud, actionable,
  * cheap) and again as defense-in-depth inside the pipeline.
  *
- * It lives in `@hyperframes/parsers` (rather than `@hyperframes/core`) because
+ * It lives in `@chalkframes/parsers` (rather than `@chalkframes/core`) because
  * both `core`/`producer` and `lint` may need it, and `lint` cannot depend on
  * `core`. The geometry it needs (`CANVAS_DIMENSIONS`) already lives here.
  */

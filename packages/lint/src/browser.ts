@@ -1,5 +1,5 @@
 /**
- * Browser-safe entry for @hyperframes/lint.
+ * Browser-safe entry for @chalkframes/lint.
  *
  * Exposes the composition rule engine — HTML-string in, findings out — with
  * **zero Node.js dependencies**: no `node:fs`, no filesystem, no server. This
@@ -7,13 +7,13 @@
  * client-side, before any network call.
  *
  * The Node-only project layer (`lintProject`, which walks a directory) is NOT
- * exported here — import it from the main `@hyperframes/lint` entry in Node.
+ * exported here — import it from the main `@chalkframes/lint` entry in Node.
  */
 export type {
-  HyperframeLintSeverity,
-  HyperframeLintFinding,
-  HyperframeLintResult,
-  HyperframeLinterOptions,
+  ChalkframeLintSeverity,
+  ChalkframeLintFinding,
+  ChalkframeLintResult,
+  ChalkframeLinterOptions,
 } from "./types.js";
-export { lintHyperframeHtml, lintMediaUrls } from "./hyperframeLinter.js";
+export { lintChalkframeHtml, lintMediaUrls } from "./chalkframeLinter.js";
 export { shouldBlockRender } from "./shouldBlockRender.js";

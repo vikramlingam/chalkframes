@@ -35,7 +35,7 @@ describe("buildPayload", () => {
     // Declares a local asset so `needsOwnDirectory` routes through `hostItemDirectory`.
     writeFileSync(
       join(sourceDir, "registry-item.json"),
-      JSON.stringify({ files: [{ type: "hyperframes:asset" }] }),
+      JSON.stringify({ files: [{ type: "chalkframes:asset" }] }),
     );
     const projectDir = tmpDir();
     writeFileSync(join(projectDir, "index.html"), "<html></html>");

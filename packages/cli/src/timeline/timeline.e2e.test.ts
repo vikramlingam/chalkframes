@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isClipVisibleAt } from "@hyperframes/core";
+import { isClipVisibleAt } from "@chalkframes/core";
 import { describe, expect, it } from "vitest";
 
 const cliEntry = resolve(fileURLToPath(import.meta.url), "..", "..", "cli.ts");
@@ -25,7 +25,7 @@ function run(dir: string, ...args: string[]) {
       cwd: dir,
       encoding: "utf8",
       timeout: 30_000,
-      env: { ...process.env, HYPERFRAMES_SKIP_UPDATE_CHECK: "1" },
+      env: { ...process.env, CHALKFRAMES_SKIP_UPDATE_CHECK: "1" },
     },
   );
 }

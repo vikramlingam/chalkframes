@@ -9,7 +9,7 @@ import {
   rmSync,
 } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
-import { HLS_MASTER_PLAYLIST, HLS_VIDEO_PLAYLIST } from "@hyperframes/engine";
+import { HLS_MASTER_PLAYLIST, HLS_VIDEO_PLAYLIST } from "@chalkframes/engine";
 import { extractMediaMetadata } from "../../utils/ffprobe.js";
 import type { RenderOutputFormat } from "./renderFormat.js";
 import { TRANSACTION_BACKUP, createOwnedRenderDir } from "./renderDirOwner.js";

@@ -31,21 +31,21 @@ vi.mock("../utils/cancellableProcess.js", async (importOriginal) => {
 });
 
 describe("runEnvironmentChecks", () => {
-  const originalFfmpegPath = process.env.HYPERFRAMES_FFMPEG_PATH;
-  const originalFfprobePath = process.env.HYPERFRAMES_FFPROBE_PATH;
+  const originalFfmpegPath = process.env.CHALKFRAMES_FFMPEG_PATH;
+  const originalFfprobePath = process.env.CHALKFRAMES_FFPROBE_PATH;
 
   beforeEach(() => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = process.execPath;
-    process.env.HYPERFRAMES_FFPROBE_PATH = process.execPath;
+    process.env.CHALKFRAMES_FFMPEG_PATH = process.execPath;
+    process.env.CHALKFRAMES_FFPROBE_PATH = process.execPath;
     runProcess.mockReset();
     runProcess.mockResolvedValue({ stdout: "ffmpeg version 7.1.1\n", stderr: "" });
   });
 
   afterEach(() => {
-    if (originalFfmpegPath === undefined) delete process.env.HYPERFRAMES_FFMPEG_PATH;
-    else process.env.HYPERFRAMES_FFMPEG_PATH = originalFfmpegPath;
-    if (originalFfprobePath === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-    else process.env.HYPERFRAMES_FFPROBE_PATH = originalFfprobePath;
+    if (originalFfmpegPath === undefined) delete process.env.CHALKFRAMES_FFMPEG_PATH;
+    else process.env.CHALKFRAMES_FFMPEG_PATH = originalFfmpegPath;
+    if (originalFfprobePath === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+    else process.env.CHALKFRAMES_FFPROBE_PATH = originalFfprobePath;
   });
 
   it("returns configured FFmpeg and FFprobe paths when checks pass", async () => {
@@ -75,12 +75,12 @@ describe("runEnvironmentChecks", () => {
   it.skipIf(process.platform === "win32")(
     "aborts a blocked render probe and waits for its process tree to exit",
     async () => {
-      const testDir = mkdtempSync(join(tmpdir(), "hyperframes-preflight-cancel-"));
+      const testDir = mkdtempSync(join(tmpdir(), "chalkframes-preflight-cancel-"));
       const probePath = join(testDir, "ffmpeg");
       const pidPath = join(testDir, "probe.pid");
       writeFileSync(probePath, `#!/bin/sh\necho $$ > "${pidPath}"\nsleep 30\n`);
       chmodSync(probePath, 0o755);
-      process.env.HYPERFRAMES_FFMPEG_PATH = probePath;
+      process.env.CHALKFRAMES_FFMPEG_PATH = probePath;
       const controller = new AbortController();
       let probePid: number | undefined;
 
@@ -115,7 +115,7 @@ describe("runEnvironmentChecks", () => {
   );
 
   it("reports ffprobe as a render-blocking error when the explicit path is missing", async () => {
-    process.env.HYPERFRAMES_FFPROBE_PATH = "/missing/ffprobe.exe";
+    process.env.CHALKFRAMES_FFPROBE_PATH = "/missing/ffprobe.exe";
 
     const result = await runEnvironmentChecks();
 
@@ -131,20 +131,20 @@ describe("runEnvironmentChecks", () => {
   });
 
   it("fails early when an explicit FFmpeg env override points at a missing file", async () => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = "/missing/ffmpeg.exe";
+    process.env.CHALKFRAMES_FFMPEG_PATH = "/missing/ffmpeg.exe";
 
     const result = await runEnvironmentChecks();
     const ffmpeg = result.outcomes.find((outcome) => outcome.name === "FFmpeg");
 
     expect(ffmpeg).toMatchObject({
       ok: false,
-      detail: 'Configured path does not exist: HYPERFRAMES_FFMPEG_PATH="/missing/ffmpeg.exe"',
+      detail: 'Configured path does not exist: CHALKFRAMES_FFMPEG_PATH="/missing/ffmpeg.exe"',
     });
   });
 
   it("blocks rendering when the selected FFmpeg binary cannot launch", async () => {
     runProcess.mockImplementation((binaryPath: string) => {
-      if (binaryPath !== process.env.HYPERFRAMES_FFMPEG_PATH)
+      if (binaryPath !== process.env.CHALKFRAMES_FFMPEG_PATH)
         return Promise.resolve({ stdout: "ffprobe version 7.1.1\n", stderr: "" });
       throw Object.assign(new Error("Command failed with exit code 3221225781"), {
         status: 3221225781,
@@ -183,7 +183,7 @@ describe("runEnvironmentChecks", () => {
     ])("gives the $platform cannot-start hint", async ({ platform, expectedHint }) => {
       Object.defineProperty(process, "platform", { value: platform, configurable: true });
       runProcess.mockImplementation((binaryPath: string) => {
-        if (binaryPath !== process.env.HYPERFRAMES_FFMPEG_PATH)
+        if (binaryPath !== process.env.CHALKFRAMES_FFMPEG_PATH)
           return Promise.resolve({ stdout: "ffprobe version 7.1.1\n", stderr: "" });
         throw Object.assign(new Error("cannot execute binary file"), { status: 126 });
       });
@@ -224,7 +224,7 @@ describe("runEnvironmentChecks", () => {
       expect(result.outcomes.find((outcome) => outcome.name === "Chrome")).toMatchObject({
         ok: false,
         title: "Chrome not found",
-        hint: "Run: npx hyperframes browser ensure",
+        hint: "Run: npx chalkframes browser ensure",
       });
       expect(result.browser).toBeUndefined();
     } finally {
@@ -366,7 +366,7 @@ describe("runEnvironmentChecks — Chrome shared libraries (Linux/WSL)", () => {
   it("resolveRenderBrowser refuses with the Chrome check's own message when none resolves", async () => {
     vi.spyOn(manager, "findBrowser").mockResolvedValue(undefined);
     await expect(resolveRenderBrowser()).rejects.toThrow(
-      /Chrome not found: Chrome Headless Shell is required.*npx hyperframes browser ensure/,
+      /Chrome not found: Chrome Headless Shell is required.*npx chalkframes browser ensure/,
     );
   });
 });

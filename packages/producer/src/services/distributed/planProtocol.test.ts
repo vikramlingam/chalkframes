@@ -99,7 +99,7 @@ describe("readPlanProtocol()", () => {
   it("keeps the v1 descriptor byte-for-byte and identity-compatible", () => {
     expect(PLAN_PROTOCOL_V1).toBe(CURRENT_PLAN_PROTOCOL);
     expect(JSON.stringify(PLAN_PROTOCOL_V1)).toBe(
-      '{"schemaVersion":1,"artifactLayout":"plan-dir-v1","hashSchema":"hyperframes-plan-hash-v1"}',
+      '{"schemaVersion":1,"artifactLayout":"plan-dir-v1","hashSchema":"chalkframes-plan-hash-v1"}',
     );
   });
 
@@ -163,7 +163,7 @@ describe("readPlanProtocol()", () => {
     for (const protocol of [
       { ...CURRENT_PLAN_PROTOCOL, schemaVersion: 2 },
       { ...CURRENT_PLAN_PROTOCOL, artifactLayout: "plan-dir-v2" },
-      { ...CURRENT_PLAN_PROTOCOL, hashSchema: "hyperframes-plan-hash-v2" },
+      { ...CURRENT_PLAN_PROTOCOL, hashSchema: "chalkframes-plan-hash-v2" },
     ]) {
       expectUnsupported(() => readPlanProtocol({ protocol }));
     }
@@ -206,7 +206,7 @@ describe("getDistributedRenderCapabilities()", () => {
     const futureV2: PlanProtocolDescriptor = {
       schemaVersion: 2,
       artifactLayout: "plan-dir-v2",
-      hashSchema: "hyperframes-plan-hash-v2",
+      hashSchema: "chalkframes-plan-hash-v2",
     };
     const rolloutCapabilities: DistributedRenderCapabilities = {
       roles: {

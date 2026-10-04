@@ -1718,7 +1718,7 @@
     };
   }
 
-  window.__hyperframesGeometryCandidates = function collectGeometryCandidates(options) {
+  window.__chalkframesGeometryCandidates = function collectGeometryCandidates(options) {
     const includeText = options?.text === true;
     const includeMedia = options?.media === true;
     if (!includeText && !includeMedia) return [];
@@ -1752,7 +1752,7 @@
     return candidates;
   };
 
-  window.__hyperframesLayoutAudit = function auditLayout(options) {
+  window.__chalkframesLayoutAudit = function auditLayout(options) {
     const time = options && typeof options.time === "number" ? options.time : 0;
     const tolerance =
       options && typeof options.tolerance === "number" ? Math.max(0, options.tolerance) : 2;
@@ -1798,7 +1798,7 @@
   };
 
   // Reruns only the overlap detector (same threshold, no new surface) on a fine grid for the dense motion re-sampling pass.
-  window.__hyperframesOverlapAudit = function auditOverlap(options) {
+  window.__chalkframesOverlapAudit = function auditOverlap(options) {
     const time = options && typeof options.time === "number" ? options.time : 0;
     const root =
       document.querySelector("[data-composition-id][data-width][data-height]") ||
@@ -1843,7 +1843,7 @@
     }
   }
 
-  window.__hyperframesLayoutGeometry = function collectLayoutGeometry() {
+  window.__chalkframesLayoutGeometry = function collectLayoutGeometry() {
     const root =
       document.querySelector("[data-composition-id][data-width][data-height]") ||
       document.querySelector("[data-composition-id]") ||
@@ -1900,7 +1900,7 @@
     return (Math.atan2(b, a) * 180) / Math.PI;
   }
 
-  window.__hyperframesRotationSample = function collectRotationSample() {
+  window.__chalkframesRotationSample = function collectRotationSample() {
     const root =
       document.querySelector("[data-composition-id][data-width][data-height]") ||
       document.querySelector("[data-composition-id]") ||
@@ -2066,7 +2066,7 @@
     return arcHubForSvg(svg, root);
   }
 
-  window.__hyperframesOffPivotRotationSample = function collectOffPivotRotationSample() {
+  window.__chalkframesOffPivotRotationSample = function collectOffPivotRotationSample() {
     const root =
       document.querySelector("[data-composition-id][data-width][data-height]") ||
       document.querySelector("[data-composition-id]") ||

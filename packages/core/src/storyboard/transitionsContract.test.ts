@@ -55,7 +55,7 @@ describe.each(skillNames)("%s transition contract", (skillName) => {
     (_, preInflatedRoot) => {
       const project = makeProject({ preInflatedRoot });
       const script = join(REPO_ROOT, "skills", skillName, "scripts", "transitions.mjs");
-      execFileSync(process.execPath, [script, "inject", "--hyperframes", project], {
+      execFileSync(process.execPath, [script, "inject", "--chalkframes", project], {
         stdio: "pipe",
       });
 

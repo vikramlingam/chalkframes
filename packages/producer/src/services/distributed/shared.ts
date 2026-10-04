@@ -9,14 +9,14 @@ import { dirname, join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { type Fps, type RateSpec } from "@hyperframes/core";
+import { type Fps, type RateSpec } from "@chalkframes/core";
 import {
   getFfmpegBinary,
   MIXED_AUDIO_FILENAME,
   type VideoElement,
   type VideoFrameFormat,
   type VideoMetadata,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { type RenderConfig, type RenderJob, createRenderJob } from "../renderOrchestrator.js";
 import { defaultLogger, type ProducerLogger } from "../../logger.js";
 
@@ -358,7 +358,7 @@ export async function readFfmpegVersion(): Promise<string> {
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     throw Object.assign(
-      new Error(`ffmpeg not found at "${binary}": install FFmpeg or set HYPERFRAMES_FFMPEG_PATH.`, {
+      new Error(`ffmpeg not found at "${binary}": install FFmpeg or set CHALKFRAMES_FFMPEG_PATH.`, {
         cause: error,
       }),
       { code: "ENOENT" },
@@ -432,7 +432,7 @@ export function buildSyntheticRenderJob(input: SyntheticRenderJobInput): RenderJ
 
 /**
  * Resolve the producer package version by walking up from the calling
- * module until a `package.json` whose `name === "@hyperframes/producer"`
+ * module until a `package.json` whose `name === "@chalkframes/producer"`
  * is found. Works for both the bundled `dist/index.js` (1 level up) and
  * the unbundled source tree (4 levels up).
  *
@@ -452,7 +452,7 @@ export function readProducerVersion(): string {
           name?: string;
           version?: string;
         };
-        if (pkg.name === "@hyperframes/producer" && typeof pkg.version === "string") {
+        if (pkg.name === "@chalkframes/producer" && typeof pkg.version === "string") {
           cachedProducerVersion = pkg.version;
           return pkg.version;
         }

@@ -1,4 +1,4 @@
-# HyperFrames Core Changelog
+# ChalkFrames Core Changelog
 
 ## v0.1
 

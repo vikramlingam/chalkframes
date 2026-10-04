@@ -56,9 +56,9 @@ import {
   parseVfxChain,
   redactTelemetryString,
   toFps,
-} from "@hyperframes/core";
-import { HF_AUDIO_GROUP_TAG } from "@hyperframes/core/audio-groups";
-import { HTML_BODY_CSS_HEIGHT_FIRST_RE, HTML_BODY_CSS_WIDTH_FIRST_RE } from "@hyperframes/parsers";
+} from "@chalkframes/core";
+import { HF_AUDIO_GROUP_TAG } from "@chalkframes/core/audio-groups";
+import { HTML_BODY_CSS_HEIGHT_FIRST_RE, HTML_BODY_CSS_WIDTH_FIRST_RE } from "@chalkframes/parsers";
 import {
   type EngineConfig,
   extractMediaMetadata,
@@ -104,7 +104,7 @@ import {
   augmentProtocolTimeoutError,
   augmentPageNavigationTimeoutError,
   type MotionBlurOptions,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { join, dirname, resolve } from "path";
 import { totalmem } from "node:os";
 import { randomUUID } from "crypto";
@@ -305,7 +305,7 @@ export interface RenderConfig {
    * Frame rate as an exact rational. Integer fps is `{ num: 30, den: 1 }`;
    * NTSC is `{ num: 30000, den: 1001 }`. This shape lets the orchestrator
    * pass the exact rational through to FFmpeg's `-r` / `-framerate` flags
-   * without a decimal round-trip — see `fpsToFfmpegArg` in @hyperframes/core.
+   * without a decimal round-trip — see `fpsToFfmpegArg` in @chalkframes/core.
    *
    * Use `fpsToNumber(config.fps)` at any site that needs a `number` for
    * arithmetic (frame-index → time, telemetry, frame-interval ms). Decimal
@@ -457,7 +457,7 @@ export interface RenderPerfSummary {
    * htmlInCanvas / low-memory pins short-circuited sizing). `boundBy` names
    * the binding constraint; the heap fields are the advisory budget being
    * validated by fleet telemetry before enforcement — see
-   * `computeWorkerSizing` in @hyperframes/engine.
+   * `computeWorkerSizing` in @chalkframes/engine.
    */
   workerSizing?: WorkerSizing;
   chunkedEncode: boolean;
@@ -591,8 +591,8 @@ export interface RenderPerfSummary {
     compositionElementTags?: Readonly<Record<string, number>>;
     /** `<video data-aroll="true">` elements from the same static scan. Only set when compositionElementCountSource is "static". */
     arollVideoCount?: number;
-    /** `<video data-media-source="heygen">` elements from the same static scan. Only set when compositionElementCountSource is "static". */
-    heygenVideoCount?: number;
+    /** `<video data-media-source="chalkframes">` elements from the same static scan. Only set when compositionElementCountSource is "static". */
+    chalkframesVideoCount?: number;
     /** Runtime adapters exercised (see `KNOWN_RUNTIME_ADAPTERS`), a live+static union, always set (possibly empty). */
     adaptersUsed?: readonly string[];
     /** Audio/image/sub-comp/color-grading counts, same static scan; only set when the source above is "static". */
@@ -1585,7 +1585,7 @@ export interface ElementTagScan {
   total: number;
   byTag: Readonly<Record<string, number>>;
   arollVideoCount: number;
-  heygenVideoCount: number;
+  chalkframesVideoCount: number;
   audioCount: number;
   imageCount: number;
   subCompositionCount: number;
@@ -1604,7 +1604,7 @@ export interface ElementTagScan {
 }
 
 const MAX_REPORTED_ELEMENT_TAGS = 50;
-/** none < self < backdrop — mirrors @hyperframes/core vfx.ts's internal CAPTURE_RANK, duplicated here (not exported) to combine per-host captures across an entire composition's static scan. */
+/** none < self < backdrop — mirrors @chalkframes/core vfx.ts's internal CAPTURE_RANK, duplicated here (not exported) to combine per-host captures across an entire composition's static scan. */
 const VFX_CAPTURE_RANK: Record<HfVfxCapture, number> = { none: 0, self: 1, backdrop: 2 };
 
 /** First element carrying data-composition-id, the same root marker other `[data-composition-id]` queries here use. */
@@ -1729,24 +1729,24 @@ export function scanElementTags(html: string): ElementTagScan {
   // sum(byTag) === total in every case; overwriting would silently drop it.
   if (otherCount > 0) byTag.other = (byTag.other ?? 0) + otherCount;
   // `data-aroll="true"` is stamped on any media element type the composition
-  // generator emits (video/img/audio — see hyperframes.ts's isMediaElement
+  // generator emits (video/img/audio — see chalkframes.ts's isMediaElement
   // gate), but this count is scoped to <video> only, matching its name: a-roll
   // is a video-editing term for primary-take footage, and every real usage in
   // this codebase's fixtures stamps it on video elements.
   const arollVideoCount =
     markup.match(/<video\b[^>]*\bdata-aroll=["']true["'][^>]*>/gi)?.length ?? 0;
-  // `data-media-source="heygen"` is the media-use skill's own provenance
+  // `data-media-source="chalkframes"` is the media-use skill's own provenance
   // stamp (see resolve.md), written only when the mounted video's ledger
-  // record traces to the "heygen.video" provider — never any other provider
+  // record traces to the "chalkframes.video" provider — never any other provider
   // or value, so a plain presence check is exact, not a substring guess.
-  const heygenVideoCount =
-    markup.match(/<video\b[^>]*\bdata-media-source=["']heygen["'][^>]*>/gi)?.length ?? 0;
+  const chalkframesVideoCount =
+    markup.match(/<video\b[^>]*\bdata-media-source=["']chalkframes["'][^>]*>/gi)?.length ?? 0;
   // Uncapped `counts` Map, not `byTag`: 50+ distinct tags could push these
   // into the "other" bucket, zeroing a named field the cap shouldn't affect.
   const audioCount = counts.get("audio") ?? 0;
   const imageCount = counts.get("img") ?? 0;
   const audioGroupCount = counts.get(HF_AUDIO_GROUP_TAG) ?? 0;
-  // Not collectSubCompositionSrcs (@hyperframes/parsers/asset-resolution):
+  // Not collectSubCompositionSrcs (@chalkframes/parsers/asset-resolution):
   // that dedupes by src and drops placeholder/remote mounts, so its length is
   // distinct resolvable sub-comps, not this field's mount-element count.
   const subCompositionCount =
@@ -1791,7 +1791,7 @@ export function scanElementTags(html: string): ElementTagScan {
     total,
     byTag,
     arollVideoCount,
-    heygenVideoCount,
+    chalkframesVideoCount,
     audioCount,
     imageCount,
     subCompositionCount,
@@ -1821,7 +1821,7 @@ function colorGradingValueHasLut(rawAttributeValue: string): boolean {
     const parsed: unknown = JSON.parse(decoded);
     if (typeof parsed !== "object" || parsed === null || !("lut" in parsed)) return false;
     const lut = parsed.lut;
-    // Mirrors normalizeLut (@hyperframes/core colorGrading.ts): a bare
+    // Mirrors normalizeLut (@chalkframes/core colorGrading.ts): a bare
     // non-blank string, or an object with a non-blank string `src`, counts.
     // null/absent/empty-string/blank-src does not.
     if (typeof lut === "string") return lut.trim() !== "";
@@ -1863,7 +1863,7 @@ export async function resolveCompositionElementCount(
   source: "live" | "static";
   byTag?: Readonly<Record<string, number>>;
   arollVideoCount?: number;
-  heygenVideoCount?: number;
+  chalkframesVideoCount?: number;
   audioCount?: number;
   imageCount?: number;
   subCompositionCount?: number;
@@ -1901,7 +1901,7 @@ export async function resolveCompositionElementCount(
     source: "static",
     byTag: scan.byTag,
     arollVideoCount: scan.arollVideoCount,
-    heygenVideoCount: scan.heygenVideoCount,
+    chalkframesVideoCount: scan.chalkframesVideoCount,
     audioCount: scan.audioCount,
     imageCount: scan.imageCount,
     subCompositionCount: scan.subCompositionCount,
@@ -3203,7 +3203,7 @@ async function executeRenderPipeline(input: {
     // shape (probe Chrome + a throwaway calibration Chrome + N capture
     // workers) thrashes — concurrent Chrome instances drive memory pressure
     // that slows every CDP call and spikes V8 GC, surfacing as the slow/stuck
-    // renders in heygen-com/hyperframes#1218 / #1219. Collapse to the cheapest
+    // renders in vikramlingam/chalkframes#1218 / #1219. Collapse to the cheapest
     // shape: skip auto-worker calibration (the gate below), pin to a single
     // worker (resolved below), and prefer screenshot capture over BeginFrame
     // (which avoids the BeginFrame protocol-timeout → relaunch churn on slow
@@ -3675,7 +3675,7 @@ async function executeRenderPipeline(input: {
       source: compositionElementCountSource,
       byTag: compositionElementTags,
       arollVideoCount,
-      heygenVideoCount,
+      chalkframesVideoCount,
       audioCount,
       imageCount,
       subCompositionCount,
@@ -4033,7 +4033,7 @@ async function executeRenderPipeline(input: {
       compositionElementCountSource,
       compositionElementTags,
       arollVideoCount,
-      heygenVideoCount,
+      chalkframesVideoCount,
       adaptersUsed,
       audioCount,
       imageCount,
@@ -5176,7 +5176,7 @@ async function executeRenderPipeline(input: {
         compositionElementCountSource,
         compositionElementTags,
         arollVideoCount,
-        heygenVideoCount,
+        chalkframesVideoCount,
         adaptersUsed,
         audioCount,
         imageCount,
@@ -5265,10 +5265,10 @@ async function executeRenderPipeline(input: {
     // Retry burn on a render that STILL failed — the actionable signal for tuning
     // MAX_TRANSIENT_CAPTURE_RETRIES (mirrors the success-path record above).
     recordTransientRetryObservability();
-    // Surface HyperFrames' PRODUCER_PUPPETEER_PROTOCOL_TIMEOUT_MS env +
+    // Surface ChalkFrames' PRODUCER_PUPPETEER_PROTOCOL_TIMEOUT_MS env +
     // --protocol-timeout CLI in Puppeteer CDP protocol-timeout errors. Puppeteer's
     // stock "Runtime.callFunctionOn timed out. Increase the 'protocolTimeout'
-    // setting" text doesn't name the HyperFrames knob and doesn't state the
+    // setting" text doesn't name the ChalkFrames knob and doesn't state the
     // effective timeout that was already applied (300000 ms base + auto-scaling
     // via `scaleProtocolTimeoutForComposition`). Field signal ts=1784047847
     // reporter gave up on HF and switched to FFmpeg because the error didn't
@@ -5276,14 +5276,14 @@ async function executeRenderPipeline(input: {
     // unchanged when the message doesn't match, so non-timeout failures (memory
     // exhaustion, other CDP errors) flow through with no change.
     const protocolTimeoutError = augmentProtocolTimeoutError(error, cfg.protocolTimeout);
-    // Surface HyperFrames' PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS env +
-    // --browser-timeout CLI + HYPERFRAMES_BROWSER_PATH escape hatch in
+    // Surface ChalkFrames' PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS env +
+    // --browser-timeout CLI + CHALKFRAMES_BROWSER_PATH escape hatch in
     // Puppeteer `page.goto` navigation-timeout errors. Puppeteer's stock
     // "Navigation timeout of 60000 ms exceeded" text names none of these
     // levers. Field signal ts=1784146416 (darwin/arm64, CLI 0.7.58): host
     // page.goto hit Navigation timeout twice on a CSS 3D + audio composition;
     // Docker rendered the same composition successfully. Mirrors #2443's
-    // HYPERFRAMES_BROWSER_PATH surfacing at the runtime-navigation layer
+    // CHALKFRAMES_BROWSER_PATH surfacing at the runtime-navigation layer
     // (vs download-time). `augmentPageNavigationTimeoutError` returns the
     // input unchanged when the message doesn't match the Nav-timeout regex,
     // so protocol-timeout / memory / other CDP errors flow through unchanged.

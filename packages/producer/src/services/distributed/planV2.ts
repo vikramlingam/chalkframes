@@ -30,7 +30,7 @@ import {
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { createFrameLookupTable, type ExtractedFrames } from "@hyperframes/engine";
+import { createFrameLookupTable, type ExtractedFrames } from "@chalkframes/engine";
 import { recomputePlanHashFromPlanDir, type ChunkSliceJson } from "../render/stages/freezePlan.js";
 import { canonicalJsonStringify, sha256Hex } from "../render/stages/planHash.js";
 import { buildLocalExecutionPlan, type DistributedRenderConfig } from "./plan.js";
@@ -56,13 +56,13 @@ import {
   type PlanVideosJson,
 } from "./shared.js";
 
-const PLAN_V2_HASH_PREFIX = "hyperframes-plan-manifest-hash-v2\x00";
+const PLAN_V2_HASH_PREFIX = "chalkframes-plan-manifest-hash-v2\x00";
 // The engine's content-addressed extraction cache keeps this ownership marker
 // beside numbered frames. Distributed plan() materializes the cache directory
 // recursively, so v2 must recognize (and omit) the marker without weakening
 // fail-closed handling for any other unexpected filename.
 const EXTRACTION_CACHE_COMPLETE_SENTINEL = ".hf-complete";
-export const PLAN_V2_MATERIALIZATION_MARKER = ".hyperframes-plan-v2.json";
+export const PLAN_V2_MATERIALIZATION_MARKER = ".chalkframes-plan-v2.json";
 export { PLAN_V2_INTEGRITY_UNRECOVERABLE, PlanV2IntegrityError };
 
 export type PlanV2MaterializationTarget =

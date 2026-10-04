@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 describe("caption rules", () => {
   it("warns when caption exit has no hard kill tl.set", async () => {
@@ -20,7 +20,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "caption_exit_missing_hard_kill");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -45,7 +45,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "caption_exit_missing_hard_kill");
     expect(finding).toBeUndefined();
   });
@@ -67,7 +67,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "caption_exit_missing_hard_kill");
     expect(finding).toBeUndefined();
   });
@@ -87,7 +87,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </template>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
     const finding = result.findings.find((f) => f.code === "caption_exit_missing_hard_kill");
     expect(finding).toBeUndefined();
   });
@@ -110,7 +110,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "caption_text_overflow_risk");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("warning");
@@ -135,7 +135,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find(
       (f) => f.code === "caption_text_overflow_risk" && f.severity === "warning",
     );
@@ -158,7 +158,7 @@ describe("caption rules", () => {
     </script>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "caption_container_relative_position");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -181,10 +181,10 @@ describe("caption rules", () => {
       // The hint used to say "and overflow: hidden", which is exactly what
       // caption_overflow_clips_scaled_words errors on. Following the warning
       // produced an error.
-      const before = await lintHyperframeHtml(cap("position:absolute;white-space:nowrap"));
+      const before = await lintChalkframeHtml(cap("position:absolute;white-space:nowrap"));
       expect(before.findings.find((f) => f.code === "caption_text_overflow_risk")).toBeDefined();
 
-      const after = await lintHyperframeHtml(
+      const after = await lintChalkframeHtml(
         cap("position:absolute;white-space:nowrap;max-width:1600px;overflow:visible"),
       );
       const blocking = after.findings.filter((f) => f.severity !== "info");

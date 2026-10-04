@@ -57,7 +57,7 @@ describe("studio preview document", () => {
 
     expect(response.status).toBe(200);
     // Served by the bundler, not the raw-HTML fallback, so the assertions below mean something.
-    expect(html).toContain('data-hyperframes-preview-runtime="1" src="/api/runtime.js"');
+    expect(html).toContain('data-chalkframes-preview-runtime="1" src="/api/runtime.js"');
     expect(html).not.toContain("base64,");
     expect(html.match(/src="assets\/pic\.png"/g)?.length).toBeGreaterThanOrEqual(3);
     expect(html).toContain("url(assets/brand.ttf)");

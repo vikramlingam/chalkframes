@@ -22,7 +22,7 @@ interface SherpaOnnx {
   };
 }
 
-const { wavPath, runtimeDir, config } = JSON.parse(process.env.HYPERFRAMES_PARAKEET_INPUT ?? "{}");
+const { wavPath, runtimeDir, config } = JSON.parse(process.env.CHALKFRAMES_PARAKEET_INPUT ?? "{}");
 const parentPid = process.ppid;
 
 /** Leading silence moves the frame grid; 0.5 s recovered the dropped clause at every length tried. */

@@ -14,7 +14,7 @@ afterEach(() => {
 
 describe("writePartialCaptureBundle", () => {
   it("writes tokens collected before the deadline", () => {
-    const outputDir = mkdtempSync(join(tmpdir(), "hyperframes-partial-capture-"));
+    const outputDir = mkdtempSync(join(tmpdir(), "chalkframes-partial-capture-"));
     temporaryDirectories.push(outputDir);
     const opts = { url: "https://example.com", outputDir };
     const state = createPartialCaptureState(opts);

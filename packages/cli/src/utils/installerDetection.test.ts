@@ -44,7 +44,7 @@ describe("detectInstaller", () => {
   });
 
   it("classifies workspace link as skip (monorepo dev)", async () => {
-    const info = await detectWith("/Users/dev/hyperframes-oss/packages/cli/dist/cli.js");
+    const info = await detectWith("/Users/dev/chalkframes-oss/packages/cli/dist/cli.js");
     expect(info.kind).toBe("skip");
     expect(info.reason).toContain("workspace");
     expect(info.installCommand("0.4.4")).toBeNull();
@@ -52,60 +52,60 @@ describe("detectInstaller", () => {
 
   it("classifies npx _npx cache path as skip", async () => {
     const info = await detectWith(
-      "/Users/me/.npm/_npx/abc123/node_modules/hyperframes/dist/cli.js",
+      "/Users/me/.npm/_npx/abc123/node_modules/chalkframes/dist/cli.js",
     );
     expect(info.kind).toBe("skip");
     expect(info.reason.toLowerCase()).toContain("ephemeral");
   });
 
   it("classifies bunx temp dir as skip", async () => {
-    const info = await detectWith("/var/folders/tmp/bunx-501-hyperframes/entry.js");
+    const info = await detectWith("/var/folders/tmp/bunx-501-chalkframes/entry.js");
     expect(info.kind).toBe("skip");
     expect(info.reason.toLowerCase()).toContain("ephemeral");
   });
 
   it("detects Homebrew install", async () => {
-    const info = await detectWith("/opt/homebrew/Cellar/hyperframes/0.4.3/bin/hyperframes");
+    const info = await detectWith("/opt/homebrew/Cellar/chalkframes/0.4.3/bin/chalkframes");
     expect(info.kind).toBe("brew");
-    expect(info.installCommand("0.4.4")).toBe("brew upgrade hyperframes");
+    expect(info.installCommand("0.4.4")).toBe("brew upgrade chalkframes");
   });
 
   it("detects bun global install", async () => {
     const info = await detectWith(
-      "/Users/me/.bun/install/global/node_modules/hyperframes/dist/cli.js",
+      "/Users/me/.bun/install/global/node_modules/chalkframes/dist/cli.js",
     );
     expect(info.kind).toBe("bun");
-    expect(info.installCommand("0.4.4")).toBe("bun add -g hyperframes@0.4.4");
+    expect(info.installCommand("0.4.4")).toBe("bun add -g chalkframes@0.4.4");
   });
 
   it("detects pnpm global install (Library/pnpm path)", async () => {
     const info = await detectWith(
-      "/Users/me/Library/pnpm/global/5/node_modules/hyperframes/dist/cli.js",
+      "/Users/me/Library/pnpm/global/5/node_modules/chalkframes/dist/cli.js",
     );
     expect(info.kind).toBe("pnpm");
-    expect(info.installCommand("0.4.4")).toBe("pnpm add -g hyperframes@0.4.4");
+    expect(info.installCommand("0.4.4")).toBe("pnpm add -g chalkframes@0.4.4");
   });
 
   it("treats pnpm project-local installs as unknown layouts", async () => {
     const info = await detectWith(
-      "/path/to/project/node_modules/.pnpm/hyperframes@0.4.3/node_modules/hyperframes/dist/cli.js",
+      "/path/to/project/node_modules/.pnpm/chalkframes@0.4.3/node_modules/chalkframes/dist/cli.js",
     );
     expect(info.kind).toBe("skip");
     expect(info.installCommand("0.4.4")).toBeNull();
   });
 
   it("detects npm global install", async () => {
-    const info = await detectWith("/usr/local/lib/node_modules/hyperframes/dist/cli.js");
+    const info = await detectWith("/usr/local/lib/node_modules/chalkframes/dist/cli.js");
     expect(info.kind).toBe("npm");
-    expect(info.installCommand("0.4.4")).toBe("npm install -g hyperframes@0.4.4");
+    expect(info.installCommand("0.4.4")).toBe("npm install -g chalkframes@0.4.4");
   });
 
   it("detects npm global install on Windows", async () => {
     const info = await detectWith(
-      "C:\\Users\\me\\AppData\\Roaming\\npm\\node_modules\\hyperframes\\dist\\cli.js",
+      "C:\\Users\\me\\AppData\\Roaming\\npm\\node_modules\\chalkframes\\dist\\cli.js",
     );
     expect(info.kind).toBe("npm");
-    expect(info.installCommand("0.4.4")).toBe("npm install -g hyperframes@0.4.4");
+    expect(info.installCommand("0.4.4")).toBe("npm install -g chalkframes@0.4.4");
   });
 
   it("returns skip when the entry cannot be resolved", async () => {
@@ -118,7 +118,7 @@ describe("detectInstaller", () => {
   });
 
   it("returns skip for an unknown install layout", async () => {
-    const info = await detectWith("/some/random/path/hyperframes");
+    const info = await detectWith("/some/random/path/chalkframes");
     expect(info.kind).toBe("skip");
     expect(info.reason).toMatch(/Unknown install layout/);
   });
@@ -130,25 +130,25 @@ describe("installInvocation", () => {
   it("returns the npm global argv for kind npm", () => {
     expect(installInvocation("npm", "1.2.3")).toEqual({
       bin: "npm",
-      args: ["install", "-g", "hyperframes@1.2.3"],
+      args: ["install", "-g", "chalkframes@1.2.3"],
     });
   });
 
   it("returns bun/pnpm add -g argv for those managers", () => {
     expect(installInvocation("bun", "1.2.3")).toEqual({
       bin: "bun",
-      args: ["add", "-g", "hyperframes@1.2.3"],
+      args: ["add", "-g", "chalkframes@1.2.3"],
     });
     expect(installInvocation("pnpm", "1.2.3")).toEqual({
       bin: "pnpm",
-      args: ["add", "-g", "hyperframes@1.2.3"],
+      args: ["add", "-g", "chalkframes@1.2.3"],
     });
   });
 
   it("returns a version-less brew upgrade for kind brew", () => {
     expect(installInvocation("brew", "1.2.3")).toEqual({
       bin: "brew",
-      args: ["upgrade", "hyperframes"],
+      args: ["upgrade", "chalkframes"],
     });
   });
 

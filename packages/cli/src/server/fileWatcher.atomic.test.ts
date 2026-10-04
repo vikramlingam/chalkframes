@@ -3,8 +3,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, onTestFinished, vi } from "vitest";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
-import { openProjectHistory } from "@hyperframes/studio-server";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
+import { openProjectHistory } from "@chalkframes/studio-server";
 import { createProjectWatcher } from "./fileWatcher.js";
 
 function tempDir(prefix: string): string {

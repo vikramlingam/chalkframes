@@ -42,7 +42,7 @@ export async function refreshSkillsCache(): Promise<void> {
   if (!(await hostAnswers("github.com"))) return;
   // `canonical: true` so this nudge's counts agree with `updateSkills`'s
   // source of truth — otherwise a stale in-repo skills-manifest.json (e.g.
-  // inside a hyperframes checkout) can produce a false-positive count here.
+  // inside a chalkframes checkout) can produce a false-positive count here.
   const result = await checkSkills({ canonical: true });
   // Only record a meaningful check when skills were actually found.
   if (result.location) {
@@ -99,7 +99,7 @@ export function invalidateSkillsCache(): void {
 
 /** Whether a background skills check is due: this run shows notices and the 24 h cache is stale. */
 export function skillsCheckDue(): boolean {
-  if (process.env["HYPERFRAMES_SKIP_SKILLS"] === "1" || updateNoticesSuppressed()) return false;
+  if (process.env["CHALKFRAMES_SKIP_SKILLS"] === "1" || updateNoticesSuppressed()) return false;
   return !cacheFresh(readConfig().lastSkillsCheck, Date.now());
 }
 
@@ -108,15 +108,15 @@ function skillsNoticeText(meta: SkillsUpdateMeta): string | null {
   const total = meta.outdated + meta.missing + meta.removed;
   if (total < 1) return null;
   const noun = total === 1 ? "skill" : "skills";
-  return `\n  ${total} HyperFrames ${noun} out of date or missing.\n  Run: npx hyperframes skills update\n\n`;
+  return `\n  ${total} ChalkFrames ${noun} out of date or missing.\n  Run: npx chalkframes skills update\n\n`;
 }
 
 /**
  * Print a one-line nudge to stderr if installed skills are stale. Same gating
- * as the CLI self-update notice (CI, non-TTY, dev, HYPERFRAMES_NO_UPDATE_CHECK).
+ * as the CLI self-update notice (CI, non-TTY, dev, CHALKFRAMES_NO_UPDATE_CHECK).
  */
 export function printSkillsUpdateNotice(): void {
-  if (process.env["HYPERFRAMES_SKIP_SKILLS"] === "1" || updateNoticesSuppressed()) return;
+  if (process.env["CHALKFRAMES_SKIP_SKILLS"] === "1" || updateNoticesSuppressed()) return;
   const text = skillsNoticeText(getSkillsUpdateMeta());
   if (text) process.stderr.write(text);
 }

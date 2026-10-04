@@ -81,10 +81,10 @@ describe("runtime entry", () => {
     delete window.__renderReady;
     delete window.__hfTimelinesBuilding;
     const win = window as {
-      __hyperframeRuntimeBootstrapped?: boolean;
+      __chalkframeRuntimeBootstrapped?: boolean;
       __hfFirstPassHidden?: boolean;
     };
-    delete win.__hyperframeRuntimeBootstrapped;
+    delete win.__chalkframeRuntimeBootstrapped;
     delete win.__hfFirstPassHidden;
     delete (document as { readyState?: unknown }).readyState;
   });

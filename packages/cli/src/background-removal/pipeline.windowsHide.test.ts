@@ -33,7 +33,7 @@ vi.mock("./inference.js", () => ({
     close: closeSessionMock,
   }),
 }));
-vi.mock("@hyperframes/engine", () => ({
+vi.mock("@chalkframes/engine", () => ({
   DEFAULT_VP9_CPU_USED: 4,
   renderProvenanceArgs: () => [],
   extractMediaMetadata: async () => ({ width: 1, height: 1, fps: 1, durationSeconds: 1 }),

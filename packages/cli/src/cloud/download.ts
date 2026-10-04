@@ -1,8 +1,8 @@
 /**
  * Stream a presigned `video_url` (or any HTTPS URL) into a local file.
  *
- * The presigned URLs returned by `GET /v3/hyperframes/renders/{id}` are
- * S3 URLs scoped per-request — they don't take any HeyGen auth header.
+ * The presigned URLs returned by `GET /v3/chalkframes/renders/{id}` are
+ * S3 URLs scoped per-request — they don't take any Chalkframes auth header.
  * That's why this lives separate from the cloud client: the client
  * threads auth headers, the download path explicitly does NOT.
  *
@@ -23,7 +23,7 @@ import {
   statSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
-import { resolveWritePath } from "@hyperframes/core/atomic-file";
+import { resolveWritePath } from "@chalkframes/core/atomic-file";
 import { pipeline } from "node:stream/promises";
 
 export interface DownloadOptions {
@@ -85,7 +85,7 @@ export async function downloadToFile(
         if (totalOpt !== undefined && bytes !== totalOpt) {
           throw new Error(
             `Truncated download: got ${bytes} bytes, expected ${totalOpt} (content-length). ` +
-              `The presigned URL may have expired mid-transfer — refetch via \`hyperframes cloud get\`.`,
+              `The presigned URL may have expired mid-transfer — refetch via \`chalkframes cloud get\`.`,
           );
         }
       },

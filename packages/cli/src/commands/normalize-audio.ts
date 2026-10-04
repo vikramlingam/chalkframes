@@ -13,7 +13,7 @@ import {
   type AudioNormalizationPlan,
   type AudioTag,
   type LoudnessLimit,
-} from "@hyperframes/studio-server/loudness";
+} from "@chalkframes/studio-server/loudness";
 import { defineCommand } from "citty";
 import { c } from "../ui/colors.js";
 import { resolveProject } from "../utils/project.js";
@@ -27,7 +27,7 @@ export {
   parseEbur128Summary,
   resolveLocalAudioPath,
   updateAudioVolume,
-} from "@hyperframes/studio-server/loudness";
+} from "@chalkframes/studio-server/loudness";
 
 const DEFAULT_TOLERANCE_LU = 0.5;
 
@@ -220,15 +220,15 @@ function printHumanResult(result: NormalizeAudioResult): void {
 export const examples: Example[] = [
   [
     "Bring one clip (audio or a video with sound) to -16 LUFS",
-    "hyperframes normalize-audio --target voiceover --write",
+    "chalkframes normalize-audio --target voiceover --write",
   ],
   [
     "Measure two authored clips and preview the matching gain",
-    "hyperframes normalize-audio --reference target-audio --target user-audio",
+    "chalkframes normalize-audio --reference target-audio --target user-audio",
   ],
   [
     "Persist the measured gain into index.html",
-    "hyperframes normalize-audio --reference target-audio --target user-audio --write",
+    "chalkframes normalize-audio --reference target-audio --target user-audio --write",
   ],
 ];
 

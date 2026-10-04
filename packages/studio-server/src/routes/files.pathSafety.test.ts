@@ -17,7 +17,7 @@ import { join, relative } from "node:path";
 import { registerFileRoutes } from "./files";
 import { createStudioApi } from "../createStudioApi";
 import { fileContentVersion } from "../helpers/fileVersion";
-import { ProjectRootMissingError } from "@hyperframes/core";
+import { ProjectRootMissingError } from "@chalkframes/core";
 import { mkdirWithinProject } from "../helpers/safePath";
 import type { StudioApiAdapter } from "../types";
 

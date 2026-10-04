@@ -10,7 +10,7 @@ import {
   type HistoryResult,
   type HistoryWho,
   type UndoMode,
-} from "@hyperframes/studio-server";
+} from "@chalkframes/studio-server";
 
 import { resolveProject } from "./project.js";
 import { findPreviewServerForProject, studioApiUrl } from "./studioSelectionClient.js";
@@ -54,7 +54,7 @@ export const historyDeps = {
 /** A refusal is the caller's to fix: commands print its message, never a stack. */
 export class Refusal extends Error {}
 
-const turnFile = (dir: string) => join(dir, ".hyperframes", "history-turn.json");
+const turnFile = (dir: string) => join(dir, ".chalkframes", "history-turn.json");
 
 /** The open turn, or null; a marker with no last write time cannot say when the turn ended, so it has. */
 function readTurn(dir: string): Turn | null {
@@ -73,7 +73,7 @@ export function writeTurn(dir: string, turn: Turn | null): void {
 }
 
 /** Each agent's last ended turn, as the entries it filed; kept beside the marker, outside the history. */
-const lastTurnsFile = (dir: string) => join(dir, ".hyperframes", "history-turns.json");
+const lastTurnsFile = (dir: string) => join(dir, ".chalkframes", "history-turns.json");
 
 function readLastTurns(dir: string): Record<string, string[]> {
   try {

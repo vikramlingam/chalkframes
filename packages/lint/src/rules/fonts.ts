@@ -1,7 +1,7 @@
 import postcss from "postcss";
 import type { SourceLocation } from "../sourceCoordinates";
-import { FONT_ALIAS_KEYS, resolveAliasDisplayName } from "@hyperframes/parsers/composition";
-import type { LintContext, HyperframeLintFinding } from "../context";
+import { FONT_ALIAS_KEYS, resolveAliasDisplayName } from "@chalkframes/parsers/composition";
+import type { LintContext, ChalkframeLintFinding } from "../context";
 import { isRegistrySourceFile, isRegistryInstalledFile } from "./composition";
 
 const GENERIC_FAMILIES = new Set([
@@ -164,7 +164,7 @@ function collectGoogleFontFamilies(
   return families;
 }
 
-export const fontRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
+export const fontRules: Array<(ctx: LintContext) => ChalkframeLintFinding[]> = [
   // system_font_will_alias — only for distributed / Lambda renders, where
   // system-font capture is disabled and the alias substitution does NOT happen,
   // so the font silently falls back to whatever the OS provides. Under a local
@@ -191,7 +191,7 @@ export const fontRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
   // font_family_without_font_face
   ({ styles, source, rawSource, options, locate }) => {
     if (isRegistrySourceFile(options.filePath) || isRegistryInstalledFile(rawSource)) return [];
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const declared = extractFontFaceFamilies(styles);
     const used = extractUsedFontFamilies(styles);
     const googleFonts = collectGoogleFontFamilies(source, styles);

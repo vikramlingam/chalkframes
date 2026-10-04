@@ -1153,7 +1153,7 @@ describe("SUPPORTED_EASES", () => {
 
 // ── Variable-target resolution + in-place mutation ──────────────────────────
 //
-// Real compositions (and everything the hyperframes skill generates) target
+// Real compositions (and everything the chalkframes skill generates) target
 // tweens via element variables resolved from querySelector, wrapped in an IIFE,
 // with gsap.set() calls interleaved between tl.to() calls. The parser must
 // resolve those variable targets to selectors (read) and edits must preserve

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 function baseHtml(body: string, style = ""): string {
   return `<html><body>
@@ -30,7 +30,7 @@ describe("texture rules", () => {
       `${textureCss}.shadow { filter: drop-shadow(1px 2px 1px rgba(0,0,0,.48)); }`,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
 
     expect(result.findings.filter((finding) => finding.code.startsWith("texture_"))).toEqual([]);
   });
@@ -38,7 +38,7 @@ describe("texture rules", () => {
   it("warns when a material class is used without hf-texture-text", async () => {
     const html = baseHtml('<div class="hf-texture-lava">TEXT</div>', textureCss);
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_class_missing_base");
 
     expect(finding).toBeDefined();
@@ -49,7 +49,7 @@ describe("texture rules", () => {
   it("warns when hf-texture-text has no material class or custom mask image", async () => {
     const html = baseHtml('<div class="hf-texture-text">TEXT</div>', textureCss);
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_text_missing_mask");
 
     expect(finding).toBeDefined();
@@ -62,7 +62,7 @@ describe("texture rules", () => {
       textureCss,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_text_missing_mask");
 
     expect(finding).toBeUndefined();
@@ -71,7 +71,7 @@ describe("texture rules", () => {
   it("warns when a texture material class is not defined by local CSS", async () => {
     const html = baseHtml('<div class="hf-texture-text hf-texture-marbel">TEXT</div>', textureCss);
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_class_unknown");
 
     expect(finding).toBeDefined();
@@ -84,7 +84,7 @@ describe("texture rules", () => {
       textureCss,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_drop_shadow_on_text");
 
     expect(finding).toBeDefined();
@@ -97,7 +97,7 @@ describe("texture rules", () => {
       `${textureCss}.hf-texture-text { filter: drop-shadow(1px 2px 1px black); }`,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_drop_shadow_on_text");
 
     expect(finding).toBeDefined();
@@ -111,7 +111,7 @@ describe("texture rules", () => {
        ${textureCss}`,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_drop_shadow_on_text");
 
     expect(finding).toBeDefined();
@@ -124,7 +124,7 @@ describe("texture rules", () => {
       `${textureCss}.headline { filter: drop-shadow(1px 2px 1px black); }`,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_drop_shadow_on_text");
 
     expect(finding).toBeDefined();
@@ -137,7 +137,7 @@ describe("texture rules", () => {
       `${textureCss}.card .headline { filter: drop-shadow(1px 2px 1px black); }`,
     );
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "texture_drop_shadow_on_text");
 
     expect(finding).toBeUndefined();

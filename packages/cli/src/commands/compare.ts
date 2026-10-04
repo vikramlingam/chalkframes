@@ -58,11 +58,11 @@ export interface CompareSuccessPayload {
 export const examples: Example[] = [
   [
     "Compare two agent-authored composition variants",
-    "hyperframes compare ./variants/a ./variants/b --out compare.png",
+    "chalkframes compare ./variants/a ./variants/b --out compare.png",
   ],
   [
     "Compare three variants at a specific timeline time",
-    "hyperframes compare ./a ./b ./c --at 2.5 --labels classic,bold,quiet --json",
+    "chalkframes compare ./a ./b ./c --at 2.5 --labels classic,bold,quiet --json",
   ],
 ];
 
@@ -271,7 +271,7 @@ async function renderCompareVariant(
   opts: { atSeconds: number; framePath: string; timeoutMs: number },
 ): Promise<{ framePath: string; renderReadyTimedOut: boolean }> {
   try {
-    const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+    const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
     const html = await bundleToSingleHtml(variant.projectDir);
     const server = await serveStaticProjectHtml(variant.projectDir, html);
     try {

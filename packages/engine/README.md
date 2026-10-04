@@ -1,4 +1,4 @@
-# @hyperframes/engine
+# @chalkframes/engine
 
 Seekable web-page-to-video rendering engine built on Puppeteer and FFmpeg.
 
@@ -7,7 +7,7 @@ Framework-agnostic: works with GSAP, Lottie, Three.js, CSS animations, or any we
 ## Install
 
 ```bash
-npm install @hyperframes/engine
+npm install @chalkframes/engine
 ```
 
 **Requirements:** Node.js >= 22, Chrome/Chromium (auto-downloaded by Puppeteer), FFmpeg
@@ -39,7 +39,7 @@ import {
   initializeSession,
   captureFrame,
   closeCaptureSession,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 
 // 1. Launch browser
 const browserLease = await acquireBrowser({ captureMode: "beginFrame" });
@@ -64,14 +64,14 @@ await closeCaptureSession(session);
 await browserLease.release();
 ```
 
-Most users should use `@hyperframes/producer` or the `hyperframes` CLI instead of calling the engine directly.
+Most users should use `@chalkframes/producer` or the `chalkframes` CLI instead of calling the engine directly.
 
 ## Documentation
 
-Full documentation: [hyperframes.heygen.com/packages/engine](https://hyperframes.heygen.com/packages/engine)
+Full documentation: [chalkframes.dev/packages/engine](https://chalkframes.dev/packages/engine)
 
 ## Related packages
 
-- [`@hyperframes/core`](../core) — types, parsers, frame adapters
-- [`@hyperframes/producer`](../producer) — high-level render pipeline built on this engine
-- [`hyperframes`](../cli) — CLI
+- [`@chalkframes/core`](../core) — types, parsers, frame adapters
+- [`@chalkframes/producer`](../producer) — high-level render pipeline built on this engine
+- [`chalkframes`](../cli) — CLI

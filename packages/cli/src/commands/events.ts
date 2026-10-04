@@ -6,8 +6,8 @@ import { SKILL_SLUG } from "../telemetry/skill.js";
 // ideally from its own bundled script, so it fires deterministically rather
 // than relying on the agent to remember:
 //
-//   npx hyperframes events --skill=product-launch-video
-//   npx hyperframes events --skill=product-launch-video --event=skill_completed --outcome=success
+//   npx chalkframes events --skill=product-launch-video
+//   npx chalkframes events --skill=product-launch-video --event=skill_completed --outcome=success
 //
 // Rides the SAME anonymous PostHog pipeline + consent gates as every other CLI
 // event (DO_NOT_TRACK / telemetry opt-out, anonymous install UUID, IP stripped).

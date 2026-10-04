@@ -25,7 +25,7 @@ const ASSERTS_ABSENCE =
   /\b(no|not|never|without|neither|nor|nothing|absent|missing)\b[^.;]{0,120}$/i;
 
 // A sentence that names another repo or an installed package cites a file this checkout cannot see.
-const NAMES_ANOTHER_REPO = /\bheygen-com\/(?!hyperframes\b)[\w.-]+/i;
+const NAMES_ANOTHER_REPO = /\bchalkframes\/(?!chalkframes\b)[\w.-]+/i;
 const NAMES_A_DEPENDENCY = /@[\w.-]+\/[\w.-]+|\b[\w.-]+@\d+\.\d+|\b[\w.-]+\/dist\//;
 
 // The block rules read code only: a markdown plan describing what the code once did is a record.

@@ -60,13 +60,13 @@ const mocks = vi.hoisted(() => {
 });
 const FakeProxyTranscodeError = mocks.ProxyTranscodeError;
 
-vi.mock("@hyperframes/studio-server/proxy-transcoder", () => ({
+vi.mock("@chalkframes/studio-server/proxy-transcoder", () => ({
   resolveProxy: mocks.resolveProxy,
   ProxyTranscodeError: mocks.ProxyTranscodeError,
   ProxyCapacityError: mocks.ProxyCapacityError,
 }));
 
-vi.mock("@hyperframes/studio-server/media-codec-map", () => ({
+vi.mock("@chalkframes/studio-server/media-codec-map", () => ({
   probeAssetCodec: mocks.probeAssetCodec,
   decideMediaProxyEligibility: mocks.decideMediaProxyEligibility,
   isProxyVariant: (value: string) => value === "h264" || value === "vp8",
@@ -88,7 +88,7 @@ vi.mock("@hyperframes/studio-server/media-codec-map", () => ({
 // mocking the media-codec-map subpath can't reach inside it. The fake mirrors
 // the real contract (scan → inject tag) via this file's scan mock so the
 // injection assertions stay meaningful. Mirrors commands/play.test.ts.
-vi.mock("@hyperframes/studio-server/media-proxy-preview", () => ({
+vi.mock("@chalkframes/studio-server/media-proxy-preview", () => ({
   injectMediaCodecMapIntoHtml: vi.fn(
     async (html: string, projectDir: string, htmlSources: unknown[]) => {
       const map = await mocks.scanProjectMediaCodecMap(projectDir, htmlSources);
@@ -127,7 +127,7 @@ async function serveWith(bytes: Buffer): Promise<{ url: string }> {
 describe("serveStaticProjectHtml range support", () => {
   it("answers a Range request with 206 + the requested byte slice", async () => {
     // Chromium needs byte-range seekability or WAV `.duration` reports Infinity,
-    // which makes `hyperframes validate` falsely warn it cannot read the duration.
+    // which makes `chalkframes validate` falsely warn it cannot read the duration.
     const body = Buffer.from("0123456789", "utf-8");
     const { url } = await serveWith(body);
 
@@ -237,13 +237,13 @@ describe("serveStaticProjectHtml transparent media proxies", () => {
     expect(html).toContain("/clip.mp4");
   });
 
-  it("lets an explicit proxy override win over hyperframes.json", async () => {
+  it("lets an explicit proxy override win over chalkframes.json", async () => {
     mocks.scanProjectMediaCodecMap.mockResolvedValue({
       "/clip.mp4": { codecName: "hevc", browserHostile: true, representativeMime: null },
     });
     const projectDir = mk();
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ media: { autoProxy: false } }),
     );
     server = await serveStaticProjectHtml(

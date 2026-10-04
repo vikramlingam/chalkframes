@@ -2,7 +2,7 @@ import type {
   VideoExtractionFailureKind,
   VideoExtractionFailureRetry,
   VideoExtractionFailureStatusClass,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 
 export interface ExtractionFailureKindCount {
   kind: VideoExtractionFailureKind;

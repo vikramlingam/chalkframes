@@ -14,7 +14,7 @@ import {
   COLOR_GRADING_MAX_SECONDARIES,
   COLOR_GRADING_TOP_LEVEL_KEYS,
   COLOR_GRADING_WHEEL_KEYS,
-} from "@hyperframes/parsers/color-grading-contract";
+} from "@chalkframes/parsers/color-grading-contract";
 
 export type { HfColorCurvePoint, HfHueCurvePoint } from "./colorGradingCurves";
 export {
@@ -381,13 +381,13 @@ export const HF_COLOR_GRADING_PALETTES = [
   {
     id: "warm-print",
     label: "Warm Print",
-    group: "HyperFrames",
+    group: "ChalkFrames",
     colors: ["#17121a", "#824c50", "#e09873", "#f7ddb1"],
   },
   {
     id: "electric-ink",
     label: "Electric Ink",
-    group: "HyperFrames",
+    group: "ChalkFrames",
     colors: ["#080717", "#3c185f", "#7e2278", "#d9339f", "#ff6b66", "#aafae0"],
   },
 ] as const;

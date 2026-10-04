@@ -1,6 +1,6 @@
 // fallow-ignore-file code-duplication
 import { parseHTML } from "linkedom";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import { describe, expect, it } from "vitest";
 import {
   removeElementFromHtml,
@@ -90,7 +90,7 @@ describe("patchElementInHtml", () => {
 <div id="root" data-composition-id="main">
   <div class="layer" data-composition-id="overlay" data-composition-src="compositions/overlay.html">
     <div class="chrome">
-      <span class="brand">HyperFrames</span>
+      <span class="brand">ChalkFrames</span>
     </div>
   </div>
   <div id="hero" class="hero-heading" style="font-size: 48px">Hello World</div>
@@ -449,7 +449,7 @@ describe("probeElementInSource", () => {
 <div id="root" data-composition-id="main">
   <div class="layer" data-composition-id="overlay" data-composition-src="compositions/overlay.html">
     <div class="chrome">
-      <span class="brand">HyperFrames</span>
+      <span class="brand">ChalkFrames</span>
     </div>
   </div>
   <div id="hero" class="hero-heading" style="font-size: 48px">Hello World</div>

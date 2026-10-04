@@ -20,25 +20,25 @@ const mockExecFile = vi.mocked(execFileSync);
 
 afterEach(() => {
   vi.clearAllMocks();
-  delete process.env.HYPERFRAMES_FFMPEG_PATH;
-  delete process.env.HYPERFRAMES_FFPROBE_PATH;
+  delete process.env.CHALKFRAMES_FFMPEG_PATH;
+  delete process.env.CHALKFRAMES_FFPROBE_PATH;
 });
 
 // Lookup mechanics (PATH scan, common-dir fallback, Windows shim preference)
-// are covered by @hyperframes/parsers ffBinaries.test.ts. These tests pin the
+// are covered by @chalkframes/parsers ffBinaries.test.ts. These tests pin the
 // CLI wrapper's contract: a configured-but-missing override means "not found"
 // so callers surface the install hint instead of a spawn error.
 describe("findFFmpeg / findFFprobe", () => {
   it("returns undefined when the env override points at a missing file", () => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = join(tmpdir(), "missing-ffmpeg");
-    process.env.HYPERFRAMES_FFPROBE_PATH = join(tmpdir(), "missing-ffprobe");
+    process.env.CHALKFRAMES_FFMPEG_PATH = join(tmpdir(), "missing-ffmpeg");
+    process.env.CHALKFRAMES_FFPROBE_PATH = join(tmpdir(), "missing-ffprobe");
 
     expect(findFFmpeg()).toBeUndefined();
     expect(findFFprobe()).toBeUndefined();
   });
 
   it("returns the configured path when the env override exists", () => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = process.execPath;
+    process.env.CHALKFRAMES_FFMPEG_PATH = process.execPath;
 
     expect(findFFmpeg()).toBe(process.execPath);
   });

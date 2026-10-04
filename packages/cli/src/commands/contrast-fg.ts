@@ -13,7 +13,7 @@
 // This module hosts the pure decision so it can be unit-tested without a
 // browser. The same logic is inlined into contrast-audit.browser.js (which is
 // injected as a raw string and cannot import) and into
-// skills/hyperframes-creative/scripts/contrast-report.mjs — keep all three in
+// skills/chalkframes-creative/scripts/contrast-report.mjs — keep all three in
 // sync, mirroring the existing "WCAG math is duplicated" note at the top of
 // contrast-audit.browser.js.
 

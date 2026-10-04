@@ -20,7 +20,7 @@ vi.mock("puppeteer-core", () => ({ default: { launch: mocks.launch } }));
 // captureCompositionFrame.js imports these two from ../browser/gpuPolicy.js,
 // which re-exports them from this mocked module — unmocked here, they'd read
 // undefined and throw as soon as openSettledCompositionPage calls them.
-vi.mock("@hyperframes/engine", () => ({
+vi.mock("@chalkframes/engine", () => ({
   buildChromeArgs: mocks.buildChromeArgs,
   resolveBrowserGpuMode: mocks.resolveBrowserGpuMode,
   compositionRequiresWebGpu: mocks.compositionRequiresWebGpu,
@@ -35,7 +35,7 @@ const OPTIONS = {
   renderReadyWarningSuffix: "test",
   browserGpuMode: "software" as const,
 };
-const BUNDLED = "C:\\hyperframes\\chrome-headless-shell.exe";
+const BUNDLED = "C:\\chalkframes\\chrome-headless-shell.exe";
 const SYSTEM = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
 function launchCrash(): Error {
@@ -98,7 +98,7 @@ describe("openSettledCompositionPage Windows bundled-browser recovery", () => {
 
     await expect(
       openSettledCompositionPage(HTML, "http://127.0.0.1:3000", OPTIONS),
-    ).rejects.toThrow(/STATUS_STACK_BUFFER_OVERRUN[\s\S]*HYPERFRAMES_BROWSER_PATH/);
+    ).rejects.toThrow(/STATUS_STACK_BUFFER_OVERRUN[\s\S]*CHALKFRAMES_BROWSER_PATH/);
     expect(mocks.launch).toHaveBeenCalledOnce();
   });
 

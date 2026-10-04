@@ -12,7 +12,7 @@ vi.mock("./auth.js", () => ({
 
 import { forceRefreshCredentials, resolveCloudAuthHeaders } from "./auth.js";
 import { createCloudClient } from "./index.js";
-import { HyperframesApiError } from "./_gen/client.js";
+import { ChalkframesApiError } from "./_gen/client.js";
 
 const jsonResponse = (status: number, body: unknown): Response =>
   new Response(JSON.stringify(body), {
@@ -102,7 +102,7 @@ describe("createCloudClient 401-retry decorator", () => {
     // The decorator promises to surface the 401, not the refresh error —
     // the 401 carries the API's message/code, which reportApiError needs.
     await expect(call).rejects.toMatchObject({
-      name: "HyperframesApiError",
+      name: "ChalkframesApiError",
       status: 401,
       message: "token revoked",
     });
@@ -128,13 +128,13 @@ describe("createCloudClient 401-retry decorator", () => {
     const client = await createCloudClient();
     const call = client.listRenders({});
 
-    await expect(call).rejects.toBeInstanceOf(HyperframesApiError);
+    await expect(call).rejects.toBeInstanceOf(ChalkframesApiError);
     await expect(call).rejects.toMatchObject({ status: 500 });
     expect(forceRefreshCredentials).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("does not refresh on transport errors that aren't HyperframesApiError", async () => {
+  it("does not refresh on transport errors that aren't ChalkframesApiError", async () => {
     fetchMock.mockRejectedValueOnce(new TypeError("fetch failed"));
 
     const client = await createCloudClient();

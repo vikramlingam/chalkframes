@@ -4,8 +4,8 @@
  * media-use skill scripts use, so `auth status` and `doctor`
  * report the same engine the render pipeline would pick:
  *
- *   voice: HeyGen Starfish → ElevenLabs (key + `elevenlabs`) → Kokoro (local)
- *   music: HeyGen library  → Lyria (key + `google.genai`)   → MusicGen (local)
+ *   voice: Chalkframes Starfish → ElevenLabs (key + `elevenlabs`) → Kokoro (local)
+ *   music: Chalkframes library  → Lyria (key + `google.genai`)   → MusicGen (local)
  *
  * The decision is split from the probing: `decide*` is pure (unit-tested
  * without spawning Python); `gather*` collects the live facts.
@@ -21,8 +21,8 @@ export const MUSICGEN_MODULES = ["transformers", "torch", "soundfile", "numpy"];
 export const KOKORO_PIP = "pip install kokoro-onnx soundfile";
 export const MUSICGEN_PIP = "pip install transformers torch soundfile numpy";
 
-export type VoiceEngine = "heygen" | "elevenlabs" | "kokoro";
-export type MusicEngine = "heygen" | "lyria" | "musicgen";
+export type VoiceEngine = "chalkframes" | "elevenlabs" | "kokoro";
+export type MusicEngine = "chalkframes" | "lyria" | "musicgen";
 
 export interface EngineReadiness<E> {
   engine: E;
@@ -37,7 +37,7 @@ export interface EngineReadiness<E> {
 }
 
 export interface VoiceFacts {
-  hasHeygen: boolean;
+  hasChalkframes: boolean;
   /** ELEVENLABS_API_KEY set AND the `elevenlabs` module importable. */
   elevenlabs: boolean;
   /** Kokoro's local deps importable. */
@@ -45,7 +45,7 @@ export interface VoiceFacts {
 }
 
 export interface MusicFacts {
-  hasHeygen: boolean;
+  hasChalkframes: boolean;
   /** A Gemini/Google key set AND `google.genai` importable. */
   lyria: boolean;
   /** MusicGen's local deps importable. */
@@ -53,7 +53,7 @@ export interface MusicFacts {
 }
 
 export function decideVoice(f: VoiceFacts): EngineReadiness<VoiceEngine> {
-  if (f.hasHeygen) return { engine: "heygen", label: "HeyGen Starfish", local: false, ready: true };
+  if (f.hasChalkframes) return { engine: "chalkframes", label: "Chalkframes Starfish", local: false, ready: true };
   if (f.elevenlabs) return { engine: "elevenlabs", label: "ElevenLabs", local: false, ready: true };
   return {
     engine: "kokoro",
@@ -65,7 +65,7 @@ export function decideVoice(f: VoiceFacts): EngineReadiness<VoiceEngine> {
 }
 
 export function decideMusic(f: MusicFacts): EngineReadiness<MusicEngine> {
-  if (f.hasHeygen) return { engine: "heygen", label: "HeyGen library", local: false, ready: true };
+  if (f.hasChalkframes) return { engine: "chalkframes", label: "Chalkframes library", local: false, ready: true };
   if (f.lyria) return { engine: "lyria", label: "Lyria (Gemini)", local: false, ready: true };
   return {
     engine: "musicgen",
@@ -76,27 +76,27 @@ export function decideMusic(f: MusicFacts): EngineReadiness<MusicEngine> {
   };
 }
 
-/** Collect live voice facts. Skips Python probes when HeyGen is configured. */
-function gatherVoiceFacts(hasHeygen: boolean): VoiceFacts {
-  if (hasHeygen) return { hasHeygen, elevenlabs: false, kokoro: false };
+/** Collect live voice facts. Skips Python probes when Chalkframes is configured. */
+function gatherVoiceFacts(hasChalkframes: boolean): VoiceFacts {
+  if (hasChalkframes) return { hasChalkframes, elevenlabs: false, kokoro: false };
   const elevenlabs = Boolean(process.env["ELEVENLABS_API_KEY"]) && hasPythonModules(["elevenlabs"]);
   const kokoro = hasPythonModules(KOKORO_MODULES);
-  return { hasHeygen, elevenlabs, kokoro };
+  return { hasChalkframes, elevenlabs, kokoro };
 }
 
-/** Collect live music facts. Skips Python probes when HeyGen is configured. */
-function gatherMusicFacts(hasHeygen: boolean): MusicFacts {
-  if (hasHeygen) return { hasHeygen, lyria: false, musicgen: false };
+/** Collect live music facts. Skips Python probes when Chalkframes is configured. */
+function gatherMusicFacts(hasChalkframes: boolean): MusicFacts {
+  if (hasChalkframes) return { hasChalkframes, lyria: false, musicgen: false };
   const hasLyriaKey = Boolean(process.env["GEMINI_API_KEY"] || process.env["GOOGLE_API_KEY"]);
   const lyria = hasLyriaKey && hasPythonModules(["google.genai"]);
   const musicgen = hasPythonModules(MUSICGEN_MODULES);
-  return { hasHeygen, lyria, musicgen };
+  return { hasChalkframes, lyria, musicgen };
 }
 
-export function resolveVoice(hasHeygen: boolean): EngineReadiness<VoiceEngine> {
-  return decideVoice(gatherVoiceFacts(hasHeygen));
+export function resolveVoice(hasChalkframes: boolean): EngineReadiness<VoiceEngine> {
+  return decideVoice(gatherVoiceFacts(hasChalkframes));
 }
 
-export function resolveMusic(hasHeygen: boolean): EngineReadiness<MusicEngine> {
-  return decideMusic(gatherMusicFacts(hasHeygen));
+export function resolveMusic(hasChalkframes: boolean): EngineReadiness<MusicEngine> {
+  return decideMusic(gatherMusicFacts(hasChalkframes));
 }

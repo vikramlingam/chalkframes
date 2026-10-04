@@ -26,8 +26,8 @@ async function loadTelemetryCommand(options?: {
   );
   vi.resetModules();
   vi.doMock("../telemetry/config.js", () => ({
-    CONFIG_PATH: "/test/.hyperframes/config.json",
-    STATE_PATH: "/test/.local/state/hyperframes/install-state.json",
+    CONFIG_PATH: "/test/.chalkframes/config.json",
+    STATE_PATH: "/test/.local/state/chalkframes/install-state.json",
     readConfig: () => {
       throw new Error("telemetry commands must bypass stale cached config");
     },
@@ -76,7 +76,7 @@ describe("telemetry command", () => {
     vi.doUnmock("../telemetry/transport.js");
     vi.restoreAllMocks();
     vi.resetModules();
-    delete process.env["HYPERFRAMES_NO_TELEMETRY"];
+    delete process.env["CHALKFRAMES_NO_TELEMETRY"];
     delete process.env["DO_NOT_TRACK"];
   });
 
@@ -106,11 +106,11 @@ describe("telemetry command", () => {
   });
 
   it("reports the effective env-var opt-out instead of the stored preference", async () => {
-    process.env["HYPERFRAMES_NO_TELEMETRY"] = "1";
+    process.env["CHALKFRAMES_NO_TELEMETRY"] = "1";
     const { command } = await loadTelemetryCommand({ configEnabled: true });
     const output = await runWithCapturedOutput(command, "status");
     expect(output).toContain("disabled");
-    expect(output).toContain("HYPERFRAMES_NO_TELEMETRY");
+    expect(output).toContain("CHALKFRAMES_NO_TELEMETRY");
     expect(output).toContain("Tracked commands:");
   });
 
@@ -125,12 +125,12 @@ describe("telemetry command", () => {
     ["enable", "Telemetry preference"],
     ["disable", "Telemetry disabled"],
   ])("explains the effective override after telemetry %s", async (subcommand, expectedSuccess) => {
-    process.env["HYPERFRAMES_NO_TELEMETRY"] = "true";
+    process.env["CHALKFRAMES_NO_TELEMETRY"] = "true";
     const { command } = await loadTelemetryCommand({ configEnabled: subcommand === "disable" });
     const output = await runWithCapturedOutput(command, subcommand);
     expect(output).toContain(expectedSuccess);
     expect(output).toContain("remains disabled");
-    expect(output).toContain("HYPERFRAMES_NO_TELEMETRY");
+    expect(output).toContain("CHALKFRAMES_NO_TELEMETRY");
   });
 
   it("reports dev mode as the effective source", async () => {

@@ -27,7 +27,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { getFfmpegBinary, getFfprobeBinary, resolveConfig } from "@hyperframes/engine";
+import { getFfmpegBinary, getFfprobeBinary, resolveConfig } from "@chalkframes/engine";
 import { createRenderJob, executeRenderJob } from "../renderOrchestrator.js";
 
 const FFMPEG = getFfmpegBinary();

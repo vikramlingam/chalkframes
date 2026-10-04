@@ -9,7 +9,7 @@ const REFERENCE_PATH = join(import.meta.dirname, "__fixtures__", "wordpiece-refe
 // Read-only from the user's real home: tests run with a temp one, and the model is downloaded there.
 const TOKENIZER_PATH = join(
   userInfo().homedir,
-  ".hyperframes",
+  ".chalkframes",
   "models",
   "bge-small-en-v1.5.tokenizer.json",
 );

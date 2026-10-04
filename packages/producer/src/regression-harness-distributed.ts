@@ -4,11 +4,11 @@
  * The regression harness has two modes:
  *
  *   - `in-process` (default) — calls `executeRenderJob`, the same path the
- *     `hyperframes render` CLI takes. This is what produced every existing
+ *     `chalkframes render` CLI takes. This is what produced every existing
  *     `tests/<name>/output/output.mp4` golden baseline.
  *
  *   - `distributed-simulated` — calls `plan()` → `renderChunk()` per chunk
- *     → `assemble()` from `@hyperframes/producer/distributed`. No Temporal
+ *     → `assemble()` from `@chalkframes/producer/distributed`. No Temporal
  *     or Lambda involvement: the controller and chunk worker are both this
  *     process, but they go through the same artifact (planDir + frozen
  *     `meta/encoder.json` + per-chunk concat-copy) that a real fan-out
@@ -33,7 +33,7 @@
 
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import type { Fps } from "@hyperframes/core";
+import type { Fps } from "@chalkframes/core";
 import { assemble, plan, renderChunk } from "./distributed.js";
 import { PLAN_AUDIO_RELATIVE_PATH, type DistributedFormat } from "./services/distributed/shared.js";
 
@@ -44,7 +44,7 @@ import { PLAN_AUDIO_RELATIVE_PATH, type DistributedFormat } from "./services/dis
  *   - `in-process` — `executeRenderJob`, the same path the CLI takes.
  *   - `distributed-simulated` — `plan` → `renderChunk` × N → `assemble`
  *     in-process. No adapter (no Temporal, no Lambda).
- *   - `lambda-local` — drives the OSS `@hyperframes/aws-lambda` handler
+ *   - `lambda-local` — drives the OSS `@chalkframes/aws-lambda` handler
  *     dispatch through a filesystem-backed fake S3, so every event
  *     shape SFN sends in production also lands here. Catches regressions
  *     in event JSON / S3 path conventions without paying for a real AWS

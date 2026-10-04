@@ -156,7 +156,7 @@
   },
   { "text": "arc-motion-path", "ids": [101, 8115, 1011, 4367, 1011, 4130, 102] },
   {
-    "text": "group: gsap-plugin, hyperframes-native, motionpath\nwhat: Arc Motion Path. A GSAP MotionPath primitive that flies a callout along a curved arc with autorotation.",
+    "text": "group: gsap-plugin, chalkframes-native, motionpath\nwhat: Arc Motion Path. A GSAP MotionPath primitive that flies a callout along a curved arc with autorotation.",
     "ids": [
       101, 2177, 1024, 28177, 9331, 1011, 13354, 2378, 1010, 23760, 15643, 2015, 1011, 3128, 1010,
       4367, 15069, 2054, 1024, 8115, 4367, 4130, 1012, 1037, 28177, 9331, 4367, 15069, 10968, 2008,
@@ -308,7 +308,7 @@
   },
   { "text": "bezier-callout-route", "ids": [101, 2022, 21548, 1011, 2655, 5833, 1011, 2799, 102] },
   {
-    "text": "group: gsap-plugin, hyperframes-native, motionpath\nwhat: Bezier Callout Route. A route-map primitive with multiple callouts traveling along cubic Bezier paths.",
+    "text": "group: gsap-plugin, chalkframes-native, motionpath\nwhat: Bezier Callout Route. A route-map primitive with multiple callouts traveling along cubic Bezier paths.",
     "ids": [
       101, 2177, 1024, 28177, 9331, 1011, 13354, 2378, 1010, 23760, 15643, 2015, 1011, 3128, 1010,
       4367, 15069, 2054, 1024, 2022, 21548, 2655, 5833, 2799, 1012, 1037, 2799, 1011, 4949, 10968,
@@ -430,7 +430,7 @@
     "ids": [101, 4950, 1011, 19838, 1011, 5995, 1011, 9991, 102]
   },
   {
-    "text": "group: advanced-motion, hyperframes-native\nwhat: Camera Rig Depth Stack. A 3D camera-rig-style card stack with depth, parallax, and focus shift.",
+    "text": "group: advanced-motion, chalkframes-native\nwhat: Camera Rig Depth Stack. A 3D camera-rig-style card stack with depth, parallax, and focus shift.",
     "ids": [
       101, 2177, 1024, 3935, 1011, 4367, 1010, 23760, 15643, 2015, 1011, 3128, 2054, 1024, 4950,
       19838, 5995, 9991, 1012, 1037, 7605, 4950, 1011, 19838, 1011, 2806, 4003, 9991, 2007, 5995,
@@ -1939,7 +1939,7 @@
   },
   { "text": "keyframe-scrub-stack", "ids": [101, 3145, 15643, 1011, 18157, 1011, 9991, 102] },
   {
-    "text": "group: advanced-motion, anime-inspired, hyperframes-native\nwhat: Keyframe Scrub Stack. A keyframe-sequenced stack of cards with offset timing and easing presets.",
+    "text": "group: advanced-motion, anime-inspired, chalkframes-native\nwhat: Keyframe Scrub Stack. A keyframe-sequenced stack of cards with offset timing and easing presets.",
     "ids": [
       101, 2177, 1024, 3935, 1011, 4367, 1010, 8750, 1011, 4427, 1010, 23760, 15643, 2015, 1011,
       3128, 2054, 1024, 3145, 15643, 18157, 9991, 1012, 1037, 3145, 15643, 1011, 5537, 2094, 9991,
@@ -2564,7 +2564,7 @@
   },
   { "text": "orbital-feature-path", "ids": [101, 13943, 1011, 3444, 1011, 4130, 102] },
   {
-    "text": "group: gsap-plugin, hyperframes-native, motionpath\nwhat: Orbital Feature Path. Feature chips orbit a product core on timed SVG motion paths.",
+    "text": "group: gsap-plugin, chalkframes-native, motionpath\nwhat: Orbital Feature Path. Feature chips orbit a product core on timed SVG motion paths.",
     "ids": [
       101, 2177, 1024, 28177, 9331, 1011, 13354, 2378, 1010, 23760, 15643, 2015, 1011, 3128, 1010,
       4367, 15069, 2054, 1024, 13943, 3444, 4130, 1012, 3444, 11772, 8753, 1037, 4031, 4563, 2006,
@@ -2938,7 +2938,7 @@
   },
   { "text": "component-library", "ids": [101, 6922, 1011, 3075, 102] },
   {
-    "text": "group: ui-primitive\nwhat: Component Library. An Operator Black summary of the UI primitive families available in HyperFrames.",
+    "text": "group: ui-primitive\nwhat: Component Library. An Operator Black summary of the UI primitive families available in ChalkFrames.",
     "ids": [
       101, 2177, 1024, 21318, 1011, 10968, 2054, 1024, 6922, 3075, 1012, 2019, 6872, 2304, 12654,
       1997, 1996, 21318, 10968, 2945, 2800, 1999, 23760, 15643, 2015, 1012, 102
@@ -3134,7 +3134,7 @@
   },
   { "text": "shader-displacement-panel", "ids": [101, 8703, 2099, 1011, 13508, 1011, 5997, 102] },
   {
-    "text": "group: advanced-motion, hyperframes-native\nwhat: Shader Displacement Panel. A CSS/WebGL-inspired displacement panel for premium scene reveals without a custom shader dependency.",
+    "text": "group: advanced-motion, chalkframes-native\nwhat: Shader Displacement Panel. A CSS/WebGL-inspired displacement panel for premium scene reveals without a custom shader dependency.",
     "ids": [
       101, 2177, 1024, 3935, 1011, 4367, 1010, 23760, 15643, 2015, 1011, 3128, 2054, 1024, 8703,
       2099, 13508, 5997, 1012, 1037, 20116, 2015, 1013, 4773, 23296, 1011, 4427, 13508, 5997, 2005,
@@ -3399,7 +3399,7 @@
   },
   { "text": "stagger-lattice", "ids": [101, 2358, 27609, 1011, 17779, 102] },
   {
-    "text": "group: advanced-motion, anime-inspired, hyperframes-native\nwhat: Stagger Lattice. A staggered grid reveal inspired by Anime.js v4 stagger utilities, implemented with GSAP for HyperFrames.",
+    "text": "group: advanced-motion, anime-inspired, chalkframes-native\nwhat: Stagger Lattice. A staggered grid reveal inspired by Anime.js v4 stagger utilities, implemented with GSAP for ChalkFrames.",
     "ids": [
       101, 2177, 1024, 3935, 1011, 4367, 1010, 8750, 1011, 4427, 1010, 23760, 15643, 2015, 1011,
       3128, 2054, 1024, 2358, 27609, 17779, 1012, 1037, 14648, 8370, 7487, 4427, 2011, 8750, 1012,
@@ -3520,7 +3520,7 @@
     "ids": [101, 17917, 2290, 1011, 2240, 1011, 4009, 1011, 7170, 2121, 102]
   },
   {
-    "text": "group: advanced-motion, anime-inspired, hyperframes-native\nwhat: SVG Line Draw Loader. An Anime.js-style path drawing loader implemented as a seekable GSAP stroke timeline.",
+    "text": "group: advanced-motion, anime-inspired, chalkframes-native\nwhat: SVG Line Draw Loader. An Anime.js-style path drawing loader implemented as a seekable GSAP stroke timeline.",
     "ids": [
       101, 2177, 1024, 3935, 1011, 4367, 1010, 8750, 1011, 4427, 1010, 23760, 15643, 2015, 1011,
       3128, 2054, 1024, 17917, 2290, 2240, 4009, 7170, 2121, 1012, 2019, 8750, 1012, 1046, 2015,
@@ -3734,7 +3734,7 @@
   },
   { "text": "three-orbiting-cards", "ids": [101, 2093, 1011, 26472, 1011, 5329, 102] },
   {
-    "text": "group: hyperframes-native, three-js, webgl\nwhat: Three Orbiting Cards. A Three.js-powered orbit scene driven by a paused GSAP timeline for deterministic renders.",
+    "text": "group: chalkframes-native, three-js, webgl\nwhat: Three Orbiting Cards. A Three.js-powered orbit scene driven by a paused GSAP timeline for deterministic renders.",
     "ids": [
       101, 2177, 1024, 23760, 15643, 2015, 1011, 3128, 1010, 2093, 1011, 1046, 2015, 1010, 4773,
       23296, 2054, 1024, 2093, 26472, 5329, 1012, 1037, 2093, 1012, 1046, 2015, 1011, 6113, 8753,
@@ -3744,7 +3744,7 @@
   },
   { "text": "three-particle-ribbon", "ids": [101, 2093, 1011, 10811, 1011, 10557, 102] },
   {
-    "text": "group: hyperframes-native, three-js, webgl\nwhat: Three Particle Ribbon. A lightweight Three.js point ribbon with timeline-controlled camera and shader-like color drift.",
+    "text": "group: chalkframes-native, three-js, webgl\nwhat: Three Particle Ribbon. A lightweight Three.js point ribbon with timeline-controlled camera and shader-like color drift.",
     "ids": [
       101, 2177, 1024, 23760, 15643, 2015, 1011, 3128, 1010, 2093, 1011, 1046, 2015, 1010, 4773,
       23296, 2054, 1024, 2093, 10811, 10557, 1012, 1037, 12038, 2093, 1012, 1046, 2015, 2391, 10557,

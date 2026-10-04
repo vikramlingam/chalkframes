@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 import { mkdirWithinProject } from "../helpers/safePath.js";
 
-export const ID_PATH = join(".hyperframes", "history-id");
+export const ID_PATH = join(".chalkframes", "history-id");
 /** The only shape minted here; the id is project content and becomes a path, so nothing else is trusted. */
 const ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -70,7 +70,7 @@ export function projectHistoryId(projectDir: string, historyRoot: string): strin
     (existsSync(join(historyRoot, id)) && !isRecordedFolder(join(historyRoot, id), folder))
   ) {
     id = randomUUID();
-    mkdirWithinProject(dir, join(dir, ".hyperframes"));
+    mkdirWithinProject(dir, join(dir, ".chalkframes"));
     writeFileSync(join(dir, ID_PATH), `${id}\n`);
   }
   recordProject(join(historyRoot, id), dir, folder);

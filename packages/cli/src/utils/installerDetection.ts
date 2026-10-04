@@ -1,5 +1,5 @@
 /**
- * Detect how the running `hyperframes` binary was installed so auto-update can
+ * Detect how the running `chalkframes` binary was installed so auto-update can
  * re-use the same installer. Getting this wrong means either silently failing
  * to update or clobbering a Homebrew install with npm, so the classifier is
  * deliberately conservative — when unsure we return `skip` and leave the user
@@ -49,7 +49,7 @@ function isWorkspaceLink(realEntry: string): boolean {
 }
 
 /**
- * True when invoked via `npx hyperframes` / `bunx hyperframes`. These don't
+ * True when invoked via `npx chalkframes` / `bunx chalkframes`. These don't
  * persist an install, so auto-update is a no-op — the user gets the latest
  * version on the next invocation anyway.
  */
@@ -65,11 +65,11 @@ function isEphemeralExec(realEntry: string): boolean {
 
 /**
  * True when the binary was linked into Homebrew's install tree. Homebrew
- * symlinks `/opt/homebrew/bin/hyperframes` into `…/Cellar/hyperframes/<v>/…`
+ * symlinks `/opt/homebrew/bin/chalkframes` into `…/Cellar/chalkframes/<v>/…`
  * (or `/usr/local/Cellar/` on Intel). Either path wins the match.
  */
 function isHomebrewInstall(realEntry: string): boolean {
-  return normalizePath(realEntry).includes("/Cellar/hyperframes/");
+  return normalizePath(realEntry).includes("/Cellar/chalkframes/");
 }
 
 /**
@@ -110,7 +110,7 @@ export function detectInstaller(): InstallerInfo {
       // Updating a brew formula isn't a straight `install`; the formula needs
       // to have been published. Defer to `brew upgrade` which is a no-op if
       // the tap hasn't caught up.
-      installCommand: () => "brew upgrade hyperframes",
+      installCommand: () => "brew upgrade chalkframes",
       reason: `Homebrew install detected at ${realEntry}`,
     };
   }
@@ -120,7 +120,7 @@ export function detectInstaller(): InstallerInfo {
   if (normalizedEntry.includes("/.bun/")) {
     return {
       kind: "bun",
-      installCommand: (version) => `bun add -g hyperframes@${version}`,
+      installCommand: (version) => `bun add -g chalkframes@${version}`,
       reason: `bun global install detected at ${realEntry}`,
     };
   }
@@ -131,21 +131,21 @@ export function detectInstaller(): InstallerInfo {
   if (normalizedEntry.includes("/pnpm/global/")) {
     return {
       kind: "pnpm",
-      installCommand: (version) => `pnpm add -g hyperframes@${version}`,
+      installCommand: (version) => `pnpm add -g chalkframes@${version}`,
       reason: `pnpm global install detected at ${realEntry}`,
     };
   }
 
-  // npm's default global prefix is `<prefix>/lib/node_modules/hyperframes/…`
+  // npm's default global prefix is `<prefix>/lib/node_modules/chalkframes/…`
   // where `<prefix>` is `/usr/local` (macOS Intel), `/opt/homebrew` (Apple
   // Silicon, non-brew-formula npm), or a user-configured directory.
   if (
-    normalizedEntry.includes("/lib/node_modules/hyperframes/") ||
-    normalizedEntry.includes("/npm/node_modules/hyperframes/")
+    normalizedEntry.includes("/lib/node_modules/chalkframes/") ||
+    normalizedEntry.includes("/npm/node_modules/chalkframes/")
   ) {
     return {
       kind: "npm",
-      installCommand: (version) => `npm install -g hyperframes@${version}`,
+      installCommand: (version) => `npm install -g chalkframes@${version}`,
       reason: `npm global install detected at ${realEntry}`,
     };
   }
@@ -174,15 +174,15 @@ export interface InstallInvocation {
 export function installInvocation(kind: InstallerKind, version: string): InstallInvocation | null {
   switch (kind) {
     case "npm":
-      return { bin: "npm", args: ["install", "-g", `hyperframes@${version}`] };
+      return { bin: "npm", args: ["install", "-g", `chalkframes@${version}`] };
     case "bun":
-      return { bin: "bun", args: ["add", "-g", `hyperframes@${version}`] };
+      return { bin: "bun", args: ["add", "-g", `chalkframes@${version}`] };
     case "pnpm":
-      return { bin: "pnpm", args: ["add", "-g", `hyperframes@${version}`] };
+      return { bin: "pnpm", args: ["add", "-g", `chalkframes@${version}`] };
     case "brew":
       // brew has no per-version install; `brew upgrade` moves to the tap's
       // current formula (a no-op if the tap hasn't caught up).
-      return { bin: "brew", args: ["upgrade", "hyperframes"] };
+      return { bin: "brew", args: ["upgrade", "chalkframes"] };
     case "skip":
       return null;
   }

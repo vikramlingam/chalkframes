@@ -278,7 +278,7 @@ type WindowWithColorGrading = Window & {
   __hf?: {
     colorGrading?: RuntimeColorGradingApi;
   };
-  __hyperframes?: {
+  __chalkframes?: {
     getVariables?: () => Partial<Record<string, unknown>>;
   };
   __hfVariables?: Record<string, unknown>;
@@ -3467,8 +3467,8 @@ function attachCanvas(
   else canvas.removeAttribute("id");
   canvas.className = COLOR_GRADING_CANVAS_CLASS;
   canvas.setAttribute(COLOR_GRADING_CANVAS_ATTR, "true");
-  canvas.setAttribute("data-hyperframes-ignore", "");
-  canvas.setAttribute("data-hyperframes-picker-ignore", "");
+  canvas.setAttribute("data-chalkframes-ignore", "");
+  canvas.setAttribute("data-chalkframes-picker-ignore", "");
   canvas.setAttribute("data-hf-ignore", "");
   canvas.setAttribute("aria-hidden", "true");
   canvas.style.pointerEvents = "none";

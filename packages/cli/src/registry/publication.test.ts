@@ -45,7 +45,7 @@ it("protects external leaf symlinks including the install record", () => {
   try {
     const victim = join(outside, "victim.json");
     writeFileSync(victim, "original");
-    for (const target of ["file.html", "hyperframes.lock.json"]) {
+    for (const target of ["file.html", "chalkframes.lock.json"]) {
       symlinkSync(victim, join(root, target), "file");
       expect(() => publishRegistryFile(root, target, "attack")).toThrow(/Unsafe target/);
       expect(readFileSync(victim, "utf8")).toBe("original");

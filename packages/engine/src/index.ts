@@ -1,5 +1,5 @@
 /**
- * @hyperframes/engine
+ * @chalkframes/engine
  *
  * Seekable web page to video rendering engine.
  * Framework-agnostic: works with GSAP, Lottie, Three.js, CSS animations,
@@ -288,7 +288,7 @@ export {
 } from "./services/fileServer.js";
 
 // ── Utilities ──────────────────────────────────────────────────────────────────
-export { quantizeTimeToFrame, MEDIA_VISUAL_STYLE_PROPERTIES } from "@hyperframes/core";
+export { quantizeTimeToFrame, MEDIA_VISUAL_STYLE_PROPERTIES } from "@chalkframes/core";
 export { frameFileExtension } from "./services/frameCapture.js";
 export type { MotionBlurOptions, MotionBlurBlendSpace } from "./services/motionBlur.js";
 

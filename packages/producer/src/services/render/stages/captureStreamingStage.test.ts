@@ -45,7 +45,7 @@ const browserConsoleBuffer = ["[FrameCapture:ERROR] page.goto failed"];
 const closeCaptureSession = mock(async () => {});
 class DrawElementVerificationError extends Error {}
 
-mock.module("@hyperframes/engine", () => ({
+mock.module("@chalkframes/engine", () => ({
   calculateOptimalWorkers: () => 1,
   convertTransfer: () => {},
   captureFrame: async () => {},
@@ -195,7 +195,7 @@ mock.module("@hyperframes/engine", () => ({
   writeCapturedFrame: async () => {},
 }));
 
-mock.module("@hyperframes/core", () => ({
+mock.module("@chalkframes/core", () => ({
   CANVAS_DIMENSIONS: {},
   checkOutputResolutionCompatibility: () => ({ ok: true }),
   fpsToNumber: () => 30,
@@ -668,7 +668,7 @@ describe("runCaptureStage", () => {
     failInitializeSession = false;
     failPrepareCaptureSessionForReuse = true;
     closeCaptureSession.mockClear();
-    const { createCaptureSession } = await import("@hyperframes/engine");
+    const { createCaptureSession } = await import("@chalkframes/engine");
     const { runCaptureStage } = await import("./captureStage.js");
     const cfg = { forceScreenshot: false, ffmpegStreamingTimeout: 3_600_000 };
     const probeSession = await createCaptureSession(

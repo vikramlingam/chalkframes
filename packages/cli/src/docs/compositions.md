@@ -22,7 +22,7 @@ Embed one composition inside another:
 
 ## Listing Compositions
 
-Use `npx hyperframes compositions` to see all compositions in a project.
+Use `npx chalkframes compositions` to see all compositions in a project.
 
 ## Variables
 
@@ -31,11 +31,11 @@ Two attributes with different shapes and different jobs:
 - **`data-composition-variables`** on the `<html>` root — a JSON **array of declarations** (`{id, type, label, default}` per entry). Defines the schema: which variables exist, what type they are, and what defaults to use when no override is provided.
 - **`data-variable-values`** on a sub-comp host element — a JSON **object keyed by variable id** (`{"title":"Pro","price":"$29"}`). Carries per-instance overrides for that one mount of the sub-composition.
 
-They aren't redundant — one is "what variables does this composition have?" and the other is "what values should this particular embed use?" Inside any composition script, `window.__hyperframes.getVariables()` returns the merged result. Layering, lowest to highest precedence:
+They aren't redundant — one is "what variables does this composition have?" and the other is "what values should this particular embed use?" Inside any composition script, `window.__chalkframes.getVariables()` returns the merged result. Layering, lowest to highest precedence:
 
 1. Declared defaults from `data-composition-variables`
 2. Per-instance overrides from the host's `data-variable-values` (sub-comp embeds only)
-3. CLI overrides from `npx hyperframes render --variables '{...}'` (top-level renders only)
+3. CLI overrides from `npx chalkframes render --variables '{...}'` (top-level renders only)
 
 ```html
 <!-- compositions/card.html -->
@@ -47,7 +47,7 @@ They aren't redundant — one is "what variables does this composition have?" an
     <div data-composition-id="card" data-width="1920" data-height="1080">
       <h1 class="title"></h1>
       <script>
-        const { title, color } = window.__hyperframes.getVariables();
+        const { title, color } = window.__chalkframes.getVariables();
         document.querySelector(".title").textContent = title;
         document.querySelector(".title").style.color = color;
       </script>

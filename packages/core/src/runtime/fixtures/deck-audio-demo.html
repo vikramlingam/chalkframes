@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Airbnb 2009 Seed Deck — Slideshow Demo</title>
-    <script src="../../../../packages/player/dist/hyperframes-player.global.js"></script>
-    <script src="../../../../packages/player/dist/slideshow/hyperframes-slideshow.global.js"></script>
+    <script src="../../../../packages/player/dist/chalkframes-player.global.js"></script>
+    <script src="../../../../packages/player/dist/slideshow/chalkframes-slideshow.global.js"></script>
     <style>
       *,
       *::before,
@@ -25,23 +25,23 @@
   </head>
   <body>
     <!--
-      NOTE: The <script type="application/hyperframes-slideshow+json"> island below is a
-      COPY of the island inside index.html. This duplication is intentional: <hyperframes-slideshow>
+      NOTE: The <script type="application/chalkframes-slideshow+json"> island below is a
+      COPY of the island inside index.html. This duplication is intentional: <chalkframes-slideshow>
       reads the island from its OWN innerHTML (not from the composition loaded by
-      <hyperframes-player>). Keep this copy in sync with the island in index.html whenever
+      <chalkframes-player>). Keep this copy in sync with the island in index.html whenever
       slides, fragments, hotspots, or sequences change.
     -->
-    <hyperframes-slideshow
+    <chalkframes-slideshow
       tabindex="0"
       sound
       style="display: block; position: relative; width: 100vw; height: 100vh"
     >
-      <hyperframes-player
+      <chalkframes-player
         style="position: absolute; inset: 0"
         src="index.html"
-      ></hyperframes-player>
+      ></chalkframes-player>
 
-      <script type="application/hyperframes-slideshow+json">
+      <script type="application/chalkframes-slideshow+json">
         {
           "slides": [
             {
@@ -112,7 +112,7 @@
           ]
         }
       </script>
-    </hyperframes-slideshow>
+    </chalkframes-slideshow>
 
     <!--
       Sound effects play HERE, in the parent document. The composition (loaded in the
@@ -121,7 +121,7 @@
       receives the user's gesture (the parent) — an iframe without its own user
       activation is autoplay-blocked. The mp3s are in sfx/ next to this file.
 
-      Mute state is owned by <hyperframes-slideshow sound>. Listen for 'hf-sound'
+      Mute state is owned by <chalkframes-slideshow sound>. Listen for 'hf-sound'
       events (or read slideshow.muted / data-hf-muted) to skip playback when muted.
     -->
     <script>
@@ -140,7 +140,7 @@
 
         // Track mute state: updated via 'hf-sound' events from the slideshow chrome.
         var muted = false;
-        var slideshow = document.querySelector("hyperframes-slideshow");
+        var slideshow = document.querySelector("chalkframes-slideshow");
         if (slideshow) {
           slideshow.addEventListener("hf-sound", function (e) {
             muted = e.detail && e.detail.muted === true;
@@ -172,7 +172,7 @@
         window.addEventListener("click", unlock, true);
 
         window.addEventListener("message", function (e) {
-          var player = slideshow && slideshow.querySelector("hyperframes-player");
+          var player = slideshow && slideshow.querySelector("chalkframes-player");
           var frame = player && player.iframeElement;
           if (!frame || !frame.contentWindow || e.source !== frame.contentWindow) return;
           var d = e.data;

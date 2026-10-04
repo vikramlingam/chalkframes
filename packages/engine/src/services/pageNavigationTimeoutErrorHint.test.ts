@@ -18,7 +18,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     expect(result).not.toBe(original);
     expect(result.message).toContain(original.message);
     expect(result.message).toContain(
-      "HyperFrames effective page.goto navigation timeout: 60000 ms",
+      "ChalkFrames effective page.goto navigation timeout: 60000 ms",
     );
   });
 
@@ -27,7 +27,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     const result = augmentPageNavigationTimeoutError(original, 60_000);
     expect(result.message).toContain("PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS");
     expect(result.message).toContain("--browser-timeout");
-    expect(result.message).toContain("HYPERFRAMES_BROWSER_PATH");
+    expect(result.message).toContain("CHALKFRAMES_BROWSER_PATH");
   });
 
   it("preserves err.cause on the augmented error", () => {
@@ -40,7 +40,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     const original = new Error("net::ERR_TIMED_OUT at http://127.0.0.1:4173/index.html");
     const result = augmentPageNavigationTimeoutError(original, 120_000);
     expect(result).not.toBe(original);
-    expect(result.message).toContain("HyperFrames effective page.goto navigation timeout: 120000");
+    expect(result.message).toContain("ChalkFrames effective page.goto navigation timeout: 120000");
   });
 
   it("coerces non-Error thrown values into Error without augmenting", () => {
@@ -48,7 +48,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     expect(result).toBeInstanceOf(Error);
     expect(result.message).toBe("plain string failure");
     // Not augmented: coerced string doesn't match the Nav-timeout regex.
-    expect(result.message).not.toContain("HyperFrames effective page.goto navigation timeout");
+    expect(result.message).not.toContain("ChalkFrames effective page.goto navigation timeout");
   });
 
   it("fires the darwin/arm64 + CSS 3D + audio Docker hint only when all three match", () => {
@@ -76,7 +76,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     expect(result.message).not.toContain("--docker");
     // Generic hints still fire.
     expect(result.message).toContain("PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS");
-    expect(result.message).toContain("HYPERFRAMES_BROWSER_PATH");
+    expect(result.message).toContain("CHALKFRAMES_BROWSER_PATH");
   });
 
   it("does not surface the Docker hint on darwin/x64 (Intel Macs)", () => {
@@ -131,7 +131,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     expect(result.message).not.toContain("--docker");
     // Generic hints still fire.
     expect(result.message).toContain("PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS");
-    expect(result.message).toContain("HYPERFRAMES_BROWSER_PATH");
+    expect(result.message).toContain("CHALKFRAMES_BROWSER_PATH");
   });
 
   it("defaults platform/arch to the current process when context omits them", () => {
@@ -141,7 +141,7 @@ describe("augmentPageNavigationTimeoutError", () => {
     const result = augmentPageNavigationTimeoutError(original, 60_000);
     expect(result).not.toBe(original);
     expect(result.message).toContain("PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS");
-    expect(result.message).toContain("HYPERFRAMES_BROWSER_PATH");
+    expect(result.message).toContain("CHALKFRAMES_BROWSER_PATH");
   });
 });
 

@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { findFFmpeg } from "../browser/ffmpeg.js";
-import { sourceTimeAt } from "@hyperframes/core";
+import { sourceTimeAt } from "@chalkframes/core";
 
 const snapshotState = vi.hoisted(() => ({
   openSettledPage: vi.fn(async () => {
@@ -138,14 +138,14 @@ describe("snapshot lint preflight", () => {
     const output = await runEntryMismatch("compositions/card.html");
 
     expect(output).toContain("compositions/card.html");
-    expect(output).not.toContain("hyperframes snapshot <project>/compositions");
+    expect(output).not.toContain("chalkframes snapshot <project>/compositions");
     expect(output).toContain("snapshot accepts project directories, not individual HTML files");
   });
 
   it("suggests the reported index.html directory with the re-rooting caveat", async () => {
     const output = await runEntryMismatch("compositions/index.html");
 
-    expect(output).toContain("hyperframes snapshot <project>/compositions");
+    expect(output).toContain("chalkframes snapshot <project>/compositions");
     expect(output).toContain("assets are self-contained under that directory");
   });
 });

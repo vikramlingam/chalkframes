@@ -32,8 +32,8 @@ import {
   type RateSpec,
   type ResolvedDuration,
   type UnresolvedElement,
-} from "@hyperframes/core";
-import { MAX_AUDIO_GAIN } from "@hyperframes/core/audio-gain";
+} from "@chalkframes/core";
+import { MAX_AUDIO_GAIN } from "@chalkframes/core/audio-gain";
 import {
   assignBundledRuntimeCompositionIds,
   assignMediaRenderIds,
@@ -51,15 +51,15 @@ import {
   inlineScriptRuns,
   styleElementsFor,
   insertBeforeCloseTag,
-} from "@hyperframes/core/compiler";
+} from "@chalkframes/core/compiler";
 import {
   checkSubCompositionUsability,
   type ParsableDocumentLike,
-} from "@hyperframes/parsers/sub-composition-validity";
+} from "@chalkframes/parsers/sub-composition-validity";
 import {
   isUnresolvedAssetPlaceholder,
   readProjectFile,
-} from "@hyperframes/parsers/asset-resolution";
+} from "@chalkframes/parsers/asset-resolution";
 import { extractMediaMetadata, extractAudioMetadata } from "../utils/ffprobe.js";
 import { isPathInside, toExternalAssetKey } from "../utils/paths.js";
 import { collectRenderMedia } from "./renderMediaCollector.js";
@@ -73,7 +73,7 @@ import {
   assertMediaPayload,
   NotMediaPayloadError,
   probeMediaProfile,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import {
   downloadToTemp,
   fetchPublicHttpsText,
@@ -87,8 +87,8 @@ import {
   normalizeSystemFontPrimaryFamilies,
 } from "./deterministicFonts.js";
 import { prepareAnimatedGifInputs } from "./animatedGifPrep.js";
-import { createStudioPositionSeekReapplyScript } from "@hyperframes/studio-server/manual-edits-render-script";
-import { getPositionEditsRenderScript } from "@hyperframes/core/runtime/position-edits-render";
+import { createStudioPositionSeekReapplyScript } from "@chalkframes/studio-server/manual-edits-render-script";
+import { getPositionEditsRenderScript } from "@chalkframes/core/runtime/position-edits-render";
 import { defaultLogger, type ProducerLogger } from "../logger.js";
 import { assertAssetMediaTypeProfile } from "./assetMediaType.js";
 import { withMediaProbeSlot } from "../utils/mediaProbeConcurrency.js";
@@ -182,7 +182,7 @@ class EmptyCompositionError extends Error {
  * `html` (including nested sub-compositions) and verify each resolves to a
  * usable file — exists, non-empty, parses to HTML with renderable content.
  * Uses the same `checkSubCompositionUsability` helper the tolerant inliner
- * and `hyperframes lint` use, so all three agree on what counts as usable.
+ * and `chalkframes lint` use, so all three agree on what counts as usable.
  *
  * Throws {@link EmptyCompositionError} naming every offending file at once
  * (not just the first one hit) if any reference is unusable. Call this
@@ -204,7 +204,7 @@ function assertSubCompositionsUsable(
   for (const el of hosts) {
     const srcPath = el.getAttribute("data-composition-src");
     if (!srcPath) continue;
-    if (isUnresolvedAssetPlaceholder(srcPath)) continue; // __UPPER__ placeholder or unresolved templating token — not a real reference (shared with lint via @hyperframes/parsers)
+    if (isUnresolvedAssetPlaceholder(srcPath)) continue; // __UPPER__ placeholder or unresolved templating token — not a real reference (shared with lint via @chalkframes/parsers)
 
     const filePath = resolve(projectDir, srcPath);
     // Circular reference guard. parseSubCompositions (below) silently
@@ -932,7 +932,7 @@ function coalesceHeadStylesAndBodyScripts(html: string): string {
 
 /**
  * Inline sub-composition HTML into the main document using the shared
- * inlining logic from @hyperframes/core. This wrapper handles the
+ * inlining logic from @chalkframes/core. This wrapper handles the
  * producer-specific concerns: parsing HTML via linkedom, resolving
  * compositions from the pre-compiled map or disk, and setting explicit
  * pixel dimensions on host elements for headless rendering.
@@ -1154,12 +1154,12 @@ function injectTextRenderingRule(html: string): string {
   const head = document.querySelector("head");
   if (!head) return html;
 
-  if (document.querySelector("style[data-hyperframes-text-rendering]")) {
+  if (document.querySelector("style[data-chalkframes-text-rendering]")) {
     return html;
   }
 
   const styleEl = document.createElement("style");
-  styleEl.setAttribute("data-hyperframes-text-rendering", "true");
+  styleEl.setAttribute("data-chalkframes-text-rendering", "true");
   styleEl.textContent = "html,body,*{text-rendering:geometricPrecision}";
   head.insertBefore(styleEl, head.firstChild);
 
@@ -1466,7 +1466,7 @@ export async function localizeRemoteMediaSources(
  *
  * This bites agent-pipeline-generated compositions (astral / daphne /
  * hyperion `multi-v2` outputs) which render directly without going through
- * `hyperframes publish`'s archive-time localize step.
+ * `chalkframes publish`'s archive-time localize step.
  */
 /** @internal exported for unit testing only */
 export async function localizeRemoteImageSources(

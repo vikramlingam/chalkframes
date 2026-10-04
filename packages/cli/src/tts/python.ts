@@ -28,9 +28,9 @@ function validatePythonOverride(override: string): PythonOverrideValidation {
   }
 }
 
-/** Locate a Python 3: `HYPERFRAMES_PYTHON` env override first, then PATH. */
+/** Locate a Python 3: `CHALKFRAMES_PYTHON` env override first, then PATH. */
 export function findPython(): string | undefined {
-  const override = process.env.HYPERFRAMES_PYTHON;
+  const override = process.env.CHALKFRAMES_PYTHON;
   if (override && validatePythonOverride(override).ok) return override;
   for (const name of ["python3", "python"]) {
     try {
@@ -62,7 +62,7 @@ export function findPython(): string | undefined {
 }
 
 /**
- * If `HYPERFRAMES_PYTHON` is set but `findPython()` would reject it, describe
+ * If `CHALKFRAMES_PYTHON` is set but `findPython()` would reject it, describe
  * why. `findPython()` itself silently falls back to the PATH probe on any
  * rejection (nonexistent path, non-executable, non-Python-3 output, timeout)
  * with no diagnostic — a readiness check like `doctor` calls this to surface
@@ -70,11 +70,11 @@ export function findPython(): string | undefined {
  * override was even seen.
  */
 export function describeRejectedPythonOverride(): string | null {
-  const override = process.env.HYPERFRAMES_PYTHON;
+  const override = process.env.CHALKFRAMES_PYTHON;
   if (!override) return null;
   const validation = validatePythonOverride(override);
   if (validation.ok) return null;
-  return `HYPERFRAMES_PYTHON="${override}" was rejected: ${validation.reason}`;
+  return `CHALKFRAMES_PYTHON="${override}" was rejected: ${validation.reason}`;
 }
 
 /** True if `import <pkg>` succeeds — actually executes the module. */

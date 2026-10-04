@@ -16,8 +16,8 @@ function joined(ctx: UnconfiguredContext, engines?: OfflineEngineLine[]): string
 describe("buildUnconfiguredLines — interactive (TTY / agent-driven)", () => {
   const text = joined(INTERACTIVE);
 
-  it("makes browser OAuth the hyperframes path", () => {
-    expect(text).toContain("hyperframes auth login");
+  it("makes browser OAuth the chalkframes path", () => {
+    expect(text).toContain("chalkframes auth login");
     expect(text).toMatch(/browser oauth/i);
     expect(text).toMatch(/sign in or sign up/i);
   });
@@ -35,14 +35,14 @@ describe("buildUnconfiguredLines — interactive (TTY / agent-driven)", () => {
     expect(text).toMatch(/free, offline/i);
   });
 
-  it("shows only zero-install `npx hyperframes` paths, not the separately-installed heygen CLI", () => {
-    expect(text).not.toMatch(/heygen auth login/);
-    expect(text).toContain("npx hyperframes auth login");
-    expect(text).toContain("npx hyperframes auth login --api-key");
+  it("shows only zero-install `npx chalkframes` paths, not the separately-installed chalkframes CLI", () => {
+    expect(text).not.toMatch(/chalkframes auth login/);
+    expect(text).toContain("npx chalkframes auth login");
+    expect(text).toContain("npx chalkframes auth login --api-key");
   });
 
   it("offers the --api-key path as a secondary option", () => {
-    expect(text).toContain("hyperframes auth login --api-key");
+    expect(text).toContain("chalkframes auth login --api-key");
   });
 });
 
@@ -55,8 +55,8 @@ describe("buildUnconfiguredLines — non-interactive (CI / piped)", () => {
     expect(text).not.toMatch(/opens your browser/i);
   });
 
-  it("points at HEYGEN_API_KEY and the local fallback", () => {
-    expect(text).toContain("HEYGEN_API_KEY");
+  it("points at CHALKFRAMES_API_KEY and the local fallback", () => {
+    expect(text).toContain("CHALKFRAMES_API_KEY");
     expect(text).toMatch(/local engines/i);
   });
 });
@@ -87,7 +87,7 @@ describe("buildUnconfiguredLines — offline engine readiness", () => {
     const text = joined(INTERACTIVE, missing);
     expect(text).toContain("pip install transformers torch soundfile numpy");
     expect(text).toMatch(/deps missing/);
-    expect(text).toContain("hyperframes doctor");
+    expect(text).toContain("chalkframes doctor");
   });
 
   it("falls back to a generic line when readiness wasn't probed", () => {
@@ -104,7 +104,7 @@ describe("buildUnconfiguredJson", () => {
       expect(payload).toMatchObject({
         configured: false,
         interactive: ctx.interactive,
-        recommended_action: "npx hyperframes auth login",
+        recommended_action: "npx chalkframes auth login",
         fallback: "local",
       });
     }

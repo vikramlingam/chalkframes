@@ -2,9 +2,9 @@
  * Which catalog (registry) items a project installed, and which of them the
  * composition being rendered actually reaches.
  *
- * `hyperframes add` is the only place that knows a file came from the registry
+ * `chalkframes add` is the only place that knows a file came from the registry
  * — installed files are plain composition HTML and carry no provenance marker —
- * so it records each item in `hyperframes.json`. Render reads that manifest
+ * so it records each item in `chalkframes.json`. Render reads that manifest
  * back and walks the composition's `data-composition-src` tree, letting the
  * render event report both halves: what the project pulled in, and what
  * survived into the video.
@@ -15,26 +15,26 @@
 
 import { readFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
-import { collectSubCompositionSrcs } from "@hyperframes/parsers/asset-resolution";
+import { collectSubCompositionSrcs } from "@chalkframes/parsers/asset-resolution";
 import { type RegistryItemRecord, readProjectConfigWithStatus } from "./projectConfig.js";
 
 /** Installed catalog items, and the subset the rendered composition reaches. */
 export interface CatalogUsage {
   /**
-   * Every item name recorded by `hyperframes add`, sorted, deduped, slug-gated.
+   * Every item name recorded by `chalkframes add`, sorted, deduped, slug-gated.
    * Not truncated: the reporting cap belongs to whoever builds the event
    * string, so a count taken from this array is the real number.
    */
   installed: string[];
   /**
-   * Installed `hyperframes:block` items whose file is reachable from the render
+   * Installed `chalkframes:block` items whose file is reachable from the render
    * entry. Always a subset of {@link installed}. Components are excluded: they
    * are pasted inline into the user's own markup rather than mounted by src, so
    * a component leaves no trace to match.
    */
   usedBlocks: string[];
   /**
-   * True when `hyperframes.json` exists but could not be read or parsed.
+   * True when `chalkframes.json` exists but could not be read or parsed.
    *
    * A degraded read must not look like a project that never touched the
    * catalog: the no-catalog cohort is the control this whole feature is
@@ -128,7 +128,7 @@ function reportableNames(names: string[]): string[] {
 /**
  * Read the project's catalog manifest and resolve it against the composition
  * being rendered. Returns empty sets for a project that never ran
- * `hyperframes add`, which is the honest answer: no catalog items, not unknown.
+ * `chalkframes add`, which is the honest answer: no catalog items, not unknown.
  */
 export function summarizeCatalogUsage(projectDir: string, entryPath: string): CatalogUsage {
   const { status, config } = readProjectConfigWithStatus(projectDir);
@@ -145,7 +145,7 @@ export function summarizeCatalogUsage(projectDir: string, entryPath: string): Ca
     items
       .filter(
         (item) =>
-          item.type === "hyperframes:block" && isReached(projectDir, item.target, reachable),
+          item.type === "chalkframes:block" && isReached(projectDir, item.target, reachable),
       )
       .map((item) => item.name),
   );

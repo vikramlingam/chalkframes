@@ -358,10 +358,10 @@ function writeConsumerFixture(packDir, packedWorkspaces) {
         private: true,
         type: "module",
         dependencies,
-        // Each packed tarball pins its inter-@hyperframes deps to the exact
+        // Each packed tarball pins its inter-@chalkframes deps to the exact
         // release version. On a release bump that version is not on the registry
         // yet, so a plain install fails to resolve those transitive deps. Force
-        // every @hyperframes/* to the sibling local tarball so the check is
+        // every @chalkframes/* to the sibling local tarball so the check is
         // self-contained pre-publish (matches how the packages install together).
         overrides: { ...workspaceFileDeps },
       },
@@ -414,7 +414,7 @@ function writeConsumerFixture(packDir, packedWorkspaces) {
       `  const options = specifier.endsWith(".json") ? { with: { type: "json" } } : undefined;\n` +
       `  await import(specifier, options);\n` +
       `}\n` +
-      `const terraform = await import("@hyperframes/gcp-cloud-run/terraform");\n` +
+      `const terraform = await import("@chalkframes/gcp-cloud-run/terraform");\n` +
       `if (!existsSync(join(terraform.getTerraformModuleDir(), "main.tf"))) throw new Error("packed Terraform module missing");\n` +
       `console.log(\`Resolved \${specifiers.length} packed exports and executed \${nodeSpecifiers.length} Node exports.\`);\n` +
       `process.exit(0);\n`,
@@ -450,16 +450,16 @@ function verifyPackedConsumer(packDir, packedWorkspaces) {
     stdio: "pipe",
   });
   const cliOutput = execFileSync(
-    join(fixtureDir, "node_modules", ".bin", "hyperframes"),
+    join(fixtureDir, "node_modules", ".bin", "chalkframes"),
     ["--help"],
     {
       cwd: fixtureDir,
       encoding: "utf8",
-      env: { ...process.env, HYPERFRAMES_TELEMETRY_DISABLED: "1" },
+      env: { ...process.env, CHALKFRAMES_TELEMETRY_DISABLED: "1" },
     },
   );
-  if (!cliOutput.toLowerCase().includes("hyperframes")) {
-    throw new Error("Packed CLI help did not identify HyperFrames");
+  if (!cliOutput.toLowerCase().includes("chalkframes")) {
+    throw new Error("Packed CLI help did not identify ChalkFrames");
   }
   console.log(smokeOutput.trim());
   console.log(
@@ -480,7 +480,7 @@ function packAndVerifyWorkspace(workspace, packDir) {
 }
 
 function main() {
-  const packDir = mkdtempSync(join(tmpdir(), "hyperframes-pack-"));
+  const packDir = mkdtempSync(join(tmpdir(), "chalkframes-pack-"));
   try {
     const packedWorkspaces = listWorkspacePackageDirs()
       .map((workspace) => packAndVerifyWorkspace(workspace, packDir))

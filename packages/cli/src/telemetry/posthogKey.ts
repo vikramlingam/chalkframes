@@ -7,4 +7,7 @@
  * A cycle through the telemetry config is the kind that bites at module-init
  * time, so the constant moved instead of the dependency being tolerated.
  */
-export const POSTHOG_API_KEY = "phc_zjjbX0PnWxERXrMHhkEJWj9A9BhGVLRReICgsfTMmpx";
+// Chalk Frames ships with no analytics key, so telemetry is off in every build
+// (policy.ts reports "telemetry_disabled_build"). The key inherited from the
+// upstream project was removed on purpose; do not re-add one without telling users.
+export const POSTHOG_API_KEY = "";

@@ -12,7 +12,7 @@ afterEach(() => vi.restoreAllMocks());
 
 it("lints at the lowest CPU priority so it never competes with a Studio boot", async () => {
   process.argv[2] = "lint";
-  process.env.HYPERFRAMES_RENDER_SETUP_INPUT = JSON.stringify({ projectDir: "/project" });
+  process.env.CHALKFRAMES_RENDER_SETUP_INPUT = JSON.stringify({ projectDir: "/project" });
   const write = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 
   await import("./renderSetupWorker.js");

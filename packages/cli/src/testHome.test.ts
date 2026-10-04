@@ -17,7 +17,7 @@ describe("the CLI test run", () => {
   it("caches a registry read in that home", async () => {
     const registry = `https://test.invalid/${crypto.randomUUID()}`;
     const items: unknown[] = [];
-    const $schema = "https://hyperframes.heygen.com/schema/registry.json";
+    const $schema = "https://chalkframes.dev/schema/registry.json";
     const manifest = { $schema, name: "t", homepage: "https://example.com", items };
     vi.stubGlobal(
       "fetch",
@@ -32,7 +32,7 @@ describe("the CLI test run", () => {
 
     const slug = registry.replace(/[^a-zA-Z0-9]/g, "_");
     const cacheFile = (home: string) =>
-      join(home, ".hyperframes", "cache", `${slug}__registry.json`);
+      join(home, ".chalkframes", "cache", `${slug}__registry.json`);
     const leaked = existsSync(cacheFile(userInfo().homedir));
     rmSync(cacheFile(userInfo().homedir), { force: true });
     expect(existsSync(cacheFile(homedir()))).toBe(true);

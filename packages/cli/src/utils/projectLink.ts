@@ -10,7 +10,7 @@ interface ProjectLink {
 
 type ProjectLinks = Record<string, ProjectLink>;
 
-const CONFIG_DIR = join(homedir(), ".hyperframes");
+const CONFIG_DIR = join(homedir(), ".chalkframes");
 const PROJECTS_FILE = join(CONFIG_DIR, "projects.json");
 
 /** Read + parse a JSON object file, or null if it's missing, unreadable, or not an object. */
@@ -79,7 +79,7 @@ export function ensureProjectId(absDir: string): string {
 // A committed, in-project descriptor so a whole team publishes to one shared link. Holds
 // the project id and (for team spaces) the space id — never a secret; ownership is
 // enforced server-side by the authenticated space's membership.
-const TEAM_PROJECT_DIR = ".hyperframes";
+const TEAM_PROJECT_DIR = ".chalkframes";
 const TEAM_PROJECT_FILE = "project.json";
 
 export interface TeamProject {

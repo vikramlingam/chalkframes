@@ -11,7 +11,7 @@ const saved = { HOME: process.env.HOME, USERPROFILE: process.env.USERPROFILE };
 
 beforeEach(() => {
   home = mkdtempSync(join(tmpdir(), "hf-config-lock-"));
-  configDir = join(home, ".hyperframes");
+  configDir = join(home, ".chalkframes");
   mkdirSync(configDir, { recursive: true });
   process.env.HOME = home;
   process.env.USERPROFILE = home;
@@ -102,7 +102,7 @@ describe("a settings lock left by a process that stopped", () => {
       const warnings = error.mock.calls.map(([line]) => String(line));
       expect(warnings).toHaveLength(lines);
       if (lines) expect(warnings[0]).toContain(lock);
-      if (lines) expect(warnings[0]).toContain("hyperframes doctor");
+      if (lines) expect(warnings[0]).toContain("chalkframes doctor");
     } finally {
       error.mockRestore();
       process.argv = argv;

@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Hyperframes, please report it responsibly.
+If you discover a security vulnerability in Chalkframes, please report it responsibly.
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Instead, open a [GitHub Security Advisory](https://github.com/heygen-com/hyperframes/security/advisories/new) with:
+Instead, open a [GitHub Security Advisory](https://github.com/vikramlingam/chalkframes/security/advisories/new) with:
 
 - A description of the vulnerability
 - Steps to reproduce
@@ -23,4 +23,4 @@ We will acknowledge receipt within 48 hours and aim to provide a fix or mitigati
 
 ## Scope
 
-This policy applies to all packages in the `@hyperframes/*` npm scope and the code in this repository.
+This policy applies to all packages in the `@chalkframes/*` npm scope and the code in this repository.

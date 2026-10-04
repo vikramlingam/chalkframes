@@ -1,11 +1,11 @@
 /**
- * Auto-detect a HyperFrames composition's aspect ratio from the entry HTML's
+ * Auto-detect a ChalkFrames composition's aspect ratio from the entry HTML's
  * root `<div data-composition-id ...>` `data-width` / `data-height` attributes.
  *
  * The cloud-render CLI uses this when the user hasn't passed `--aspect-ratio`
  * explicitly AND the project source is a local directory (asset-id and url
  * paths can't be inspected client-side). The result is passed through to the
- * `/v3/hyperframes/renders` request body, so the rendered output preserves
+ * `/v3/chalkframes/renders` request body, so the rendered output preserves
  * the composition's intended ratio without the user having to remember the
  * flag.
  *

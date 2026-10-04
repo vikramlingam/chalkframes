@@ -1,2 +1,2 @@
-/** @deprecated Import from @hyperframes/parsers/sub-composition-validity */
-export * from "@hyperframes/parsers/sub-composition-validity";
+/** @deprecated Import from @chalkframes/parsers/sub-composition-validity */
+export * from "@chalkframes/parsers/sub-composition-validity";

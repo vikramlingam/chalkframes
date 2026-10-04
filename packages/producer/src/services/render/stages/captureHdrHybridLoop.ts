@@ -32,7 +32,7 @@ import {
   crossfade,
   initTransparentBackground,
   initializeSession,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { FileServerHandle } from "../../fileServer.js";
 import type { ProducerLogger } from "../../../logger.js";
 import {
@@ -256,7 +256,7 @@ export async function runHybridLayeredFrameLoop(input: HybridLoopInput): Promise
           // awaits it. The encoder reorder buffer fences ordering so out-
           // of-order blend completion is fine.
           const frameIdx = i;
-          // When the @hyperframes/shader-transitions composition omits the
+          // When the @chalkframes/shader-transitions composition omits the
           // shader on a transition entry, it requests a CSS crossfade. The
           // engine-side path uses applyFallbackTransition() on the page; the
           // producer's Node-side layered pipeline runs the equivalent here

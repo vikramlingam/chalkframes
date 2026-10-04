@@ -28,7 +28,7 @@ export interface RemoteTemplateInfo {
  * uses, and it goes through the registry resolver directly.
  */
 export async function listRemoteTemplates(): Promise<RemoteTemplateInfo[]> {
-  const entries = await listRegistryItems({ type: "hyperframes:example" });
+  const entries = await listRegistryItems({ type: "chalkframes:example" });
   const items = await loadAllItems(entries);
   return items.map((item) => ({
     id: item.name,
@@ -46,14 +46,14 @@ export async function listRemoteTemplates(): Promise<RemoteTemplateInfo[]> {
  * items gets a complete install rather than silently dropping its deps.
  *
  * Every resolved item is compatibility-gated up front (same gate as
- * `hyperframes add`), so an incompatible template — or any of its deps —
+ * `chalkframes add`), so an incompatible template — or any of its deps —
  * aborts before a single file is written.
  */
 export async function fetchRemoteTemplate(templateId: string, destDir: string): Promise<void> {
   const items = await resolveItemWithDependencies(templateId);
   const warnings = gateRegistryItemsCompatibility(items);
   for (const warning of warnings) {
-    process.stderr.write(`hyperframes:registry ${warning}\n`);
+    process.stderr.write(`chalkframes:registry ${warning}\n`);
   }
   for (const item of items) {
     await installItem(item, { destDir });

@@ -6,7 +6,7 @@
  * is free to answer them differently, and an anti-bot edge does exactly that — it serves the
  * document to the browser and refuses the out-of-band asset fetch.
  *
- * Measured against openai.com: `GET /favicon.svg` answers `403 text/html` for `HyperFrames/1.0`
+ * Measured against openai.com: `GET /favicon.svg` answers `403 text/html` for `ChalkFrames/1.0`
  * and `200 image/svg+xml` for this string. The favicon ranker had already chosen that SVG as the
  * best declared icon; the 403 discarded it and the capture silently fell through to the next
  * candidate, so the icon on disk was decided by the CDN's bot rules rather than by the ranker.

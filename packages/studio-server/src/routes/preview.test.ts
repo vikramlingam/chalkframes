@@ -19,8 +19,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, parse } from "node:path";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
-import { STUDIO_PREVIEW_MARK_META } from "@hyperframes/core/studio-preview-mark";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
+import { STUDIO_PREVIEW_MARK_META } from "@chalkframes/core/studio-preview-mark";
 import { PREVIEW_BUNDLE_OPTIONS, PREVIEW_CAPTURE_PARAM, registerPreviewRoutes } from "./preview";
 import { registerFileRoutes } from "./files";
 import { createPreviewDocumentStore } from "../helpers/previewDocumentStore";
@@ -91,7 +91,7 @@ async function getPreviewSignature(projectDir: string): Promise<string> {
   const response = await app.request("http://localhost/projects/demo/preview");
   expect(response.status).toBe(200);
   const html = await response.text();
-  const match = /<meta name="hyperframes-project-signature" content="([^"]+)">/.exec(html);
+  const match = /<meta name="chalkframes-project-signature" content="([^"]+)">/.exec(html);
   expect(match?.[1]).toBeTruthy();
   return match![1]!;
 }
@@ -181,7 +181,7 @@ describe("registerPreviewRoutes", () => {
       join(projectDir, "index.html"),
       "<!doctype html><html><head></head><body><div id='card'></div></body></html>",
     );
-    const manifestDir = join(projectDir, ".hyperframes");
+    const manifestDir = join(projectDir, ".chalkframes");
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(
       join(manifestDir, "studio-motion.json"),
@@ -205,7 +205,7 @@ describe("registerPreviewRoutes", () => {
       join(projectDir, "index.html"),
       "<!doctype html><html><head></head><body><div id='card'></div></body></html>",
     );
-    const manifestDir = join(projectDir, ".hyperframes");
+    const manifestDir = join(projectDir, ".chalkframes");
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(
       join(manifestDir, "studio-motion.json"),
@@ -286,7 +286,7 @@ describe("registerPreviewRoutes", () => {
       join(projectDir, "compositions/scene.html"),
       `<template><section id="card" data-composition-id="scene" data-width="1280" data-height="720"></section></template>`,
     );
-    const manifestDir = join(projectDir, ".hyperframes");
+    const manifestDir = join(projectDir, ".chalkframes");
     mkdirSync(manifestDir, { recursive: true });
     writeFileSync(
       join(manifestDir, "studio-motion.json"),
@@ -318,7 +318,7 @@ describe("registerPreviewRoutes", () => {
         join(projectDir, "compositions/a.html"),
         `<template><div data-composition-id="a"><p>${text}</p></div></template>`,
       );
-    const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+    const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
     const app = new Hono();
     registerPreviewRoutes(
       app,
@@ -330,7 +330,7 @@ describe("registerPreviewRoutes", () => {
     const served = async () => {
       const html = await (await app.request("http://localhost/projects/demo/preview")).text();
       const content = /<meta name="hf-scene-parts" content="([^"]+)">/.exec(html)?.[1] ?? "";
-      const signature = /<meta name="hyperframes-project-signature" content="([^"]+)">/.exec(
+      const signature = /<meta name="chalkframes-project-signature" content="([^"]+)">/.exec(
         html,
       )?.[1];
       return { html, signature, parts: JSON.parse(content.replace(/&quot;/g, '"')) };
@@ -506,7 +506,7 @@ describe("registerPreviewRoutes", () => {
     expect(response.status).toBe(200);
     expect(getProjectSignature).toHaveBeenCalledWith(projectDir);
     expect(html).toContain(
-      '<meta name="hyperframes-project-signature" content="cached-signature">',
+      '<meta name="chalkframes-project-signature" content="cached-signature">',
     );
   });
 
@@ -525,7 +525,7 @@ describe("registerPreviewRoutes", () => {
 
   it("updates the preview signature after Studio manifest edits", async () => {
     const projectDir = createProjectDir();
-    const manifestDir = join(projectDir, ".hyperframes");
+    const manifestDir = join(projectDir, ".chalkframes");
     mkdirSync(manifestDir, { recursive: true });
     const motionFile = join(manifestDir, "studio-motion.json");
     writeFileSync(motionFile, `{"version":1,"motions":[]}`);
@@ -729,7 +729,7 @@ describe("hf-id surfacing in preview route", () => {
       `<template id="scene-template"><div data-composition-id="scene" data-width="1920" data-height="1080"><img class="logo" src="logo.png"></div></template>`,
     );
     writeFileSync(join(projectDir, "compositions", "logo.png"), "png");
-    const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+    const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
     const app = new Hono();
     const adapter = createAdapter(projectDir, {
       bundle: (dir, options) => bundleToSingleHtml(dir, { ...PREVIEW_BUNDLE_OPTIONS, ...options }),
@@ -1661,13 +1661,13 @@ describe("what the preview loaded", () => {
         },
         // As the CLI does with an animated GIF: the document it serves names a derived copy.
         transformPreviewHtml: async ({ html }) =>
-          html.replace("assets/loader.gif", ".hyperframes/gif/loader.webm"),
+          html.replace("assets/loader.gif", ".chalkframes/gif/loader.webm"),
       }),
     );
 
     const res = await app.request("http://localhost/projects/demo/preview");
     expect(res.status).toBe(200);
-    expect(await res.text()).toContain(".hyperframes/gif/loader.webm");
+    expect(await res.text()).toContain(".chalkframes/gif/loader.webm");
 
     expect(affectsPreview(projectDir, "from-bundler.css")).toBe(true);
     expect(affectsPreview(projectDir, "style.css")).toBe(true);

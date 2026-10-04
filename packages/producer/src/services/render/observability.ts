@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { redactTelemetryString } from "@hyperframes/core";
+import { redactTelemetryString } from "@chalkframes/core";
 import type { ProducerLogger } from "../../logger.js";
 import { normalizeErrorMessage } from "../../utils/errorMessage.js";
 
@@ -118,12 +118,12 @@ export interface RenderCaptureObservability {
    */
   arollVideoCount?: number;
   /**
-   * `<video data-media-source="heygen">` elements from the same static scan
+   * `<video data-media-source="chalkframes">` elements from the same static scan
    * as `compositionElementTags` — the media-use skill stamps this attribute
-   * only when the mounted video's ledger record traces to the "heygen.video"
+   * only when the mounted video's ledger record traces to the "chalkframes.video"
    * provider. Only set when `compositionElementCountSource` is "static".
    */
-  heygenVideoCount?: number;
+  chalkframesVideoCount?: number;
   /** Runtime adapters exercised (see `KNOWN_RUNTIME_ADAPTERS`), a live+static union, always set. */
   adaptersUsed?: readonly string[];
   /** Element/attribute counts from the same static scan; only set when the source above is "static". */

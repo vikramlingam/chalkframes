@@ -1,8 +1,8 @@
-import { heygenSearch } from "./heygen-search.mjs";
+import { chalkframesSearch } from "./chalkframes-search.mjs";
 
 export const sfxProvider = {
   async search(intent) {
-    const results = heygenSearch("audio sounds list", intent, {
+    const results = chalkframesSearch("audio sounds list", intent, {
       type: "sound_effects",
       minScore: 0.4,
     });
@@ -15,7 +15,7 @@ export const sfxProvider = {
       metadata: {
         description: best.description || best.name || intent,
         duration: best.duration || null,
-        provider: "heygen.audio.sounds",
+        provider: "chalkframes.audio.sounds",
         provenance: { track_id: best.id, score: best.score, query: intent },
       },
     };

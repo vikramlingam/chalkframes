@@ -1,4 +1,4 @@
-import { DEFAULT_IMAGE_TIMELINE_DURATION_SECONDS } from "@hyperframes/parsers/media-duration";
+import { DEFAULT_IMAGE_TIMELINE_DURATION_SECONDS } from "@chalkframes/parsers/media-duration";
 import { describe, it, expect, afterEach } from "vitest";
 import { collectRuntimeTimelinePayload } from "./timeline";
 

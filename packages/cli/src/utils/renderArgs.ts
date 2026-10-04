@@ -1,6 +1,6 @@
 import { failUsage } from "./commandResult.js";
 /**
- * Pure parsers for `hyperframes render` argv that aren't already shared
+ * Pure parsers for `chalkframes render` argv that aren't already shared
  * (fps, quality, format, variables live elsewhere). Lives separately so
  * the validation branches are unit-testable without `process.exit` — the
  * side-effecting wrappers (`resolve*`) own the `errorBox + exit(1)` UI.
@@ -12,7 +12,7 @@ import { failUsage } from "./commandResult.js";
 
 import { readFileSync, type Stats } from "node:fs";
 import { resolve, sep } from "node:path";
-import { parseFps } from "@hyperframes/core";
+import { parseFps } from "@chalkframes/core";
 import { errorBox } from "../ui/format.js";
 import { readCompositionFps } from "./compositionFps.js";
 

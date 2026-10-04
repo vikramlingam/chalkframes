@@ -23,7 +23,7 @@ function fixture(t) {
   git("init", "-q");
   git("config", "user.name", "Test");
   git("config", "user.email", "test@example.com");
-  const manifest = { name: "hyperframes", version: "1.2.3" };
+  const manifest = { name: "chalkframes", version: "1.2.3" };
   write("plugin.json", {
     ...manifest,
     $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
@@ -36,8 +36,8 @@ function fixture(t) {
     interface: { logo: "./assets/logo.png", composerIcon: "./assets/icon.png" },
   });
   write("packages/cli/package.json", manifest);
-  write("skills-manifest.json", { skills: { hyperframes: {} } });
-  write("skills/hyperframes/SKILL.md", "bundled skill");
+  write("skills-manifest.json", { skills: { chalkframes: {} } });
+  write("skills/chalkframes/SKILL.md", "bundled skill");
   write(".claude/skills/internal/SKILL.md", "private contributor workflow");
   write("assets/logo.png", "logo");
   write("assets/icon.png", "icon");
@@ -50,19 +50,19 @@ function fixture(t) {
 test("archives committed release, excludes internals, and records reproducible provenance", (t) => {
   const { root, write } = fixture(t);
   write("plugin.json", { version: "dirty" });
-  write("skills/hyperframes/SKILL.md", "uncommitted change");
+  write("skills/chalkframes/SKILL.md", "uncommitted change");
   const first = packagePlugin(root);
   const second = packagePlugin(root);
   assert.deepEqual(first, second);
   assert.equal(first.version, "1.2.3");
-  assert.deepEqual(first.skills, ["hyperframes"]);
-  const zip = join(root, "dist/hyperframes-agent-plugin.zip");
+  assert.deepEqual(first.skills, ["chalkframes"]);
+  const zip = join(root, "dist/chalkframes-agent-plugin.zip");
   assert.equal(first.sha256, createHash("sha256").update(readFileSync(zip)).digest("hex"));
   const files = execFileSync("unzip", ["-Z1", zip], { encoding: "utf8" });
-  assert.match(files, /hyperframes\/LICENSE/);
+  assert.match(files, /chalkframes\/LICENSE/);
   assert.doesNotMatch(files, /internal|packages\/|marketplace.json/);
   assert.equal(
-    execFileSync("unzip", ["-p", zip, "hyperframes/skills/hyperframes/SKILL.md"], {
+    execFileSync("unzip", ["-p", zip, "chalkframes/skills/chalkframes/SKILL.md"], {
       encoding: "utf8",
     }),
     "bundled skill",
@@ -71,7 +71,7 @@ test("archives committed release, excludes internals, and records reproducible p
 
 test("rejects mismatched client versions before creating an artifact", (t) => {
   const { root, git, write } = fixture(t);
-  write("gemini-extension.json", { name: "hyperframes", version: "1.2.4" });
+  write("gemini-extension.json", { name: "chalkframes", version: "1.2.4" });
   git("add", ".");
   git("commit", "-qm", "mismatch");
   assert.throws(() => packagePlugin(root), /mismatch: gemini-extension.json/);

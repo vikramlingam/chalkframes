@@ -50,7 +50,7 @@ describe.skipIf(!IS_POSIX)("render cancellation process lifecycle", () => {
   it.each(["SIGINT", "SIGTERM", "SIGHUP"] as const)(
     "cancels the Node worker after its background wrapper exits from %s",
     async (signal) => {
-      const testDir = mkdtempSync(join(tmpdir(), "hyperframes-render-cancel-"));
+      const testDir = mkdtempSync(join(tmpdir(), "chalkframes-render-cancel-"));
       const outputPath = join(testDir, "output.mp4");
       const readyPath = join(testDir, "ready.json");
       writeFileSync(outputPath, "existing render sentinel");
@@ -116,7 +116,7 @@ describe.skipIf(!IS_POSIX)("render cancellation process lifecycle", () => {
 
 describe("render cancellation process keepalive", () => {
   it("keeps detached renders alive while their awaited work only uses unrefed handles", async () => {
-    const testDir = mkdtempSync(join(tmpdir(), "hyperframes-render-keepalive-"));
+    const testDir = mkdtempSync(join(tmpdir(), "chalkframes-render-keepalive-"));
     const outputPath = join(testDir, "completed");
     const modulePath = join(dirname(fixturePath), "renderCancellation.ts");
     const source = [

@@ -19,7 +19,7 @@ function sandbox() {
   const home = join(root, "home");
   mkdirSync(home, { recursive: true });
   process.env.HOME = home;
-  process.env.HYPERFRAMES_MEDIA_HOME = home;
+  process.env.CHALKFRAMES_MEDIA_HOME = home;
   return { root, home };
 }
 
@@ -29,7 +29,7 @@ function restoreEnv(saved) {
 }
 
 function withoutTelemetryOptOut() {
-  for (const k of ["DO_NOT_TRACK", "HYPERFRAMES_NO_TELEMETRY", "CI", "NODE_ENV"])
+  for (const k of ["DO_NOT_TRACK", "CHALKFRAMES_NO_TELEMETRY", "CI", "NODE_ENV"])
     delete process.env[k];
 }
 
@@ -37,18 +37,18 @@ function parseFetchBodies(calls) {
   return calls.flatMap((call) => JSON.parse(call.options.body).batch);
 }
 
-test("optedOut respects DO_NOT_TRACK / HYPERFRAMES_NO_TELEMETRY / CI", () => {
+test("optedOut respects DO_NOT_TRACK / CHALKFRAMES_NO_TELEMETRY / CI", () => {
   const saved = { ...process.env };
   try {
-    for (const k of ["DO_NOT_TRACK", "HYPERFRAMES_NO_TELEMETRY", "CI", "NODE_ENV"])
+    for (const k of ["DO_NOT_TRACK", "CHALKFRAMES_NO_TELEMETRY", "CI", "NODE_ENV"])
       delete process.env[k];
     assert.equal(optedOut(), false, "default: tracking allowed");
     process.env.DO_NOT_TRACK = "1";
     assert.equal(optedOut(), true, "DO_NOT_TRACK opts out");
     delete process.env.DO_NOT_TRACK;
-    process.env.HYPERFRAMES_NO_TELEMETRY = "1";
-    assert.equal(optedOut(), true, "HYPERFRAMES_NO_TELEMETRY opts out");
-    delete process.env.HYPERFRAMES_NO_TELEMETRY;
+    process.env.CHALKFRAMES_NO_TELEMETRY = "1";
+    assert.equal(optedOut(), true, "CHALKFRAMES_NO_TELEMETRY opts out");
+    delete process.env.CHALKFRAMES_NO_TELEMETRY;
     process.env.CI = "true";
     assert.equal(optedOut(), true, "CI opts out");
   } finally {
@@ -71,7 +71,7 @@ test("track is a no-op (no network, resolves) when opted out", async () => {
     // must resolve immediately without throwing or hitting the network
     await track("media_use_resolve", { type: "bgm", source: "search" });
     assert.equal(calls.length, 0);
-    assert.equal(existsSync(join(home, ".hyperframes/config.json")), false);
+    assert.equal(existsSync(join(home, ".chalkframes/config.json")), false);
     assert.equal(existsSync(join(home, ".media/telemetry-notice-shown")), false);
   } finally {
     globalThis.fetch = originalFetch;
@@ -81,14 +81,14 @@ test("track is a no-op (no network, resolves) when opted out", async () => {
   }
 });
 
-test("anonymous id uses the shared hyperframes config", () => {
+test("anonymous id uses the shared chalkframes config", () => {
   const savedEnv = { ...process.env };
   const { root, home } = sandbox();
   try {
     withoutTelemetryOptOut();
-    mkdirSync(join(home, ".hyperframes"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".hyperframes/config.json"),
+      join(home, ".chalkframes/config.json"),
       JSON.stringify({ anonymousId: "shared-install-id", keep: true }),
     );
     mkdirSync(join(home, ".media"), { recursive: true });
@@ -108,7 +108,7 @@ test("anonymous id seeds missing config once and reuses it", () => {
   try {
     withoutTelemetryOptOut();
     const first = __anonymousIdForTest();
-    const configPath = join(home, ".hyperframes/config.json");
+    const configPath = join(home, ".chalkframes/config.json");
     assert.ok(existsSync(configPath));
     assert.match(
       first,
@@ -131,11 +131,11 @@ test("anonymous id adopts a legacy ~/.media/anon-id on upgrade (persona continui
     withoutTelemetryOptOut();
     mkdirSync(join(home, ".media"), { recursive: true });
     writeFileSync(join(home, ".media/anon-id"), "legacy-media-id");
-    // no ~/.hyperframes/config.json yet — the old media-use-only id must carry over
+    // no ~/.chalkframes/config.json yet — the old media-use-only id must carry over
     assert.equal(__anonymousIdForTest(), "legacy-media-id");
     // and it is persisted into the shared config so CLI/studio see the same id
     assert.equal(
-      JSON.parse(readFileSync(join(home, ".hyperframes/config.json"), "utf8")).anonymousId,
+      JSON.parse(readFileSync(join(home, ".chalkframes/config.json"), "utf8")).anonymousId,
       "legacy-media-id",
     );
   } finally {
@@ -145,7 +145,7 @@ test("anonymous id adopts a legacy ~/.media/anon-id on upgrade (persona continui
   }
 });
 
-test("track identifies a signed-in HeyGen account once and still sends events", async () => {
+test("track identifies a signed-in Chalkframes account once and still sends events", async () => {
   const savedEnv = { ...process.env };
   const originalFetch = globalThis.fetch;
   const { root, home } = sandbox();
@@ -156,14 +156,14 @@ test("track identifies a signed-in HeyGen account once and still sends events", 
   };
   try {
     withoutTelemetryOptOut();
-    mkdirSync(join(home, ".hyperframes"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".hyperframes/config.json"),
+      join(home, ".chalkframes/config.json"),
       JSON.stringify({ anonymousId: "anon-1" }),
     );
-    mkdirSync(join(home, ".heygen"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".heygen/credentials"),
+      join(home, ".chalkframes/credentials"),
       JSON.stringify({ user: { email: "alice@example.com", username: "alice" } }),
     );
 
@@ -195,14 +195,14 @@ test("track identifies with a lowercased email regardless of stored casing", asy
   };
   try {
     withoutTelemetryOptOut();
-    mkdirSync(join(home, ".hyperframes"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".hyperframes/config.json"),
+      join(home, ".chalkframes/config.json"),
       JSON.stringify({ anonymousId: "anon-3" }),
     );
-    mkdirSync(join(home, ".heygen"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".heygen/credentials"),
+      join(home, ".chalkframes/credentials"),
       JSON.stringify({ user: { email: "Alice@Example.com", username: "alice" } }),
     );
 
@@ -211,7 +211,7 @@ test("track identifies with a lowercased email regardless of stored casing", asy
     const batch = parseFetchBodies(calls);
     const identify = batch.filter((item) => item.event === "$identify");
     assert.equal(identify.length, 1);
-    // Lowercased so this joins with heygen-cli's own identify call regardless
+    // Lowercased so this joins with chalkframes-cli's own identify call regardless
     // of the account's stored email casing -- otherwise the same person could
     // split into two PostHog profiles by email case alone.
     assert.equal(identify[0].distinct_id, "alice@example.com");
@@ -234,9 +234,9 @@ test("track does not identify when signed out", async () => {
   };
   try {
     withoutTelemetryOptOut();
-    mkdirSync(join(home, ".hyperframes"), { recursive: true });
+    mkdirSync(join(home, ".chalkframes"), { recursive: true });
     writeFileSync(
-      join(home, ".hyperframes/config.json"),
+      join(home, ".chalkframes/config.json"),
       JSON.stringify({ anonymousId: "anon-2" }),
     );
 
@@ -279,7 +279,7 @@ test("first run notice prints to stderr once and never stdout", async () => {
     // notice-shown lives in the shared config (config.telemetryNoticeShown), so
     // the CLI and media-use show it once per person — not a media-use-only marker.
     assert.equal(
-      JSON.parse(readFileSync(join(home, ".hyperframes/config.json"), "utf8")).telemetryNoticeShown,
+      JSON.parse(readFileSync(join(home, ".chalkframes/config.json"), "utf8")).telemetryNoticeShown,
       true,
     );
   } finally {
@@ -358,13 +358,13 @@ test("read-only telemetry state degrades without throwing", async () => {
   globalThis.fetch = async () => ({ ok: true });
   try {
     withoutTelemetryOptOut();
-    writeFileSync(join(home, ".hyperframes"), "not a directory");
+    writeFileSync(join(home, ".chalkframes"), "not a directory");
     writeFileSync(join(home, ".media"), "not a directory");
     await track("media_use_resolve", { type: "bgm" });
   } finally {
     globalThis.fetch = originalFetch;
     try {
-      chmodSync(join(home, ".hyperframes"), 0o600);
+      chmodSync(join(home, ".chalkframes"), 0o600);
     } catch {
       // best effort for cleanup on platforms with different chmod behavior
     }
@@ -382,7 +382,7 @@ async function trackQuietly(home) {
   try {
     withoutTelemetryOptOut();
     await track("media_use_resolve", { type: "bgm" });
-    return readFileSync(join(home, ".hyperframes/config.json"), "utf8");
+    return readFileSync(join(home, ".chalkframes/config.json"), "utf8");
   } finally {
     globalThis.fetch = originalFetch;
     console.error = originalError;
@@ -392,7 +392,7 @@ async function trackQuietly(home) {
 test("waits for another process's locked settings write, then keeps the no it saved", async () => {
   const savedEnv = { ...process.env };
   const { root, home } = sandbox();
-  const dir = join(home, ".hyperframes");
+  const dir = join(home, ".chalkframes");
   mkdirSync(dir, { recursive: true });
   const holder = spawn(process.execPath, [
     "-e",
@@ -425,8 +425,8 @@ test("waits for another process's locked settings write, then keeps the no it sa
 test("leaves a settings file it cannot read untouched", async () => {
   const savedEnv = { ...process.env };
   const { root, home } = sandbox();
-  mkdirSync(join(home, ".hyperframes"), { recursive: true });
-  writeFileSync(join(home, ".hyperframes/config.json"), "{not json");
+  mkdirSync(join(home, ".chalkframes"), { recursive: true });
+  writeFileSync(join(home, ".chalkframes/config.json"), "{not json");
   try {
     assert.equal(await trackQuietly(home), "{not json");
   } finally {

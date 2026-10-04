@@ -1,2 +1,2 @@
-/** @deprecated Import from @hyperframes/studio-server/screenshot-clip */
-export * from "@hyperframes/studio-server/screenshot-clip";
+/** @deprecated Import from @chalkframes/studio-server/screenshot-clip */
+export * from "@chalkframes/studio-server/screenshot-clip";

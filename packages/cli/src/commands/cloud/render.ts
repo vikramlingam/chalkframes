@@ -1,6 +1,6 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * `hyperframes cloud render` — orchestrate a cloud-rendered HyperFrames
+ * `chalkframes cloud render` — orchestrate a cloud-rendered ChalkFrames
  * composition end-to-end:
  *
  *   1. Resolve the project (or reuse a pre-uploaded `--asset-id` /
@@ -12,10 +12,10 @@ import { failCommand } from "../../utils/commandResult.js";
  *      to it, then `POST /v3/assets/{asset_id}/complete` finalizes.
  *      Cap: 200 MB. See `../../cloud/upload.ts` for the three-step
  *      contract. (The legacy `POST /v3/assets` proxy path was 32 MB.)
- *   4. Submit the render via `POST /v3/hyperframes/renders` with a
+ *   4. Submit the render via `POST /v3/chalkframes/renders` with a
  *      `project: {type:"asset_id", asset_id}` shape.
  *   5. If `--no-wait`: print the `render_id` and exit immediately.
- *      Otherwise poll `GET /v3/hyperframes/renders/{id}` every
+ *      Otherwise poll `GET /v3/chalkframes/renders/{id}` every
  *      `--poll-interval` (default 10s, max 60min). `--callback-url`
  *      can be combined with either mode: the webhook always fires when
  *      the server-side render terminates, independent of whether the
@@ -64,9 +64,9 @@ import { parseEnumFlag, parseIntFlag, parseNumericFlag } from "../../cloud/parsi
 import { uploadZipViaDirectUpload } from "../../cloud/upload.js";
 import { colorStatus } from "../../cloud/statusColor.js";
 import type {
-  CreateHyperframesRenderRequest,
-  HyperframesCloudClient,
-  HyperframesRenderDetail,
+  CreateChalkframesRenderRequest,
+  ChalkframesCloudClient,
+  ChalkframesRenderDetail,
 } from "../../cloud/index.js";
 import { isAbsolute, relative, resolve as resolvePath } from "node:path";
 import { existsSync } from "node:fs";
@@ -83,26 +83,26 @@ const LARGEST_FILE_COUNT = 10;
 const FORMAT_EXT: Record<string, string> = { mp4: ".mp4", webm: ".webm", mov: ".mov" };
 
 export const examples: Example[] = [
-  ["Render the current directory in the cloud", "hyperframes cloud render"],
-  ["Inspect archive size without uploading", "hyperframes cloud render --dry-run"],
+  ["Render the current directory in the cloud", "chalkframes cloud render"],
+  ["Inspect archive size without uploading", "chalkframes cloud render --dry-run"],
   [
     "Pick a specific composition + output path",
-    "hyperframes cloud render . --composition compositions/intro.html -o ./renders/intro.mp4",
+    "chalkframes cloud render . --composition compositions/intro.html -o ./renders/intro.mp4",
   ],
-  ["Higher quality, 60fps", "hyperframes cloud render --quality high --fps 60"],
+  ["Higher quality, 60fps", "chalkframes cloud render --quality high --fps 60"],
   [
     "Submit and exit; webhook fires when the render terminates",
-    "hyperframes cloud render --callback-url https://example.com/hook --no-wait",
+    "chalkframes cloud render --callback-url https://example.com/hook --no-wait",
   ],
   [
     "Override variables (parametrized render)",
-    'hyperframes cloud render --variables \'{"title":"Q4 Recap","theme":"dark"}\'',
+    'chalkframes cloud render --variables \'{"title":"Q4 Recap","theme":"dark"}\'',
   ],
-  ["Re-render an already-uploaded zip", "hyperframes cloud render --asset-id asst_abc123"],
+  ["Re-render an already-uploaded zip", "chalkframes cloud render --asset-id asst_abc123"],
 ];
 
 export default defineCommand({
-  meta: { name: "render", description: "Render a HyperFrames composition in the cloud" },
+  meta: { name: "render", description: "Render a ChalkFrames composition in the cloud" },
   args: {
     dir: { type: "positional", required: false, description: "Project directory (default: .)" },
     fps: { type: "string", description: "Frames per second (1-240). Default: 30." },
@@ -294,7 +294,7 @@ export default defineCommand({
       } else {
         console.log("");
         console.log(`${c.success("✓")}  Submitted ${c.accent(renderId)}`);
-        console.log(c.dim(`   Poll with: hyperframes cloud get ${renderId}`));
+        console.log(c.dim(`   Poll with: chalkframes cloud get ${renderId}`));
       }
       return;
     }
@@ -316,7 +316,7 @@ export default defineCommand({
     if (!detail.video_url) {
       errorBox(
         "Render completed but returned no video_url",
-        `render_id: ${renderId}. Try \`hyperframes cloud get ${renderId}\` to inspect raw fields.`,
+        `render_id: ${renderId}. Try \`chalkframes cloud get ${renderId}\` to inspect raw fields.`,
       );
       failCommand();
     }
@@ -543,7 +543,7 @@ function resolveVariablesAndValidateIfLocal(
   // Only validate against the local composition when we actually have
   // a local project on disk. For --asset-id / --url paths the schema
   // lives on the server side, so we send the variables as-is and let
-  // the API surface any mismatch via `hyperframes_project_invalid`.
+  // the API surface any mismatch via `chalkframes_project_invalid`.
   if (source.kind !== "dir") return variables;
   // `resolveProject` calls process.exit on a missing/invalid dir, so
   // there's no need to wrap this in try/catch — if it returns, the
@@ -559,7 +559,7 @@ function resolveVariablesAndValidateIfLocal(
 // ---------------------------------------------------------------------------
 
 interface UploadResult {
-  projectInput: CreateHyperframesRenderRequest["project"];
+  projectInput: CreateChalkframesRenderRequest["project"];
 }
 
 interface ArchiveFileSummary {
@@ -599,7 +599,7 @@ function prepareLocalArchive(
     ).replaceAll("\\", "/");
     if (!fileMap.has(entryPath)) {
       throw new Error(
-        `Composition "${composition ?? "index.html"}" is excluded from the archive. Check .hyperframesignore.`,
+        `Composition "${composition ?? "index.html"}" is excluded from the archive. Check .chalkframesignore.`,
       );
     }
     const archive = zipPublishFileMap(fileMap);
@@ -615,7 +615,7 @@ function prepareLocalArchive(
     return prepared;
   } catch (err) {
     const msg = normalizeErrorMessage(err);
-    errorBox("Zip failed", msg, "Check the project and .hyperframesignore for missing files.");
+    errorBox("Zip failed", msg, "Check the project and .chalkframesignore for missing files.");
     failCommand();
   }
 }
@@ -625,7 +625,7 @@ function reportLargestFiles(prepared: PreparedLocalArchive): void {
   for (const file of prepared.largestFiles) {
     console.log(c.dim(`   ${formatBytes(file.size_bytes).padStart(9)}  ${file.path}`));
   }
-  console.log(c.dim("   Exclude verified-unneeded files with .hyperframesignore."));
+  console.log(c.dim("   Exclude verified-unneeded files with .chalkframesignore."));
 }
 
 function reportDryRun(prepared: PreparedLocalArchive, asJson: boolean): void {
@@ -660,7 +660,7 @@ function reportDryRun(prepared: PreparedLocalArchive, asJson: boolean): void {
 
 // fallow-ignore-next-line complexity
 async function maybeUploadProject(
-  client: HyperframesCloudClient,
+  client: ChalkframesCloudClient,
   source: ProjectInputSource,
   preparedArchive: PreparedLocalArchive | undefined,
   asJson: boolean,
@@ -718,12 +718,12 @@ async function maybeUploadProject(
 // ---------------------------------------------------------------------------
 
 interface SubmitOptions {
-  projectInput: CreateHyperframesRenderRequest["project"];
+  projectInput: CreateChalkframesRenderRequest["project"];
   fps: number | undefined;
   quality: "draft" | "standard" | "high" | undefined;
   format: "mp4" | "webm" | "mov" | undefined;
-  resolution: CreateHyperframesRenderRequest["resolution"] | undefined;
-  aspectRatio: CreateHyperframesRenderRequest["aspect_ratio"] | undefined;
+  resolution: CreateChalkframesRenderRequest["resolution"] | undefined;
+  aspectRatio: CreateChalkframesRenderRequest["aspect_ratio"] | undefined;
   composition: string | undefined;
   variables: Record<string, unknown> | undefined;
   title: string | undefined;
@@ -733,7 +733,7 @@ interface SubmitOptions {
 }
 
 async function submitRender(
-  client: HyperframesCloudClient,
+  client: ChalkframesCloudClient,
   opts: SubmitOptions,
 ): Promise<{ render_id: string }> {
   const body = buildRenderBody(opts);
@@ -745,8 +745,8 @@ async function submitRender(
 }
 
 // fallow-ignore-next-line complexity
-function buildRenderBody(opts: SubmitOptions): CreateHyperframesRenderRequest {
-  const body: CreateHyperframesRenderRequest = { project: opts.projectInput };
+function buildRenderBody(opts: SubmitOptions): CreateChalkframesRenderRequest {
+  const body: CreateChalkframesRenderRequest = { project: opts.projectInput };
   if (opts.fps !== undefined) body.fps = opts.fps;
   if (opts.quality !== undefined) body.quality = opts.quality;
   if (opts.format !== undefined) body.format = opts.format;
@@ -766,11 +766,11 @@ function buildRenderBody(opts: SubmitOptions): CreateHyperframesRenderRequest {
 
 // fallow-ignore-next-line complexity
 async function pollWithProgress(
-  client: HyperframesCloudClient,
+  client: ChalkframesCloudClient,
   renderId: string,
   asJson: boolean,
   poll: { intervalMs: number; maxWaitMs: number },
-): Promise<HyperframesRenderDetail> {
+): Promise<ChalkframesRenderDetail> {
   // ANSI carriage-return redraws only make sense on a TTY. CI logs and
   // file redirects get one append per status change instead, and JSON
   // mode stays silent altogether.
@@ -804,19 +804,19 @@ async function pollWithProgress(
       errorBox(
         "Poll timed out",
         err.message,
-        `The render may still complete. Resume with: hyperframes cloud get ${renderId}`,
+        `The render may still complete. Resume with: chalkframes cloud get ${renderId}`,
       );
       failCommand();
     }
     return reportApiError("API error during poll", err, {
-      suggestion: `The render may still be running. Resume with: hyperframes cloud get ${renderId}`,
+      suggestion: `The render may still be running. Resume with: chalkframes cloud get ${renderId}`,
     });
   } finally {
     if (!asJson && lastStatus && interactive) process.stdout.write("\n");
   }
 }
 
-function formatTickLine(detail: HyperframesRenderDetail, elapsedMs: number): string {
+function formatTickLine(detail: ChalkframesRenderDetail, elapsedMs: number): string {
   const status = colorStatus(detail.status);
   return `${status}  ${c.dim(formatDuration(elapsedMs))}`;
 }
@@ -825,7 +825,7 @@ function formatTickLine(detail: HyperframesRenderDetail, elapsedMs: number): str
 // Terminal handlers
 // ---------------------------------------------------------------------------
 
-function handleFailedRender(detail: HyperframesRenderDetail, asJson: boolean): never {
+function handleFailedRender(detail: ChalkframesRenderDetail, asJson: boolean): never {
   if (asJson) {
     console.log(JSON.stringify(withMeta({ render: detail }), null, 2));
     failCommand();
@@ -833,7 +833,7 @@ function handleFailedRender(detail: HyperframesRenderDetail, asJson: boolean): n
   errorBox(
     "Render failed",
     detail.failure_message ?? "(no failure_message returned)",
-    `Inspect: hyperframes cloud get ${detail.render_id}`,
+    `Inspect: chalkframes cloud get ${detail.render_id}`,
   );
   failCommand();
 }
@@ -868,7 +868,7 @@ async function streamVideo(
     errorBox(
       "Download failed",
       message,
-      "The presigned URL is short-lived; re-fetch with `hyperframes cloud get`.",
+      "The presigned URL is short-lived; re-fetch with `chalkframes cloud get`.",
     );
     failCommand();
   }

@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import { buildWaveformCacheKey, decodeAudioPeaks } from "./waveform.js";
 
 describe("buildWaveformCacheKey", () => {

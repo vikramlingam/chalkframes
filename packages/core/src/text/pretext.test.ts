@@ -9,7 +9,7 @@ import { pretext } from "./pretext.js";
 describe("pretext runtime surface", () => {
   it("exposes the documented prepare and layout functions", () => {
     // The skill file agents are required to read documents
-    // `window.__hyperframes.pretext.prepare(...)` / `.layout(...)`. If either
+    // `window.__chalkframes.pretext.prepare(...)` / `.layout(...)`. If either
     // name disappears, every composition written against that doc throws.
     expect(typeof pretext.prepare).toBe("function");
     expect(typeof pretext.layout).toBe("function");

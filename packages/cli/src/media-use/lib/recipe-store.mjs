@@ -15,7 +15,7 @@ import { regenerateIndex } from "./index-gen.mjs";
 import { mergedPreferences } from "./prefs-store.mjs";
 
 /**
- * Recipes — the heavyweight tier of HyperFrames user memory.
+ * Recipes — the heavyweight tier of ChalkFrames user memory.
  *
  * A recipe is the full confirmed bundle for one video type: the frozen design
  * spec (`frame.md`), the storyboard skeleton (structure with the content

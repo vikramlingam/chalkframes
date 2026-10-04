@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import type { EngineConfig } from "@hyperframes/engine";
+import type { EngineConfig } from "@chalkframes/engine";
 import { runCompileStage } from "./compileStage.js";
 
 const noopLog = {

@@ -17,7 +17,7 @@ import {
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
-const examplesDir = resolve(repoRoot, "registry", ITEM_TYPE_DIRS["hyperframes:example"]);
+const examplesDir = resolve(repoRoot, "registry", ITEM_TYPE_DIRS["chalkframes:example"]);
 const legacyManifestPath = resolve(examplesDir, "templates.json");
 
 const DEFAULT_DURATION_SECONDS = 10;
@@ -88,8 +88,8 @@ function probeCanvas(exampleDir: string): CanvasMeta {
 }
 
 function fileTypeFor(path: string): FileType {
-  if (path.endsWith(".html")) return "hyperframes:composition";
-  return "hyperframes:asset";
+  if (path.endsWith(".html")) return "chalkframes:composition";
+  return "chalkframes:asset";
 }
 
 /** Walk the example dir and collect every tracked file (HTML + assets). */
@@ -111,9 +111,9 @@ function buildItem(entry: LegacyTemplateEntry): RegistryItem {
   const files = collectFiles(exampleDir);
 
   return {
-    $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+    $schema: "https://chalkframes.dev/schema/registry-item.json",
     name: entry.id,
-    type: "hyperframes:example",
+    type: "chalkframes:example",
     title: entry.label,
     description: entry.hint,
     dimensions: { width: canvas.width, height: canvas.height },
@@ -123,7 +123,7 @@ function buildItem(entry: LegacyTemplateEntry): RegistryItem {
 }
 
 function writeItem(item: RegistryItem): void {
-  if (item.type !== "hyperframes:example") return;
+  if (item.type !== "chalkframes:example") return;
   const out = join(examplesDir, item.name, "registry-item.json");
   writeFileSync(out, JSON.stringify(item, null, 2) + "\n", "utf-8");
   console.log(`wrote ${relative(repoRoot, out)}`);

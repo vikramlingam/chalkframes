@@ -3,7 +3,7 @@ import { homedir, platform, arch } from "node:os";
 import { join } from "node:path";
 import { downloadFile } from "../utils/download.js";
 
-export const MODELS_DIR = join(homedir(), ".cache", "hyperframes", "background-removal", "models");
+export const MODELS_DIR = join(homedir(), ".cache", "chalkframes", "background-removal", "models");
 
 export const DEFAULT_MODEL = "u2net_human_seg" as const;
 export type ModelId = typeof DEFAULT_MODEL;
@@ -69,7 +69,7 @@ export function listAvailableProviders(): string[] {
   // gate behind an env var so we don't try to bind to a missing EP.
   const out: string[] = ["cpu"];
   if (platform() === "darwin" && arch() === "arm64") out.push("coreml");
-  if (process.env["HYPERFRAMES_CUDA"] === "1") out.push("cuda");
+  if (process.env["CHALKFRAMES_CUDA"] === "1") out.push("cuda");
   _cachedProviders = out;
   return out;
 }

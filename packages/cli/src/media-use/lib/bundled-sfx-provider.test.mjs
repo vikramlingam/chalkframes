@@ -25,7 +25,7 @@ test("reports an agent-friendly recovery when the bundled SFX manifest is absent
     assert.equal(health.ok, false);
     assert.equal(health.code, "bundled_sfx_assets_missing");
     assert.match(health.detail, /manifest\.json/);
-    assert.match(health.fix, /hyperframes skills update media-use/);
+    assert.match(health.fix, /chalkframes skills update media-use/);
     assert.equal(health.fix, BUNDLED_SFX_RECOVERY_COMMAND);
   } finally {
     rmSync(libraryDir, { recursive: true, force: true });
@@ -56,7 +56,7 @@ test("bundled provider raises a typed install error instead of a generic catalog
       (error) => {
         assert.ok(error instanceof BundledSfxAssetsError);
         assert.equal(error.code, "bundled_sfx_assets_missing");
-        assert.match(error.message, /hyperframes skills update media-use/);
+        assert.match(error.message, /chalkframes skills update media-use/);
         return true;
       },
     );

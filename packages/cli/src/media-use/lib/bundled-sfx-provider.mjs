@@ -3,7 +3,7 @@ import { extname, join } from "node:path";
 import { rankMediaRows } from "./media-search.mjs";
 
 const LIB_DIR =
-  process.env.HYPERFRAMES_MEDIA_USE_SFX_DIR ||
+  process.env.CHALKFRAMES_MEDIA_USE_SFX_DIR ||
   [
     join(import.meta.dirname, "..", "..", "audio", "assets", "sfx"),
     join(
@@ -22,7 +22,7 @@ const LIB_DIR =
   ].find((candidate) => existsSync(candidate)) ||
   join(import.meta.dirname, "..", "..", "audio", "assets", "sfx");
 
-export const BUNDLED_SFX_RECOVERY_COMMAND = "npx hyperframes skills update media-use";
+export const BUNDLED_SFX_RECOVERY_COMMAND = "npx chalkframes skills update media-use";
 
 export class BundledSfxAssetsError extends Error {
   constructor(health) {

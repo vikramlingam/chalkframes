@@ -1,6 +1,6 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * `hyperframes auth refresh` — force-refresh the OAuth access_token
+ * `chalkframes auth refresh` — force-refresh the OAuth access_token
  * using the stored refresh_token.
  *
  * Mostly useful for testing the refresh path or for users on flaky
@@ -26,7 +26,7 @@ export default defineCommand({
 
     const { credentials, source } = await readStore();
     if (source === "absent" || !credentials.oauth?.refresh_token) {
-      console.error(c.warn("No OAuth refresh token to use. Run `hyperframes auth login` first."));
+      console.error(c.warn("No OAuth refresh token to use. Run `chalkframes auth login` first."));
       failCommand();
     }
 

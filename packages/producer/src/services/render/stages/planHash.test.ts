@@ -247,7 +247,7 @@ describe("sha256Hex", () => {
   });
 
   it("treats string and equivalent Uint8Array the same", () => {
-    const s = "hyperframes";
+    const s = "chalkframes";
     expect(sha256Hex(s)).toBe(sha256Hex(new TextEncoder().encode(s)));
   });
 });

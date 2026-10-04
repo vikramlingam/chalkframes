@@ -16,7 +16,7 @@ import {
 // real browser or network work — exercising run()'s outer catch (the JSON
 // failure envelope) without needing headless Chrome.
 vi.mock("../utils/project.js", () => resolveProjectMock());
-vi.mock("@hyperframes/core/compiler", () => bundleToSingleHtmlFailureMock());
+vi.mock("@chalkframes/core/compiler", () => bundleToSingleHtmlFailureMock());
 
 import { createInspectCommand } from "./layout.js";
 
@@ -32,8 +32,8 @@ describe("layout command deprecation (U5)", () => {
 
   it("prints a one-line deprecation notice to stderr and never to stdout", async () => {
     const { stderrText, stdoutText } = await runAndCaptureStdio(createInspectCommand("layout"));
-    expect(stderrText).toContain("hyperframes layout");
-    expect(stderrText).toContain("hyperframes check");
+    expect(stderrText).toContain("chalkframes layout");
+    expect(stderrText).toContain("chalkframes check");
     expect(stdoutText).toBe("");
   });
 

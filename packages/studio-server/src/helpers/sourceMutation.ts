@@ -1,18 +1,18 @@
 import { parseHTML } from "linkedom";
-import { removeElementWithGsapCascade } from "@hyperframes/parsers";
-import { readMediaOffsetSeconds, readPlaybackRate } from "@hyperframes/parsers/media-duration";
+import { removeElementWithGsapCascade } from "@chalkframes/parsers";
+import { readMediaOffsetSeconds, readPlaybackRate } from "@chalkframes/parsers/media-duration";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
-import { isAllowedHtmlAttribute, isSafeAttributeValue } from "@hyperframes/core/html-attr-safety";
-import { sanitizeRichTextChildren } from "@hyperframes/core/rich-text-sanitize";
+import { isAllowedHtmlAttribute, isSafeAttributeValue } from "@chalkframes/core/html-attr-safety";
+import { sanitizeRichTextChildren } from "@chalkframes/core/rich-text-sanitize";
 import {
   EXCLUDED_TAGS,
   ensureHfIds,
   mintHfId,
   walkCompositionDescendants,
-} from "@hyperframes/parsers/hf-ids";
-import { readClipTiming, writeClipTiming } from "@hyperframes/core/composition-contract";
-import { relinkSplitHalves } from "@hyperframes/core/media-link";
+} from "@chalkframes/parsers/hf-ids";
+import { readClipTiming, writeClipTiming } from "@chalkframes/core/composition-contract";
+import { relinkSplitHalves } from "@chalkframes/core/media-link";
 import { parseStyleDecls, patchStyleAttrString } from "./sourceStyleMutation.js";
 
 export interface SourceMutationTarget {

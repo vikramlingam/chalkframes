@@ -45,7 +45,7 @@ describe("printStalePinNotice", () => {
       return true;
     }) as typeof process.stderr.write;
     delete process.env.CI;
-    delete process.env.HYPERFRAMES_NO_UPDATE_CHECK;
+    delete process.env.CHALKFRAMES_NO_UPDATE_CHECK;
   });
   afterEach(() => {
     process.stderr.write = origWrite;
@@ -55,7 +55,7 @@ describe("printStalePinNotice", () => {
   it("keeps what the background check wrote after this process read the settings", () => {
     writeFileSync(
       join(dir, "package.json"),
-      JSON.stringify({ scripts: { render: "npx --yes hyperframes@0.7.48 render" } }),
+      JSON.stringify({ scripts: { render: "npx --yes chalkframes@0.7.48 render" } }),
     );
     cachedRead = { ...store };
     store = { ...store, lastUpdateCheck: "2026-09-27T00:00:00.000Z" };
@@ -67,7 +67,7 @@ describe("printStalePinNotice", () => {
   it("warns once when the project pins an older version", () => {
     writeFileSync(
       join(dir, "package.json"),
-      JSON.stringify({ scripts: { render: "npx --yes hyperframes@0.7.48 render" } }),
+      JSON.stringify({ scripts: { render: "npx --yes chalkframes@0.7.48 render" } }),
     );
     printStalePinNotice(dir);
     printStalePinNotice(dir); // throttled — second call silent
@@ -79,7 +79,7 @@ describe("printStalePinNotice", () => {
   it("silent when project pin is current", () => {
     writeFileSync(
       join(dir, "package.json"),
-      JSON.stringify({ scripts: { render: "npx --yes hyperframes@0.7.55 render" } }),
+      JSON.stringify({ scripts: { render: "npx --yes chalkframes@0.7.55 render" } }),
     );
     printStalePinNotice(dir);
     expect(writes.join("")).toBe("");
@@ -90,13 +90,13 @@ describe("printStalePinNotice", () => {
     runningVersion = "0.7.71";
     writeFileSync(
       join(dir, "package.json"),
-      JSON.stringify({ scripts: { check: "npx --yes hyperframes@0.8.66 check" } }),
+      JSON.stringify({ scripts: { check: "npx --yes chalkframes@0.8.66 check" } }),
     );
     printStalePinNotice(dir);
     printStalePinNotice(dir);
-    const mismatch = writes.filter((w) => w.includes("This is hyperframes 0.7.71"));
+    const mismatch = writes.filter((w) => w.includes("This is chalkframes 0.7.71"));
     expect(mismatch.length).toBe(2);
-    expect(mismatch[0]).toContain("npx hyperframes@0.8.66");
+    expect(mismatch[0]).toContain("npx chalkframes@0.8.66");
     expect(writes.join("")).not.toContain("upgrade --project");
   });
 
@@ -104,7 +104,7 @@ describe("printStalePinNotice", () => {
     process.env.CI = "true";
     writeFileSync(
       join(dir, "package.json"),
-      JSON.stringify({ scripts: { render: "npx --yes hyperframes@0.7.48 render" } }),
+      JSON.stringify({ scripts: { render: "npx --yes chalkframes@0.7.48 render" } }),
     );
     printStalePinNotice(dir);
     expect(writes.join("")).toBe("");

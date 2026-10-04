@@ -1,14 +1,14 @@
-import type { LintContext, HyperframeLintFinding, OpenTag } from "../context";
+import type { LintContext, ChalkframeLintFinding, OpenTag } from "../context";
 import { readDecodedAttr, truncateSnippet } from "../utils";
 import {
   isSubCompositionHost,
   topLevelElements,
   trackKindOf,
   type StructureNode,
-} from "@hyperframes/parsers/top-level-elements";
-import { readClipTiming } from "@hyperframes/parsers/composition-contract";
-import { readDataDurationSeconds } from "@hyperframes/parsers/media-duration";
-import { TIMING_TOLERANCE_SECONDS } from "@hyperframes/parsers/composition-duration";
+} from "@chalkframes/parsers/top-level-elements";
+import { readClipTiming } from "@chalkframes/parsers/composition-contract";
+import { readDataDurationSeconds } from "@chalkframes/parsers/media-duration";
+import { TIMING_TOLERANCE_SECONDS } from "@chalkframes/parsers/composition-duration";
 
 interface TagNode extends StructureNode<TagNode> {
   children: TagNode[];
@@ -109,9 +109,9 @@ function hasNestedStructure(node: TagNode): TagNode | null {
 
 const describe = (node: TagNode) => `<${node.tag}${node.attrs.id ? ` id="${node.attrs.id}"` : ""}>`;
 
-type Severity = HyperframeLintFinding["severity"];
+type Severity = ChalkframeLintFinding["severity"];
 
-function nestedStructureFindings(rows: TagNode[], severity: Severity): HyperframeLintFinding[] {
+function nestedStructureFindings(rows: TagNode[], severity: Severity): ChalkframeLintFinding[] {
   return rows.flatMap((row) => {
     const nested = isSubCompositionHost(row) ? null : hasNestedStructure(row);
     if (!nested) return [];
@@ -127,7 +127,7 @@ function nestedStructureFindings(rows: TagNode[], severity: Severity): Hyperfram
   });
 }
 
-function missingDurationFindings(rows: TagNode[], severity: Severity): HyperframeLintFinding[] {
+function missingDurationFindings(rows: TagNode[], severity: Severity): ChalkframeLintFinding[] {
   return rows
     .filter(
       (row) =>
@@ -145,9 +145,9 @@ function missingDurationFindings(rows: TagNode[], severity: Severity): Hyperfram
     }));
 }
 
-function captionFindings(rows: TagNode[], severity: Severity): HyperframeLintFinding[] {
+function captionFindings(rows: TagNode[], severity: Severity): ChalkframeLintFinding[] {
   const captionRows = rows.filter((row) => trackKindOf(row).kind === "captions");
-  const findings: HyperframeLintFinding[] = captionRows
+  const findings: ChalkframeLintFinding[] = captionRows
     .filter((row) => trackKindOf(row).source === "legacy-captions")
     .map((row) => ({
       code: "caption_track_kind_missing",
@@ -172,7 +172,7 @@ function captionFindings(rows: TagNode[], severity: Severity): HyperframeLintFin
 
 const hundredths = (seconds: number) => Math.round(seconds * 100) / 100;
 
-function clipsPastRootFindings(root: TagNode, rows: TagNode[]): HyperframeLintFinding[] {
+function clipsPastRootFindings(root: TagNode, rows: TagNode[]): ChalkframeLintFinding[] {
   if (root.attrs["data-composition-id"] === undefined) return [];
   const rootDuration = readDataDurationSeconds((name) => root.attrs[name]);
   if (rootDuration === null) return [];
@@ -193,7 +193,7 @@ function clipsPastRootFindings(root: TagNode, rows: TagNode[]): HyperframeLintFi
   });
 }
 
-export const structureRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
+export const structureRules: Array<(ctx: LintContext) => ChalkframeLintFinding[]> = [
   (ctx) => {
     // The timeline shows the root composition's rows; a sub-composition file is the leaf where layout lives.
     if (ctx.options.isSubComposition) return [];

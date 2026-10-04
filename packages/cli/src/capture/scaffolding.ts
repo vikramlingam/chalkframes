@@ -1,7 +1,7 @@
 /**
  * Project scaffolding helpers for the website capture pipeline.
  *
- * Handles .env file loading and HyperFrames project scaffold generation
+ * Handles .env file loading and ChalkFrames project scaffold generation
  * (index.html, meta.json, AGENTS.md, CLAUDE.md).
  */
 

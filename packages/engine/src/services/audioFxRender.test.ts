@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { applyVolumeEnvelopeToWav } from "./audioVolumeEnvelope.js";
-import { defaultAudioFxParams, type HfAudioFxChain } from "@hyperframes/core/audio-fx";
+import { defaultAudioFxParams, type HfAudioFxChain } from "@chalkframes/core/audio-fx";
 import { applyAudioFxChain, AudioFxRenderError, readWav, writeWav } from "./audioFxRender.js";
 import { resolveHeadlessShellPath } from "./browserManager.js";
 import { getFfmpegBinary } from "../utils/ffmpegBinaries.js";
@@ -24,7 +24,7 @@ const HAS_FFMPEG = spawnSync(getFfmpegBinary(), ["-version"], { encoding: "utf-8
  * the ffmpeg-dependent suites (`describe.skipIf(!HAS_FFMPEG)`).
  *
  * They still run wherever a browser exists — every developer machine, and any
- * job that has run `hyperframes browser ensure`.
+ * job that has run `chalkframes browser ensure`.
  */
 const HAS_BROWSER = ((): boolean => {
   try {

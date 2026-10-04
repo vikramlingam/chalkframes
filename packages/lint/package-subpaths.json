@@ -1,5 +1,5 @@
 {
-  "package": "@hyperframes/lint",
+  "package": "@chalkframes/lint",
   "localNodeRuntime": true,
   "subpaths": {
     ".": {

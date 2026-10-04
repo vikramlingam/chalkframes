@@ -2,7 +2,7 @@
  * Node-only GSAP AST parser. Depends on recast / @babel/parser, which compile
  * to CommonJS that calls `require("fs")` — so this module must never be in the
  * static import graph of isomorphic/browser code. It is reachable only via the
- * `@hyperframes/core/gsap-parser` subpath (studio-api mutations + the linter).
+ * `@chalkframes/core/gsap-parser` subpath (studio-api mutations + the linter).
  *
  * Recast-free helpers (serialization, keyframe conversion, validation, types)
  * live in `./gsapSerialize` and are re-exported here so this subpath exposes the

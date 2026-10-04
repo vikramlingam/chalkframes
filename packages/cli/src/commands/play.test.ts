@@ -76,19 +76,19 @@ const mediaMocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@hyperframes/studio-server/proxy-transcoder", () => ({
+vi.mock("@chalkframes/studio-server/proxy-transcoder", () => ({
   resolveProxy: mocks.resolveProxy,
   ProxyTranscodeError: mocks.ProxyTranscodeError,
   ProxyCapacityError: mocks.ProxyCapacityError,
 }));
-vi.mock("@hyperframes/studio-server/media-codec-map", () => mediaMocks);
+vi.mock("@chalkframes/studio-server/media-codec-map", () => mediaMocks);
 
 // The shared injection helper ships as a self-contained dist bundle (its copy
 // of scanProjectMediaCodecMap is inlined), so it must be mocked wholesale —
 // mocking the media-codec-map subpath can't reach inside it. The fake mirrors
 // the real contract (scan → inject tag) via this file's scan mock so the
 // existing injection assertions stay meaningful.
-vi.mock("@hyperframes/studio-server/media-proxy-preview", () => ({
+vi.mock("@chalkframes/studio-server/media-proxy-preview", () => ({
   injectMediaCodecMapIntoHtml: vi.fn(
     async (html: string, projectDir: string, htmlSources: unknown[]) => {
       const map = await mocks.scanProjectMediaCodecMap(projectDir, htmlSources);
@@ -317,7 +317,7 @@ describe("registerCompositionRoute", () => {
   });
 
   it("serves the runtime script ahead of every author script", async () => {
-    // Compositions read `window.__hyperframes.getVariables()` from an inline
+    // Compositions read `window.__chalkframes.getVariables()` from an inline
     // script at init. A runtime injected before </body> loads after that script,
     // so the documented API is undefined exactly where authors are told to call
     // it. Pin the ordering at the served-document boundary.
@@ -327,7 +327,7 @@ describe("registerCompositionRoute", () => {
       [
         '<html><head><script src="https://cdn.example/gsap.js"></script></head>',
         '<body><div id="root"></div>',
-        "<script>window.__probe = typeof window.__hyperframes;</script>",
+        "<script>window.__probe = typeof window.__chalkframes;</script>",
         "</body></html>",
       ].join(""),
     );

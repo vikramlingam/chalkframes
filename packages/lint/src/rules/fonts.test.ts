@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 async function findByCode(html: string, code: string, isSubComposition = true) {
-  const result = await lintHyperframeHtml(html, { isSubComposition });
+  const result = await lintChalkframeHtml(html, { isSubComposition });
   return result.findings.filter((f) => f.code === code);
 }
 
 /** system_font_will_alias only applies to distributed / Lambda renders. */
 async function findAliasFindings(html: string) {
-  const result = await lintHyperframeHtml(html, { isSubComposition: true, distributed: true });
+  const result = await lintChalkframeHtml(html, { isSubComposition: true, distributed: true });
   return result.findings.filter((f) => f.code === "system_font_will_alias");
 }
 
@@ -198,7 +198,7 @@ describe("font rules", () => {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap">
         <style>body { font-family: 'Geist', sans-serif; }</style>
       </div>`;
-      const result = await lintHyperframeHtml(html, { isSubComposition: true });
+      const result = await lintChalkframeHtml(html, { isSubComposition: true });
       expect(
         result.findings.filter((f) => f.code === "font_family_without_font_face"),
       ).toHaveLength(0);
@@ -210,7 +210,7 @@ describe("font rules", () => {
         <link rel=stylesheet href=https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap>
         <style>body { font-family: 'Geist', sans-serif; }</style>
       </div>`;
-      const result = await lintHyperframeHtml(html, { isSubComposition: true });
+      const result = await lintChalkframeHtml(html, { isSubComposition: true });
       expect(
         result.findings.filter((f) => f.code === "font_family_without_font_face"),
       ).toHaveLength(0);
@@ -225,7 +225,7 @@ describe("font rules", () => {
           body { font-family: 'DM Sans', sans-serif; }
         </style>
       </div>`;
-      const result = await lintHyperframeHtml(html, { isSubComposition: true });
+      const result = await lintChalkframeHtml(html, { isSubComposition: true });
       expect(
         result.findings.filter((f) => f.code === "font_family_without_font_face"),
       ).toHaveLength(0);
@@ -240,7 +240,7 @@ describe("font rules", () => {
           code { font-family: 'IBM+Plex+Mono', monospace; }
         </style>
       </div>`;
-      const result = await lintHyperframeHtml(html, { isSubComposition: true });
+      const result = await lintChalkframeHtml(html, { isSubComposition: true });
       expect(
         result.findings.filter((f) => f.code === "font_family_without_font_face"),
       ).toHaveLength(0);
@@ -254,7 +254,7 @@ describe("font rules", () => {
           h1 { font-family: 'DM%20Mono', monospace; }
         </style>
       </div>`;
-      const result = await lintHyperframeHtml(html, { isSubComposition: true });
+      const result = await lintChalkframeHtml(html, { isSubComposition: true });
       expect(
         result.findings.filter((f) => f.code === "font_family_without_font_face"),
       ).toHaveLength(1);
@@ -303,7 +303,7 @@ describe("font rules", () => {
 
     it("does not flag installed registry blocks that declare fonts via Google Fonts", async () => {
       const html =
-        `<!-- hyperframes-registry-item: my-block -->\n` +
+        `<!-- chalkframes-registry-item: my-block -->\n` +
         `<div data-composition-id="test" data-width="1920" data-height="1080">
         <style>body { font-family: 'Poppins', sans-serif; }</style>
       </div>`;

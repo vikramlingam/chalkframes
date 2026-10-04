@@ -2,8 +2,8 @@ import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, renameSync, statSync, unlinkSync, utimesSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { hdrToSdrToneMapFilter } from "@hyperframes/core";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { hdrToSdrToneMapFilter } from "@chalkframes/core";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import { probeFirstFrameColour, probeMediaMetadata } from "./mediaMetadata.js";
 import { cleanupProxyCache } from "./proxyCache.js";
 import { PROXY_VARIANT_CONFIG, type ProxyVariant } from "./mediaCodecMap.js";
@@ -40,8 +40,8 @@ function boundedEnvInteger(name: string, fallback: number, min: number, max: num
 // ffmpeg is internally multithreaded, so two concurrent proxy encodes already
 // saturate a typical laptop. Operators of shared/large machines may tune the
 // bounded values without patching the package; invalid values fail safe.
-const MAX_CONCURRENT_TRANSCODES = boundedEnvInteger("HYPERFRAMES_PROXY_MAX_CONCURRENCY", 2, 1, 16);
-const MAX_QUEUED_TRANSCODES = boundedEnvInteger("HYPERFRAMES_PROXY_MAX_QUEUE", 8, 0, 256);
+const MAX_CONCURRENT_TRANSCODES = boundedEnvInteger("CHALKFRAMES_PROXY_MAX_CONCURRENCY", 2, 1, 16);
+const MAX_QUEUED_TRANSCODES = boundedEnvInteger("CHALKFRAMES_PROXY_MAX_QUEUE", 8, 0, 256);
 
 const STDERR_TAIL_MAX_CHARS = 4000;
 export const TRANSCODE_TIMEOUT_MS = 15 * 60 * 1000;

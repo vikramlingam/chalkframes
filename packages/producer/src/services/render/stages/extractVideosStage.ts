@@ -21,7 +21,7 @@
  * New for distributed mode:
  *   - `materializeSymlinks` (default `false`) — when `true`, the stage
  *     instructs `materializeExtractedFramesForCompiledDir` to recursively
- *     copy frames into `compiledDir/__hyperframes_video_frames/<videoId>/`
+ *     copy frames into `compiledDir/__chalkframes_video_frames/<videoId>/`
  *     instead of creating a single symlink. Required for distributed
  *     plan() output where the planDir must be self-contained across
  *     machines (symlinks don't survive S3 / GCS round-trips). Default
@@ -49,7 +49,7 @@ import {
   resolveProjectRelativeSrc,
   runVideoExtractionWithRetry,
   safeVideoExtractionSourceIdentity,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import {
   collectVideoMetadataHints,
   collectVideoReadinessSkipIds,
@@ -495,7 +495,7 @@ export async function runExtractVideosStage(
       // because short boundary counts can differ by one frame.
       {
         fps: job.config.fps,
-        outputDir: join(compiledDir, "__hyperframes_video_frames"),
+        outputDir: join(compiledDir, "__chalkframes_video_frames"),
         format: job.config.videoFrameFormat ?? "auto",
         toneMapHdrToSdr: job.config.hdrMode === "force-sdr",
         timelineEnd: composition.duration,

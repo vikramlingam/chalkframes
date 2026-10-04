@@ -1,4 +1,4 @@
-// guards: skills/embedded-captions/**, skills/hyperframes/scripts/plugin-cli.mjs, scripts/package-agent-plugin.mjs
+// guards: skills/embedded-captions/**, skills/chalkframes/scripts/plugin-cli.mjs, scripts/package-agent-plugin.mjs
 import assert from "node:assert/strict";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import {
@@ -23,7 +23,7 @@ function assertContributorOverrides(dir, scripts) {
     const found = execFileSync(
       process.execPath,
       [join(scripts, "hf-cli.cjs"), ...(explicitArg ? [override] : [])],
-      { encoding: "utf8", env: { ...process.env, HYPERFRAMES_ROOT: explicitArg ? "" : override } },
+      { encoding: "utf8", env: { ...process.env, CHALKFRAMES_ROOT: explicitArg ? "" : override } },
     );
     assert.equal(found.trim(), built);
   }
@@ -32,15 +32,15 @@ function assertContributorOverrides(dir, scripts) {
 test("extracted captions helpers invoke the pinned CLI without a checkout", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "hf-caption-zip-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
-  execFileSync("unzip", ["-q", resolve("dist/hyperframes-agent-plugin.zip"), "-d", dir]);
-  const root = join(dir, "hyperframes");
+  execFileSync("unzip", ["-q", resolve("dist/chalkframes-agent-plugin.zip"), "-d", dir]);
+  const root = join(dir, "chalkframes");
   const version = JSON.parse(readFileSync(join(root, "plugin.json"))).version;
   const scripts = join(root, "skills/embedded-captions/scripts");
   // Git-based installs include source directories but no built CLI, unlike ZIPs.
   mkdirSync(join(root, "packages/cli"), { recursive: true });
   assert.equal(
     execFileSync(process.execPath, [join(scripts, "hf-cli.cjs")], { encoding: "utf8" }).trim(),
-    realpathSync(join(root, "skills/hyperframes/scripts/plugin-cli.mjs")),
+    realpathSync(join(root, "skills/chalkframes/scripts/plugin-cli.mjs")),
   );
   assertContributorOverrides(dir, scripts);
   rmSync(join(root, "packages"), { recursive: true });
@@ -57,7 +57,7 @@ test("extracted captions helpers invoke the pinned CLI without a checkout", (t) 
   const log = join(dir, "invocation.json");
   writeFileSync(
     join(bin, "npx"),
-    `#!${process.execPath}\nrequire('node:fs').writeFileSync(${JSON.stringify(log)}, JSON.stringify({args:process.argv.slice(2), skip:process.env.HYPERFRAMES_SKIP_SKILLS})); process.exit(23);`,
+    `#!${process.execPath}\nrequire('node:fs').writeFileSync(${JSON.stringify(log)}, JSON.stringify({args:process.argv.slice(2), skip:process.env.CHALKFRAMES_SKIP_SKILLS})); process.exit(23);`,
     { mode: 0o755 },
   );
   writeFileSync(join(bin, "ffmpeg"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
@@ -65,7 +65,7 @@ test("extracted captions helpers invoke the pinned CLI without a checkout", (t) 
   const env = {
     ...process.env,
     HOME: join(dir, "home"),
-    HYPERFRAMES_ROOT: "",
+    CHALKFRAMES_ROOT: "",
     TRANSCRIBE_ENGINE: "whisper",
     PATH: `${bin}${delimiter}${process.env.PATH}`,
   };
@@ -86,7 +86,7 @@ test("extracted captions helpers invoke the pinned CLI without a checkout", (t) 
     const call = JSON.parse(readFileSync(log, "utf8"));
     assert.deepEqual(
       call.args.slice(0, 3),
-      ["--yes", `hyperframes@${version}`, cliCommand],
+      ["--yes", `chalkframes@${version}`, cliCommand],
       result.stderr,
     );
     assert.equal(call.skip, "1");
@@ -130,10 +130,10 @@ for (const { code, cancel, expectedStatus } of cases) {
     });
     t.after(() => unrelated.kill());
     t.after(() => cleanupRenderFixture(dir, pidFile));
-    execFileSync("unzip", ["-q", resolve("dist/hyperframes-agent-plugin.zip"), "-d", dir]);
+    execFileSync("unzip", ["-q", resolve("dist/chalkframes-agent-plugin.zip"), "-d", dir]);
     const script = join(
       dir,
-      "hyperframes/skills/embedded-captions/scripts/render-and-composite.sh",
+      "chalkframes/skills/embedded-captions/scripts/render-and-composite.sh",
     );
     const project = join(dir, "project");
     const bin = join(dir, "bin");
@@ -193,7 +193,7 @@ sys.exit(2)
         env: {
           ...process.env,
           HOME: join(dir, "home"),
-          HYPERFRAMES_ROOT: "",
+          CHALKFRAMES_ROOT: "",
           PATH: `${bin}${delimiter}${process.env.PATH}`,
         },
       },

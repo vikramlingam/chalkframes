@@ -1,47 +1,47 @@
-export type HyperframePickerBoundingBox = {
+export type ChalkframePickerBoundingBox = {
   x: number;
   y: number;
   width: number;
   height: number;
 };
 
-export type HyperframePickerElementInfo = {
+export type ChalkframePickerElementInfo = {
   id: string | null;
   tagName: string;
   selector: string;
   label: string;
-  boundingBox: HyperframePickerBoundingBox;
+  boundingBox: ChalkframePickerBoundingBox;
   textContent: string | null;
   src: string | null;
   dataAttributes: Record<string, string>;
 };
 
-export type HyperframePickerApi = {
+export type ChalkframePickerApi = {
   enable: () => void;
   disable: () => void;
   isActive: () => boolean;
-  getHovered: () => HyperframePickerElementInfo | null;
-  getSelected: () => HyperframePickerElementInfo | null;
+  getHovered: () => ChalkframePickerElementInfo | null;
+  getSelected: () => ChalkframePickerElementInfo | null;
   getCandidatesAtPoint: (
     clientX: number,
     clientY: number,
     limit?: number,
-  ) => HyperframePickerElementInfo[];
+  ) => ChalkframePickerElementInfo[];
   pickAtPoint: (
     clientX: number,
     clientY: number,
     index?: number,
-  ) => HyperframePickerElementInfo | null;
+  ) => ChalkframePickerElementInfo | null;
   pickManyAtPoint: (
     clientX: number,
     clientY: number,
     indexes?: number[],
-  ) => HyperframePickerElementInfo[];
-  describe?: (element: Element) => HyperframePickerElementInfo | null;
+  ) => ChalkframePickerElementInfo[];
+  describe?: (element: Element) => ChalkframePickerElementInfo | null;
 };
 
 declare global {
   interface Window {
-    __HF_PICKER_API?: HyperframePickerApi;
+    __HF_PICKER_API?: ChalkframePickerApi;
   }
 }

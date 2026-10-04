@@ -1,7 +1,7 @@
-import type { HyperframeLintFinding } from "./types";
+import type { ChalkframeLintFinding } from "./types";
 import { stripHtmlComments } from "./utils";
 
-export type SourceLocation = Pick<HyperframeLintFinding, "file" | "line" | "column">;
+export type SourceLocation = Pick<ChalkframeLintFinding, "file" | "line" | "column">;
 
 /** Keep the existing fixpoint deletion semantics and map only retained UTF-16 units. */
 export function mappedHtmlSource(original: string) {

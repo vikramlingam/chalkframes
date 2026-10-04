@@ -1,4 +1,4 @@
-// The one lock on ~/.hyperframes/config.json, for the CLI, its auto-update step and media-use. The auto-update step
+// The one lock on ~/.chalkframes/config.json, for the CLI, its auto-update step and media-use. The auto-update step
 // embeds this function's source, so it must use only its arguments and globals.
 export function withFileLock(lockPath, fs, task) {
   const token = `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -17,7 +17,7 @@ export function withFileLock(lockPath, fs, task) {
       if (leftover || Date.now() - started > 10000)
         throw Object.assign(
           new Error(
-            `Settings are locked by another hyperframes process. If none is running, delete ${lockPath}`,
+            `Settings are locked by another chalkframes process. If none is running, delete ${lockPath}`,
           ),
           { code: "HF_SETTINGS_LOCKED" },
         );

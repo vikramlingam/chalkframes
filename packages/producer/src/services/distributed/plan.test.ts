@@ -19,7 +19,7 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyConcreteGpuScreenshotClamp, buildChromeArgs } from "@hyperframes/engine";
+import { applyConcreteGpuScreenshotClamp, buildChromeArgs } from "@chalkframes/engine";
 import { recomputePlanHashFromPlanDir } from "../render/stages/freezePlan.js";
 import { RenderQualityError } from "../renderOrchestrator.js";
 import { CURRENT_PLAN_PROTOCOL } from "./planProtocol.js";

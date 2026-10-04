@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { MEDIA_RENDER_ID_ATTR } from "@hyperframes/core";
+import { MEDIA_RENDER_ID_ATTR } from "@chalkframes/core";
 import { collectRenderMedia } from "./renderMediaCollector.js";
 
 describe("collectRenderMedia host windows", () => {

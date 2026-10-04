@@ -1,17 +1,17 @@
-# hyperframes
+# chalkframes
 
 CLI for creating, previewing, and rendering HTML video compositions.
 
 ## Install
 
 ```bash
-npm install -g hyperframes
+npm install -g chalkframes
 ```
 
 Or use directly with npx:
 
 ```bash
-npx hyperframes <command>
+npx chalkframes <command>
 ```
 
 **Requirements:** Node.js >= 22, FFmpeg
@@ -20,10 +20,10 @@ npx hyperframes <command>
 
 ### `init`
 
-Scaffold a new Hyperframes project from a template:
+Scaffold a new Chalkframes project from a template:
 
 ```bash
-npx hyperframes init my-video
+npx chalkframes init my-video
 cd my-video
 ```
 
@@ -32,11 +32,11 @@ cd my-video
 Start the live preview studio in your browser:
 
 ```bash
-npx hyperframes preview
+npx chalkframes preview
 # Studio: http://localhost:3002/#project/my-video
 # Server: http://localhost:3002
 
-npx hyperframes preview --port 4567
+npx chalkframes preview --port 4567
 ```
 
 In an interactive terminal, the preview stays attached until you press
@@ -53,8 +53,8 @@ Measure two local authored audio clips with integrated LUFS and match the target
 to the unchanged reference. The command is a dry run unless `--write` is passed:
 
 ```bash
-npx hyperframes normalize-audio --reference target-audio --target user-audio
-npx hyperframes normalize-audio --reference target-audio --target user-audio --write
+npx chalkframes normalize-audio --reference target-audio --target user-audio
+npx chalkframes normalize-audio --reference target-audio --target user-audio --write
 ```
 
 It updates only the target element's `data-volume` and refuses unsafe boosts
@@ -67,11 +67,11 @@ argument is the project directory (not a file), so render the project's
 `index.html` directly, or point at a specific composition file with `-c`:
 
 ```bash
-npx hyperframes render -o output.mp4
-npx hyperframes render -c ./my-composition.html -o output.mp4
+npx chalkframes render -o output.mp4
+npx chalkframes render -c ./my-composition.html -o output.mp4
 ```
 
-Set `HYPERFRAMES_RENDER_DETACHED=1` when starting a render with `nohup` or
+Set `CHALKFRAMES_RENDER_DETACHED=1` when starting a render with `nohup` or
 `disown` so it keeps running after the invoking shell exits.
 
 ### `publish`
@@ -80,15 +80,15 @@ Upload a project directory and get a hosted URL that keeps working after the CLI
 Published projects are private by default:
 
 ```bash
-npx hyperframes publish
-npx hyperframes publish ./my-video
-npx hyperframes publish --public
-npx hyperframes publish --yes
+npx chalkframes publish
+npx chalkframes publish ./my-video
+npx chalkframes publish --public
+npx chalkframes publish --yes
 ```
 
 Signed-out publishing returns an authentication-required claim URL; opening it
 lets someone sign in and claim the project. Sign in first with
-`npx hyperframes auth login` to publish an owned project you can update. Use
+`npx chalkframes auth login` to publish an owned project you can update. Use
 `--public` to make the claimed project visible to anyone. `--yes` only skips the
 confirmation prompt and does not change visibility.
 
@@ -97,17 +97,17 @@ or `--space <space-id>` to publish into a shared team space. If the requested
 project is missing or inaccessible, publishing can create a new project instead;
 check the printed URL and status.
 
-See the [publish reference](https://hyperframes.heygen.com/packages/cli#publish)
+See the [publish reference](https://chalkframes.dev/packages/cli#publish)
 for all options, including video proxy settings.
 
 ### `lint`
 
-Validate your Hyperframes HTML:
+Validate your Chalkframes HTML:
 
 ```bash
-npx hyperframes lint ./my-composition
-npx hyperframes lint ./my-composition --json      # JSON output for CI/tooling
-npx hyperframes lint ./my-composition --verbose   # Include info-level findings
+npx chalkframes lint ./my-composition
+npx chalkframes lint ./my-composition --json      # JSON output for CI/tooling
+npx chalkframes lint ./my-composition --verbose   # Include info-level findings
 ```
 
 By default only errors and warnings are shown. Use `--verbose` to also display informational findings (e.g., external script dependency notices). Use `--json` for machine-readable output with `errorCount`, `warningCount`, `infoCount`, and a `findings` array.
@@ -117,7 +117,7 @@ By default only errors and warnings are shown. Use `--verbose` to also display i
 List compositions found in the current project:
 
 ```bash
-npx hyperframes compositions
+npx chalkframes compositions
 ```
 
 ### `benchmark`
@@ -125,7 +125,7 @@ npx hyperframes compositions
 Run rendering benchmarks:
 
 ```bash
-npx hyperframes benchmark ./my-composition.html
+npx chalkframes benchmark ./my-composition.html
 ```
 
 ### `doctor`
@@ -133,7 +133,7 @@ npx hyperframes benchmark ./my-composition.html
 Check your environment for required dependencies (Chrome, FFmpeg, Node.js):
 
 ```bash
-npx hyperframes doctor
+npx chalkframes doctor
 ```
 
 ### `browser`
@@ -141,7 +141,7 @@ npx hyperframes doctor
 Manage the bundled Chrome/Chromium installation:
 
 ```bash
-npx hyperframes browser
+npx chalkframes browser
 ```
 
 ### `info`
@@ -149,7 +149,7 @@ npx hyperframes browser
 Print version and environment info:
 
 ```bash
-npx hyperframes info
+npx chalkframes info
 ```
 
 ### `docs`
@@ -157,7 +157,7 @@ npx hyperframes info
 Open the documentation in your browser:
 
 ```bash
-npx hyperframes docs
+npx chalkframes docs
 ```
 
 ### `upgrade`
@@ -165,17 +165,17 @@ npx hyperframes docs
 Check for updates and show upgrade instructions:
 
 ```bash
-npx hyperframes upgrade
-npx hyperframes upgrade --check --json  # machine-readable for agents
+npx chalkframes upgrade
+npx chalkframes upgrade --check --json  # machine-readable for agents
 ```
 
 ## Documentation
 
-Full documentation: [hyperframes.heygen.com/packages/cli](https://hyperframes.heygen.com/packages/cli)
+Full documentation: [chalkframes.dev/packages/cli](https://chalkframes.dev/packages/cli)
 
 ## Related packages
 
-- [`@hyperframes/core`](../core) — types, parsers, frame adapters
-- [`@hyperframes/engine`](../engine) — rendering engine
-- [`@hyperframes/producer`](../producer) — render pipeline
-- [`@hyperframes/studio`](../studio) — composition editor UI
+- [`@chalkframes/core`](../core) — types, parsers, frame adapters
+- [`@chalkframes/engine`](../engine) — rendering engine
+- [`@chalkframes/producer`](../producer) — render pipeline
+- [`@chalkframes/studio`](../studio) — composition editor UI

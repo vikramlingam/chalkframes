@@ -2,10 +2,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const DEFAULT_DIRECTORY = join(homedir(), ".hyperframes", "catalog");
+const DEFAULT_DIRECTORY = join(homedir(), ".chalkframes", "catalog");
 
 function directory() {
-  return process.env.HYPERFRAMES_CATALOG_ARTIFACT_DIR || DEFAULT_DIRECTORY;
+  return process.env.CHALKFRAMES_CATALOG_ARTIFACT_DIR || DEFAULT_DIRECTORY;
 }
 
 export async function fetchMediaVectors(registryBaseUrl, options = {}) {

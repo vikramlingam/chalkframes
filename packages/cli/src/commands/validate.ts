@@ -149,7 +149,7 @@ export function raceMediaReady(
  */
 export async function auditClipDurations(
   page: import("puppeteer-core").Page,
-  analyzeClipMediaFit: typeof import("@hyperframes/engine").analyzeClipMediaFit,
+  analyzeClipMediaFit: typeof import("@chalkframes/engine").analyzeClipMediaFit,
   extraWaitMs: number,
 ): Promise<ConsoleEntry[]> {
   // fallow-ignore-next-line complexity
@@ -390,7 +390,7 @@ async function validateInBrowser(
   opts: { timeout?: number; contrast?: boolean },
 ): Promise<{ errors: ConsoleEntry[]; warnings: ConsoleEntry[]; contrast?: ContrastEntry[] }> {
   const projectDir = project.dir;
-  const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+  const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
   const { ensureBrowser } = await import("../browser/manager.js");
   const { serveStaticProjectHtml } = await import("../utils/staticProjectServer.js");
   const { lintProject } = await import("../utils/lintProject.js");
@@ -430,7 +430,7 @@ async function validateInBrowser(
   try {
     const browser = await ensureBrowser();
     const puppeteer = await import("puppeteer-core");
-    const { buildChromeArgs, analyzeClipMediaFit } = await import("@hyperframes/engine");
+    const { buildChromeArgs, analyzeClipMediaFit } = await import("@chalkframes/engine");
     const requestedGpuMode = resolveCliChromeGpuMode();
     const {
       assertWebGpuAdapterAvailable,
@@ -619,10 +619,10 @@ export default defineCommand({
     description: `Load a composition in headless Chrome and report console errors (deprecated, use check)
 
 Examples:
-  hyperframes validate
-  hyperframes validate ./my-project
-  hyperframes validate --json
-  hyperframes validate --timeout 5000`,
+  chalkframes validate
+  chalkframes validate ./my-project
+  chalkframes validate --json
+  chalkframes validate --timeout 5000`,
   },
   args: {
     dir: { type: "positional", description: "Project directory", required: false },

@@ -1,10 +1,10 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * `hyperframes auth logout` — remove the credential file. With
+ * `chalkframes auth logout` — remove the credential file. With
  * `--keep-api-key`, only the OAuth block is cleared (no-op for
  * API-key-only stores).
  *
- * Env-only credentials (`HEYGEN_API_KEY`, `HYPERFRAMES_API_KEY`) can't
+ * Env-only credentials (`CHALKFRAMES_API_KEY`, `CHALKFRAMES_API_KEY`) can't
  * be cleared by this command — we tell the user to unset them.
  */
 
@@ -20,7 +20,7 @@ import {
 import { c } from "../../ui/colors.js";
 
 export default defineCommand({
-  meta: { name: "logout", description: "Remove the stored HeyGen credential" },
+  meta: { name: "logout", description: "Remove the stored Chalkframes credential" },
   args: {
     "keep-api-key": {
       type: "boolean",
@@ -57,10 +57,10 @@ export default defineCommand({
 });
 
 function warnIfEnvCredentialActive(): void {
-  if (process.env["HEYGEN_API_KEY"] || process.env["HYPERFRAMES_API_KEY"]) {
+  if (process.env["CHALKFRAMES_API_KEY"] || process.env["CHALKFRAMES_API_KEY"]) {
     console.log(
       c.warn(
-        "An env-var credential is active. Unset HEYGEN_API_KEY / HYPERFRAMES_API_KEY to remove it.",
+        "An env-var credential is active. Unset CHALKFRAMES_API_KEY / CHALKFRAMES_API_KEY to remove it.",
       ),
     );
   }
@@ -69,8 +69,8 @@ function warnIfEnvCredentialActive(): void {
 async function ensureConfirmed(yes: boolean, keepApiKey: boolean): Promise<boolean> {
   if (yes) return true;
   const prompt = keepApiKey
-    ? `This will sign out of any active OAuth session on this machine (~/.heygen lives at ${configDir()}). Continue? [y/N] `
-    : `This will sign out of HeyGen on this machine (~/.heygen lives at ${configDir()}). Continue? [y/N] `;
+    ? `This will sign out of any active OAuth session on this machine (~/.chalkframes lives at ${configDir()}). Continue? [y/N] `
+    : `This will sign out of Chalkframes on this machine (~/.chalkframes lives at ${configDir()}). Continue? [y/N] `;
   return confirmInteractive(prompt);
 }
 

@@ -2,12 +2,12 @@
 /**
  * Lint registry blocks/components the way a user actually receives them.
  *
- * `hyperframes lint <dir>` needs an `index.html`, but registry items ship as
+ * `chalkframes lint <dir>` needs an `index.html`, but registry items ship as
  * `<name>.html`, so pointing the linter at an item directory fails with "No
  * composition found" — which means registry items were never linted at all.
  * Two `gsap_non_transform_motion` errors reached main that way.
  *
- * This mounts each item into a throwaway project (exactly where `hyperframes
+ * This mounts each item into a throwaway project (exactly where `chalkframes
  * add` would put it) and lints that, reporting only findings for the item's
  * own file so the host scaffold's noise is ignored.
  *

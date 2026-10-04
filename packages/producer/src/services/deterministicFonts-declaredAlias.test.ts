@@ -11,7 +11,7 @@
  * uniquely matches a family the document declares must resolve to that family,
  * with faces emitted under the AUTHORED name so the authored CSS still matches.
  *
- * `fetchImpl` is injected (no network) and HYPERFRAMES_FONT_CACHE_DIR points
+ * `fetchImpl` is injected (no network) and CHALKFRAMES_FONT_CACHE_DIR points
  * at a temp dir, so these tests are hermetic.
  */
 
@@ -27,7 +27,7 @@ import {
   injectDeterministicFontFaces,
 } from "./deterministicFonts.js";
 
-const FONT_CACHE_ENV = "HYPERFRAMES_FONT_CACHE_DIR";
+const FONT_CACHE_ENV = "CHALKFRAMES_FONT_CACHE_DIR";
 const originalFontCache = process.env[FONT_CACHE_ENV];
 const fontCache = mkdtempSync(join(tmpdir(), "hf-font-declared-alias-"));
 
@@ -119,7 +119,7 @@ async function compileFailure(html: string): Promise<{ error: FontFetchError; qu
 
 /** The injected block's @font-face rules as { family, src } pairs, in order. */
 function injectedFaces(html: string): Array<{ family: string; src: string }> {
-  const block = /<style data-hyperframes-deterministic-fonts="true">([\s\S]*?)<\/style>/.exec(
+  const block = /<style data-chalkframes-deterministic-fonts="true">([\s\S]*?)<\/style>/.exec(
     html,
   )?.[1];
   if (!block) return [];
@@ -186,7 +186,7 @@ describe("declared-family alias resolution", () => {
 
     // Only the authored spelling is looked up; the declared face is reused.
     expect(queried).toEqual(["BrandSans"]);
-    const block = /data-hyperframes-deterministic-fonts="true">([\s\S]*?)<\/style>/.exec(
+    const block = /data-chalkframes-deterministic-fonts="true">([\s\S]*?)<\/style>/.exec(
       result,
     )?.[1];
     expect(block).toContain('font-family: "BrandSans"');

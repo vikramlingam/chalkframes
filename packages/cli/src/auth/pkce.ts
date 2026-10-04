@@ -23,7 +23,7 @@ export interface PkcePair {
   verifier: string;
   /** Sent on the authorize URL. */
   challenge: string;
-  /** Always "S256" for HeyGen's backend (`code_challenge_method`). */
+  /** Always "S256" for Chalkframes's backend (`code_challenge_method`). */
   method: "S256";
 }
 

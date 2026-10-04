@@ -31,7 +31,7 @@ const closeCaptureSession = mock(async () => {});
 const createdSessionConfigs: Array<{ enableBrowserPool?: boolean }> = [];
 class DrawElementVerificationError extends Error {}
 
-mock.module("@hyperframes/engine", () => ({
+mock.module("@chalkframes/engine", () => ({
   calculateOptimalWorkers: () => 1,
   convertTransfer: () => {},
   captureFrame: async () => {},
@@ -141,7 +141,7 @@ mock.module("@hyperframes/engine", () => ({
   writeCapturedFrame: async () => {},
 }));
 
-mock.module("@hyperframes/core", () => ({
+mock.module("@chalkframes/core", () => ({
   CANVAS_DIMENSIONS: {},
   checkOutputResolutionCompatibility: () => ({ ok: true }),
   fpsToNumber: () => 30,

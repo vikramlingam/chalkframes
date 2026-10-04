@@ -1,10 +1,10 @@
 import { isSafeVersion } from "./safeVersion.js";
 
-// Matches `hyperframes@<semver>` as a whole token inside a script string. The
+// Matches `chalkframes@<semver>` as a whole token inside a script string. The
 // version class mirrors isSafeVersion's semver shape; capturing group 1 is the
 // old version. `(?=\s|$)` keeps it from matching a longer package name.
-export const HYPERFRAMES_PIN_RE =
-  /\bhyperframes@([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)(?=\s|$)/g;
+export const CHALKFRAMES_PIN_RE =
+  /\bchalkframes@([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)(?=\s|$)/g;
 
 export interface PinRewriteResult {
   changed: boolean;
@@ -18,7 +18,7 @@ export interface TextPinRewriteResult {
   fromVersions: string[];
 }
 
-export function rewritePinnedHyperframesText(
+export function rewritePinnedChalkframesText(
   text: string,
   targetVersion: string,
 ): TextPinRewriteResult {
@@ -26,9 +26,9 @@ export function rewritePinnedHyperframesText(
     return { changed: false, text, fromVersions: [] };
   }
   const fromVersions = new Set<string>();
-  const next = text.replace(HYPERFRAMES_PIN_RE, (_full, version: string) => {
+  const next = text.replace(CHALKFRAMES_PIN_RE, (_full, version: string) => {
     if (version !== targetVersion) fromVersions.add(version);
-    return `hyperframes@${targetVersion}`;
+    return `chalkframes@${targetVersion}`;
   });
   return {
     changed: fromVersions.size > 0,
@@ -37,10 +37,10 @@ export function rewritePinnedHyperframesText(
   };
 }
 
-export function readPinnedHyperframesVersions(scripts: Record<string, string>): string[] {
+export function readPinnedChalkframesVersions(scripts: Record<string, string>): string[] {
   const found = new Set<string>();
   for (const cmd of Object.values(scripts ?? {})) {
-    for (const m of cmd.matchAll(HYPERFRAMES_PIN_RE)) if (m[1]) found.add(m[1]);
+    for (const m of cmd.matchAll(CHALKFRAMES_PIN_RE)) if (m[1]) found.add(m[1]);
   }
   return [...found].sort();
 }
@@ -56,7 +56,7 @@ export function rewriteProjectPinnedScripts(
   const fromVersions = new Set<string>();
   const next: Record<string, string> = {};
   for (const [name, cmd] of Object.entries(scripts ?? {})) {
-    const rewrite = rewritePinnedHyperframesText(cmd, targetVersion);
+    const rewrite = rewritePinnedChalkframesText(cmd, targetVersion);
     next[name] = rewrite.text;
     for (const version of rewrite.fromVersions) fromVersions.add(version);
   }

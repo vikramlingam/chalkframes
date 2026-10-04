@@ -1,10 +1,10 @@
 /**
- * Minimal typed HTTP client for HeyGen endpoints needed by the auth
+ * Minimal typed HTTP client for Chalkframes endpoints needed by the auth
  * commands. Hand-written rather than codegen'd because the surface is
  * one endpoint (`/v3/users/me`) and pulling in an OpenAPI pipeline is
  * disproportionate.
  *
- * Reads `HEYGEN_API_URL` (default `https://api.heygen.com`) so dev
+ * Reads `CHALKFRAMES_API_URL` (default `https://api.chalkframes.com`) so dev
  * testing is one env var away.
  *
  * Auth header selection:
@@ -20,18 +20,18 @@ import type { ResolvedCredential } from "./resolver.js";
 import { scrubCredentials } from "./scrub.js";
 import type { OAuthTokens } from "./store.js";
 
-const DEFAULT_BASE_URL = "https://api.heygen.com";
-export const HEYGEN_CLI_SOURCE_HEADER = "X-HeyGen-Source";
-export const HEYGEN_CLI_SOURCE = "cli";
+const DEFAULT_BASE_URL = "https://api.chalkframes.com";
+export const CHALKFRAMES_CLI_SOURCE_HEADER = "X-Chalkframes-Source";
+export const CHALKFRAMES_CLI_SOURCE = "cli";
 // Tool-attribution header identifying this CLI as the request origin. Sent on
-// every HeyGen call (both auth types) so the backend can isolate hyperframes CLI
-// usage in billing meta. Distinct from HEYGEN_CLI_SOURCE_HEADER above, which is
+// every Chalkframes call (both auth types) so the backend can isolate chalkframes CLI
+// usage in billing meta. Distinct from CHALKFRAMES_CLI_SOURCE_HEADER above, which is
 // the OAuth-only cli-source header that gates the free allowance.
-export const HEYGEN_CLIENT_SOURCE_HEADER = "X-HeyGen-Client-Source";
-export const HEYGEN_CLIENT_SOURCE = "hyperframes";
+export const CHALKFRAMES_CLIENT_SOURCE_HEADER = "X-Chalkframes-Client-Source";
+export const CHALKFRAMES_CLIENT_SOURCE = "chalkframes";
 
 export function apiBaseUrl(): string {
-  const override = process.env["HEYGEN_API_URL"];
+  const override = process.env["CHALKFRAMES_API_URL"];
   return override && override.length > 0 ? override.replace(/\/+$/, "") : DEFAULT_BASE_URL;
 }
 
@@ -46,7 +46,7 @@ export interface WalletInfo {
 /**
  * The API returns `credits.{premium,add_on}_credits` as nested objects
  * (`{ remaining, resets_at? }`), not bare numbers — discovered live
- * against api.heygen.com. Modelling them as nested objects so the row
+ * against api.chalkframes.com. Modelling them as nested objects so the row
  * formatter can render them properly instead of `[object Object]`.
  */
 export interface CreditBalance {
@@ -80,7 +80,7 @@ export interface UserInfo {
 }
 
 export interface AuthClientOptions {
-  /** Override base URL (otherwise `HEYGEN_API_URL` / default). */
+  /** Override base URL (otherwise `CHALKFRAMES_API_URL` / default). */
   baseUrl?: string;
   /** Inject a custom fetch (used by tests). */
   fetchImpl?: typeof fetch;
@@ -187,15 +187,15 @@ export function buildAuthHeaders(credential: ResolvedCredential): Record<string,
   if (credential.type === "oauth") {
     return {
       authorization: `Bearer ${credential.access_token}`,
-      [HEYGEN_CLI_SOURCE_HEADER]: HEYGEN_CLI_SOURCE,
-      [HEYGEN_CLIENT_SOURCE_HEADER]: HEYGEN_CLIENT_SOURCE,
+      [CHALKFRAMES_CLI_SOURCE_HEADER]: CHALKFRAMES_CLI_SOURCE,
+      [CHALKFRAMES_CLIENT_SOURCE_HEADER]: CHALKFRAMES_CLIENT_SOURCE,
     };
   }
   // API-key traffic keeps the normal billing path; the backend ignores the
   // cli-source header for it, so we don't send it (avoids a contradictory
   // "cli-source claim on an API-key request"). The tool-attribution header IS
-  // sent here — an API-key hyperframes call is still hyperframes usage.
-  return { "x-api-key": credential.key, [HEYGEN_CLIENT_SOURCE_HEADER]: HEYGEN_CLIENT_SOURCE };
+  // sent here — an API-key chalkframes call is still chalkframes usage.
+  return { "x-api-key": credential.key, [CHALKFRAMES_CLIENT_SOURCE_HEADER]: CHALKFRAMES_CLIENT_SOURCE };
 }
 
 async function safeText(res: Response): Promise<string> {

@@ -164,7 +164,7 @@ describe("probeMediaMetadata", () => {
   });
 
   it("supports an injected async runner without requiring local ffprobe", async () => {
-    vi.stubEnv("HYPERFRAMES_FFPROBE_PATH", "/definitely/missing/ffprobe");
+    vi.stubEnv("CHALKFRAMES_FFPROBE_PATH", "/definitely/missing/ffprobe");
     const metadata = await probeMediaMetadata("/tmp/clip.mp4", async () => ({
       status: 0,
       stdout: JSON.stringify({

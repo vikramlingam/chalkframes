@@ -6,31 +6,31 @@ import { spawn, type ChildProcessByStdio } from "node:child_process";
 import type { Readable } from "node:stream";
 
 export const examples: Example[] = [
-  ["Preview the current project", "hyperframes preview"],
-  ["Print the current Studio selection as JSON", "hyperframes preview --selection --json"],
-  ["Print current Studio context as JSON", "hyperframes preview --context --json"],
-  ["Preview a specific project directory", "hyperframes preview ./my-video"],
-  ["Use a custom port", "hyperframes preview --port 8080"],
-  ["Force a new server even if one is already running", "hyperframes preview --force-new"],
-  ["Keep preview running after this command exits", "hyperframes preview --background"],
-  ["Force an attached preview in a non-interactive shell", "hyperframes preview --foreground"],
-  ["Show the background preview for this project", "hyperframes preview --status"],
-  ["Stop the background preview for this project", "hyperframes preview --stop"],
-  ["Start without opening the browser", "hyperframes preview --no-open"],
-  ["Open with a specific browser", "hyperframes preview --browser-path /usr/bin/chromium"],
+  ["Preview the current project", "chalkframes preview"],
+  ["Print the current Studio selection as JSON", "chalkframes preview --selection --json"],
+  ["Print current Studio context as JSON", "chalkframes preview --context --json"],
+  ["Preview a specific project directory", "chalkframes preview ./my-video"],
+  ["Use a custom port", "chalkframes preview --port 8080"],
+  ["Force a new server even if one is already running", "chalkframes preview --force-new"],
+  ["Keep preview running after this command exits", "chalkframes preview --background"],
+  ["Force an attached preview in a non-interactive shell", "chalkframes preview --foreground"],
+  ["Show the background preview for this project", "chalkframes preview --status"],
+  ["Stop the background preview for this project", "chalkframes preview --stop"],
+  ["Start without opening the browser", "chalkframes preview --no-open"],
+  ["Open with a specific browser", "chalkframes preview --browser-path /usr/bin/chromium"],
   [
     "Open with CDP enabled (requires browser path + isolated profile)",
-    "hyperframes preview --browser-path /usr/bin/chromium --user-data-dir /tmp/hf-profile --remote-debugging-port 9222",
+    "chalkframes preview --browser-path /usr/bin/chromium --user-data-dir /tmp/hf-profile --remote-debugging-port 9222",
   ],
-  ["List all active preview servers", "hyperframes preview --list"],
-  ["Kill all active preview servers", "hyperframes preview --kill-all"],
+  ["List all active preview servers", "chalkframes preview --list"],
+  ["Kill all active preview servers", "chalkframes preview --kill-all"],
   [
     "Disable auto-proxying of browser-hostile video codecs (HEVC, ProRes, AV1)",
-    "hyperframes preview --no-proxy",
+    "chalkframes preview --no-proxy",
   ],
   [
     "Show full lint findings on startup instead of the summary line",
-    "hyperframes preview --lint-verbose",
+    "chalkframes preview --lint-verbose",
   ],
 ];
 import { existsSync, lstatSync, mkdirSync, readlinkSync, symlinkSync, unlinkSync } from "node:fs";
@@ -42,7 +42,7 @@ import { c } from "../ui/colors.js";
 import { isDevMode } from "../utils/env.js";
 import { normalizeErrorMessage as errorMessage } from "../utils/errorMessage.js";
 import { buildNpxCommand } from "../utils/npxCommand.js";
-import type { StudioSelectionSnapshot } from "@hyperframes/studio-server";
+import type { StudioSelectionSnapshot } from "@chalkframes/studio-server";
 import {
   openBrowser,
   parseRemoteDebuggingPort,
@@ -236,7 +236,7 @@ export default defineCommand({
     proxy: {
       type: "boolean",
       description:
-        "Auto-transcode browser-hostile video codecs (HEVC, ProRes, AV1) to a cached authoring proxy for preview (default: on; overrides hyperframes.json's media.autoProxy)",
+        "Auto-transcode browser-hostile video codecs (HEVC, ProRes, AV1) to a cached authoring proxy for preview (default: on; overrides chalkframes.json's media.autoProxy)",
       negativeDescription: "Disable auto-proxying of browser-hostile video codecs",
     },
   },
@@ -528,7 +528,7 @@ export default defineCommand({
           ),
         );
       } else {
-        clack.intro(c.bold("hyperframes preview"));
+        clack.intro(c.bold("chalkframes preview"));
         printStudioSummary(projectName, url, {
           details: [
             background.type === "reused"
@@ -536,7 +536,7 @@ export default defineCommand({
               : `Running in the background. Log: ${background.logPath}`,
             "Changes reload automatically in the studio.",
           ],
-          footer: `Stop with: hyperframes preview ${JSON.stringify(dir)} --stop`,
+          footer: `Stop with: chalkframes preview ${JSON.stringify(dir)} --stop`,
         });
       }
       openStudioBrowser(url, projectName, {
@@ -565,7 +565,7 @@ export default defineCommand({
       });
     }
 
-    // If @hyperframes/studio is installed locally, use Vite for full HMR
+    // If @chalkframes/studio is installed locally, use Vite for full HMR
     if (launchMode === "local") {
       return runLocalStudioMode(dir, {
         projectName,
@@ -929,7 +929,7 @@ async function printCurrentSelection(
   if (!server) {
     printSelectionFailure(
       "preview-not-running",
-      "No running Studio preview found for this project. Start one with: npx hyperframes preview",
+      "No running Studio preview found for this project. Start one with: npx chalkframes preview",
       json,
     );
     return;
@@ -1051,7 +1051,7 @@ async function printCurrentContext(
   if (!server) {
     printSelectionFailure(
       "preview-not-running",
-      "No running Studio preview found for this project. Start one with: npx hyperframes preview",
+      "No running Studio preview found for this project. Start one with: npx chalkframes preview",
       options.json,
     );
     return;
@@ -1432,7 +1432,7 @@ async function runDevMode(dir: string, options?: StudioLaunchOptions): Promise<v
   const pName = options?.projectName ?? basename(dir);
   const { symlinkPath, createdSymlink } = linkProjectIntoStudioData(dir, projectsDir, pName);
 
-  if (!options?.json) clack.intro(c.bold("hyperframes preview"));
+  if (!options?.json) clack.intro(c.bold("chalkframes preview"));
 
   const s = clack.spinner();
   if (!options?.json) s.start("Starting studio...");
@@ -1463,7 +1463,7 @@ async function runDevMode(dir: string, options?: StudioLaunchOptions): Promise<v
 }
 
 /**
- * Whether the project's local @hyperframes/studio can actually be SERVED.
+ * Whether the project's local @chalkframes/studio can actually be SERVED.
  *
  * Local mode runs `vite` with the studio package as its cwd, so it needs that
  * package's own `vite.config.ts` — which the published tarball does not carry
@@ -1476,7 +1476,7 @@ async function runDevMode(dir: string, options?: StudioLaunchOptions): Promise<v
 function hasLocalStudio(dir: string): boolean {
   try {
     const req = createRequire(join(dir, "package.json"));
-    const studioPkgPath = dirname(req.resolve("@hyperframes/studio/package.json"));
+    const studioPkgPath = dirname(req.resolve("@chalkframes/studio/package.json"));
     return existsSync(join(studioPkgPath, "vite.config.ts"));
   } catch {
     return false;
@@ -1484,19 +1484,19 @@ function hasLocalStudio(dir: string): boolean {
 }
 
 /**
- * Local studio mode: spawn Vite using a locally installed @hyperframes/studio.
+ * Local studio mode: spawn Vite using a locally installed @chalkframes/studio.
  * Provides full Vite HMR and the complete studio experience.
  */
 async function runLocalStudioMode(dir: string, options?: StudioLaunchOptions): Promise<void> {
   const req = createRequire(join(dir, "package.json"));
-  const studioPkgPath = dirname(req.resolve("@hyperframes/studio/package.json"));
+  const studioPkgPath = dirname(req.resolve("@chalkframes/studio/package.json"));
   const pName = options?.projectName ?? basename(dir);
 
   // Symlink project into studio's data directory
   const projectsDir = join(studioPkgPath, "data", "projects");
   const { symlinkPath, createdSymlink } = linkProjectIntoStudioData(dir, projectsDir, pName);
 
-  if (!options?.json) clack.intro(c.bold("hyperframes preview") + c.dim(" (local studio)"));
+  if (!options?.json) clack.intro(c.bold("chalkframes preview") + c.dim(" (local studio)"));
   const s = clack.spinner();
   if (!options?.json) s.start("Starting studio...");
 
@@ -1522,7 +1522,7 @@ async function runLocalStudioMode(dir: string, options?: StudioLaunchOptions): P
  * Embedded mode: serve the pre-built studio SPA with a standalone Hono server.
  * Works without any additional dependencies — the studio is bundled in dist/.
  *
- * If an existing HyperFrames server for the same project is detected,
+ * If an existing ChalkFrames server for the same project is detected,
  * reuses it instead of starting a new one (unless --force-new is set).
  */
 async function runEmbeddedMode(
@@ -1536,7 +1536,7 @@ async function runEmbeddedMode(
   const pName = options?.projectName ?? basename(dir);
   const studioBundle = resolveStudioBundle();
 
-  if (!options?.json) clack.intro(c.bold("hyperframes preview"));
+  if (!options?.json) clack.intro(c.bold("chalkframes preview"));
   const s = clack.spinner();
   if (!options?.json) s.start("Starting studio...");
 
@@ -1636,7 +1636,7 @@ async function runEmbeddedMode(
     }
     printStudioSummary(pName, url, {
       details: [
-        "Edit with your AI agent — it has HyperFrames skills installed.",
+        "Edit with your AI agent — it has ChalkFrames skills installed.",
         "Changes reload automatically in the studio.",
       ],
       footer: "Press Ctrl+C to stop",
@@ -1696,7 +1696,7 @@ async function runEmbeddedMode(
     // Last-resort cleanup for crash paths (unhandled exceptions/rejections)
     // that bypass the signal handlers. Eagerly resolve the sync killer so
     // the 'exit' handler (which is synchronous) can call it directly.
-    import("@hyperframes/engine")
+    import("@chalkframes/engine")
       .then(({ killTrackedProcesses }) => {
         process.once("exit", () => {
           if (!shuttingDown) killTrackedProcesses();

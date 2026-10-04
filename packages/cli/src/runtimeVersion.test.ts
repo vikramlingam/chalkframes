@@ -4,7 +4,7 @@ import { runtimeVersionError } from "./runtimeVersion.js";
 describe("runtimeVersionError", () => {
   it("rejects Node 20 before the bundled CLI is imported", () => {
     expect(runtimeVersionError("20.11.1")).toBe(
-      "HyperFrames requires Node.js >= 22 (current: 20.11.1). Switch Node versions and retry.",
+      "ChalkFrames requires Node.js >= 22 (current: 20.11.1). Switch Node versions and retry.",
     );
   });
 

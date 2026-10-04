@@ -1,5 +1,5 @@
 /**
- * Direct-upload flow for `hyperframes cloud render` project asset uploads.
+ * Direct-upload flow for `chalkframes cloud render` project asset uploads.
  *
  * The legacy `POST /v3/assets` path proxies bytes through the API and is
  * capped at 32 MB in-memory. This module implements the three-step
@@ -24,8 +24,8 @@
  */
 
 import { createHash } from "node:crypto";
-import type { HyperframesCloudClient } from "./_gen/client.js";
-import { HyperframesApiError } from "./_gen/client.js";
+import type { ChalkframesCloudClient } from "./_gen/client.js";
+import { ChalkframesApiError } from "./_gen/client.js";
 
 export interface UploadZipViaDirectResult {
   asset_id: string;
@@ -39,7 +39,7 @@ export type UploadProgressEvent =
   | { phase: "complete" };
 
 export interface UploadZipViaDirectOptions {
-  client: HyperframesCloudClient;
+  client: ChalkframesCloudClient;
   bytes: Uint8Array;
   filename: string;
   idempotencyKey?: string;
@@ -113,7 +113,7 @@ async function putBytesToPresignedUrl(
 // error surfaces immediately. `completeAssetUpload` itself is idempotent,
 // so retrying an already-succeeded call is safe.
 async function completeWithRetry(
-  client: HyperframesCloudClient,
+  client: ChalkframesCloudClient,
   asset_id: string,
   checksum_sha256: string,
 ): Promise<{ asset_id: string }> {
@@ -125,7 +125,7 @@ async function completeWithRetry(
         body: { checksum_sha256 },
       });
     } catch (err) {
-      const retryable = err instanceof HyperframesApiError && err.status === 409;
+      const retryable = err instanceof ChalkframesApiError && err.status === 409;
       if (!retryable || attempt === COMPLETE_MAX_RETRIES - 1) {
         throw err;
       }

@@ -1,4 +1,4 @@
-import { type HdrTransfer, convertTransfer } from "@hyperframes/engine";
+import { type HdrTransfer, convertTransfer } from "@chalkframes/engine";
 
 export interface HdrImageTransferCache {
   getConverted(

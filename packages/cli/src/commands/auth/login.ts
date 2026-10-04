@@ -1,12 +1,12 @@
 import { failCommand, failUsage } from "../../utils/commandResult.js";
 import { envFlagEnabled, isAttendedTerminal } from "../../utils/attendedTerminal.js";
 /**
- * `hyperframes auth login` — sign in to HeyGen.
+ * `chalkframes auth login` — sign in to Chalkframes.
  *
  * Default: OAuth 2.0 + PKCE via a loopback callback. The CLI opens
  * the user's browser, captures the authorization code on an
  * ephemeral 127.0.0.1 port, exchanges it for tokens, and persists
- * them to `~/.heygen/credentials`.
+ * them to `~/.chalkframes/credentials`.
  *
  * `--api-key`: opts into the legacy long-lived API-key path.
  *
@@ -60,7 +60,7 @@ const MIN_KEY_LENGTH = 8;
 export default defineCommand({
   meta: {
     name: "login",
-    description: "Sign in to HeyGen (OAuth by default; --api-key for long-lived keys)",
+    description: "Sign in to Chalkframes (OAuth by default; --api-key for long-lived keys)",
   },
   args: {
     "api-key": {
@@ -90,7 +90,7 @@ export default defineCommand({
     if (isRemoteOrHeadless()) {
       console.error(
         c.error(
-          "Browser callback login is unavailable in this remote/headless terminal. Run `hyperframes auth login --device`.",
+          "Browser callback login is unavailable in this remote/headless terminal. Run `chalkframes auth login --device`.",
         ),
       );
       failUsage();
@@ -167,7 +167,7 @@ async function runDeviceLogin(): Promise<void> {
     trackAuthLoginFailed("device", "rejected");
     console.error(
       c.error(
-        `HeyGen could not verify the approved device session; no credential was saved. ${(err as Error).message}`,
+        `Chalkframes could not verify the approved device session; no credential was saved. ${(err as Error).message}`,
       ),
     );
     failCommand();
@@ -275,10 +275,10 @@ async function reportIdentity(): Promise<void> {
 
 /**
  * The stable key we associate this install with in telemetry after sign-in.
- * `/v3/users/me` exposes no opaque user_id, so we key on the HeyGen account
+ * `/v3/users/me` exposes no opaque user_id, so we key on the Chalkframes account
  * EMAIL — the canonical account identifier and the reliable join key back to
  * billing — falling back to username only when the account exposes no email.
- * (Username is NOT a privacy win — HeyGen usernames are frequently email-shaped
+ * (Username is NOT a privacy win — Chalkframes usernames are frequently email-shaped
  * — it is purely a fallback so an emailless account is still attributable.)
  * The privacy notice (showTelemetryNotice) and docs/packages/cli.mdx disclose
  * both, so keep them in sync with whatever this returns.
@@ -430,9 +430,9 @@ async function verifyAndReport(key: string): Promise<UserInfo | null> {
   } catch (err) {
     if (isAuthError(err) && err.code === "UNAUTHENTICATED") {
       console.error(
-        `${c.warn("HeyGen rejected the API key.")}\n` +
+        `${c.warn("Chalkframes rejected the API key.")}\n` +
           `  ${c.dim(err.message)}\n` +
-          `Run ${c.accent("hyperframes auth login --api-key")} again with a valid key.`,
+          `Run ${c.accent("chalkframes auth login --api-key")} again with a valid key.`,
       );
       return null;
     }
@@ -474,7 +474,7 @@ async function readAllWithTimeout(
 async function promptForKey(): Promise<string> {
   const clack = await import("@clack/prompts");
   const value = await clack.password({
-    message: "Enter HeyGen API key",
+    message: "Enter Chalkframes API key",
     validate: (v) => {
       if (!v || v.length < MIN_KEY_LENGTH) return "API key looks too short";
       if (!isHeaderSafe(v)) return "API key must not contain newline or control characters";

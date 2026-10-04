@@ -39,9 +39,9 @@ export function generateRegistryManifest(root: string): void {
     join(root, "registry/registry.json"),
     JSON.stringify(
       {
-        $schema: "https://hyperframes.heygen.com/schema/registry.json",
-        name: "hyperframes",
-        homepage: "https://hyperframes.heygen.com",
+        $schema: "https://chalkframes.dev/schema/registry.json",
+        name: "chalkframes",
+        homepage: "https://chalkframes.dev",
         items,
       },
       null,

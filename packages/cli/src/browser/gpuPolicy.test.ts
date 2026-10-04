@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { resolveLocalBrowserGpuMode } from "./gpuPolicy.js";
 
 // compositionRequiresWebGpu and assertWebGpuAdapterAvailable are implemented
-// in @hyperframes/engine (browserManager.ts) and only re-exported here — see
+// in @chalkframes/engine (browserManager.ts) and only re-exported here — see
 // that package's browserManager.test.ts for their coverage.
 describe("local browser GPU policy", () => {
   it("defaults to auto and preserves explicit CLI/env overrides", () => {

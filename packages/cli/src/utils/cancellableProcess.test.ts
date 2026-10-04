@@ -9,7 +9,7 @@ const IS_POSIX = process.platform !== "win32";
 
 describe.skipIf(!IS_POSIX)("cancellable process tree teardown", () => {
   it("reaps a SIGTERM-resistant grandchild after the setup root exits", async () => {
-    const testDir = mkdtempSync(join(tmpdir(), "hyperframes-cancellable-process-"));
+    const testDir = mkdtempSync(join(tmpdir(), "chalkframes-cancellable-process-"));
     const readyPath = join(testDir, "ready");
     const completionPath = join(testDir, "completed");
     const completionDelayMs = 750;

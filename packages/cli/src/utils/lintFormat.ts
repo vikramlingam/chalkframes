@@ -90,14 +90,14 @@ export function formatLintStartupMessage(
   const counts = formatLintCounts(lintResult.totalErrors, lintResult.totalWarnings, 0, false);
   const hint =
     mode.pointer === "studio"
-      ? "see the Lint badge in Studio, or run `hyperframes lint` for full output"
+      ? "see the Lint badge in Studio, or run `chalkframes lint` for full output"
       : "run with --lint-verbose for full output";
   return [`  Lint: ${counts} — ${hint}.`];
 }
 
 function findingFileLabel(
   file: string,
-  finding: import("@hyperframes/lint").HyperframeLintFinding,
+  finding: import("@chalkframes/lint").ChalkframeLintFinding,
   multiFile: boolean,
 ): string {
   if (finding.line === undefined) return multiFile ? c.dim(`[${file}] `) : "";

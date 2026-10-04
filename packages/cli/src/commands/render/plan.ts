@@ -9,14 +9,14 @@ import {
   type CanvasResolution,
   type Fps,
   type FpsParseResult,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 import {
   EXTRACT_CACHE_DIR_DISABLED_ALIASES,
   MAX_VP9_CPU_USED,
   MIN_VP9_CPU_USED,
   isVideoFrameFormat,
   type VideoFrameFormat,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { errorBox } from "../../ui/format.js";
 import { failUsage } from "../../utils/commandResult.js";
 import { resolveProject } from "../../utils/project.js";
@@ -163,7 +163,7 @@ export interface RenderPlan {
   variablesFileArg?: string;
   strictVariables: boolean;
   environment: Readonly<Record<string, string>>;
-  /** Names of HF_-/HYPERFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
+  /** Names of HF_-/CHALKFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
   hfEnvOverrides: readonly string[];
 }
 
@@ -201,7 +201,7 @@ function positiveInteger(raw: string, title: string, message: string, min = 1): 
   return parsed;
 }
 
-const HF_ENV_OVERRIDE_RE = /^(HF|HYPERFRAMES)_/;
+const HF_ENV_OVERRIDE_RE = /^(HF|CHALKFRAMES)_/;
 const MAX_REPORTED_ENV_OVERRIDES = 20;
 
 /** HF_-prefixed keys the CLI sets for itself during bootstrap rather than keys an operator
@@ -210,7 +210,7 @@ const MAX_REPORTED_ENV_OVERRIDES = 20;
  * nothing about how this render was configured. */
 const CLI_INTERNAL_HF_ENV_KEYS = new Set(["HF_SHADER_WORKER_ENTRY"]);
 
-/** Names (never values, since some could hold paths or secrets) of HF_-/HYPERFRAMES_-prefixed
+/** Names (never values, since some could hold paths or secrets) of HF_-/CHALKFRAMES_-prefixed
  * env vars present when this plan resolves, snapshotted before this render's own preflight
  * injects its ffmpeg/ffprobe path overrides, which would otherwise always read back as
  * operator-set. */
@@ -249,7 +249,7 @@ export function createRenderPlan(args: RenderCommandArgs, now = new Date()): Ren
   const quality = qualityAlias.quality;
 
   // Attribution resolves the explicit --skill flag first, then falls back to
-  // the owning skill persisted in hyperframes.json — so re-renders, batch
+  // the owning skill persisted in chalkframes.json — so re-renders, batch
   // renders, and `npm run render` (which never re-pass the flag) stay
   // attributed to the workflow that created the project.
   const flagSkill = normalizeSkillSlug(args.skill);
@@ -389,13 +389,13 @@ export function createRenderPlan(args: RenderCommandArgs, now = new Date()): Ren
       ? "true"
       : "false";
   }
-  // Sugar for HYPERFRAMES_EXTRACT_CACHE_DIR. Disabling aliases pass through
+  // Sugar for CHALKFRAMES_EXTRACT_CACHE_DIR. Disabling aliases pass through
   // verbatim for the engine helper; positive paths become CWD-stable here.
   if (typeof args["frames-cache-dir"] === "string" && args["frames-cache-dir"].trim() !== "") {
     const raw = args["frames-cache-dir"].trim();
     const normalized = raw.toLowerCase();
     const isDisableAlias = EXTRACT_CACHE_DIR_DISABLED_ALIASES.includes(normalized);
-    environment.HYPERFRAMES_EXTRACT_CACHE_DIR = isDisableAlias ? raw : resolve(raw);
+    environment.CHALKFRAMES_EXTRACT_CACHE_DIR = isDisableAlias ? raw : resolve(raw);
   }
   if (args["max-concurrent-renders"] != null) {
     const parsed = positiveInteger(

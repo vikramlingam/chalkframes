@@ -17,7 +17,7 @@ import {
   fpsToNumber,
   resolveAuthoredTimingWindow,
   type RawAuthoredTiming,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 
 import { DrawElementCaptureError } from "./drawElementCaptureError.js";
 import { encodePng } from "../utils/alphaBlit.js";
@@ -556,7 +556,7 @@ export function sanitizeDiagnosticUrl(input: string): string {
   if (input.startsWith("blob:")) return "blob:<redacted>";
   if (input.startsWith("/")) {
     try {
-      const url = new URL(input, "http://hyperframes.local");
+      const url = new URL(input, "http://chalkframes.local");
       return url.pathname;
     } catch {
       return input;
@@ -977,8 +977,8 @@ async function initDrawElementOrTransparentBackground(
       console.log(
         `[engine] fast capture: falling back to ${session.launchCaptureMode} capture — ` +
           "this Chrome build does not implement canvas.drawElementImage (Dev/Canary-only " +
-          "feature); run `hyperframes browser ensure --force` to fetch a supported " +
-          "build, or set HYPERFRAMES_BROWSER_PATH to one.",
+          "feature); run `chalkframes browser ensure --force` to fetch a supported " +
+          "build, or set CHALKFRAMES_BROWSER_PATH to one.",
       );
       await routeToFallback();
       return;
@@ -999,7 +999,7 @@ async function initDrawElementOrTransparentBackground(
         `[engine] fast capture: falling back to ${session.launchCaptureMode} capture — ` +
           "host ffmpeg is missing or was built without the `psnr` filter " +
           "(libpostproc), so drawElement self-verification cannot run. Install " +
-          "an ffmpeg build that includes libpostproc (or set HYPERFRAMES_FFMPEG_PATH " +
+          "an ffmpeg build that includes libpostproc (or set CHALKFRAMES_FFMPEG_PATH " +
           "to one) to re-enable fast capture.",
       );
       await routeToFallback();
@@ -1389,10 +1389,10 @@ async function constructCaptureSession(
   // wrappers around named functions. Empirically, this happens with:
   //   - tsx (its esbuild loader runs with keepNames=true), used by the
   //     producer's parity-harness, ad-hoc dev scripts, and the
-  //     `bun run --filter @hyperframes/engine test` Vitest path.
+  //     `bun run --filter @chalkframes/engine test` Vitest path.
   //   - any tsup/esbuild build that explicitly enables keepNames.
   //
-  // The HeyGen CLI (`packages/cli`) bundles this engine via tsup with
+  // The Chalkframes CLI (`packages/cli`) bundles this engine via tsup with
   // keepNames left at its default (false) — verified by grepping
   // `packages/cli/dist/cli.js`, where `__name(...)` call sites are absent.
   // Bun's TS loader also does not currently inject `__name`. Even so,
@@ -1554,9 +1554,9 @@ export function formatConsoleDiagnostic(
   const isFontLoadError = isFontResourceError(type, text, locationUrl);
   if (isFontLoadError) return { text: `[Browser] ${text}`, suppressHostLog: true };
 
-  if (text.startsWith("[hyperframes]")) {
+  if (text.startsWith("[chalkframes]")) {
     return {
-      text: `[HyperFrames] ${text.slice("[hyperframes]".length).trim()}`,
+      text: `[ChalkFrames] ${text.slice("[chalkframes]".length).trim()}`,
       suppressHostLog: false,
     };
   }
@@ -1647,7 +1647,7 @@ export function buildZeroDurationDiagnostic(diag: HfDiagnostic): string {
     );
   }
   if (!diag.hasPlayer) {
-    hints.push("window.__player was never set — the HyperFrames runtime did not initialize.");
+    hints.push("window.__player was never set — the ChalkFrames runtime did not initialize.");
   }
   if (!diag.hasTimeline) {
     hints.push(
@@ -2189,8 +2189,8 @@ function recordScriptLoadFailure(session: CaptureSession, url: string): void {
 
 export function classifyConsoleScriptFailure(type: string, text: string): string | null {
   if (type !== "error") return null;
-  if (text.startsWith("[HyperFrames] composition script error:")) {
-    const detail = text.slice("[HyperFrames] composition script error:".length).trim();
+  if (text.startsWith("[ChalkFrames] composition script error:")) {
+    const detail = text.slice("[ChalkFrames] composition script error:".length).trim();
     const compId = detail.split(" ")[0] || "unknown";
     return `runtime-error:${compId}`;
   }
@@ -2207,7 +2207,7 @@ export function classifyConsoleScriptFailure(type: string, text: string): string
 export async function initializeSession(session: CaptureSession): Promise<void> {
   const { page, serverUrl } = session;
 
-  // Forward browser console to host. HyperFrames runtime logs get a dedicated
+  // Forward browser console to host. ChalkFrames runtime logs get a dedicated
   // prefix so page-context observability is visible in producer stdout.
   page.on("console", (msg: ConsoleMessage) => {
     const type = msg.type();

@@ -72,19 +72,19 @@ describe("validateUploadedMedia", () => {
     ).toEqual({ ok: true, unchecked: expect.stringMatching(/ffprobe was not found/) });
   });
 
-  describe("with HYPERFRAMES_FFPROBE_PATH", () => {
-    const configured = process.env.HYPERFRAMES_FFPROBE_PATH;
+  describe("with CHALKFRAMES_FFPROBE_PATH", () => {
+    const configured = process.env.CHALKFRAMES_FFPROBE_PATH;
     const dir = mkdtempSync(join(tmpdir(), "hf-ffprobe-path-"));
     afterEach(() => {
-      if (configured === undefined) delete process.env.HYPERFRAMES_FFPROBE_PATH;
-      else process.env.HYPERFRAMES_FFPROBE_PATH = configured;
+      if (configured === undefined) delete process.env.CHALKFRAMES_FFPROBE_PATH;
+      else process.env.CHALKFRAMES_FFPROBE_PATH = configured;
     });
     afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
     it("runs the ffprobe it names", () => {
       const ffprobe = join(dir, "ffprobe");
       writeFileSync(ffprobe, "");
-      process.env.HYPERFRAMES_FFPROBE_PATH = ffprobe;
+      process.env.CHALKFRAMES_FFPROBE_PATH = ffprobe;
       const runner = vi.fn(() => ({
         status: 0,
         stdout: JSON.stringify({ streams: [{ codec_type: "video" }] }),
@@ -97,11 +97,11 @@ describe("validateUploadedMedia", () => {
 
     it("rejects the upload, naming the setting, when the ffprobe it names cannot run", () => {
       const missing = join(dir, "missing-ffprobe");
-      process.env.HYPERFRAMES_FFPROBE_PATH = missing;
+      process.env.CHALKFRAMES_FFPROBE_PATH = missing;
 
       expect(validateUploadedMedia("/tmp/test.mp4")).toEqual({
         ok: false,
-        reason: expect.stringContaining(`HYPERFRAMES_FFPROBE_PATH names "${missing}"`),
+        reason: expect.stringContaining(`CHALKFRAMES_FFPROBE_PATH names "${missing}"`),
       });
     });
   });

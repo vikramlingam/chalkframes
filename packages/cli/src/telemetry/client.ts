@@ -49,8 +49,8 @@ export function shouldTrack(): boolean {
  * preference.
  *
  * The memo is right for a CLI command — one process, one answer, and the
- * question is asked per event. It is wrong for `hyperframes preview`, which
- * lives for hours: run `hyperframes telemetry disable` in another terminal and
+ * question is asked per event. It is wrong for `chalkframes preview`, which
+ * lives for hours: run `chalkframes telemetry disable` in another terminal and
  * this process kept the old answer indefinitely, still resolving canaries and
  * still injecting the CLI id into every page load. Callers that serve requests
  * refresh at a request boundary; see `refreshTelemetryPosture` in
@@ -155,13 +155,13 @@ export function showTelemetryNotice(): boolean {
   // --json (the guard in cli.ts filters by command only), so a stdout banner
   // would corrupt the JSON envelope of the very first `check --json` etc.
   diag.notice();
-  diag.notice(`  ${c.dim("Hyperframes collects anonymous usage data to improve the tool.")}`);
+  diag.notice(`  ${c.dim("Chalkframes collects anonymous usage data to improve the tool.")}`);
   diag.notice(`  ${c.dim("File paths and composition content are never collected.")}`);
   diag.notice(
-    `  ${c.dim("If you sign in to HeyGen, your account (email, or username) is linked to your usage.")}`,
+    `  ${c.dim("If you sign in to Chalkframes, your account (email, or username) is linked to your usage.")}`,
   );
   diag.notice();
-  diag.notice(`  ${c.dim("Disable anytime:")} ${c.accent("hyperframes telemetry disable")}`);
+  diag.notice(`  ${c.dim("Disable anytime:")} ${c.accent("chalkframes telemetry disable")}`);
   diag.notice();
 
   return true;

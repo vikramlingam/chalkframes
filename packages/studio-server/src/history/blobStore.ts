@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { constants, createReadStream, renameSync } from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { atomicTempPath } from "@hyperframes/core/atomic-file";
+import { atomicTempPath } from "@chalkframes/core/atomic-file";
 
 /** File contents stored once by sha256, text and binary alike. */
 export interface BlobStore {

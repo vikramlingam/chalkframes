@@ -1,6 +1,6 @@
 // fallow-ignore-file code-duplication
 
-import type { ExtractedFrames, VideoElement, VideoMetadata } from "@hyperframes/engine";
+import type { ExtractedFrames, VideoElement, VideoMetadata } from "@chalkframes/engine";
 import { describe, expect, it } from "vitest";
 import {
   assertVideoFrameCoverage,

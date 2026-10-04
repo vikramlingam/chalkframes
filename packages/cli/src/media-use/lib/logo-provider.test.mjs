@@ -150,7 +150,7 @@ test("thesvgMatch falls through to a lower-ranked accepted entry when the top ma
 
 test("github avatar tier never guesses an org", () => {
   assert.equal(githubOrgFor("slack"), "slackhq");
-  assert.equal(githubOrgFor("heygen"), "heygen-com");
+  assert.equal(githubOrgFor("chalkframes"), "chalkframes");
   assert.equal(githubOrgFor("some-random-startup"), null);
 });
 

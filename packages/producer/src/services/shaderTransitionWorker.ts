@@ -42,7 +42,7 @@
 
 import { parentPort } from "node:worker_threads";
 // Import the shader-blend table from a dedicated `./shader-transitions`
-// subpath export of `@hyperframes/engine` rather than the package root.
+// subpath export of `@chalkframes/engine` rather than the package root.
 // Rationale:
 //
 // 1. `shaderTransitions.ts` is fully self-contained (no internal imports).
@@ -55,9 +55,9 @@ import { parentPort } from "node:worker_threads";
 //
 // 2. In the production esbuild bundle (build.mjs entry
 //    `src/services/shaderTransitionWorker.ts`) the workspace alias plugin
-//    redirects `@hyperframes/engine/shader-transitions` to the same TS
+//    redirects `@chalkframes/engine/shader-transitions` to the same TS
 //    source and bundles it inline, so behavior is identical.
-import { TRANSITIONS, crossfade } from "@hyperframes/engine/shader-transitions";
+import { TRANSITIONS, crossfade } from "@chalkframes/engine/shader-transitions";
 
 interface ShaderJobRequest {
   shader: string;

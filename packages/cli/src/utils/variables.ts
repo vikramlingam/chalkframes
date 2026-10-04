@@ -1,8 +1,8 @@
 import { failCommand } from "./commandResult.js";
 /**
  * Shared `--variables` / `--variables-file` / `--strict-variables` parsing
- * and validation helpers used by both `hyperframes render` (in-process) and
- * `hyperframes lambda render` (distributed). The Lambda CLI mirrors the
+ * and validation helpers used by both `chalkframes render` (in-process) and
+ * `chalkframes lambda render` (distributed). The Lambda CLI mirrors the
  * local UX exactly — same flag names, same parse-error messages, same
  * strict-mode behavior — so users who learned the local flow can drive
  * Lambda renders without re-learning the surface.
@@ -20,7 +20,7 @@ import {
   formatVariableValidationIssue,
   validateVariables,
   type VariableValidationIssue,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 import { ensureDOMParser } from "./dom.js";
 import { c } from "../ui/colors.js";
 import { errorBox } from "../ui/format.js";
@@ -181,7 +181,7 @@ export function loadProjectVariableSchema(indexPath: string): ProjectVariableSch
   }
   // extractCompositionMetadata uses DOMParser, which Node doesn't ship.
   // Same pattern as `compositions.ts` and other CLI commands that touch
-  // @hyperframes/core's HTML parsers.
+  // @chalkframes/core's HTML parsers.
   ensureDOMParser();
   return extractCompositionMetadata(html).variables;
 }
@@ -201,7 +201,7 @@ export function validateVariablesAgainstSchema(
 /**
  * Print a uniform warning block for variable validation issues; in
  * `strict` mode, render an errorBox and exit(1). Used by both
- * `hyperframes render` and `hyperframes lambda render` so the UX is
+ * `chalkframes render` and `chalkframes lambda render` so the UX is
  * identical across the two surfaces. Pass `quiet: true` to suppress the
  * warning block (the errorBox in strict mode still prints).
  */

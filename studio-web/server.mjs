@@ -25,6 +25,22 @@ import {
   registerArchetype,
 } from "./catalog.mjs";
 import {
+  FPS,
+  computeSceneFrames,
+  buildFrameTimeline,
+  normalizeSegment,
+  assertNotBlank,
+  concatenateSegments,
+  assembleMasterAudio,
+  muxMasterVideo,
+} from "./stitcher.mjs";
+import { checkManimCapability } from "./engines/manim/capability.mjs";
+import { runManimScene } from "./engines/manim/runner.mjs";
+import { sanitizePalette } from "./engines/manim/planner.mjs";
+import { normalizeManimClip } from "./engines/manim/normalize.mjs";
+import { degradeScene } from "./engines/manim/degrade.mjs";
+import { beatFrames } from "./engines/manim/schema.mjs";
+import {
   ARCHETYPE_RENDERERS,
   registerArchetypeRenderer,
   getArchetypeRenderer,
@@ -34,6 +50,8 @@ import {
 } from "./renderers.mjs";
 
 export {
+  buildSegmentHtml,
+  renderHtmlSegment,
   ARCHETYPE_RENDERERS,
   registerArchetypeRenderer,
   getArchetypeRenderer,
@@ -142,16 +160,30 @@ function getWavDurationFast(filePath) {
   return null;
 }
 
-// Env for every child process, with the bun bin dir guaranteed present.
-function childEnv() {
-  return { ...process.env, PATH: `${bunPath}${path.delimiter}${process.env.PATH}` };
-}
-
 const PORT = process.env.PORT || 4000;
 // Bind to loopback by default: this server has no auth and spends API credits.
 const HOST = process.env.HOST || "127.0.0.1";
 // Resolve the repo root from this file so the server works from any cwd.
 const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+// Python created by `bun run setup` (has kokoro-onnx). An explicit CHALKFRAMES_PYTHON wins.
+const VENV_PYTHON = path.join(
+  ROOT_DIR,
+  ".venv",
+  process.platform === "win32" ? "Scripts" : "bin",
+  process.platform === "win32" ? "python.exe" : "python",
+);
+
+// The repo's own CLI build, so a fresh clone works without a global `chalkframes` on PATH.
+const LOCAL_CLI = path.join(ROOT_DIR, "packages", "cli", "bin", "chalkframes.mjs");
+
+// Env for every child process, with the bun bin dir guaranteed present.
+function childEnv() {
+  const env = { ...process.env, PATH: `${bunPath}${path.delimiter}${process.env.PATH}` };
+  if (!env.CHALKFRAMES_PYTHON && fs.existsSync(VENV_PYTHON)) env.CHALKFRAMES_PYTHON = VENV_PYTHON;
+  return env;
+}
+
 const PUBLIC_DIR = path.join(ROOT_DIR, "studio-web", "public");
 const RENDERS_DIR = path.join(ROOT_DIR, "studio-web", "renders");
 const PROJECTS_DIR = path.join(ROOT_DIR, "projects");
@@ -250,6 +282,166 @@ const VOICES = [
     accent: "American",
     desc: "Conversational, clear",
     sample: "/samples/am_michael.wav",
+  },
+  {
+    id: "af_bella",
+    name: "Bella",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_bella.wav",
+  },
+  {
+    id: "af_sarah",
+    name: "Sarah",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_sarah.wav",
+  },
+  {
+    id: "af_sky",
+    name: "Sky",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_sky.wav",
+  },
+  {
+    id: "af_nicole",
+    name: "Nicole",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_nicole.wav",
+  },
+  {
+    id: "af_alloy",
+    name: "Alloy",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_alloy.wav",
+  },
+  {
+    id: "af_aoede",
+    name: "Aoede",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_aoede.wav",
+  },
+  {
+    id: "af_jessica",
+    name: "Jessica",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_jessica.wav",
+  },
+  {
+    id: "af_kore",
+    name: "Kore",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_kore.wav",
+  },
+  {
+    id: "af_river",
+    name: "River",
+    gender: "Female",
+    accent: "American",
+    desc: "American female voice",
+    sample: "/samples/af_river.wav",
+  },
+  {
+    id: "am_echo",
+    name: "Echo",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_echo.wav",
+  },
+  {
+    id: "am_eric",
+    name: "Eric",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_eric.wav",
+  },
+  {
+    id: "am_fenrir",
+    name: "Fenrir",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_fenrir.wav",
+  },
+  {
+    id: "am_liam",
+    name: "Liam",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_liam.wav",
+  },
+  {
+    id: "am_onyx",
+    name: "Onyx",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_onyx.wav",
+  },
+  {
+    id: "am_puck",
+    name: "Puck",
+    gender: "Male",
+    accent: "American",
+    desc: "American male voice",
+    sample: "/samples/am_puck.wav",
+  },
+  {
+    id: "bf_alice",
+    name: "Alice",
+    gender: "Female",
+    accent: "British",
+    desc: "British female voice",
+    sample: "/samples/bf_alice.wav",
+  },
+  {
+    id: "bf_lily",
+    name: "Lily",
+    gender: "Female",
+    accent: "British",
+    desc: "British female voice",
+    sample: "/samples/bf_lily.wav",
+  },
+  {
+    id: "bm_daniel",
+    name: "Daniel",
+    gender: "Male",
+    accent: "British",
+    desc: "British male voice",
+    sample: "/samples/bm_daniel.wav",
+  },
+  {
+    id: "bm_fable",
+    name: "Fable",
+    gender: "Male",
+    accent: "British",
+    desc: "British male voice",
+    sample: "/samples/bm_fable.wav",
+  },
+  {
+    id: "bm_lewis",
+    name: "Lewis",
+    gender: "Male",
+    accent: "British",
+    desc: "British male voice",
+    sample: "/samples/bm_lewis.wav",
   },
 ];
 
@@ -797,31 +989,140 @@ async function fetchSiteSnippet(rawUrl) {
   throw new Error("Website redirected too many times");
 }
 
-function parseStoryboardJson(raw) {
-  if (typeof raw !== "string") throw new Error("Director returned no storyboard");
+const JSON_SIMPLE_ESCAPES = new Set(['"', "\\", "/", "b", "f", "n", "r", "t"]);
+
+/**
+ * String-aware JSON repair for LLM output. Handles smart-quote delimiters, raw control
+ * characters and invalid escapes inside strings, unescaped inner quotes, trailing commas,
+ * trailing prose after the root value, and truncation (closes open strings/brackets).
+ */
+export function repairJsonText(input) {
+  const text = String(input);
+  const out = [];
+  const stack = [];
+  let inString = false;
+  let closer = '"';
+  let i = 0;
+  const nextSignificant = (from) => {
+    let j = from;
+    while (j < text.length && /\s/.test(text[j])) j++;
+    return j < text.length ? text[j] : "";
+  };
+  const trimTail = () => {
+    while (out.length && /\s/.test(out[out.length - 1])) out.pop();
+  };
+  for (; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === "\\") {
+        const nx = text[i + 1];
+        if (nx === undefined) break;
+        if (
+          JSON_SIMPLE_ESCAPES.has(nx) ||
+          (nx === "u" && /^[0-9a-fA-F]{4}$/.test(text.slice(i + 2, i + 6)))
+        ) {
+          out.push(ch, nx);
+        } else {
+          out.push("\\\\", nx === "\n" ? "n" : nx);
+        }
+        i++;
+        continue;
+      }
+      if (ch === closer || (closer === "\u201d" && ch === '"')) {
+        const nx = nextSignificant(i + 1);
+        if (nx === "" || nx === "," || nx === "}" || nx === "]" || nx === ":") {
+          out.push('"');
+          inString = false;
+        } else {
+          out.push('\\"');
+        }
+        continue;
+      }
+      if (ch === "\n") out.push("\\n");
+      else if (ch === "\r") out.push("\\r");
+      else if (ch === "\t") out.push("\\t");
+      else if (ch < " ") out.push(" ");
+      else out.push(ch);
+      continue;
+    }
+    // A new value starting right after a finished sibling means the model forgot a comma.
+    if (ch === "{" || ch === "[" || ch === '"' || ch === "\u201c" || ch === "\u201d") {
+      let p = out.length - 1;
+      while (p >= 0 && /\s/.test(out[p])) p--;
+      const prev = p >= 0 ? out[p] : "";
+      const inArray = stack[stack.length - 1] === "]";
+      if (prev === "}" || prev === "]" || (inArray && prev === '"')) out.push(",");
+    }
+    if (ch === '"' || ch === "\u201c" || ch === "\u201d") {
+      inString = true;
+      closer = ch === '"' ? '"' : "\u201d";
+      out.push('"');
+    } else if (ch === "{" || ch === "[") {
+      stack.push(ch === "{" ? "}" : "]");
+      out.push(ch);
+    } else if (ch === "}" || ch === "]") {
+      trimTail();
+      if (out[out.length - 1] === ",") out.pop();
+      out.push(ch);
+      stack.pop();
+      if (stack.length === 0) return out.join("");
+    } else if (ch === ",") {
+      const nx = nextSignificant(i + 1);
+      if (nx === "}" || nx === "]") continue;
+      out.push(ch);
+    } else {
+      out.push(ch);
+    }
+  }
+  // Truncated: close the open string, drop dangling separators, then close open brackets.
+  if (inString) out.push('"');
+  trimTail();
+  while (out.length && (out[out.length - 1] === "," || out[out.length - 1] === ":")) {
+    const dangling = out.pop();
+    if (dangling === ":") out.push(": null");
+    trimTail();
+    if (dangling === ":") break;
+  }
+  while (stack.length) out.push(stack.pop());
+  return out.join("");
+}
+
+export function parseStoryboardJson(raw) {
+  if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
   let text = raw.trim();
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (match) text = match[1].trim();
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced) text = fenced[1].trim();
+  else text = text.replace(/^```(?:json)?\s*/i, "");
 
   const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start !== -1 && end !== -1 && end > start) {
-    text = text.slice(start, end + 1);
-  }
+  if (start === -1) throw new Error("Director returned invalid JSON: no JSON object found");
+  text = text.slice(start);
 
+  let firstError;
   try {
-    return JSON.parse(text);
+    // Fast path: a clean object, ignoring any trailing prose.
+    const end = text.lastIndexOf("}");
+    return JSON.parse(end > 0 ? text.slice(0, end + 1) : text);
   } catch (err) {
-    // If truncated near end of a long 10-15m generation, attempt auto-closing scenes array
-    const lastSceneMatch = text.lastIndexOf("}");
-    if (lastSceneMatch !== -1) {
-      const candidate = text.slice(0, lastSceneMatch + 1) + "\n]}";
-      try {
-        return JSON.parse(candidate);
-      } catch {}
-    }
-    throw new Error(`Director returned invalid JSON: ${err.message}`);
+    firstError = err;
   }
+  try {
+    return JSON.parse(repairJsonText(text));
+  } catch {}
+
+  // Last resort for token-limit cutoffs: drop the broken tail back to an earlier complete element.
+  let cut = text.length;
+  for (let attempt = 0; attempt < 60; attempt++) {
+    cut = Math.max(text.lastIndexOf("}", cut - 1), text.lastIndexOf("]", cut - 1));
+    if (cut <= 0) break;
+    try {
+      const parsed = JSON.parse(repairJsonText(text.slice(0, cut + 1)));
+      if (parsed && Array.isArray(parsed.scenes) && parsed.scenes.length) return parsed;
+    } catch {}
+  }
+  const error = new Error(`Director returned invalid JSON: ${firstError.message}`);
+  error.rawText = text;
+  throw error;
 }
 
 // OpenRouter Topic Script Synthesizer (Generates structured script for any subject in human knowledge)
@@ -943,6 +1244,7 @@ async function directStoryboard({
   duration,
   format,
   timingStructure: providedTiming,
+  manimEnabled = false,
 }) {
   let context = "";
   if (sourceUrl) {
@@ -982,8 +1284,25 @@ CONSTRAINTS:
 8. WORKFLOW BEATS & SPATIAL RHYTHM: Avoid center-locking every scene. When comparing remote vs local workflows or architectures (like Scene 2), prioritize "terminal-flow" or step pipelines over static side-by-side bullet cards. Alternate between asymmetric split canvases (vector-cluster-graph, terminal-flow), multi-metric grids (bento-metric-grid), and focused editorial layouts.
 9. NEGATIVE CONSTRAINT: Do not wrap every visual concept inside a centered rounded white card.
 Choose from these ${VISUAL_CATALOG.length} available archetypes:
-${formatCatalogForPrompt()}
+${formatCatalogForPrompt({ manim: manimEnabled })}
+${
+  manimEnabled
+    ? `
+ENGINE ROUTING RULE (applies to every scene; set "engine" explicitly on every scene):
+Categorize each scene's narrative purpose, then assign its engine:
+- If a beat explains a continuous function curve, rate of change, geometric transformation, vector field, coordinate projection, or graph traversal, you MUST set "engine": "manim" and choose a "manim-*" archetype.
+- For all technical / scientific / mathematical scripts, allocate 25% to 40% of the middle scenes to "engine": "manim" (about ${Math.max(1, Math.round((sceneCount - 2) * 0.25))} to ${Math.max(1, Math.floor(sceneCount * 0.4))} of the ${Math.max(0, sceneCount - 2)} middle scenes here), never more than 2 in a row.
+- Use "engine": "html-gsap" for hooks, outros, high-level architectures, comparisons, and KPI metrics. The first and last scene are always "html-gsap".
+- Pick the primitive by what the beat shows: a changing curve or area -> "manim-function-plot"; a matrix or basis change, rotation, shear or projection -> "manim-vector-transform"; layers of a network or a graph/tree traversal -> "manim-network-topology".
 
+MANIM MATH-ANIMATION RULES (archetypes whose id starts with "manim-"):
+- The "engine" field of a manim scene is "manim"; every other scene uses "html-gsap".
+- You write DATA, never code. Every manim scene needs: "manimData" (exact fields from its payload hint), "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined), and "fallbackArchetype" (an HTML archetype that conveys the same idea) with "fallbackPayload".
+- Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".
+- Example manim scene: { "id": "scene3-slope", "engine": "manim", "archetype": "manim-function-plot", "theme": "dark", "title": "The slope of a curve", "manimData": { "title": "Slope at a point", "expr": "x^2 - 2*x", "xRange": [-2, 4], "tangentAt": 1.5 }, "beats": ["A curve rises and falls.", "At one point its steepness is the slope.", "That slope is the derivative."], "fallbackArchetype": "bento-metric-grid", "fallbackPayload": { "bentoData": { "metrics": [{ "label": "Slope", "value": 1, "unit": "", "hero": true }] } } }
+`
+    : ""
+}
 TOPIC & DOMAIN ADAPTATION:
 Translate the subject matter into rich visual metaphors across the archetypes:
 - AI / Machine Learning / Data Science / Geometry: "vector-cluster-graph" (ideal dark theme) for embeddings, high-dimensional vector space, clustered embeddings, k-NN traversal, semantic search; "kinetic-impact" for paradigm-shift thesis statements; "stat-spotlight" for a decisive accuracy/latency/recall metric.
@@ -1095,36 +1414,67 @@ Respond ONLY with valid JSON matching this schema:
     );
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${effectiveKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:4000",
-      "X-Title": "Studio One Production Suite",
-    },
-    body: JSON.stringify({
-      model: model || "anthropic/claude-sonnet-5.5",
-      messages: [
-        { role: "system", content: "You are an autonomous JSON-only video design director." },
-        { role: "user", content: prompt },
+  const callDirector = async (messages, maxTokens) => {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${effectiveKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:4000",
+        "X-Title": "Studio One Production Suite",
+      },
+      body: JSON.stringify({
+        model: model || "anthropic/claude-sonnet-5.5",
+        messages,
+        response_format: { type: "json_object" },
+        temperature: messages.length > 2 ? 0 : 0.6,
+        top_p: 0.9,
+        presence_penalty: messages.length > 2 ? 0 : 0.3,
+        max_tokens: maxTokens,
+      }),
+      signal: AbortSignal.timeout(180_000),
+    });
+    if (!response.ok) {
+      throw new Error(`OpenRouter returned HTTP ${response.status}; check the API key and model`);
+    }
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content;
+  };
+
+  // At least 8192 output tokens so long multi-scene storyboards are not cut off mid-array.
+  const maxTokens = Math.min(16000, Math.max(8192, sceneCount * 250));
+  const rawContent = await callDirector(
+    [
+      { role: "system", content: "You are an autonomous JSON-only video design director." },
+      { role: "user", content: prompt },
+    ],
+    maxTokens,
+  );
+  try {
+    return parseStoryboardJson(rawContent);
+  } catch (err) {
+    if (typeof rawContent !== "string" || !rawContent.trim()) throw err;
+    // One-shot self-repair: send the malformed JSON and the parse error back to the model.
+    console.warn(`[DIRECTOR JSON REPAIR] ${err.message}; requesting one repair pass`);
+    const posMatch = /position (\d+)/.exec(err.message);
+    const position = posMatch ? Number(posMatch[1]) : null;
+    const repaired = await callDirector(
+      [
+        {
+          role: "system",
+          content:
+            "You fix malformed JSON. Reply with only the corrected, valid JSON object. No commentary, no code fences. Preserve all content.",
+        },
+        {
+          role: "user",
+          content: `This JSON failed to parse: ${err.message}${position !== null ? ` (error near character ${position})` : ""}.\n\nMalformed JSON:\n${rawContent.slice(0, 60000)}`,
+        },
+        { role: "user", content: "Return the fixed JSON only." },
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.6,
-      top_p: 0.9,
-      presence_penalty: 0.3,
-      max_tokens: Math.min(8000, Math.max(3500, sceneCount * 250)),
-    }),
-    signal: AbortSignal.timeout(180_000),
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenRouter returned HTTP ${response.status}; check the API key and model`);
+      maxTokens,
+    );
+    return parseStoryboardJson(repaired);
   }
-
-  const data = await response.json();
-  const rawContent = data.choices?.[0]?.message?.content;
-  return parseStoryboardJson(rawContent);
 }
 
 // Background Music Suite (5 soothing, high-fidelity instrumental tracks)
@@ -1411,6 +1761,113 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
 
 // Master Production Pipeline
 
+/**
+ * One-scene project index. `chalkframes render -c` cannot render a <template> sub-composition
+ * directly (verified: it waits 45s for a timeline that never registers), so each scene gets
+ * its own tiny project whose index.html mounts that single composition at t=0.
+ */
+function buildSegmentHtml({ scene, durationSec, compWidth, compHeight, activePalette }) {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=${compWidth}, height=${compHeight}" />
+    <title>${scene.id}</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: ${compWidth}px; height: ${compHeight}px; overflow: hidden; background-color: ${activePalette.background}; color: ${activePalette.text}; font-family: "Inter", sans-serif; }
+      #root { position: relative; width: ${compWidth}px; height: ${compHeight}px; background: ${activePalette.background}; overflow: hidden; }
+      .scene { position: absolute; inset: 0; width: ${compWidth}px; height: ${compHeight}px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="${durationSec.toFixed(6)}" data-width="${compWidth}" data-height="${compHeight}">
+      <div id="${scene.id}" class="scene clip" data-composition-id="${scene.id}" data-composition-src="compositions/${scene.id}.html" data-start="0" data-duration="${durationSec.toFixed(6)}" data-track-index="4" data-width="${compWidth}" data-height="${compHeight}"></div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const mainTl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = mainTl;
+    </script>
+  </body>
+</html>`;
+}
+
+/**
+ * Last-resort scene: static title + subtitle, no archetype choreography, nothing that can
+ * throw. Used only when the real composition rendered blank.
+ */
+function buildSafeSceneHtml({
+  scene,
+  durationSec,
+  compWidth,
+  compHeight,
+  isPortrait,
+  activePalette,
+}) {
+  const esc = (v) =>
+    String(v ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const subtitle = esc(String(scene.subtitle || scene.voiceover || "").slice(0, 160));
+  return `<template id="${scene.id}-template">
+  <div data-composition-id="${scene.id}" data-width="${compWidth}" data-height="${compHeight}" data-duration="${durationSec.toFixed(6)}" style="position:absolute;inset:0;width:${compWidth}px;height:${compHeight}px;background:${activePalette.background};color:${activePalette.text};display:flex;flex-direction:column;justify-content:center;align-items:center;padding:96px;text-align:center;font-family:'Inter',sans-serif;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:${isPortrait ? 64 : 84}px;font-weight:700;line-height:1.1;max-width:1400px;">${esc(scene.title)}</h1>
+    <p style="margin-top:32px;font-size:${isPortrait ? 28 : 32}px;line-height:1.5;max-width:1200px;color:${activePalette.textMuted || activePalette.text};">${subtitle}</p>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        window.__timelines = window.__timelines || {};
+        window.__timelines["${scene.id}"] = tl;
+      })();
+    </script>
+  </div>
+</template>`;
+}
+
+/** Render one scene project to an MP4 via the CLI, streaming frame progress to `onProgress`. */
+function renderHtmlSegment({ hfBin, projectPath, outputPath, env, onProgress }) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      hfBin,
+      [
+        "render",
+        projectPath,
+        "--experimental-fast-capture",
+        "--fps",
+        String(FPS),
+        "--quiet",
+        "-o",
+        outputPath,
+      ],
+      { env, stdio: ["ignore", "pipe", "pipe"] },
+    );
+    let errTail = "";
+    child.stdout.on("data", (data) => {
+      const match = data.toString().match(/(\d+)%\s+(?:Streaming|Capturing)\s+frame\s+(\d+\/\d+)/i);
+      if (match) onProgress?.(match[1], match[2]);
+    });
+    // Drain stderr so the child can never block on a full pipe buffer.
+    child.stderr.on("data", (data) => {
+      errTail = (errTail + data.toString()).slice(-1500);
+    });
+    child.on("error", (err) => reject(new Error(`Render failed to start: ${err.message}`)));
+    child.on("close", (code) => {
+      if (code === 0 && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) resolve();
+      else {
+        const detail = errTail.trim().split("\n").slice(-3).join(" ");
+        reject(new Error(`Render failed (exit ${code})${detail ? `: ${detail}` : ""}`));
+      }
+    });
+  });
+}
+
 async function runProductionPipeline(jobId, payload) {
   const {
     apiKey,
@@ -1517,6 +1974,9 @@ async function runProductionPipeline(jobId, payload) {
       message: `Directing scene choreography using ${model}`,
     });
     const timingStructure = getSceneTimingStructure(duration);
+    // Probed once per process; when false, Manim is never offered to the director and any
+    // Manim scene that slips through is degraded to its HTML fallback by validateStoryboard.
+    const manimCapability = await checkManimCapability();
     const rawStoryboard = await directStoryboard({
       apiKey,
       model,
@@ -1527,6 +1987,7 @@ async function runProductionPipeline(jobId, payload) {
       duration,
       format,
       timingStructure,
+      manimEnabled: manimCapability.ok,
     });
     // Dual archetype audit: RAW (director output) vs NORMALIZED (post quality.mjs).
     // The delta between these two lines reveals whether validateStoryboard /
@@ -1538,11 +1999,36 @@ async function runProductionPipeline(jobId, payload) {
         (s, idx) => `[Scene ${idx + 1}] ${s?.archetype} (${s?.title || s?.id})`,
       ),
     );
-    const storyboard = validateStoryboard(rawStoryboard, timingStructure);
+    // What the director itself asked for, before any validation decides otherwise.
+    console.log(
+      "[DIRECTOR ENGINE ASSIGNMENT]",
+      (Array.isArray(rawStoryboard?.scenes) ? rawStoryboard.scenes : []).map(
+        (s, idx) =>
+          `[Scene ${idx + 1}] engine=${s?.engine || "(unset)"} archetype=${s?.archetype || "(unset)"}`,
+      ),
+    );
+    const storyboard = validateStoryboard(rawStoryboard, timingStructure, {
+      manimEnabled: manimCapability.ok,
+    });
+    for (const [idx, s] of storyboard.scenes.entries()) {
+      if (s.degraded) {
+        console.warn(
+          `[DEGRADE REASON: Scene ${idx + 1}: ${s.degradeReason || "unspecified"}] ${s.degradedFrom} -> ${s.archetype}`,
+        );
+      }
+    }
+    if (!manimCapability.ok) {
+      console.warn(
+        `[DEGRADE REASON: Manim unavailable: ${manimCapability.reasons.join("; ") || "unknown"}]`,
+      );
+    }
     console.log("--- STORYBOARD ARCHETYPE AUDIT (POST-VALIDATION) ---");
     console.log(
       "Chosen Archetypes:",
-      storyboard.scenes.map((s, idx) => `[Scene ${idx + 1}] ${s.archetype} (${s.title || s.id})`),
+      storyboard.scenes.map(
+        (s, idx) =>
+          `[Scene ${idx + 1}] ${s.archetype} [${s.engine}${s.degraded ? ", degraded" : ""}] (${s.title || s.id})`,
+      ),
     );
     console.log("---------------------------------------------------");
     broadcastEvent(jobId, {
@@ -1558,18 +2044,8 @@ async function runProductionPipeline(jobId, payload) {
       message: `Synthesizing narration via Kokoro (${voice})`,
     });
 
-    // Copy sound effects (best effort — the source lives in the CLI build output).
-    const sfxSourceDir = path.join(
-      ROOT_DIR,
-      "packages",
-      "cli",
-      "dist",
-      "skills",
-      "media-use",
-      "audio",
-      "assets",
-      "sfx",
-    );
+    // Copy sound effects from the studio's own bundled library.
+    const sfxSourceDir = path.join(PUBLIC_DIR, "sfx");
     if (fs.existsSync(sfxSourceDir)) {
       for (const file of fs.readdirSync(sfxSourceDir)) {
         if (!file.endsWith(".mp3")) continue;
@@ -1582,8 +2058,12 @@ async function runProductionPipeline(jobId, payload) {
     }
 
     const hfBin =
+      (fs.existsSync(LOCAL_CLI) &&
+      fs.existsSync(path.join(ROOT_DIR, "packages", "cli", "dist", "cli.js"))
+        ? LOCAL_CLI
+        : null) ||
       resolveBin("chalkframes") ||
-      requireBin("chalkframes", "run `bun run build`");
+      requireBin("chalkframes", "run `bun run setup`");
     const procEnv = childEnv();
 
     const voDurations = new Array(storyboard.scenes.length).fill(4.0);
@@ -1629,20 +2109,92 @@ async function runProductionPipeline(jobId, payload) {
     }
     await Promise.all(activePool);
 
-    // Dynamic scene duration calculation based on voiceover length and chapter target
-    const sceneStartTimes = [];
-    const sceneDurations = [];
-    let accumulatedTime = 0;
+    // Integer-frame scene timing: every scene is a whole number of 30fps frames, so
+    // per-scene video segments and the padded master audio line up with zero drift.
+    // scene.totalFrames = ceil((voice + 1.2s) * fps), but never shorter than the chapter target.
+    const sceneFrames = storyboard.scenes.map((scene, i) => {
+      const frames = computeSceneFrames({
+        voDuration: voDurations[i],
+        targetSec: timingStructure[i]?.duration || 8.0,
+        padding: 1.2,
+        fps: FPS,
+      });
+      scene.totalFrames = frames;
+      scene.duration = frames / FPS;
+      return frames;
+    });
+    const frameTimeline = buildFrameTimeline(sceneFrames, FPS);
+    const sceneStartTimes = frameTimeline.starts;
+    const sceneDurations = sceneFrames.map((frames) => frames / FPS);
+    const totalCalculatedDuration = frameTimeline.totalSeconds;
 
-    for (let i = 0; i < storyboard.scenes.length; i++) {
-      sceneStartTimes.push(accumulatedTime);
-      const targetSec = timingStructure[i]?.duration || 8.0;
-      const sceneDur = Math.max(voDurations[i] + 1.2, targetSec);
-      sceneDurations.push(sceneDur);
-      accumulatedTime += sceneDur;
+    // Manim stage: render each Manim scene to a normalized clip. Any failure swaps the
+    // scene to its prebuilt HTML twin, so a Manim problem can never fail the job.
+    const segDir = path.join(projectDir, "seg");
+    fs.mkdirSync(segDir, { recursive: true });
+    const segmentPaths = new Array(storyboard.scenes.length).fill(null);
+    const segName = (i) => String(i + 1).padStart(2, "0");
+    const manimIndexes = storyboard.scenes.flatMap((s, i) => (s.engine === "manim" ? [i] : []));
+    for (const [n, i] of manimIndexes.entries()) {
+      const scene = storyboard.scenes[i];
+      broadcastEvent(jobId, {
+        node: "audio",
+        status: "active",
+        message: `Rendering Manim animation ${n + 1}/${manimIndexes.length}: "${scene.title}"`,
+      });
+      const sceneWork = path.join(segDir, `manim_${segName(i)}`);
+      const rawPath = path.join(sceneWork, "raw.mp4");
+      const outPath = path.join(segDir, `scene_${segName(i)}.mp4`);
+      try {
+        const plan = {
+          primitive: scene.archetype,
+          brief: scene.manimData,
+          // Manim rejects CSS rgba()/8-digit hex: flatten to solid #rrggbb before serializing.
+          palette: sanitizePalette(resolveScenePalette(scene, activePalette)),
+          fonts: manimCapability.fonts,
+          totalFrames: scene.totalFrames,
+          beatFrames: beatFrames(scene.beats, scene.totalFrames),
+          width: compWidth,
+          height: compHeight,
+          fps: FPS,
+          outputPath: rawPath,
+          mediaDir: path.join(sceneWork, "media"),
+        };
+        await runManimScene({
+          plan,
+          workDir: sceneWork,
+          python: manimCapability.python,
+          timeoutMs: Number(process.env.MANIM_TIMEOUT_MS) || undefined,
+        });
+        await normalizeManimClip({
+          inputPath: rawPath,
+          outputPath: outPath,
+          totalFrames: scene.totalFrames,
+          width: compWidth,
+          height: compHeight,
+          label: `Scene ${i + 1} (${scene.archetype})`,
+        });
+        segmentPaths[i] = outPath;
+        fs.rmSync(sceneWork, { recursive: true, force: true });
+      } catch (manimErr) {
+        console.warn(
+          `[DEGRADE REASON: Scene ${i + 1}: ${manimErr.kind || "error"}: ${manimErr.message}]`,
+        );
+        storyboard.scenes[i] = degradeScene(scene, manimErr.message);
+        fs.rmSync(sceneWork, { recursive: true, force: true });
+        broadcastEvent(jobId, {
+          node: "audio",
+          status: "active",
+          message: `Manim unavailable for "${scene.title}", using ${storyboard.scenes[i].archetype}`,
+        });
+      }
     }
-
-    const totalCalculatedDuration = accumulatedTime;
+    console.log(
+      "--- ENGINE ROUTING ---",
+      storyboard.scenes.map(
+        (s, i) => `[${i + 1}] ${s.archetype}:${s.engine}${s.degraded ? "(degraded)" : ""}`,
+      ),
+    );
 
     // Generate Soundtrack
     broadcastEvent(jobId, {
@@ -1670,9 +2222,10 @@ async function runProductionPipeline(jobId, payload) {
       message: `Authoring ${isPortrait ? "portrait" : "landscape"} motion layouts`,
     });
 
-    // Generate Scene HTML files (Archetype-Driven)
+    // Generate Scene HTML files (Archetype-Driven). Manim scenes already have a clip.
     for (let i = 0; i < storyboard.scenes.length; i++) {
       const scene = storyboard.scenes[i];
+      if (scene.engine === "manim") continue;
       const sDur = sceneDurations[i];
 
       const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
@@ -1704,8 +2257,17 @@ async function runProductionPipeline(jobId, payload) {
         const tl = gsap.timeline({ paused: true });
         const scope = document.querySelector('[data-composition-id="${scene.id}"]');
         if (!scope) return;
+        // Server-side scene length, exposed to archetype choreography (a bare sDur used
+        // to be a ReferenceError that aborted the script before the timeline registered).
+        const sDur = ${sDur};
         ${i > 0 ? (isPortrait ? `tl.from(scope, { y: 160, opacity: 0, duration: 0.5, ease: "power4.out" }, 0);` : `tl.from(scope, { x: 220, opacity: 0, duration: 0.5, ease: "power4.out" }, 0);`) : `tl.from(scope, { opacity: 0, duration: 0.4 }, 0);`}
+        // Archetype choreography is isolated: if one tween throws (null selector, bad
+        // value) the entrance/exit timeline below still registers and the scene stays visible.
+        try {
         ${gsapChoreography}
+        } catch (choreographyError) {
+          console.warn("[Chalk Frames] choreography error in ${scene.id}:", choreographyError);
+        }
         ${i < storyboard.scenes.length - 1 ? (isPortrait ? `tl.to(scope, { y: -160, opacity: 0, duration: 0.45, ease: "power4.in" }, ${sDur - 0.45});` : `tl.to(scope, { x: -220, opacity: 0, duration: 0.45, ease: "power4.in" }, ${sDur - 0.45});`) : ``}
         window.__timelines = window.__timelines || {};
         window.__timelines["${scene.id}"] = tl;
@@ -1725,11 +2287,14 @@ async function runProductionPipeline(jobId, payload) {
       )
       .join("\n      ");
 
+    // The master index is the editable project view; Manim scenes are pre-rendered clips
+    // and have no composition file, so they are not mounted here.
     const sceneDivsHtml = storyboard.scenes
-      .map(
-        (s, idx) =>
-          `<div id="${s.id}" class="scene clip" data-composition-id="${s.id}" data-composition-src="compositions/${s.id}.html" data-start="${sceneStartTimes[idx].toFixed(2)}" data-duration="${sceneDurations[idx].toFixed(2)}" data-track-index="${idx % 2 === 0 ? 4 : 5}" data-width="${compWidth}" data-height="${compHeight}"></div>`,
-      )
+      .filter((s) => s.engine !== "manim")
+      .map((s) => {
+        const idx = storyboard.scenes.indexOf(s);
+        return `<div id="${s.id}" class="scene clip" data-composition-id="${s.id}" data-composition-src="compositions/${s.id}.html" data-start="${sceneStartTimes[idx].toFixed(2)}" data-duration="${sceneDurations[idx].toFixed(2)}" data-track-index="${idx % 2 === 0 ? 4 : 5}" data-width="${compWidth}" data-height="${compHeight}"></div>`;
+      })
       .join("\n      ");
 
     // Dynamic non-overlapping whooshes on track 2 for scene seams
@@ -1817,78 +2382,136 @@ async function runProductionPipeline(jobId, payload) {
       message: `Rendering ${isPortrait ? "portrait" : "landscape"} frames via hardware GPU accelerated capture`,
     });
 
-    // Spawned with --experimental-fast-capture (Chrome drawElementImage GPU path, ~2x faster).
-    // stdin is closed so the CLI never waits on interactive prompts.
-    const renderChild = spawn(
-      hfBin,
-      ["render", projectDir, "--experimental-fast-capture", "-o", outputMp4Path],
-      {
-        env: procEnv,
-        stdio: ["ignore", "pipe", "pipe"],
-      },
-    );
-
-    let renderErrTail = "";
-    renderChild.stdout.on("data", (data) => {
-      const line = data.toString();
-      const match = line.match(/(\d+)%\s+(?:Streaming|Capturing)\s+frame\s+(\d+\/\d+)/i);
-      if (match) {
-        broadcastEvent(jobId, {
-          node: "render",
-          status: "active",
-          message: `Streaming frame ${match[2]} (${match[1]}%)`,
+    // Chunked render: one bounded Chrome session per HTML scene (memory stays flat for
+    // 10-minute videos), Manim scenes already have clips, then a lossless stitch.
+    // Scenes render sequentially so Chrome and Manim never fight for CPU.
+    const htmlIndexes = storyboard.scenes.flatMap((s, i) => (s.engine === "manim" ? [] : [i]));
+    for (const [n, i] of htmlIndexes.entries()) {
+      const scene = storyboard.scenes[i];
+      const sceneProject = path.join(segDir, `html_${segName(i)}`);
+      const rawPath = path.join(sceneProject, "raw.mp4");
+      const outPath = path.join(segDir, `scene_${segName(i)}.mp4`);
+      fs.mkdirSync(path.join(sceneProject, "compositions"), { recursive: true });
+      fs.copyFileSync(
+        path.join(compDir, `${scene.id}.html`),
+        path.join(sceneProject, "compositions", `${scene.id}.html`),
+      );
+      fs.writeFileSync(
+        path.join(sceneProject, "index.html"),
+        buildSegmentHtml({
+          scene,
+          durationSec: sceneDurations[i],
+          compWidth,
+          compHeight,
+          activePalette,
+        }),
+      );
+      const renderAndNormalize = async () => {
+        await renderHtmlSegment({
+          hfBin,
+          projectPath: sceneProject,
+          outputPath: rawPath,
+          env: procEnv,
+          onProgress: (pct, frame) =>
+            broadcastEvent(jobId, {
+              node: "render",
+              status: "active",
+              message: `Scene ${n + 1}/${htmlIndexes.length} · frame ${frame} (${pct}%)`,
+            }),
         });
-      } else if (line.includes("Encoding video")) {
-        broadcastEvent(jobId, {
-          node: "render",
-          status: "active",
-          message: "Encoding video stream (H.264 / AAC)",
+        await normalizeSegment({
+          inputPath: rawPath,
+          outputPath: outPath,
+          totalFrames: scene.totalFrames,
+          width: compWidth,
+          height: compHeight,
         });
-      } else if (line.includes("Assembling final video")) {
-        broadcastEvent(jobId, {
-          node: "render",
-          status: "active",
-          message: "Mastering audio & muxing container",
-        });
+        await assertNotBlank(outPath, `Scene ${i + 1} (${scene.archetype})`);
+      };
+      try {
+        await renderAndNormalize();
+      } catch (renderErr) {
+        if (renderErr.kind !== "blank") throw renderErr;
+        // Blank footage must never reach the stitch: retry once with a minimal static
+        // composition. If that is blank too, the error below fails the job loudly.
+        console.warn(`[Scene ${i + 1}] blank render; retrying with safe template`);
+        fs.writeFileSync(
+          path.join(sceneProject, "compositions", `${scene.id}.html`),
+          buildSafeSceneHtml({
+            scene,
+            durationSec: sceneDurations[i],
+            compWidth,
+            compHeight,
+            isPortrait,
+            activePalette,
+          }),
+        );
+        await renderAndNormalize();
       }
+      segmentPaths[i] = outPath;
+      fs.rmSync(sceneProject, { recursive: true, force: true });
+    }
+
+    broadcastEvent(jobId, {
+      node: "render",
+      status: "active",
+      message: "Stitching scenes and mastering audio",
+    });
+    const stitchedVideoPath = path.join(segDir, "video.mp4");
+    const masterAudioPath = path.join(segDir, "master-vo.wav");
+    await concatenateSegments({ segmentPaths, outputVideoPath: stitchedVideoPath });
+    await assembleMasterAudio({
+      sceneWavPaths: storyboard.scenes.map((_, i) => path.join(assetsDir, `vo-scene${i + 1}.wav`)),
+      expectedDurations: sceneDurations,
+      outputWavPath: masterAudioPath,
+      leadIn: 0.3,
+    });
+    // Same cues the single-pass master used: typing at open, whooshes on seams, chimes.
+    const sfxCues = [{ path: path.join(sfxDir, "typing.mp3"), start: 0.1, volume: 0.35 }];
+    for (let sIdx = 0; sIdx < storyboard.scenes.length - 1; sIdx++) {
+      sfxCues.push({
+        path: path.join(sfxDir, "whoosh.mp3"),
+        start: Math.max(1.8, sceneStartTimes[sIdx + 1] - 0.3),
+        volume: 0.4,
+      });
+    }
+    if (storyboard.scenes.length > 1) {
+      sfxCues.push({
+        path: path.join(sfxDir, "chime.mp3"),
+        start: sceneStartTimes[1] + 0.2,
+        volume: 0.4,
+      });
+    }
+    if (storyboard.scenes.length >= 4) {
+      sfxCues.push({
+        path: path.join(sfxDir, "chime.mp3"),
+        start: sceneStartTimes[storyboard.scenes.length - 1] + 0.2,
+        volume: 0.4,
+      });
+    }
+    await muxMasterVideo({
+      videoPath: stitchedVideoPath,
+      audioPath: masterAudioPath,
+      bgmPath: musicEngine !== "none" ? bgmPath : null,
+      bgmVolume: 0.3,
+      sfx: sfxCues,
+      outputPath: outputMp4Path,
     });
 
-    // Drain stderr so the child can never block on a full pipe buffer.
-    renderChild.stderr.on("data", (data) => {
-      renderErrTail = (renderErrTail + data.toString()).slice(-1500);
-    });
-
-    // Keep the job slot until encoding actually finishes, not merely until the
-    // render process is launched. A failed job discards its incomplete files.
-    await new Promise((resolve) => {
-      let spawnError;
-      renderChild.on("error", (err) => {
-        spawnError = err;
+    if (fs.existsSync(outputMp4Path) && fs.statSync(outputMp4Path).size > 0) {
+      completed = true;
+      fs.rmSync(segDir, { recursive: true, force: true });
+      broadcastEvent(jobId, {
+        node: "complete",
+        status: "complete",
+        message: "Production complete",
+        videoUrl: `/renders/${outputMp4Name}`,
+        duration: `${totalCalculatedDuration.toFixed(1)}s`,
+        resolution: `${compWidth}x${compHeight}`,
       });
-      renderChild.on("close", (code) => {
-        if (code === 0 && fs.existsSync(outputMp4Path) && fs.statSync(outputMp4Path).size > 0) {
-          completed = true;
-          broadcastEvent(jobId, {
-            node: "complete",
-            status: "complete",
-            message: "Production complete",
-            videoUrl: `/renders/${outputMp4Name}`,
-            duration: `${totalCalculatedDuration.toFixed(1)}s`,
-            resolution: `${compWidth}x${compHeight}`,
-          });
-        } else {
-          const detail = renderErrTail.trim();
-          broadcastEvent(jobId, {
-            node: "render",
-            status: "error",
-            message: spawnError
-              ? `Render failed to start: ${spawnError.message}`
-              : `Render failed (exit ${code})${detail ? `: ${detail.split("\n").slice(-3).join(" ")}` : ""}`,
-          });
-        }
-        resolve();
-      });
-    });
+    } else {
+      throw new Error("Render failed: final video was not produced");
+    }
   } catch (err) {
     console.error("Pipeline failure:", err);
     // Broadcast the real error message so the UI shows the actual cause
@@ -1975,7 +2598,6 @@ const server = http.createServer((req, res) => {
     res.end(
       JSON.stringify({
         hasServerKey: Boolean(process.env.OPENROUTER_API_KEY),
-        hasTavilyKey: Boolean(process.env.TAVILY_API_KEY || process.env.TAVILY_API_KEY2),
         models: MODELS,
         voices: VOICES,
         palettes: PALETTES,

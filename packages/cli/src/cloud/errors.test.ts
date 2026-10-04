@@ -8,7 +8,7 @@ vi.mock("../ui/format.js", async (importOriginal) => ({
 }));
 
 import { errorBox } from "../ui/format.js";
-import { HyperframesApiError } from "./_gen/client.js";
+import { ChalkframesApiError } from "./_gen/client.js";
 import { reportApiError } from "./errors.js";
 import { CliRuntimeError } from "../utils/commandResult.js";
 
@@ -18,7 +18,7 @@ describe("cloud/errors reportApiError", () => {
   });
 
   it("short-circuits a 404 to a Not found box when notFound is provided", () => {
-    const err = new HyperframesApiError({ status: 404, message: "missing" });
+    const err = new ChalkframesApiError({ status: 404, message: "missing" });
     expect(() =>
       reportApiError("Get failed", err, { notFound: "render hfr_x no longer exists" }),
     ).toThrow(CliRuntimeError);
@@ -26,7 +26,7 @@ describe("cloud/errors reportApiError", () => {
   });
 
   it("uses the code-specific hint when the error code is known", () => {
-    const err = new HyperframesApiError({
+    const err = new ChalkframesApiError({
       status: 429,
       message: "slow down",
       code: "rate_limit_exceeded",
@@ -39,22 +39,22 @@ describe("cloud/errors reportApiError", () => {
     );
   });
 
-  it("points oversized projects to dry-run and .hyperframesignore", () => {
-    const err = new HyperframesApiError({
+  it("points oversized projects to dry-run and .chalkframesignore", () => {
+    const err = new ChalkframesApiError({
       status: 413,
       message: "project too large",
-      code: "hyperframes_project_too_large",
+      code: "chalkframes_project_too_large",
     });
     expect(() => reportApiError("Upload failed", err)).toThrow(CliRuntimeError);
     expect(errorBox).toHaveBeenCalledWith(
       "Upload failed (HTTP 413)",
       "project too large",
-      "The zip exceeded the 200 MB limit. Run `hyperframes cloud render --dry-run`, then add only verified-unneeded paths to `.hyperframesignore` or pre-host required large media.",
+      "The zip exceeded the 200 MB limit. Run `chalkframes cloud render --dry-run`, then add only verified-unneeded paths to `.chalkframesignore` or pre-host required large media.",
     );
   });
 
   it("prefers the code-specific hint over a caller suggestion", () => {
-    const err = new HyperframesApiError({
+    const err = new ChalkframesApiError({
       status: 400,
       message: "bad param",
       code: "invalid_parameter",
@@ -65,12 +65,12 @@ describe("cloud/errors reportApiError", () => {
     expect(errorBox).toHaveBeenCalledWith(
       "Submit failed (HTTP 400)",
       "bad param",
-      "Check the listed parameter against `hyperframes cloud render --help` for the accepted values.",
+      "Check the listed parameter against `chalkframes cloud render --help` for the accepted values.",
     );
   });
 
   it("falls back to the caller suggestion when the code has no hint", () => {
-    const err = new HyperframesApiError({
+    const err = new ChalkframesApiError({
       status: 500,
       message: "boom",
       code: "some_unmapped_code",
@@ -82,7 +82,7 @@ describe("cloud/errors reportApiError", () => {
   });
 
   it("falls back to a bare code label when there is no hint and no suggestion", () => {
-    const err = new HyperframesApiError({
+    const err = new ChalkframesApiError({
       status: 500,
       message: "boom",
       code: "some_unmapped_code",
@@ -96,13 +96,13 @@ describe("cloud/errors reportApiError", () => {
   });
 
   it("omits the third line when there is no code, hint, or suggestion", () => {
-    const err = new HyperframesApiError({ status: 503, message: "unavailable" });
+    const err = new ChalkframesApiError({ status: 503, message: "unavailable" });
     expect(() => reportApiError("Get failed", err)).toThrow(CliRuntimeError);
     expect(errorBox).toHaveBeenCalledWith("Get failed (HTTP 503)", "unavailable");
   });
 
   it("merges extraHints on top of the built-in table", () => {
-    const err = new HyperframesApiError({ status: 418, message: "teapot", code: "custom_code" });
+    const err = new ChalkframesApiError({ status: 418, message: "teapot", code: "custom_code" });
     expect(() =>
       reportApiError("Brew failed", err, { extraHints: { custom_code: "use coffee instead" } }),
     ).toThrow(CliRuntimeError);
@@ -110,7 +110,7 @@ describe("cloud/errors reportApiError", () => {
   });
 
   it("lets an extraHints entry override a built-in hint", () => {
-    const err = new HyperframesApiError({
+    const err = new ChalkframesApiError({
       status: 429,
       message: "slow down",
       code: "rate_limit_exceeded",

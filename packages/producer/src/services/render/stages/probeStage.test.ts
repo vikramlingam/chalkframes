@@ -98,7 +98,7 @@ mock.module("../../assetMediaType.js", () => ({
   },
 }));
 
-mock.module("@hyperframes/engine", () => ({
+mock.module("@chalkframes/engine", () => ({
   createCaptureSession: async (
     _url: string,
     _dir: string,

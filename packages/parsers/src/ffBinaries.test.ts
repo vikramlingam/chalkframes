@@ -12,7 +12,7 @@ async function importFresh(): Promise<FfBinariesModule> {
 }
 
 describe("findFfBinary", () => {
-  const originalFfmpegPath = process.env.HYPERFRAMES_FFMPEG_PATH;
+  const originalFfmpegPath = process.env.CHALKFRAMES_FFMPEG_PATH;
   const originalPath = process.env.PATH;
   const originalPlatform = process.platform;
 
@@ -21,15 +21,15 @@ describe("findFfBinary", () => {
     vi.resetModules();
     vi.doUnmock("node:child_process");
     vi.doUnmock("node:fs");
-    if (originalFfmpegPath === undefined) delete process.env.HYPERFRAMES_FFMPEG_PATH;
-    else process.env.HYPERFRAMES_FFMPEG_PATH = originalFfmpegPath;
+    if (originalFfmpegPath === undefined) delete process.env.CHALKFRAMES_FFMPEG_PATH;
+    else process.env.CHALKFRAMES_FFMPEG_PATH = originalFfmpegPath;
     if (originalPath === undefined) delete process.env.PATH;
     else process.env.PATH = originalPath;
     Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
   });
 
   it("returns the resolved env override without touching the system", async () => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = "/tools/ffmpeg";
+    process.env.CHALKFRAMES_FFMPEG_PATH = "/tools/ffmpeg";
     vi.resetModules();
     const { findFfBinary } = await importFresh();
 
@@ -37,7 +37,7 @@ describe("findFfBinary", () => {
   });
 
   it("treats a missing env override as not-found when configuredMustExist is set", async () => {
-    process.env.HYPERFRAMES_FFMPEG_PATH = join(tmpdir(), "definitely-missing-ffmpeg");
+    process.env.CHALKFRAMES_FFMPEG_PATH = join(tmpdir(), "definitely-missing-ffmpeg");
     vi.resetModules();
     const { findFfBinary } = await importFresh();
 
@@ -46,7 +46,7 @@ describe("findFfBinary", () => {
   });
 
   it("prefers the real Windows exe over a cmd shim in PATH", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
     Object.defineProperty(process, "platform", { value: "win32", configurable: true });
     process.env.PATH = "/tools";
     vi.resetModules();
@@ -64,7 +64,7 @@ describe("findFfBinary", () => {
   });
 
   it("discovers a Windows binary in a Unicode current directory without decoding console output", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
     Object.defineProperty(process, "platform", { value: "win32", configurable: true });
     process.env.PATH = "";
     const unicodeDirectory = "/用户/工具";
@@ -91,8 +91,8 @@ describe("findFfBinary", () => {
   });
 
   it("falls back to scanning PATH when which/where fails", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
-    const binDir = mkdtempSync(join(tmpdir(), "hyperframes-ffbinaries-"));
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
+    const binDir = mkdtempSync(join(tmpdir(), "chalkframes-ffbinaries-"));
     const ffmpegPath = join(binDir, process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg");
     writeFileSync(ffmpegPath, "#!/bin/sh\n");
     chmodSync(ffmpegPath, 0o755);
@@ -114,7 +114,7 @@ describe("findFfBinary", () => {
   });
 
   it("falls back to a common install dir when which and the PATH scan both fail", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
     Object.defineProperty(process, "platform", { value: "linux", configurable: true });
     process.env.PATH = "";
     vi.resetModules();
@@ -141,11 +141,11 @@ describe("findFfBinary", () => {
     expect(findFfBinary("ffmpeg")).toBe(resolve("/opt/homebrew/bin/ffmpeg"));
   });
 
-  it("falls back to the project-local .hyperframes bin", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
+  it("falls back to the project-local .chalkframes bin", async () => {
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
     process.env.PATH = "";
     const projectBinary = resolve(
-      ".hyperframes",
+      ".chalkframes",
       "bin",
       process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg",
     );
@@ -174,7 +174,7 @@ describe("findFfBinary", () => {
   });
 
   it("returns undefined when the binary is nowhere, and caches the miss until cleared", async () => {
-    delete process.env.HYPERFRAMES_FFMPEG_PATH;
+    delete process.env.CHALKFRAMES_FFMPEG_PATH;
     Object.defineProperty(process, "platform", { value: "linux", configurable: true });
     process.env.PATH = "";
     const execFileSync = vi.fn(() => {

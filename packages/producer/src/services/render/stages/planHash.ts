@@ -41,7 +41,7 @@ import type { DistributedFormat } from "../../distributed/shared.js";
  * producer is forced to mismatch and re-plan. This is impossible to
  * backfill, so a deliberate bump is the only correct action.
  */
-const PLAN_HASH_SCHEMA_PREFIX = "hyperframes-plan-hash-v1\x00";
+const PLAN_HASH_SCHEMA_PREFIX = "chalkframes-plan-hash-v1\x00";
 
 /**
  * 0x00 byte used to frame each `hash.update()` call. Hoisted to module
@@ -84,7 +84,7 @@ export interface PlanHashInput {
   fontSnapshotSha: string;
   /** Canonical-JSON serialization of `meta/encoder.json` (LockedRenderConfig). */
   encoderConfigCanonicalJson: string;
-  /** `@hyperframes/producer` package version that produced the plan. */
+  /** `@chalkframes/producer` package version that produced the plan. */
   producerVersion: string;
   /** ffmpeg `--version` line (e.g. "ffmpeg version 6.1.1"). */
   ffmpegVersion: string;

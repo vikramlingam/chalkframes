@@ -5,13 +5,13 @@ import { join } from "node:path";
 import { ffprobeBinary } from "./ff-binaries.mjs";
 import { resolveSpawnCommand } from "../../audio/scripts/lib/tts.mjs";
 
-// Local voiceover via the packaged Kokoro-82M TTS (the `hyperframes tts` CLI),
-// the free/private default now that HeyGen TTS costs wallet credits. Kokoro runs
+// Local voiceover via the packaged Kokoro-82M TTS (the `chalkframes tts` CLI),
+// the free/private default now that Chalkframes TTS costs wallet credits. Kokoro runs
 // on-device (CPU, faster-than-realtime, bundled voices, native word timestamps),
 // so no key and no per-call charge. When Kokoro is not set up, this returns null
-// and the registry falls through to the HeyGen TTS upsell.
+// and the registry falls through to the Chalkframes TTS upsell.
 //
-// Delegated to the hyperframes CLI (same as transcribe / remove-background), not
+// Delegated to the chalkframes CLI (same as transcribe / remove-background), not
 // re-implemented here. ffprobe reads the duration back for the ledger.
 
 function probeDurationSeconds(ffprobe, file) {
@@ -42,7 +42,7 @@ export async function localTtsGenerate(
 ) {
   const ffprobe = ffprobeBinary();
   const outPath = join(tmpdir(), `media-use-kokoro-${process.pid}-${Date.now()}.wav`);
-  const argv = ["hyperframes", "tts", intent, "--output", outPath];
+  const argv = ["chalkframes", "tts", intent, "--output", outPath];
   if (ctx?.voice) argv.push("--voice", ctx.voice);
   if (ctx?.lang && ctx.lang !== "en") argv.push("--lang", ctx.lang);
   // On Windows a bare "npx" is npx.cmd, which execFileSync cannot exec
@@ -68,13 +68,13 @@ export async function localTtsGenerate(
   try {
     execFn(resolved.cmd, resolved.args, resolved.opts);
   } catch (err) {
-    // `hyperframes tts` prints its "kokoro-onnx not installed" hint to stdout
+    // `chalkframes tts` prints its "kokoro-onnx not installed" hint to stdout
     // (clack UI), so read both streams and surface the actionable enable-command
     // rather than a bare "Command failed": otherwise resolve silently falls
-    // through to the PAID HeyGen TTS upsell when free local voice was one pip away.
+    // through to the PAID Chalkframes TTS upsell when free local voice was one pip away.
     const out = `${err.stdout?.toString() ?? ""}${err.stderr?.toString() ?? ""}`.trim();
     const hint = /not installed|pip install kokoro/i.test(out)
-      ? "install for free on-device voice: pip install kokoro-onnx soundfile (or set HYPERFRAMES_PYTHON to a venv that has it)"
+      ? "install for free on-device voice: pip install kokoro-onnx soundfile (or set CHALKFRAMES_PYTHON to a venv that has it)"
       : out.slice(-200) || err.message;
     console.error(`media-use: local voice not enabled (kokoro). ${hint}`);
     return null;

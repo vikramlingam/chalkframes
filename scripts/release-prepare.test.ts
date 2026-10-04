@@ -54,7 +54,7 @@ describe("release prepare actions", () => {
     assert.equal(
       resolveStableReleaseAction({
         missingArtifacts: [],
-        unreviewedArtifacts: ["docs/changelog.mdx#HyperFrames v1.2.3"],
+        unreviewedArtifacts: ["docs/changelog.mdx#ChalkFrames v1.2.3"],
       }),
       "review",
     );
@@ -123,16 +123,16 @@ describe("reviewed changelog detection", () => {
 
   it("checks only the matching docs changelog entry", () => {
     const docs = `
-<Update label="HyperFrames v1.2.4">
+<Update label="ChalkFrames v1.2.4">
 Reviewed summary.
 </Update>
 
-<Update label="HyperFrames v1.2.3">
+<Update label="ChalkFrames v1.2.3">
 ${CHANGELOG_REVIEW_TODO}
 </Update>
 `;
 
-    assert.equal(docsChangelogEntryHasGeneratedTodo(docs, "HyperFrames v1.2.3"), true);
-    assert.equal(docsChangelogEntryHasGeneratedTodo(docs, "HyperFrames v1.2.4"), false);
+    assert.equal(docsChangelogEntryHasGeneratedTodo(docs, "ChalkFrames v1.2.3"), true);
+    assert.equal(docsChangelogEntryHasGeneratedTodo(docs, "ChalkFrames v1.2.4"), false);
   });
 });

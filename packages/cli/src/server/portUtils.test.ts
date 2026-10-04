@@ -6,7 +6,7 @@ import { createServer as createHttpServer, type Server as HttpServer } from "nod
 import {
   PORT_PROBE_HOSTS,
   activeServerOnPort,
-  detectHyperframesServer,
+  detectChalkframesServer,
   findPortAndServe,
   testPortOnAllHosts,
 } from "./portUtils.js";
@@ -172,7 +172,7 @@ describe("activeServerOnPort — PID provenance (security)", () => {
       stdio: "ignore",
     });
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir: "/tmp/demo-project",
       serverBuildSignature: null,
@@ -194,7 +194,7 @@ describe("activeServerOnPort — PID provenance (security)", () => {
     // to see another user's socket — and on those machines every scanned port
     // used to fall back to the self-report with nothing said.
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir: "/tmp/demo-project",
       serverBuildSignature: null,
@@ -209,12 +209,12 @@ describe("activeServerOnPort — PID provenance (security)", () => {
   });
 
   it("reports the PID that owns the socket, not the one the response claims", async () => {
-    // `/__hyperframes_config` is unauthenticated and `--stop` / `--kill-all`
+    // `/__chalkframes_config` is unauthenticated and `--stop` / `--kill-all`
     // send signals to this field. Trusting the response let any local process
     // on a scanned port name an arbitrary PID and have the CLI kill it.
     if (process.platform === "win32") return;
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir: "/tmp/demo-project",
       serverBuildSignature: null,
@@ -229,11 +229,11 @@ describe("activeServerOnPort — PID provenance (security)", () => {
   });
 });
 
-describe("detectHyperframesServer", () => {
+describe("detectChalkframesServer", () => {
   it("treats same-project servers with a different server build signature as mismatch", async () => {
     const projectDir = "/tmp/demo-project";
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir,
       serverBuildSignature: "old-build",
@@ -241,7 +241,7 @@ describe("detectHyperframesServer", () => {
     });
 
     const normalizedProjectDir = resolve(projectDir).replace(/\\/g, "/").toLowerCase();
-    const result = await detectHyperframesServer(port, normalizedProjectDir, "new-build");
+    const result = await detectChalkframesServer(port, normalizedProjectDir, "new-build");
 
     expect(result).toEqual({ type: "mismatch", projectName: "demo-project" });
   });
@@ -249,7 +249,7 @@ describe("detectHyperframesServer", () => {
   it("treats same-project servers with the same server build signature as match", async () => {
     const projectDir = "/tmp/demo-project";
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir,
       serverBuildSignature: "same-build",
@@ -257,7 +257,7 @@ describe("detectHyperframesServer", () => {
     });
 
     const normalizedProjectDir = resolve(projectDir).replace(/\\/g, "/").toLowerCase();
-    const result = await detectHyperframesServer(port, normalizedProjectDir, "same-build");
+    const result = await detectChalkframesServer(port, normalizedProjectDir, "same-build");
 
     expect(result).toEqual({ type: "match" });
   });
@@ -265,7 +265,7 @@ describe("detectHyperframesServer", () => {
   it("treats same-project servers with a different browser GPU policy as mismatch", async () => {
     const projectDir = "/tmp/demo-project";
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir,
       serverBuildSignature: "same-build",
@@ -274,7 +274,7 @@ describe("detectHyperframesServer", () => {
     });
 
     const normalizedProjectDir = resolve(projectDir).replace(/\\/g, "/").toLowerCase();
-    const result = await detectHyperframesServer(
+    const result = await detectChalkframesServer(
       port,
       normalizedProjectDir,
       "same-build",
@@ -287,7 +287,7 @@ describe("detectHyperframesServer", () => {
   it("matches same-project servers with the requested browser GPU policy", async () => {
     const projectDir = "/tmp/demo-project";
     const port = await startConfigProbeServer({
-      isHyperframes: true,
+      isChalkframes: true,
       projectName: "demo-project",
       projectDir,
       serverBuildSignature: "same-build",
@@ -296,7 +296,7 @@ describe("detectHyperframesServer", () => {
     });
 
     const normalizedProjectDir = resolve(projectDir).replace(/\\/g, "/").toLowerCase();
-    const result = await detectHyperframesServer(
+    const result = await detectChalkframesServer(
       port,
       normalizedProjectDir,
       "same-build",

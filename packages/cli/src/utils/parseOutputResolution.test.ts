@@ -1,7 +1,7 @@
 /**
  * Boundary tests for the shared `parseOutputResolutionFlag` helper. Every
- * distributed entrypoint (`hyperframes cloudrun render{,-batch}`,
- * `hyperframes lambda render{,-batch}`) delegates to this one function —
+ * distributed entrypoint (`chalkframes cloudrun render{,-batch}`,
+ * `chalkframes lambda render{,-batch}`) delegates to this one function —
  * covering it here (rather than at each surface) makes the sibling-surface
  * regression this PR fixes unreachable by construction: any future surface
  * that calls `parseOutputResolutionFlag` inherits the correct alias

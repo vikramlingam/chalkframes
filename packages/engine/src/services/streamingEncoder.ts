@@ -37,7 +37,7 @@ import { getHdrEncoderColorParams } from "../utils/hdr.js";
 import { withEvenDimensionPad } from "../utils/evenDimensions.js";
 import { SDR_CAPTURE_TO_BT709_FILTER, SDR_RGB_TO_BT709_FILTER } from "../utils/sdrCaptureColor.js";
 import { DEFAULT_CONFIG, type EngineConfig } from "../config.js";
-import { fpsToFfmpegArg, fpsToNumber, type Fps } from "@hyperframes/core";
+import { fpsToFfmpegArg, fpsToNumber, type Fps } from "@chalkframes/core";
 import { appendVp9CpuUsedArg } from "./vp9Options.js";
 import { appendRenderProvenanceArgs } from "../utils/renderProvenance.js";
 
@@ -141,7 +141,7 @@ export function createFrameReorderBuffer(startFrame: number, endFrame: number): 
 // ---------------------------------------------------------------------------
 
 export interface StreamingEncoderOptions {
-  /** Frame rate as an exact rational; see `Fps` in @hyperframes/core. */
+  /** Frame rate as an exact rational; see `Fps` in @chalkframes/core. */
   fps: Fps;
   width: number;
   height: number;

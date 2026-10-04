@@ -5,10 +5,10 @@ import * as clack from "@clack/prompts";
 import { c } from "../ui/colors.js";
 
 export const examples: Example[] = [
-  ["Find or download Chrome for rendering", "hyperframes browser ensure"],
-  ["Purge a stale/partial download and re-download", "hyperframes browser ensure --force"],
-  ["Print the Chrome executable path", "hyperframes browser path"],
-  ["Remove cached Chrome download", "hyperframes browser clear"],
+  ["Find or download Chrome for rendering", "chalkframes browser ensure"],
+  ["Purge a stale/partial download and re-download", "chalkframes browser ensure --force"],
+  ["Print the Chrome executable path", "chalkframes browser path"],
+  ["Remove cached Chrome download", "chalkframes browser clear"],
 ];
 import { formatBytes } from "../ui/format.js";
 import {
@@ -22,7 +22,7 @@ import {
 import { trackBrowserInstall } from "../telemetry/events.js";
 
 async function runEnsure(options?: { force?: boolean }): Promise<void> {
-  clack.intro(c.bold("hyperframes browser ensure"));
+  clack.intro(c.bold("chalkframes browser ensure"));
 
   // ARM64 Linux: Chrome headless shell is not available (apt-get/system-only
   // install flow, no download cache to force a purge of) — --force is a no-op here.
@@ -143,7 +143,7 @@ async function runPath(): Promise<void> {
 }
 
 function runClear(): void {
-  clack.intro(c.bold("hyperframes browser clear"));
+  clack.intro(c.bold("chalkframes browser clear"));
 
   const removed = clearBrowser();
   if (removed) {
@@ -174,7 +174,7 @@ export default defineCommand({
 
     if (!subcommand || subcommand === "") {
       console.log(`
-${c.bold("hyperframes browser")} ${c.dim("<subcommand>")}
+${c.bold("chalkframes browser")} ${c.dim("<subcommand>")}
 
 Manage the Chrome browser used for rendering.
 
@@ -184,10 +184,10 @@ ${c.bold("SUBCOMMANDS:")}
   ${c.accent("clear")}    ${c.dim("Remove cached Chrome download")}
 
 ${c.bold("EXAMPLES:")}
-  ${c.accent("npx hyperframes browser ensure")}           ${c.dim("Download Chrome if needed")}
-  ${c.accent("npx hyperframes browser ensure --force")}   ${c.dim("Purge a stale/partial download and re-download")}
-  ${c.accent("npx hyperframes browser path")}             ${c.dim("Print path for scripts")}
-  ${c.accent("npx hyperframes browser clear")}            ${c.dim("Remove cached browser")}
+  ${c.accent("npx chalkframes browser ensure")}           ${c.dim("Download Chrome if needed")}
+  ${c.accent("npx chalkframes browser ensure --force")}   ${c.dim("Purge a stale/partial download and re-download")}
+  ${c.accent("npx chalkframes browser path")}             ${c.dim("Print path for scripts")}
+  ${c.accent("npx chalkframes browser clear")}            ${c.dim("Remove cached browser")}
 `);
       return;
     }
@@ -201,7 +201,7 @@ ${c.bold("EXAMPLES:")}
         return runClear();
       default:
         console.error(
-          `${c.error("Unknown subcommand:")} ${subcommand}\n\nRun ${c.accent("hyperframes browser --help")} for usage.`,
+          `${c.error("Unknown subcommand:")} ${subcommand}\n\nRun ${c.accent("chalkframes browser --help")} for usage.`,
         );
         failCommand(1, `Unknown subcommand: ${subcommand}`);
     }

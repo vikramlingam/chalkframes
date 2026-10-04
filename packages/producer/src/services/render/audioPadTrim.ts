@@ -30,8 +30,8 @@ import {
   runFfmpeg,
   trackChildProcess,
   type AudioMetadata,
-} from "@hyperframes/engine";
-import { redactKnownPaths, redactTelemetryString } from "@hyperframes/core";
+} from "@chalkframes/engine";
+import { redactKnownPaths, redactTelemetryString } from "@chalkframes/core";
 
 /**
  * Tolerance used to decide whether an audio file is already short enough to

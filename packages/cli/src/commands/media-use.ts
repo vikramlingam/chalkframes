@@ -100,7 +100,7 @@ export function createMediaUseCommand(invoke: InvokeMediaUse = invokeEngine) {
   return defineCommand({
     meta: { name: "media-use", description: "Resolve and operate on project media" },
     subCommands,
-    run: () => console.log("Run `hyperframes media-use <resolve|doctor|stats|...> --help`"),
+    run: () => console.log("Run `chalkframes media-use <resolve|doctor|stats|...> --help`"),
   });
 }
 

@@ -470,7 +470,7 @@ describe("muxVideoWithAudio audio codec handling", () => {
     });
   });
 
-  it("copies HyperFrames AAC sidecars into MP4 instead of re-encoding", async () => {
+  it("copies ChalkFrames AAC sidecars into MP4 instead of re-encoding", async () => {
     const { spawn, calls } = createSpawnSpy();
     vi.resetModules();
     vi.doMock("child_process", () => ({ spawn }));
@@ -684,7 +684,7 @@ describe("muxVideoWithAudio audio codec handling", () => {
     await expect(muxPromise).resolves.toMatchObject({ success: true });
   });
 
-  it("copies HyperFrames AAC sidecars into MOV containers without MP4 faststart flags", async () => {
+  it("copies ChalkFrames AAC sidecars into MOV containers without MP4 faststart flags", async () => {
     const { spawn, calls } = createSpawnSpy();
     vi.resetModules();
     vi.doMock("child_process", () => ({ spawn }));

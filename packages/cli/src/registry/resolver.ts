@@ -4,7 +4,7 @@
  * when blocks/components need it for the `add` command.
  */
 
-import type { ItemType, RegistryItem, RegistryManifestEntry } from "@hyperframes/core";
+import type { ItemType, RegistryItem, RegistryManifestEntry } from "@chalkframes/core";
 import { fetchItemManifest, fetchRegistryManifest, DEFAULT_REGISTRY_URL } from "./remote.js";
 
 export interface ResolveOptions {
@@ -20,7 +20,7 @@ export interface ResolveOptions {
 }
 
 function defaultWarn(message: string): void {
-  process.stderr.write(`hyperframes:registry ${message}\n`);
+  process.stderr.write(`chalkframes:registry ${message}\n`);
 }
 
 /**
@@ -99,13 +99,13 @@ export async function resolveItem(
 /**
  * "registry unreachable or empty" without saying WHICH registry is the same
  * dead end the item-file failure used to be: a project that sets `registry` in
- * hyperframes.json reads it as the public catalog having lost the item, and
+ * chalkframes.json reads it as the public catalog having lost the item, and
  * goes looking in the wrong place. Naming the host is the diagnosis.
  */
 export function unreachableRegistryMessage(name: string, baseUrl?: string): string {
   const where =
     baseUrl && !baseUrl.startsWith(DEFAULT_REGISTRY_URL)
-      ? ` Contacted ${baseUrl}, set by this project's hyperframes.json, not the public registry.`
+      ? ` Contacted ${baseUrl}, set by this project's chalkframes.json, not the public registry.`
       : "";
   return `Item "${name}" not found — registry unreachable or empty.${where}`;
 }

@@ -1,4 +1,4 @@
-// Run the shared beat detection (@hyperframes/core/beats) in a headless Chrome
+// Run the shared beat detection (@chalkframes/core/beats) in a headless Chrome
 // so results match the Studio exactly — same Web Audio decode + same
 // bpm-detective. Used by the `beats` CLI command to write the beat file before
 // the Studio is ever opened.
@@ -32,7 +32,7 @@ function findPrebuiltBundle(): string | null {
 
 async function buildFromCoreSource(): Promise<string> {
   const esbuild = await import("esbuild");
-  const coreRoot = dirname(require.resolve("@hyperframes/core/package.json"));
+  const coreRoot = dirname(require.resolve("@chalkframes/core/package.json"));
   const entry = join(coreRoot, "src/beats/beatDetection.ts");
   const result = await esbuild.build({
     stdin: {

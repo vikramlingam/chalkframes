@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { WorkerSizing } from "@hyperframes/engine";
+import type { WorkerSizing } from "@chalkframes/engine";
 import { buildHeapAdvisoryWarning } from "./captureCost.js";
 
 function sizing(overrides: Partial<WorkerSizing>): WorkerSizing {

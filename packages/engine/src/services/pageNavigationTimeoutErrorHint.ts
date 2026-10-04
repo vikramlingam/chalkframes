@@ -1,20 +1,20 @@
 /**
  * Augment Puppeteer `page.goto` navigation-timeout errors with actionable
- * guidance that names the HyperFrames-specific knobs. Puppeteer's stock error
+ * guidance that names the ChalkFrames-specific knobs. Puppeteer's stock error
  * text ("Navigation timeout of 60000 ms exceeded") doesn't tell the user
- * which env var / CLI flag raises this timeout in HyperFrames, or which
+ * which env var / CLI flag raises this timeout in ChalkFrames, or which
  * browser-binary override lets them route around a slow pinned build.
  *
  * Sibling of `augmentProtocolTimeoutError` (surfaces
  * `PRODUCER_PUPPETEER_PROTOCOL_TIMEOUT_MS` / `--protocol-timeout` on the
  * `Runtime.callFunctionOn timed out` class), and mirrors the surfacing
- * pattern from #2443 (which surfaces `HYPERFRAMES_BROWSER_PATH` on
+ * pattern from #2443 (which surfaces `CHALKFRAMES_BROWSER_PATH` on
  * download-time failures). This helper covers the runtime `page.goto` layer
  * instead:
  *
  *   1. Raise-the-timeout: `PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS` env,
  *      `--browser-timeout` CLI flag (SECONDS, not ms).
- *   2. Escape-hatch browser binary: `HYPERFRAMES_BROWSER_PATH` env, points
+ *   2. Escape-hatch browser binary: `CHALKFRAMES_BROWSER_PATH` env, points
  *      at a system Chrome / chrome-headless-shell path.
  *   3. Field-signal shape: darwin/arm64 CSS 3D + audio compound
  *      (ts=1784146416) that succeeded under Docker — gated on all three
@@ -94,12 +94,12 @@ export function augmentPageNavigationTimeoutError(
 
   const augmented = new Error(
     `${err.message}\n\n` +
-      `HyperFrames effective page.goto navigation timeout: ${effectiveTimeoutMs} ms.\n\n` +
+      `ChalkFrames effective page.goto navigation timeout: ${effectiveTimeoutMs} ms.\n\n` +
       `To raise the timeout:\n` +
       `  Env: PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS=<higher-ms>  (milliseconds)\n` +
       `  CLI: --browser-timeout <seconds>                     (seconds)\n\n` +
       `To use a different browser binary (e.g. system Chrome instead of the pinned chrome-headless-shell):\n` +
-      `  Env: HYPERFRAMES_BROWSER_PATH=<path-to-Chrome-or-chrome-headless-shell>\n` +
+      `  Env: CHALKFRAMES_BROWSER_PATH=<path-to-Chrome-or-chrome-headless-shell>\n` +
       dockerHint,
   );
   (augmented as Error & { cause?: unknown }).cause = err;
@@ -148,6 +148,6 @@ function buildDockerHintBlock(): string {
     `a CSS 3D rendering context + audio track on macOS arm64 has been reported to hit\n` +
     `Navigation timeout twice at page.goto while the same composition renders\n` +
     `identically under Docker. Consider:\n` +
-    `  hyperframes render ... --docker\n`
+    `  chalkframes render ... --docker\n`
   );
 }

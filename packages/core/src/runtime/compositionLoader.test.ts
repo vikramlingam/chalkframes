@@ -17,7 +17,7 @@ describe("loadExternalCompositions", () => {
     document.head.querySelectorAll("style, link").forEach((node) => node.remove());
     delete (window as Window & { gsap?: unknown; __selectedTitle?: unknown }).gsap;
     delete (window as Window & { gsap?: unknown; __selectedTitle?: unknown }).__selectedTitle;
-    delete (window as Window & { __hyperframes?: unknown }).__hyperframes;
+    delete (window as Window & { __chalkframes?: unknown }).__chalkframes;
     delete (window as Window & { __timelines?: unknown }).__timelines;
     delete (window as WindowWithScopedVars).__hfVariablesByComp;
     vi.restoreAllMocks();
@@ -36,13 +36,13 @@ describe("loadExternalCompositions", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("binds a fetched composition's scripts to its own URL for __hyperframes.assetUrl", async () => {
+  it("binds a fetched composition's scripts to its own URL for __chalkframes.assetUrl", async () => {
     const host = document.createElement("div");
     host.setAttribute("data-composition-src", "https://example.com/blocks/blk/blk.html");
     host.setAttribute("data-composition-id", "blk");
     document.body.appendChild(host);
     const compositionHtml =
-      `<div data-composition-id="blk"><script>window.__url = __hyperframes.assetUrl("assets/env.hdr");</scr` +
+      `<div data-composition-id="blk"><script>window.__url = __chalkframes.assetUrl("assets/env.hdr");</scr` +
       `ipt></div>`;
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(compositionHtml, { status: 200 }));
 
@@ -62,7 +62,7 @@ describe("loadExternalCompositions", () => {
     const compositionHtml =
       `<div data-composition-id="blk">` +
       `<script type="importmap">{ "imports": { "three": "./lib/three.js" } }</scr` +
-      `ipt><script type="module">import "three"; window.__url = __hyperframes.assetUrl("a.png");</scr` +
+      `ipt><script type="module">import "three"; window.__url = __chalkframes.assetUrl("a.png");</scr` +
       `ipt></div>`;
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(compositionHtml, { status: 200 }));
 
@@ -74,7 +74,7 @@ describe("loadExternalCompositions", () => {
     expect(JSON.parse(importMap?.textContent || "")).toEqual({
       imports: { three: "https://example.com/blocks/blk/lib/three.js" },
     });
-    expect(moduleScript?.textContent).toMatch(/^const __hyperframes = /);
+    expect(moduleScript?.textContent).toMatch(/^const __chalkframes = /);
     expect(moduleScript?.textContent).toContain('"https://example.com/blocks/blk/blk.html"');
   });
 

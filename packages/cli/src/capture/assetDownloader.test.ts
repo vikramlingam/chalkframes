@@ -419,7 +419,7 @@ describe("asset fetches present the same identity as the page navigation", () =>
 
   /**
    * Measured against the real origin: `GET /favicon.svg` answers `403 text/html` to
-   * `User-Agent: HyperFrames/1.0` and `200 image/svg+xml` to the browser UA the capture
+   * `User-Agent: ChalkFrames/1.0` and `200 image/svg+xml` to the browser UA the capture
    * already navigates with. The other two icons are served to either agent.
    */
   function serveLikeAnAntiBotEdge() {

@@ -214,7 +214,7 @@ describe("ArtifactTransaction", () => {
   // `ArtifactTransaction.validate()` previously only checked "file exists and
   // is non-empty". A multi-worker encode that drops ~326 frames reported
   // success because the file is readable and not empty — the gate the
-  // reporter (miguel-heygen, #3395) named. The fix adds an expected-duration
+  // reporter (miguel-chalkframes, #3395) named. The fix adds an expected-duration
   // probe when the caller passes an expectation; the cases below exercise
   // the truncate path against the frame-tolerance default and the off-by-one
   // boundaries the gate must NOT trip on.

@@ -23,8 +23,8 @@ import type { TranscribeResult } from "./transcribe.js";
 /** The model name `transcribe --json` reports for every Parakeet runner. */
 export const PARAKEET_MODEL_LABEL = "parakeet-tdt-0.6b-v3";
 /** Stdout/stderr line prefixes of the sherpa-onnx decode worker. */
-export const SHERPA_RESULT_PREFIX = "HYPERFRAMES_PARAKEET_RESULT:";
-export const SHERPA_ERROR_PREFIX = "HYPERFRAMES_PARAKEET_ERROR:";
+export const SHERPA_RESULT_PREFIX = "CHALKFRAMES_PARAKEET_RESULT:";
+export const SHERPA_ERROR_PREFIX = "CHALKFRAMES_PARAKEET_ERROR:";
 
 /** Parakeet TDT 0.6B v3's languages, as listed on its model card. */
 export const PARAKEET_LANGUAGES =
@@ -41,7 +41,7 @@ const PARAKEET_INSTALL =
   "uv venv ~/.venvs/parakeet && VIRTUAL_ENV=~/.venvs/parakeet uv pip install parakeet-mlx";
 
 /** Verify a candidate binary actually runs (mirrors the --version gate on
- *  HYPERFRAMES_PYTHON) so a stale $HYPERFRAMES_PARAKEET path can't shadow a
+ *  CHALKFRAMES_PYTHON) so a stale $CHALKFRAMES_PARAKEET path can't shadow a
  *  working install on PATH. */
 function isRunnable(bin: string): boolean {
   try {
@@ -55,7 +55,7 @@ function isRunnable(bin: string): boolean {
 /** Locate the `parakeet-mlx` runner: env override, the documented venv, then PATH. */
 export function findParakeet(): string | undefined {
   const candidates = [
-    process.env.HYPERFRAMES_PARAKEET,
+    process.env.CHALKFRAMES_PARAKEET,
     join(homedir(), ".venvs", "parakeet", "bin", "parakeet-mlx"),
   ].filter((p): p is string => Boolean(p));
 
@@ -297,7 +297,7 @@ export function transcribeWithParakeet(
   options?.onProgress?.(
     cached ? "Transcribing with Parakeet..." : "Downloading Parakeet model (first run, ~600MB)...",
   );
-  const workDir = mkdtempSync(join(tmpdir(), "hyperframes-parakeet-"));
+  const workDir = mkdtempSync(join(tmpdir(), "chalkframes-parakeet-"));
   try {
     const argv = [inputPath, "--model", model, "--output-format", "json", "--output-dir", workDir];
     if (options?.language) argv.push("--language", options.language);

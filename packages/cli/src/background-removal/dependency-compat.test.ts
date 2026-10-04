@@ -47,7 +47,7 @@ describe("background-removal native dependency compatibility", () => {
     // both the clean dependency graph and the six-platform binary contract.
     expect(OPTIONAL_PACKAGES["onnxruntime-node"]).toBe("1.21.1");
 
-    // Installed on first use, so it must not ride along with `npx hyperframes`; the devDependency
+    // Installed on first use, so it must not ride along with `npx chalkframes`; the devDependency
     // only supplies types and the binding listing below, at the same pinned version.
     expect(packageJson.dependencies).not.toHaveProperty("onnxruntime-node");
     expect(packageJson.devDependencies).toMatchObject(OPTIONAL_PACKAGES);

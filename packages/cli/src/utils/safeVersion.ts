@@ -9,7 +9,7 @@
  *
  * Lives in its own module (rather than updateCheck.ts) so utils/projectPin.ts
  * can depend on it without a projectPin.ts <-> updateCheck.ts import cycle —
- * updateCheck.ts imports readPinnedHyperframesVersions from projectPin.ts.
+ * updateCheck.ts imports readPinnedChalkframesVersions from projectPin.ts.
  */
 export function isSafeVersion(v: string): boolean {
   return /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(v);

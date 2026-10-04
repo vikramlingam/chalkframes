@@ -28,14 +28,14 @@ import {
 } from "../utils/projectLink.js";
 
 export const examples: Example[] = [
-  ["Publish the current project privately to a stable URL", "hyperframes publish"],
-  ["Publish a specific directory", "hyperframes publish ./my-video"],
-  ["Make the claimed project public to anyone", "hyperframes publish --public"],
-  ["Update an existing published project in place", "hyperframes publish --update <url|id>"],
-  ["Publish to a shared team space", "hyperframes publish --space <space-id>"],
-  ["Skip the consent prompt (scripts)", "hyperframes publish --yes"],
-  ["Skip baking H.264 proxies for browser-hostile video codecs", "hyperframes publish --no-proxy"],
-  ["Show full lint findings instead of the summary line", "hyperframes publish --lint-verbose"],
+  ["Publish the current project privately to a stable URL", "chalkframes publish"],
+  ["Publish a specific directory", "chalkframes publish ./my-video"],
+  ["Make the claimed project public to anyone", "chalkframes publish --public"],
+  ["Update an existing published project in place", "chalkframes publish --update <url|id>"],
+  ["Publish to a shared team space", "chalkframes publish --space <space-id>"],
+  ["Skip the consent prompt (scripts)", "chalkframes publish --yes"],
+  ["Skip baking H.264 proxies for browser-hostile video codecs", "chalkframes publish --no-proxy"],
+  ["Show full lint findings instead of the summary line", "chalkframes publish --lint-verbose"],
 ];
 
 /** Extract a project id from a published URL (with or without scheme, query, or hash) or accept a bare id. */
@@ -83,7 +83,7 @@ export default defineCommand({
     proxy: {
       type: "boolean",
       description:
-        "Bake H.264 proxies for browser-hostile video codecs (e.g. HEVC) into the published archive. Default: on, unless disabled via hyperframes.json media.autoProxy. Pass --no-proxy to skip.",
+        "Bake H.264 proxies for browser-hostile video codecs (e.g. HEVC) into the published archive. Default: on, unless disabled via chalkframes.json media.autoProxy. Pass --no-proxy to skip.",
     },
     "lint-verbose": {
       type: "boolean",
@@ -116,7 +116,7 @@ export default defineCommand({
           const target = `<project>/${candidateDir}`;
           console.log(
             c.dim(
-              `  Move or mount the authored file, or publish its directory directly: hyperframes publish ${target}. Only use the directory form when its assets are self-contained under that directory; otherwise mount it from the project root.`,
+              `  Move or mount the authored file, or publish its directory directly: chalkframes publish ${target}. Only use the directory form when its assets are self-contained under that directory; otherwise mount it from the project root.`,
             ),
           );
         } else if (candidate) {
@@ -135,12 +135,12 @@ export default defineCommand({
       console.log();
       if (args.public === true) {
         console.log(
-          `  ${c.bold("hyperframes publish uploads this project and requests public visibility at a stable URL.")}`,
+          `  ${c.bold("chalkframes publish uploads this project and requests public visibility at a stable URL.")}`,
         );
         console.log(`  ${c.dim("Anyone with the URL can open a claimed public project.")}`);
       } else {
         console.log(
-          `  ${c.bold("hyperframes publish uploads this project privately to a stable URL.")}`,
+          `  ${c.bold("chalkframes publish uploads this project privately to a stable URL.")}`,
         );
         console.log(
           `  ${c.dim("Viewing requires authentication and access. Pass --public to allow anyone with the URL.")}`,
@@ -170,7 +170,7 @@ export default defineCommand({
       if (!credential) {
         console.log();
         console.log(
-          `  ${c.error(`${updateTarget ? "--update" : "--space"} requires authentication. Run 'hyperframes auth login' first.`)}`,
+          `  ${c.error(`${updateTarget ? "--update" : "--space"} requires authentication. Run 'chalkframes auth login' first.`)}`,
         );
         console.log();
         setCommandExitCode(1);
@@ -192,12 +192,12 @@ export default defineCommand({
       console.log(`  ${c.dim(`Previously published at ${priorLink.url}`)}`);
     }
 
-    clack.intro(c.bold("hyperframes publish"));
+    clack.intro(c.bold("chalkframes publish"));
     const publishSpinner = clack.spinner();
     publishSpinner.start("Preparing project...");
 
     try {
-      // Resolution order (per hyperframes.json's `media.autoProxy`): an
+      // Resolution order (per chalkframes.json's `media.autoProxy`): an
       // explicit --proxy/--no-proxy flag wins in either direction, else the
       // committed config, else on by default.
       const proxyFlagValue = typeof args.proxy === "boolean" ? args.proxy : undefined;
@@ -297,17 +297,17 @@ export default defineCommand({
             `  ${c.error(`Your login looks expired or invalid, so ${updateTarget ? "--update" : "--space"} was ignored and a NEW url was created above.`)}`,
           );
           console.log(
-            `  ${c.dim("Run 'hyperframes auth login' again, then re-publish to update in place.")}`,
+            `  ${c.dim("Run 'chalkframes auth login' again, then re-publish to update in place.")}`,
           );
         } else {
           console.log(
-            `  ${c.dim("Open the claim URL on hyperframes.dev, sign in, and claim the project to continue editing.")}`,
+            `  ${c.dim("Open the claim URL on chalkframes.dev, sign in, and claim the project to continue editing.")}`,
           );
           console.log();
           const visibilityTip =
             args.public === true
               ? "--public applies to the claimed project; this claim URL still requires sign-in."
-              : "Run 'hyperframes auth login' first for a stable link you can re-publish to; add --public to allow signed-out viewing.";
+              : "Run 'chalkframes auth login' first for a stable link you can re-publish to; add --public to allow signed-out viewing.";
           console.log(`  ${c.dim(`Tip: ${visibilityTip}`)}`);
         }
         console.log();

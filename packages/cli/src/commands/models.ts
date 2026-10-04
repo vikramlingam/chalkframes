@@ -10,7 +10,7 @@ import { PARAKEET_MODEL_LABEL } from "../whisper/parakeet.js";
 export const examples: Example[] = [
   [
     "Download the Parakeet speech model that transcribe uses",
-    "hyperframes models install parakeet",
+    "chalkframes models install parakeet",
   ],
 ];
 
@@ -98,7 +98,7 @@ export default defineCommand({
   async run({ args }) {
     if (args.action !== "install" || args.name !== "parakeet") {
       fail(
-        `Unknown: models ${args.action} ${args.name}. Try: hyperframes models install parakeet`,
+        `Unknown: models ${args.action} ${args.name}. Try: chalkframes models install parakeet`,
         args.json,
       );
     }

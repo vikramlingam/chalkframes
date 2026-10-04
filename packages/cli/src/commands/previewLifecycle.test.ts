@@ -13,7 +13,7 @@ import {
   writePreviewSession,
 } from "./previewLifecycle.js";
 
-const projectDir = resolve("/tmp/hyperframes-preview-lifecycle-project");
+const projectDir = resolve("/tmp/chalkframes-preview-lifecycle-project");
 const server: ActiveServer = {
   port: 3210,
   projectName: "preview-lifecycle-project",
@@ -58,14 +58,14 @@ describe("background preview lifecycle", () => {
   it("forces the detached child foreground without inheriting launcher-only flags", () => {
     expect(
       buildBackgroundPreviewArgs([
-        "/opt/hyperframes/cli.js",
+        "/opt/chalkframes/cli.js",
         "preview",
         projectDir,
         "--background",
         "--open",
         "--json",
       ]),
-    ).toEqual(["/opt/hyperframes/cli.js", "preview", projectDir, "--foreground", "--no-open"]);
+    ).toEqual(["/opt/chalkframes/cli.js", "preview", projectDir, "--foreground", "--no-open"]);
   });
 
   it("reuses an already-running server for the same project", async () => {
@@ -73,7 +73,7 @@ describe("background preview lifecycle", () => {
     const scan = vi.fn(async () => [server]);
 
     const result = await startBackgroundPreview(projectDir, 3002, {
-      argv: ["/opt/hyperframes/cli.js", "preview", projectDir, "--background"],
+      argv: ["/opt/chalkframes/cli.js", "preview", projectDir, "--background"],
       execPath: "/usr/bin/node",
       scan,
       spawn,
@@ -107,8 +107,8 @@ describe("background preview lifecycle", () => {
 
   it("discovers managed previews outside the default port scan and removes stale records", async () => {
     const stateHome = tempDir("hf-preview-state-");
-    const otherProjectDir = resolve("/tmp/hyperframes-preview-managed-custom-port");
-    const staleProjectDir = resolve("/tmp/hyperframes-preview-managed-stale");
+    const otherProjectDir = resolve("/tmp/chalkframes-preview-managed-custom-port");
+    const staleProjectDir = resolve("/tmp/chalkframes-preview-managed-stale");
     writePreviewSession(
       {
         pid: 8765,
@@ -351,7 +351,7 @@ describe("background preview lifecycle", () => {
     const stateHome = tempDir("hf-preview-state-");
 
     const result = await startBackgroundPreview(projectDir, 3002, {
-      argv: ["/opt/hyperframes/cli.js", "preview", projectDir, "--background"],
+      argv: ["/opt/chalkframes/cli.js", "preview", projectDir, "--background"],
       execPath: "/usr/bin/node",
       scan,
       spawn,
@@ -515,7 +515,7 @@ describe("background preview lifecycle", () => {
     // whole previous record rather than truncated JSON it would then delete.
     expect(JSON.parse(readFileSync(path, "utf8"))).toMatchObject({ pid: 55, port: 3211 });
     expect(
-      readdirSync(join(stateHome, "hyperframes", "previews")).filter((n) => n.endsWith(".tmp")),
+      readdirSync(join(stateHome, "chalkframes", "previews")).filter((n) => n.endsWith(".tmp")),
     ).toHaveLength(0);
   });
 

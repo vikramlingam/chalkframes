@@ -28,7 +28,7 @@
 // reject a rect that's too small to sample) so it's unit-testable without a
 // browser. The same logic is inlined into contrast-audit.browser.js (which
 // is injected as a raw string and cannot import) and into
-// skills/hyperframes-creative/scripts/contrast-report.mjs — keep all three
+// skills/chalkframes-creative/scripts/contrast-report.mjs — keep all three
 // in sync.
 
 export interface Rect {

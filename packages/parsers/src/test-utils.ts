@@ -4,7 +4,7 @@
  *
  * Not part of the public package exports — consumed only by *.test.ts files.
  */
-import { generateHyperframesHtml } from "@hyperframes/core/generators";
+import { generateChalkframesHtml } from "@chalkframes/core/generators";
 import type { ParsedHtml } from "./htmlParser.js";
 
 export function maxEndTime(elements: ParsedHtml["elements"]): number {
@@ -18,7 +18,7 @@ export function maxEndTime(elements: ParsedHtml["elements"]): number {
  * The compositionId generation instability itself is tracked as R1 (stable hf- ids).
  */
 export function serialize(parsed: ParsedHtml): string {
-  return generateHyperframesHtml(parsed.elements, maxEndTime(parsed.elements), {
+  return generateChalkframesHtml(parsed.elements, maxEndTime(parsed.elements), {
     compositionId: "test-comp",
     resolution: parsed.resolution,
     styles: parsed.styles ?? undefined,

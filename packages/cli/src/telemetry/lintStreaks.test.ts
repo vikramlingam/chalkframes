@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-// Point the module's ~/.hyperframes at a scratch dir before it is imported,
+// Point the module's ~/.chalkframes at a scratch dir before it is imported,
 // so a test run never touches the developer's real streak history.
 const HOME = mkdtempSync(join(tmpdir(), "hf-streaks-"));
 vi.mock("node:os", async (importOriginal) => {
@@ -42,7 +42,7 @@ describe("recordLintRun", () => {
 
   it("does not advance a streak when the file was not touched between runs", () => {
     run("aaa", ["gsap_from_opacity_noop"]);
-    // Same content digest: `hyperframes check` re-linting an untouched project
+    // Same content digest: `chalkframes check` re-linting an untouched project
     // must not look like an agent failing to fix something.
     expect(run("aaa", ["gsap_from_opacity_noop"])).toEqual([]);
     expect(run("aaa", ["gsap_from_opacity_noop"])).toEqual([]);

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { NOT_MEDIA_PAYLOAD, NotMediaPayloadError } from "@hyperframes/engine";
+import { NOT_MEDIA_PAYLOAD, NotMediaPayloadError } from "@chalkframes/engine";
 import {
   ASSET_MEDIA_TYPE_MISMATCH,
   AssetMediaTypeMismatchError,

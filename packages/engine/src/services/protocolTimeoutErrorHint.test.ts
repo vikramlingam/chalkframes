@@ -16,7 +16,7 @@ describe("augmentProtocolTimeoutError", () => {
     const result = augmentProtocolTimeoutError(original, 600_000);
     expect(result).not.toBe(original);
     expect(result.message).toContain(original.message);
-    expect(result.message).toContain("HyperFrames effective protocolTimeout: 600000 ms");
+    expect(result.message).toContain("ChalkFrames effective protocolTimeout: 600000 ms");
   });
 
   it("includes both env and CLI hints", () => {
@@ -36,7 +36,7 @@ describe("augmentProtocolTimeoutError", () => {
     const original = new Error("Protocol error (Runtime.callFunctionOn): Target closed.");
     const result = augmentProtocolTimeoutError(original, 300_000);
     expect(result).not.toBe(original);
-    expect(result.message).toContain("HyperFrames effective protocolTimeout");
+    expect(result.message).toContain("ChalkFrames effective protocolTimeout");
   });
 
   it("matches the protocolTimeout keyword case-insensitively", () => {
@@ -50,7 +50,7 @@ describe("augmentProtocolTimeoutError", () => {
     expect(result).toBeInstanceOf(Error);
     expect(result.message).toBe("plain string failure");
     // Not augmented: coerced string doesn't match the protocol-timeout regex.
-    expect(result.message).not.toContain("HyperFrames effective protocolTimeout");
+    expect(result.message).not.toContain("ChalkFrames effective protocolTimeout");
   });
 
   it("mentions the field-signal shape reporters hit", () => {

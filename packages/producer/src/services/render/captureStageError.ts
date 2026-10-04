@@ -1,5 +1,5 @@
 import { normalizeErrorMessage } from "../../utils/errorMessage.js";
-import { CaptureFailure, classifyCaptureFailure } from "@hyperframes/engine";
+import { CaptureFailure, classifyCaptureFailure } from "@chalkframes/engine";
 import { EncoderInterruptedError } from "./encoderInterruption.js";
 
 export class CaptureStageError extends CaptureFailure {

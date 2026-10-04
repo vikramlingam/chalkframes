@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import type { RegistryItem, RegistryManifest } from "@hyperframes/core";
+import type { RegistryItem, RegistryManifest } from "@chalkframes/core";
 import {
   listRegistryItems,
   loadAllItems,
@@ -9,18 +9,18 @@ import {
 } from "./resolver.js";
 
 const MANIFEST: RegistryManifest = {
-  $schema: "https://hyperframes.heygen.com/schema/registry.json",
+  $schema: "https://chalkframes.dev/schema/registry.json",
   name: "test",
   homepage: "https://example.com",
   items: [
-    { name: "alpha", type: "hyperframes:example" },
-    { name: "beta", type: "hyperframes:example" },
-    { name: "gamma", type: "hyperframes:block" },
+    { name: "alpha", type: "chalkframes:example" },
+    { name: "beta", type: "chalkframes:example" },
+    { name: "gamma", type: "chalkframes:block" },
   ],
 };
 
-function buildItem(name: string, type: "hyperframes:example" | "hyperframes:block"): RegistryItem {
-  if (type === "hyperframes:example") {
+function buildItem(name: string, type: "chalkframes:example" | "chalkframes:block"): RegistryItem {
+  if (type === "chalkframes:example") {
     return {
       name,
       type,
@@ -28,7 +28,7 @@ function buildItem(name: string, type: "hyperframes:example" | "hyperframes:bloc
       description: `${name} desc`,
       dimensions: { width: 1920, height: 1080 },
       duration: 10,
-      files: [{ path: "index.html", target: "index.html", type: "hyperframes:composition" }],
+      files: [{ path: "index.html", target: "index.html", type: "chalkframes:composition" }],
     };
   }
   return {
@@ -42,7 +42,7 @@ function buildItem(name: string, type: "hyperframes:example" | "hyperframes:bloc
       {
         path: `${name}.html`,
         target: `compositions/${name}.html`,
-        type: "hyperframes:composition",
+        type: "chalkframes:composition",
       },
     ],
   };
@@ -65,7 +65,7 @@ function mockFetch(
       }
       const m = /\/(examples|blocks|components)\/([^/]+)\/registry-item\.json$/.exec(url);
       if (m && !overrides.missing?.includes(m[2]!)) {
-        const type = m[1] === "examples" ? "hyperframes:example" : "hyperframes:block";
+        const type = m[1] === "examples" ? "chalkframes:example" : "chalkframes:block";
         const item = buildItem(m[2]!, type);
         if (overrides.dependencies && item.name in overrides.dependencies) {
           item.registryDependencies = overrides.dependencies[item.name];
@@ -94,10 +94,10 @@ describe("registry resolver", () => {
 
     it("filters by type", async () => {
       const baseUrl = uniqueBaseUrl();
-      const examples = await listRegistryItems({ type: "hyperframes:example" }, { baseUrl });
+      const examples = await listRegistryItems({ type: "chalkframes:example" }, { baseUrl });
       expect(examples.map((i) => i.name)).toEqual(["alpha", "beta"]);
 
-      const blocks = await listRegistryItems({ type: "hyperframes:block" }, { baseUrl });
+      const blocks = await listRegistryItems({ type: "chalkframes:block" }, { baseUrl });
       expect(blocks.map((i) => i.name)).toEqual(["gamma"]);
     });
 
@@ -137,7 +137,7 @@ describe("registry resolver", () => {
       const baseUrl = uniqueBaseUrl();
       const item = await resolveItem("alpha", { baseUrl });
       expect(item.name).toBe("alpha");
-      expect(item.type).toBe("hyperframes:example");
+      expect(item.type).toBe("chalkframes:example");
       expect(item.files).toHaveLength(1);
     });
 
@@ -210,18 +210,18 @@ describe("registry resolver", () => {
 describe("unreachableRegistryMessage", () => {
   it("names a private registry, so the reader looks at the right host", () => {
     // Same dead end the item-file failure used to be: without the host, a
-    // project that set `registry` in hyperframes.json reads this as the public
+    // project that set `registry` in chalkframes.json reads this as the public
     // catalog having lost the item.
     const message = unreachableRegistryMessage("blur-in", "https://private.example/registry");
 
     expect(message).toContain("https://private.example/registry");
-    expect(message).toContain("hyperframes.json");
+    expect(message).toContain("chalkframes.json");
   });
 
   it("stays quiet when the registry is the public one", () => {
     const message = unreachableRegistryMessage(
       "blur-in",
-      "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry",
+      "https://raw.githubusercontent.com/vikramlingam/chalkframes/main/registry",
     );
 
     expect(message).toBe('Item "blur-in" not found \u2014 registry unreachable or empty.');

@@ -1,8 +1,8 @@
-import { heygenSearch } from "./heygen-search.mjs";
+import { chalkframesSearch } from "./chalkframes-search.mjs";
 
 export const bgmProvider = {
   async search(intent) {
-    const results = heygenSearch("audio sounds list", intent, { type: "music" });
+    const results = chalkframesSearch("audio sounds list", intent, { type: "music" });
     if (!results) return null;
     const best = results[0];
     return {
@@ -12,7 +12,7 @@ export const bgmProvider = {
       metadata: {
         description: best.description || intent,
         duration: best.duration || null,
-        provider: "heygen.audio.sounds",
+        provider: "chalkframes.audio.sounds",
         provenance: { track_id: best.id, score: best.score, query: intent },
       },
     };

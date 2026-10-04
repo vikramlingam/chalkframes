@@ -52,8 +52,8 @@ function installScript(): void {
 }
 
 function sample(options: { selectors?: string[]; livenessScopes?: string[] }): SampleResult {
-  const fn = (window as unknown as { __hyperframesMotionSample: (o: unknown) => SampleResult })
-    .__hyperframesMotionSample;
+  const fn = (window as unknown as { __chalkframesMotionSample: (o: unknown) => SampleResult })
+    .__chalkframesMotionSample;
   return fn(options);
 }
 
@@ -61,7 +61,7 @@ describe("motion-sample.browser", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     document.body.innerHTML = "";
-    delete (window as unknown as { __hyperframesMotionSample?: unknown }).__hyperframesMotionSample;
+    delete (window as unknown as { __chalkframesMotionSample?: unknown }).__chalkframesMotionSample;
   });
 
   it("samples a present, visible selector and returns null for an absent one", () => {

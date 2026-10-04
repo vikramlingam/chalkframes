@@ -2,8 +2,8 @@ import {
   applyFileMutations,
   fileContentVersion,
   type AppliedFileMutation,
-} from "@hyperframes/studio-server";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+} from "@chalkframes/studio-server";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describeProject, type ProjectTimeline, type TimelineRow } from "./describeProject.js";
@@ -55,7 +55,7 @@ export async function runIds(args: Record<string, unknown>): Promise<void> {
     if (inputs.length > 0) receipts = applyFileMutations(project.dir, inputs);
   } catch (error) {
     if (isFileChanged(error))
-      return refusal(error.message, "re-run hyperframes timeline ids", json);
+      return refusal(error.message, "re-run chalkframes timeline ids", json);
     throw error;
   }
   const afterTimeline = await describeProject(project.indexPath);

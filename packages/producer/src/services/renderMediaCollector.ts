@@ -15,13 +15,13 @@
  */
 
 import { parseHTML } from "linkedom";
-import { MEDIA_RENDER_ID_ATTR, resolveAuthoredTimingWindow } from "@hyperframes/core";
+import { MEDIA_RENDER_ID_ATTR, resolveAuthoredTimingWindow } from "@chalkframes/core";
 import {
   MEDIA_START_BASIS_ATTR,
   readMediaStartBasis,
   resolveAbsoluteMediaStartSeconds,
   type MediaStartBasis,
-} from "@hyperframes/core/media-timing";
+} from "@chalkframes/core/media-timing";
 import {
   parseVideoElements,
   parseImageElements,
@@ -32,7 +32,7 @@ import {
   type VideoElement,
   type ImageElement,
   type AudioElement,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 
 /**
  * Marks a host element that `inlineSubCompositions` hoisted a composition into.

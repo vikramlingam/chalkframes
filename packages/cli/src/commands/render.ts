@@ -11,50 +11,50 @@ import { executeRenderPlan, renderLintContinuationHint, runRenderLint } from "./
 export { resolveBrowserGpuForCli, renderLintContinuationHint, runRenderLint };
 
 export const examples: Example[] = [
-  ["Render to MP4", "hyperframes render --output output.mp4"],
-  ["Render a specific composition", "hyperframes render -c compositions/intro.html -o intro.mp4"],
+  ["Render to MP4", "chalkframes render --output output.mp4"],
+  ["Render a specific composition", "chalkframes render -c compositions/intro.html -o intro.mp4"],
   [
     "Upsample any composition to 4K (supersamples via Chrome DPR)",
-    "hyperframes render --resolution 4k --output 4k.mp4",
+    "chalkframes render --resolution 4k --output 4k.mp4",
   ],
-  ["Render transparent overlay (ProRes)", "hyperframes render --format mov --output overlay.mov"],
-  ["Render transparent WebM overlay", "hyperframes render --format webm --output overlay.webm"],
+  ["Render transparent overlay (ProRes)", "chalkframes render --format mov --output overlay.mov"],
+  ["Render transparent WebM overlay", "chalkframes render --format webm --output overlay.webm"],
   [
     "Render animated GIF for PRs/docs",
-    "hyperframes render --format gif --fps 15 --gif-loop 0 --output demo.gif",
+    "chalkframes render --format gif --fps 15 --gif-loop 0 --output demo.gif",
   ],
   [
     "Render PNG sequence (RGBA frames for AE/Nuke/Fusion)",
-    "hyperframes render --format png-sequence --output frames/",
+    "chalkframes render --format png-sequence --output frames/",
   ],
   [
     "Render HLS VOD (master playlist + MPEG-TS segments in a directory)",
-    "hyperframes render --format hls --output stream/",
+    "chalkframes render --format hls --output stream/",
   ],
-  ["High quality at 60fps", "hyperframes render --fps 60 --quality high --output hd.mp4"],
-  ["Deterministic render via Docker", "hyperframes render --docker --output deterministic.mp4"],
-  ["Parallel rendering with 6 workers", "hyperframes render --workers 6 --output fast.mp4"],
-  ["Opt out of browser GPU render", "hyperframes render --no-browser-gpu --output cpu.mp4"],
+  ["High quality at 60fps", "chalkframes render --fps 60 --quality high --output hd.mp4"],
+  ["Deterministic render via Docker", "chalkframes render --docker --output deterministic.mp4"],
+  ["Parallel rendering with 6 workers", "chalkframes render --workers 6 --output fast.mp4"],
+  ["Opt out of browser GPU render", "chalkframes render --no-browser-gpu --output cpu.mp4"],
   [
     "Show full lint findings instead of the summary line",
-    "hyperframes render --lint-verbose --output out.mp4",
+    "chalkframes render --lint-verbose --output out.mp4",
   ],
   [
     "Relocate frame cache off C: (Windows) or another small partition",
-    "hyperframes render --frames-cache-dir D:/hf-cache --output out.mp4",
+    "chalkframes render --frames-cache-dir D:/hf-cache --output out.mp4",
   ],
-  ["HDR output (auto-detected)", "hyperframes render --output hdr-output.mp4"],
+  ["HDR output (auto-detected)", "chalkframes render --output hdr-output.mp4"],
   [
     "Override composition variables (parametrized render)",
-    'hyperframes render --variables \'{"title":"Q4 Report","theme":"dark"}\' --output q4.mp4',
+    'chalkframes render --variables \'{"title":"Q4 Report","theme":"dark"}\' --output q4.mp4',
   ],
   [
     "Variables from a JSON file",
-    "hyperframes render --variables-file ./vars.json --output out.mp4",
+    "chalkframes render --variables-file ./vars.json --output out.mp4",
   ],
   [
     "Batch render one output per variables row",
-    'hyperframes render --batch rows.json --output "renders/{name}.mp4"',
+    'chalkframes render --batch rows.json --output "renders/{name}.mp4"',
   ],
 ];
 import { freemem, tmpdir } from "node:os";
@@ -85,7 +85,7 @@ import {
   recordRecentRender,
   writeConfig,
   writeConfigWithResult,
-  type HyperframesConfig,
+  type ChalkframesConfig,
 } from "../telemetry/config.js";
 import { renderJobObservabilityTelemetryPayload } from "../telemetry/renderObservability.js";
 import { bytesToMb } from "../telemetry/system.js";
@@ -112,8 +112,8 @@ import {
   runPostRenderStep,
   runPostRenderStepAsync,
 } from "../utils/render-success-state.js";
-import type { ProducerLogger, RenderJob, RenderPerfSummary } from "@hyperframes/producer";
-import { EXTRACT_CACHE_DIR_DISABLED_ALIASES, type VideoFrameFormat } from "@hyperframes/engine";
+import type { ProducerLogger, RenderJob, RenderPerfSummary } from "@chalkframes/producer";
+import { EXTRACT_CACHE_DIR_DISABLED_ALIASES, type VideoFrameFormat } from "@chalkframes/engine";
 import {
   checkOutputResolutionCompatibility,
   suggestMatchingPreset,
@@ -121,7 +121,7 @@ import {
   type CanvasResolution,
   type OutputResolutionIssueKind,
   type Fps,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 
 export default defineCommand({
   meta: {
@@ -283,7 +283,7 @@ export default defineCommand({
     variables: {
       type: "string",
       description:
-        'JSON object of variable values, merged over the composition\'s data-composition-variables defaults. Example: --variables \'{"title":"Hello"}\'. Read inside the composition via window.__hyperframes.getVariables().',
+        'JSON object of variable values, merged over the composition\'s data-composition-variables defaults. Example: --variables \'{"title":"Hello"}\'. Read inside the composition via window.__chalkframes.getVariables().',
     },
     "variables-file": {
       type: "string",
@@ -406,8 +406,8 @@ export default defineCommand({
         `during long renders). Pass ${EXTRACT_CACHE_DIR_DISABLED_ALIASES.map((a) => `"${a}"`).join(" / ")} to ` +
         "disable caching entirely (frames extract into the render's workDir " +
         "and are cleaned up when the render ends). Default: " +
-        "<tmpdir>/hyperframes-extract-cache-<uid>. " +
-        "Env: HYPERFRAMES_EXTRACT_CACHE_DIR.",
+        "<tmpdir>/chalkframes-extract-cache-<uid>. " +
+        "Env: CHALKFRAMES_EXTRACT_CACHE_DIR.",
     },
   },
   // Keep the transport adapter thin: each phase has one ownership boundary.
@@ -458,7 +458,7 @@ export interface RenderOptions {
   authoringSkillSource?: "flag" | "project-config";
   /** Raw --skill value when it failed normalizeSkillSlug (an unrecognized skill name was passed). */
   authoringSkillInvalid?: string;
-  /** Names of HF_-/HYPERFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
+  /** Names of HF_-/CHALKFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
   hfEnvOverrides?: readonly string[];
   /**
    * Catalog items installed in this project and those the rendered composition
@@ -618,7 +618,7 @@ export async function checkRenderResolutionPreflight(
   return { message: compat.message, kind: compat.kind };
 }
 
-const DOCKER_IMAGE_PREFIX = "hyperframes-renderer";
+const DOCKER_IMAGE_PREFIX = "chalkframes-renderer";
 
 function dockerImageTag(version: string): string {
   return `${DOCKER_IMAGE_PREFIX}:${version}`;
@@ -651,7 +651,7 @@ function dockerImageExists(tag: string): boolean {
 
 function dockerImageTagForPlatform(version: string, platform: string): string {
   // Suffix the tag with the arch so amd64 and arm64 images of the same
-  // hyperframes version coexist in the local cache (a developer who flips
+  // chalkframes version coexist in the local cache (a developer who flips
   // between hosts shouldn't have to rebuild).
   const archSuffix = platform === "linux/arm64" ? "-arm64" : "";
   return `${dockerImageTag(version)}${archSuffix}`;
@@ -674,7 +674,7 @@ function ensureDockerImage(version: string, platform: string, quiet: boolean): s
   // and created 0o700 by the kernel — a guessable temp dir in a world-writable
   // tmpdir is pre-creatable by another local user, who could then swap in their
   // own Dockerfile or symlink the path (CodeQL js/insecure-temporary-file).
-  const tmpDir = mkdtempSync(join(tmpdir(), "hyperframes-docker-"));
+  const tmpDir = mkdtempSync(join(tmpdir(), "chalkframes-docker-"));
   writeFileSync(join(tmpDir, "Dockerfile"), readFileSync(dockerfilePath));
 
   // Platform is now derived from the host arch (see resolveDockerPlatform).
@@ -695,7 +695,7 @@ function ensureDockerImage(version: string, platform: string, quiet: boolean): s
         "--platform",
         platform,
         "--build-arg",
-        `HYPERFRAMES_VERSION=${version}`,
+        `CHALKFRAMES_VERSION=${version}`,
         "--build-arg",
         `TARGETARCH=${targetArch}`,
         "-t",
@@ -732,7 +732,7 @@ function resolveDockerHostPlatform(options: RenderOptions): string {
     errorBox(
       "--gpu is not supported with --docker on arm64 hosts",
       "Docker Desktop/colima on Apple Silicon doesn't expose --gpus host passthrough to linux/arm64 containers.",
-      "Drop --gpu, or run a native (non-Docker) render on this host, or set HYPERFRAMES_DOCKER_PLATFORM=linux/amd64 if you need GPU encoding (slow under qemu but works).",
+      "Drop --gpu, or run a native (non-Docker) render on this host, or set CHALKFRAMES_DOCKER_PLATFORM=linux/amd64 if you need GPU encoding (slow under qemu but works).",
     );
     failCommand();
   }
@@ -742,13 +742,13 @@ function resolveDockerHostPlatform(options: RenderOptions): string {
     // (chrome-for-testing has no arm64 build). It's a different Chromium build
     // than amd64's chrome-for-testing binary, so output isn't byte-identical to
     // an amd64 golden baseline — fine for end-user output. Set
-    // HYPERFRAMES_DOCKER_PLATFORM=linux/amd64 to force parity (qemu-emulated,
+    // CHALKFRAMES_DOCKER_PLATFORM=linux/amd64 to force parity (qemu-emulated,
     // slower).
     console.log(
       c.dim(
         "  Host is arm64 — using linux/arm64 image with Playwright's " +
           "chrome-headless-shell (output won't be byte-identical to amd64 " +
-          "renders; set HYPERFRAMES_DOCKER_PLATFORM=linux/amd64 to force parity).",
+          "renders; set CHALKFRAMES_DOCKER_PLATFORM=linux/amd64 to force parity).",
       ),
     );
   }
@@ -769,7 +769,7 @@ async function renderDocker(
   // Dev mode (tsx/ts-node) uses "latest" since the local version isn't on npm
   const dockerVersion = isDevMode() ? "latest" : VERSION;
   if (!options.quiet && isDevMode()) {
-    console.log(c.dim("  Dev mode: using hyperframes@latest in Docker image"));
+    console.log(c.dim("  Dev mode: using chalkframes@latest in Docker image"));
   }
 
   const platform = resolveDockerHostPlatform(options);
@@ -970,8 +970,8 @@ async function executeLocalRender(
     }
   }
 
-  if (preflight.ffmpegPath) process.env.HYPERFRAMES_FFMPEG_PATH = preflight.ffmpegPath;
-  if (preflight.ffprobePath) process.env.HYPERFRAMES_FFPROBE_PATH = preflight.ffprobePath;
+  if (preflight.ffmpegPath) process.env.CHALKFRAMES_FFMPEG_PATH = preflight.ffmpegPath;
+  if (preflight.ffprobePath) process.env.CHALKFRAMES_FFPROBE_PATH = preflight.ffprobePath;
   if (preflight.browser?.executablePath && !process.env.PRODUCER_HEADLESS_SHELL_PATH) {
     process.env.PRODUCER_HEADLESS_SHELL_PATH = preflight.browser.executablePath;
   }
@@ -1001,7 +1001,7 @@ async function executeLocalRender(
           `Install an FFmpeg build with libx264 support (${getFFmpegInstallHint()})` +
             (isHls
               ? "."
-              : ", or render WebM instead: hyperframes render --format webm --output output.webm"),
+              : ", or render WebM instead: chalkframes render --format webm --output output.webm"),
         );
         failCommand();
       }
@@ -1107,7 +1107,7 @@ async function executeLocalRender(
   } catch (error: unknown) {
     maybeConsumeDeParallelRouterTrial(deParallelRouterActive, job, options.quiet);
     // The render container sets `ENV CONTAINER=true`; suggesting `--docker`
-    // from inside it is a misdirection (heygen-com/hyperframes#3370).
+    // from inside it is a misdirection (vikramlingam/chalkframes#3370).
     const inContainer = process.env.CONTAINER === "true";
     handleRenderError(
       error,
@@ -1336,7 +1336,7 @@ let deParallelRouterUserManagedResolved = false;
 /**
  * In-process latch mirroring the persisted `deParallelRouterTrialFired`: set
  * the moment the breaker trips, independent of whether persisting that to
- * `~/.hyperframes/config.json` succeeds. `writeConfig` swallows all fs
+ * `~/.chalkframes/config.json` succeeds. `writeConfig` swallows all fs
  * errors (by design — telemetry must never break the CLI), so on an
  * unwritable config (root-owned file, disk full) the flag can never stick on
  * disk; without this latch the router would re-enable and re-fail on every
@@ -1369,7 +1369,7 @@ export function __resetDeParallelRouterTrialStateForTests(): void {
  * slower renderer — punishing a privacy choice with a performance penalty
  * (review finding). Telemetry state governs REPORTING, never behavior.
  */
-function hasDeParallelRouterBreakerTripped(config: HyperframesConfig): boolean {
+function hasDeParallelRouterBreakerTripped(config: ChalkframesConfig): boolean {
   return deParallelRouterBreakerTrippedThisProcess || Boolean(config.deParallelRouterTrialFired);
 }
 
@@ -1386,7 +1386,7 @@ function hasDeParallelRouterBreakerTripped(config: HyperframesConfig): boolean {
  */
 /**
  * Mirror of the producer's `isDeParallelRouterEnabled`. Deliberately
- * duplicated rather than imported: `@hyperframes/producer` is lazily loaded
+ * duplicated rather than imported: `@chalkframes/producer` is lazily loaded
  * (`loadProducer()`) to keep CLI startup fast, and this runs on the startup
  * path. Keep the two in sync — the producer copy is the source of truth.
  */
@@ -1408,7 +1408,7 @@ function applyDeParallelRouterBreaker(): void {
  * producer's own default takes over. This exists for the one case that must
  * survive a shipped default: an install that already had a render fall back
  * stays off, permanently, across processes (the verdict is persisted to
- * `~/.hyperframes/config.json`). See `maybeConsumeDeParallelRouterTrial` for
+ * `~/.chalkframes/config.json`). See `maybeConsumeDeParallelRouterTrial` for
  * what trips it.
  *
  * Returns whether the router is active for this render, so the caller knows
@@ -1507,7 +1507,7 @@ function resolveDeParallelRouterOutcome(job: RenderJob): string | undefined {
  * unlike the render counter (a re-applied increment double-counts the
  * render when our write landed but a later concurrent write raced our
  * verify read — review finding). Returns false as soon as `writeConfig`
- * reports an fs failure (unwritable `~/.hyperframes` — retrying a failed
+ * reports an fs failure (unwritable `~/.chalkframes` — retrying a failed
  * write is pointless, so the retries are reserved for genuine concurrent
  * clobbers, where the write landed but a racing writer's stale snapshot
  * overwrote it — review finding).
@@ -1537,7 +1537,7 @@ function persistDeParallelRouterTrialFired(): boolean {
  * After a trial-armed render, persist that the router's OWN bet actually
  * failed — its self-verify/generic-failure safety net fired (recorded as
  * anything other than a clean `"routed"`, e.g. `"reverted"`, or a stall/hang
- * outcome — heygen-com/hyperframes#3441) — or that the render-count backstop
+ * outcome — vikramlingam/chalkframes#3441) — or that the render-count backstop
  * (`DE_PARALLEL_ROUTER_TRIAL_MAX_RENDERS`) was reached, so it's never
  * enabled again for this install. A clean "routed" (the render succeeded
  * with no fallback) does NOT consume the trial by itself — the whole point
@@ -1580,7 +1580,7 @@ function maybeConsumeDeParallelRouterTrial(
   // itself. Under a shipped default that would switch the feature off
   // behind the user's back after 25 good renders — so a clean "routed" (no
   // fallback needed) must NOT trip. But narrowing the positive check to the
-  // single string "reverted" (heygen-com/hyperframes#3441) meant any other
+  // single string "reverted" (vikramlingam/chalkframes#3441) meant any other
   // non-success signal the observability layer might ever record — a stall,
   // a timeout, a future outcome value — would silently fall through to "not
   // fired" instead of tripping. `outcome` is `undefined`-filtered above, so
@@ -1623,7 +1623,7 @@ function reportDeParallelRouterBreakerTrip(quiet: boolean): void {
   console.warn(
     c.warn(
       "  Could not persist the parallel drawElement circuit breaker to " +
-        "~/.hyperframes/config.json (unwritable?). It stays off for this process; " +
+        "~/.chalkframes/config.json (unwritable?). It stays off for this process; " +
         "future runs may retry it. Set HF_DE_PARALLEL_ROUTER=false to opt out for good.",
     ),
   );
@@ -1699,7 +1699,7 @@ function handleRenderError(
     ...getMemorySnapshot(),
   });
   // Failed renders join the recent-renders ring too — a bug report filed via
-  // `hyperframes feedback` is MOST likely to be about a failed render.
+  // `chalkframes feedback` is MOST likely to be about a failed render.
   if (job?.id) recordRecentRender(job.id, false);
   if (options.throwOnError) {
     throw new Error(message);
@@ -1723,7 +1723,7 @@ function handleRenderError(
   }
   // Windows chrome-headless-shell can crash at launch with
   // STATUS_STACK_BUFFER_OVERRUN (exit 0xC0000409 / 3221225595). Same
-  // HYPERFRAMES_BROWSER_PATH remediation as the download-time hint (#2443)
+  // CHALKFRAMES_BROWSER_PATH remediation as the download-time hint (#2443)
   // and the closed-with-invite arm64 macOS sibling (#2078). Field feedback
   // ts=1784116246.
   const windowsRemediation = windowsChromeCrashRemediation(message);
@@ -1752,7 +1752,7 @@ function trackRenderMetrics(
   options: RenderOptions,
   docker: boolean,
 ): void {
-  // Successful render → recent-renders ring, so a later `hyperframes
+  // Successful render → recent-renders ring, so a later `chalkframes
   // feedback` can attach this render's telemetry id to the report.
   recordRecentRender(job.id, true);
   const perf = job.perfSummary;
@@ -1812,7 +1812,7 @@ function trackRenderMetrics(
     compositionElementCountSource: perf?.drawElement?.compositionElementCountSource,
     compositionElementTags: perf?.drawElement?.compositionElementTags,
     arollVideoCount: perf?.drawElement?.arollVideoCount,
-    heygenVideoCount: perf?.drawElement?.heygenVideoCount,
+    chalkframesVideoCount: perf?.drawElement?.chalkframesVideoCount,
     adaptersUsed: perf?.drawElement?.adaptersUsed,
     audioCount: perf?.drawElement?.audioCount,
     imageCount: perf?.drawElement?.imageCount,

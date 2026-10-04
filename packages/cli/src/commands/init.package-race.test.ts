@@ -18,7 +18,7 @@ afterEach(() => {
 
 describe("init config creation", () => {
   it.each(
-    ["package.json", "hyperframes.json"].flatMap((filename) =>
+    ["package.json", "chalkframes.json"].flatMap((filename) =>
       ["existing", "concurrent", "dangling symlink"].map((kind) => ({ filename, kind })),
     ),
   )("preserves $kind $filename while completing initialization", async ({ filename, kind }) => {
@@ -37,7 +37,7 @@ describe("init config creation", () => {
       }
       return original.existsSync(path);
     });
-    vi.stubEnv("HYPERFRAMES_SKIP_SKILLS", "1");
+    vi.stubEnv("CHALKFRAMES_SKIP_SKILLS", "1");
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
       await runCommand(init, {

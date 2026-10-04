@@ -13,7 +13,7 @@ describe("auth/errors", () => {
     const err = ErrNotConfigured();
     expect(err).toBeInstanceOf(AuthError);
     expect(err.code).toBe("NOT_CONFIGURED");
-    expect(err.hint).toContain("hyperframes auth login");
+    expect(err.hint).toContain("chalkframes auth login");
   });
 
   it("ErrInvalidStore wraps the detail", () => {

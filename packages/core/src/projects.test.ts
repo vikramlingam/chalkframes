@@ -82,7 +82,7 @@ describe("findProjects", () => {
       "repo-copy/film/meta.json",
       "vendor/sub/.git",
       "vendor/sub/film/index.html",
-      "vendor/sub/film/hyperframes.json",
+      "vendor/sub/film/chalkframes.json",
     ]);
     writeFileSync(join(root, "repo-copy", ".git"), "gitdir: /src/repo/.git/worktrees/repo-copy\n");
 
@@ -160,7 +160,7 @@ describe("findProjects", () => {
   it("does not look for projects inside a project", async () => {
     const root = tree([
       "film/index.html",
-      "film/hyperframes.json",
+      "film/chalkframes.json",
       "film/compositions/intro/index.html",
       "film/compositions/intro/meta.json",
     ]);

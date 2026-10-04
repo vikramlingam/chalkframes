@@ -8,7 +8,7 @@ import {
 export const TYPEGPU_PRESENT_HEARTBEAT_MS = 250;
 
 /**
- * TypeGPU / WebGPU adapter for HyperFrames
+ * TypeGPU / WebGPU adapter for ChalkFrames
  *
  * Enables seekable GPU-rendered compositions built with TypeGPU or raw WebGPU.
  * Since WebGPU pipelines are not introspectable from outside (unlike GSAP
@@ -36,7 +36,7 @@ export const TYPEGPU_PRESENT_HEARTBEAT_MS = 250;
  *     // ... submit command encoder ...
  *   }
  *
- *   // Seek: fired by HyperFrames whenever the player scrubs or plays
+ *   // Seek: fired by ChalkFrames whenever the player scrubs or plays
  *   window.addEventListener("hf-seek", (e) => {
  *     render(e.detail.time);
  *     e.detail.waitUntil(device.queue.onSubmittedWorkDone());
@@ -55,7 +55,7 @@ export const TYPEGPU_PRESENT_HEARTBEAT_MS = 250;
  *
  * For frame-perfect video renders, register GPU completion synchronously with
  * `e.detail.waitUntil(device.queue.onSubmittedWorkDone())` after `render(time)`.
- * HyperFrames awaits the registered work before screenshots and frame capture.
+ * ChalkFrames awaits the registered work before screenshots and frame capture.
  *
  * ## Browser feature detection
  *

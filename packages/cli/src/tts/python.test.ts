@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Regression coverage for a silent HYPERFRAMES_PYTHON override rejection:
+// Regression coverage for a silent CHALKFRAMES_PYTHON override rejection:
 // findPython() correctly resolves the env override first, but previously
 // discarded ANY validation failure (nonexistent path, non-executable,
 // non-Python-3 output, timeout) via a bare `catch {}` with zero diagnostic,
 // silently falling back to the PATH probe. A user with a subtly wrong
-// HYPERFRAMES_PYTHON value had no way to know it was even seen, let alone
+// CHALKFRAMES_PYTHON value had no way to know it was even seen, let alone
 // why it was rejected.
 
 const execFileSyncMock = vi.hoisted(() => vi.fn());
@@ -23,23 +23,23 @@ describe("findPython / describeRejectedPythonOverride", () => {
   });
 
   afterEach(() => {
-    delete process.env.HYPERFRAMES_PYTHON;
+    delete process.env.CHALKFRAMES_PYTHON;
   });
 
-  it("describeRejectedPythonOverride returns null when HYPERFRAMES_PYTHON is unset", () => {
-    delete process.env.HYPERFRAMES_PYTHON;
+  it("describeRejectedPythonOverride returns null when CHALKFRAMES_PYTHON is unset", () => {
+    delete process.env.CHALKFRAMES_PYTHON;
     expect(describeRejectedPythonOverride()).toBeNull();
     expect(execFileSyncMock).not.toHaveBeenCalled();
   });
 
   it("describeRejectedPythonOverride returns null when the override is a valid Python 3", () => {
-    process.env.HYPERFRAMES_PYTHON = "/opt/venv/bin/python";
+    process.env.CHALKFRAMES_PYTHON = "/opt/venv/bin/python";
     execFileSyncMock.mockReturnValue("Python 3.11.0");
     expect(describeRejectedPythonOverride()).toBeNull();
   });
 
   it("describeRejectedPythonOverride names the override and the exception when it cannot run", () => {
-    process.env.HYPERFRAMES_PYTHON = "/nonexistent/python";
+    process.env.CHALKFRAMES_PYTHON = "/nonexistent/python";
     execFileSyncMock.mockImplementation(() => {
       throw new Error("ENOENT: no such file or directory");
     });
@@ -49,7 +49,7 @@ describe("findPython / describeRejectedPythonOverride", () => {
   });
 
   it("describeRejectedPythonOverride names the override when --version doesn't report Python 3", () => {
-    process.env.HYPERFRAMES_PYTHON = "/opt/venv/bin/python2";
+    process.env.CHALKFRAMES_PYTHON = "/opt/venv/bin/python2";
     execFileSyncMock.mockReturnValue("Python 2.7.18");
     const message = describeRejectedPythonOverride();
     expect(message).toContain("/opt/venv/bin/python2");
@@ -57,7 +57,7 @@ describe("findPython / describeRejectedPythonOverride", () => {
   });
 
   it("findPython still falls back to the PATH probe when the override is rejected", () => {
-    process.env.HYPERFRAMES_PYTHON = "/nonexistent/python";
+    process.env.CHALKFRAMES_PYTHON = "/nonexistent/python";
     execFileSyncMock.mockImplementation((cmd: string, args: string[]) => {
       if (args[0] === "--version" && cmd === "/nonexistent/python") {
         throw new Error("ENOENT: no such file or directory");
@@ -70,7 +70,7 @@ describe("findPython / describeRejectedPythonOverride", () => {
   });
 
   it("findPython uses the override directly when it validates", () => {
-    process.env.HYPERFRAMES_PYTHON = "/opt/venv/bin/python";
+    process.env.CHALKFRAMES_PYTHON = "/opt/venv/bin/python";
     execFileSyncMock.mockReturnValue("Python 3.11.0");
     expect(findPython()).toBe("/opt/venv/bin/python");
     expect(execFileSyncMock).toHaveBeenCalledTimes(1);

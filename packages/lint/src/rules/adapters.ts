@@ -1,7 +1,7 @@
-import type { LintContext, HyperframeLintFinding } from "../context";
+import type { LintContext, ChalkframeLintFinding } from "../context";
 import { readAttr, extractScriptTextsAndSrcs } from "../utils";
 
-export const adapterRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
+export const adapterRules: Array<(ctx: LintContext) => ChalkframeLintFinding[]> = [
   // missing_lottie_script
   ({ tags, scripts }) => {
     const { texts, srcs } = extractScriptTextsAndSrcs(scripts);

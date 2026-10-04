@@ -13,7 +13,7 @@ import {
 describe("htmlDocument helpers", () => {
   it("keeps a document's <html> attributes when a comment comes before the doctype", () => {
     const doc = parseHTMLContent(
-      '<!-- hyperframes-registry-item: blk -->\n<!doctype html>\n<html lang="en" data-composition-variables="[]"><body></body></html>',
+      '<!-- chalkframes-registry-item: blk -->\n<!doctype html>\n<html lang="en" data-composition-variables="[]"><body></body></html>',
     );
     expect(doc.documentElement.getAttribute("lang")).toBe("en");
     expect(doc.documentElement.hasAttribute("data-composition-variables")).toBe(true);
@@ -33,22 +33,22 @@ describe("htmlDocument helpers", () => {
     expect(doc.body.querySelector("template")?.innerHTML).toContain("<span>hello</span>");
   });
 
-  it("strips every known embedded HyperFrames runtime marker", () => {
+  it("strips every known embedded ChalkFrames runtime marker", () => {
     const html = `
-<script src="hyperframe.runtime.iife.js"></script>
-<script src="hyperframes-runtime.modular.inline.js"></script >
-<script src="hyperframe-runtime.modular-runtime.inline.js"></script>
-<script data-hyperframes-preview-runtime="1"></script>
+<script src="chalkframe.runtime.iife.js"></script>
+<script src="chalkframes-runtime.modular.inline.js"></script >
+<script src="chalkframe-runtime.modular-runtime.inline.js"></script>
+<script data-chalkframes-preview-runtime="1"></script>
 <script>window.__playerReady = true;</script >
 <script>window.__renderReady = false;</script>
 <script>window.authored = true;</script>`;
 
     const stripped = stripEmbeddedRuntimeScripts(html);
 
-    expect(stripped).not.toContain("hyperframe.runtime.iife.js");
-    expect(stripped).not.toContain("hyperframes-runtime.modular.inline.js");
-    expect(stripped).not.toContain("hyperframe-runtime.modular-runtime.inline.js");
-    expect(stripped).not.toContain("data-hyperframes-preview-runtime");
+    expect(stripped).not.toContain("chalkframe.runtime.iife.js");
+    expect(stripped).not.toContain("chalkframes-runtime.modular.inline.js");
+    expect(stripped).not.toContain("chalkframe-runtime.modular-runtime.inline.js");
+    expect(stripped).not.toContain("data-chalkframes-preview-runtime");
     expect(stripped).not.toContain("window.__playerReady");
     expect(stripped).not.toContain("window.__renderReady");
     expect(stripped).toContain("window.authored = true");
@@ -142,7 +142,7 @@ describe("htmlDocument helpers", () => {
     expect(injected).toContain("<script>b=2</script>\n</body></html>");
 
     const stripped = stripEmbeddedRuntimeScripts(
-      '<p>İİ</p><script src="hyperframe.runtime.iife.js"></script><p>kept</p>',
+      '<p>İİ</p><script src="chalkframe.runtime.iife.js"></script><p>kept</p>',
     );
     expect(stripped).toBe("<p>İİ</p><p>kept</p>");
 

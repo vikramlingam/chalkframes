@@ -45,7 +45,7 @@ import { existsSync } from "node:fs";
 
 // ── Fast-path exits ─────────────────────────────────────────────────────────
 // Check --version before importing anything heavy. This makes
-// `hyperframes --version` near-instant (~10ms vs ~80ms).
+// `chalkframes --version` near-instant (~10ms vs ~80ms).
 import { VERSION } from "./version.js";
 
 const argv = process.argv.slice(2);
@@ -62,7 +62,7 @@ if (rootVersionRequested) {
 
 // ── Load .env from CWD ─────────────────────────────────────────────────────
 // Agents run from the project directory where .env holds API keys (Gemini,
-// HeyGen, ElevenLabs). Load it automatically so they don't need `source .env`.
+// Chalkframes, ElevenLabs). Load it automatically so they don't need `source .env`.
 try {
   const { readFileSync } = await import("node:fs");
   const { resolve } = await import("node:path");
@@ -196,7 +196,7 @@ const subCommands = Object.fromEntries(
 
 const main = defineCommand({
   meta: {
-    name: "hyperframes",
+    name: "chalkframes",
     version: VERSION,
     description: "Create and render HTML video compositions",
   },
@@ -399,7 +399,7 @@ function reportPostRenderTerminationEvent(
   error: Error,
 ): void {
   process.stderr.write(
-    `  [hyperframes] Post-render ${label} (render already succeeded): ${error.message}\n`,
+    `  [chalkframes] Post-render ${label} (render already succeeded): ${error.message}\n`,
   );
   emitCliErrorEvent(kind, error);
 }

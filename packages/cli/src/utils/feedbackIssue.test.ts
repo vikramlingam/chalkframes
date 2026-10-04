@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildIssueUrl, HYPERFRAMES_REPO_URL } from "./feedbackIssue.js";
+import { buildIssueUrl, CHALKFRAMES_REPO_URL } from "./feedbackIssue.js";
 
 function decoded(url: string, key: "title" | "body"): string {
   const value = new URL(url).searchParams.get(key);
@@ -9,17 +9,17 @@ function decoded(url: string, key: "title" | "body"): string {
 
 describe("buildIssueUrl", () => {
   const base = {
-    repoUrl: HYPERFRAMES_REPO_URL,
+    repoUrl: CHALKFRAMES_REPO_URL,
     rating: 2,
     comment: "GSAP timeline froze on seek",
-    repoPublicUrl: "https://hyperframes.dev/p/abc123",
+    repoPublicUrl: "https://chalkframes.dev/p/abc123",
     environment: "os=darwin/arm64 node=v22.11.0 ffmpeg=yes",
     cliVersion: "1.2.3",
   };
 
   it("points at the repo /issues/new with the bug label", () => {
     const url = buildIssueUrl(base);
-    expect(url.startsWith(`${HYPERFRAMES_REPO_URL}/issues/new?`)).toBe(true);
+    expect(url.startsWith(`${CHALKFRAMES_REPO_URL}/issues/new?`)).toBe(true);
     expect(new URL(url).searchParams.get("labels")).toBe("bug");
   });
 
@@ -28,7 +28,7 @@ describe("buildIssueUrl", () => {
     expect(decoded(url, "title")).toBe("[feedback] GSAP timeline froze on seek");
     const body = decoded(url, "body");
     expect(body).toContain("2/10");
-    expect(body).toContain("https://hyperframes.dev/p/abc123");
+    expect(body).toContain("https://chalkframes.dev/p/abc123");
     expect(body).toContain("os=darwin/arm64");
     expect(body).toContain("cli=1.2.3");
   });
@@ -51,9 +51,9 @@ describe("buildIssueUrl", () => {
   it("strips a trailing .git from the repo url", () => {
     const url = buildIssueUrl({
       ...base,
-      repoUrl: "https://github.com/heygen-com/hyperframes.git",
+      repoUrl: "https://github.com/vikramlingam/chalkframes.git",
     });
-    expect(url.startsWith(`${HYPERFRAMES_REPO_URL}/issues/new?`)).toBe(true);
+    expect(url.startsWith(`${CHALKFRAMES_REPO_URL}/issues/new?`)).toBe(true);
   });
 
   it("notes when no repro link is available", () => {

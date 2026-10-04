@@ -1,6 +1,6 @@
 import { basename, dirname, isAbsolute, join, relative, sep } from "node:path";
 import { readdirSync, type Dirent } from "node:fs";
-import { realpath, resolveWithinProject } from "@hyperframes/core/safe-path";
+import { realpath, resolveWithinProject } from "@chalkframes/core/safe-path";
 
 // `isSafePath` lives at the package root so non-studio-api layers (compiler,
 // CLI, engine) can share it without a backwards dependency on studio-api.
@@ -13,7 +13,7 @@ export {
   realpath,
   realProjectRoot,
   resolveWithinProject,
-} from "@hyperframes/core/safe-path";
+} from "@chalkframes/core/safe-path";
 
 /** The real path; for a path not there (yet, or any more), the nearest existing folder's real path plus the rest. */
 export function realFilePath(filePath: string): string {
@@ -46,13 +46,13 @@ const IGNORE_DIRS = new Set([
 ]);
 
 function shouldIgnoreDir(rel: string): boolean {
-  return rel === ".hyperframes/backup";
+  return rel === ".chalkframes/backup";
 }
 
 /**
  * True when any directory segment of a relative path is a dot-directory or
  * node_modules. Projects that vendor tooling assets under dot-directories
- * (.hyperframes/, .cache/, …) ship example/preset HTML that must not surface
+ * (.chalkframes/, .cache/, …) ship example/preset HTML that must not surface
  * as project compositions or studio lint targets (#1384). The file tree is
  * deliberately not filtered — this only gates discovery.
  */

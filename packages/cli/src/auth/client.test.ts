@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   AuthClient,
-  HEYGEN_CLI_SOURCE,
-  HEYGEN_CLI_SOURCE_HEADER,
-  HEYGEN_CLIENT_SOURCE,
-  HEYGEN_CLIENT_SOURCE_HEADER,
+  CHALKFRAMES_CLI_SOURCE,
+  CHALKFRAMES_CLI_SOURCE_HEADER,
+  CHALKFRAMES_CLIENT_SOURCE,
+  CHALKFRAMES_CLIENT_SOURCE_HEADER,
   apiBaseUrl,
   buildAuthHeaders,
 } from "./client.js";
@@ -53,24 +53,24 @@ async function expectRejectionMessage(
 }
 
 describe("auth/client", () => {
-  const original = process.env["HEYGEN_API_URL"];
+  const original = process.env["CHALKFRAMES_API_URL"];
 
   beforeEach(() => {
-    delete process.env["HEYGEN_API_URL"];
+    delete process.env["CHALKFRAMES_API_URL"];
   });
 
   afterEach(() => {
-    if (original !== undefined) process.env["HEYGEN_API_URL"] = original;
-    else delete process.env["HEYGEN_API_URL"];
+    if (original !== undefined) process.env["CHALKFRAMES_API_URL"] = original;
+    else delete process.env["CHALKFRAMES_API_URL"];
   });
 
-  it("apiBaseUrl defaults to https://api.heygen.com", () => {
-    expect(apiBaseUrl()).toBe("https://api.heygen.com");
+  it("apiBaseUrl defaults to https://api.chalkframes.com", () => {
+    expect(apiBaseUrl()).toBe("https://api.chalkframes.com");
   });
 
-  it("apiBaseUrl honors HEYGEN_API_URL and strips trailing slash", () => {
-    process.env["HEYGEN_API_URL"] = "https://api.dev.heygen.com/";
-    expect(apiBaseUrl()).toBe("https://api.dev.heygen.com");
+  it("apiBaseUrl honors CHALKFRAMES_API_URL and strips trailing slash", () => {
+    process.env["CHALKFRAMES_API_URL"] = "https://api.dev.chalkframes.com/";
+    expect(apiBaseUrl()).toBe("https://api.dev.chalkframes.com");
   });
 
   it("buildAuthHeaders uses Bearer for oauth", () => {
@@ -82,15 +82,15 @@ describe("auth/client", () => {
     };
     expect(buildAuthHeaders(cred)).toEqual({
       authorization: "Bearer at_123",
-      [HEYGEN_CLI_SOURCE_HEADER]: HEYGEN_CLI_SOURCE,
-      [HEYGEN_CLIENT_SOURCE_HEADER]: HEYGEN_CLIENT_SOURCE,
+      [CHALKFRAMES_CLI_SOURCE_HEADER]: CHALKFRAMES_CLI_SOURCE,
+      [CHALKFRAMES_CLIENT_SOURCE_HEADER]: CHALKFRAMES_CLIENT_SOURCE,
     });
   });
 
   it("buildAuthHeaders uses x-api-key for api_key, without the cli-source header but with the tool tag", () => {
     expect(buildAuthHeaders(apiKeyCred())).toEqual({
       "x-api-key": "hg_x",
-      [HEYGEN_CLIENT_SOURCE_HEADER]: HEYGEN_CLIENT_SOURCE,
+      [CHALKFRAMES_CLIENT_SOURCE_HEADER]: CHALKFRAMES_CLIENT_SOURCE,
     });
   });
 

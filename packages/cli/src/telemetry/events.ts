@@ -1,6 +1,6 @@
 import type { BrowserInstallFacts } from "../browser/installFacts.js";
-import { redactTelemetryString, type OutputResolutionIssueKind } from "@hyperframes/core";
-import type { SubTimelineWaitOutcome } from "@hyperframes/engine";
+import { redactTelemetryString, type OutputResolutionIssueKind } from "@chalkframes/core";
+import type { SubTimelineWaitOutcome } from "@chalkframes/engine";
 import { FEEDBACK_RATING_SCALE } from "../utils/feedbackRating.js";
 import type { CatalogUsage } from "../utils/catalogUsage.js";
 import { flush, shouldTrack, trackEvent } from "./client.js";
@@ -29,7 +29,7 @@ function powerStateFields(): { on_battery?: boolean; low_power_mode?: boolean } 
   };
 }
 
-// run_id is attached only when the orchestrator set HYPERFRAMES_RUN_ID — an
+// run_id is attached only when the orchestrator set CHALKFRAMES_RUN_ID — an
 // absent property, never null/"" (PostHog treats those as real values).
 function runIdField(runId: string | undefined): { run_id?: string } {
   return runId !== undefined ? { run_id: runId } : {};
@@ -79,7 +79,7 @@ export interface RenderObservabilityTelemetryPayload {
   captureCompositionElementCountSource?: string;
   captureCompositionElementTags?: Readonly<Record<string, number>>;
   captureArollVideoCount?: number;
-  captureHeygenVideoCount?: number;
+  captureChalkframesVideoCount?: number;
   captureAdaptersUsed?: readonly string[];
   captureAudioCount?: number;
   captureImageCount?: number;
@@ -162,7 +162,7 @@ function renderObservabilityEventProperties(props: RenderObservabilityTelemetryP
     composition_element_count_source: props.captureCompositionElementCountSource,
     composition_element_tags: props.captureCompositionElementTags,
     aroll_video_count: props.captureArollVideoCount,
-    heygen_video_count: props.captureHeygenVideoCount,
+    chalkframes_video_count: props.captureChalkframesVideoCount,
     adapters_used: props.captureAdaptersUsed,
     audio_count: props.captureAudioCount,
     image_count: props.captureImageCount,
@@ -330,7 +330,7 @@ export function trackRenderComplete(
     authoringSkillSource?: string;
     /** Raw --skill value when it failed skill-slug normalization (an unrecognized skill name). */
     authoringSkillInvalid?: string;
-    /** Names of HF_-/HYPERFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
+    /** Names of HF_-/CHALKFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
     hfEnvOverrides?: readonly string[];
     /**
      * Catalog items installed in this project, and those the rendered
@@ -343,7 +343,7 @@ export function trackRenderComplete(
     // Worker auto-sizing provenance (RenderPerfSummary.workerSizing). Answers
     // "why N workers?" fleet-wide, and validates the advisory per-worker heap
     // budget before it's enforced (field OOM: 6 auto workers on a 24GB/4GB-heap
-    // machine — see computeWorkerSizing in @hyperframes/engine).
+    // machine — see computeWorkerSizing in @chalkframes/engine).
     workersBoundBy?: string;
     workersCpuBased?: number;
     workersMemoryBased?: number;
@@ -375,7 +375,7 @@ export function trackRenderComplete(
     compositionElementCountSource?: string;
     compositionElementTags?: Readonly<Record<string, number>>;
     arollVideoCount?: number;
-    heygenVideoCount?: number;
+    chalkframesVideoCount?: number;
     adaptersUsed?: readonly string[];
     audioCount?: number;
     imageCount?: number;
@@ -416,7 +416,7 @@ export function trackRenderComplete(
     deBoundaryFrames?: number;
     deNcprFallbacks?: number;
     deFrameTimeouts?: number;
-    // "cli" when triggered by `hyperframes render` (default), "studio" when
+    // "cli" when triggered by `chalkframes render` (default), "studio" when
     // triggered by a studio preview-server render (POST /api/projects/:id/render).
     source?: "cli" | "studio";
     // Composition metadata
@@ -536,7 +536,7 @@ export function trackRenderComplete(
         props.captureCompositionElementTags,
       ),
       aroll_video_count: directOrCapture(props.arollVideoCount, props.captureArollVideoCount),
-      heygen_video_count: directOrCapture(props.heygenVideoCount, props.captureHeygenVideoCount),
+      chalkframes_video_count: directOrCapture(props.chalkframesVideoCount, props.captureChalkframesVideoCount),
       adapters_used: directOrCapture(props.adaptersUsed, props.captureAdaptersUsed),
       audio_count: directOrCapture(props.audioCount, props.captureAudioCount),
       image_count: directOrCapture(props.imageCount, props.captureImageCount),
@@ -645,7 +645,7 @@ export function trackRenderError(
     authoringSkillSource?: string;
     /** Raw --skill value when it failed skill-slug normalization (an unrecognized skill name). */
     authoringSkillInvalid?: string;
-    /** Names of HF_-/HYPERFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
+    /** Names of HF_-/CHALKFRAMES_-prefixed env vars present at plan time (never values), capped at 20. */
     hfEnvOverrides?: readonly string[];
     docker: boolean;
     workers?: number;
@@ -787,7 +787,7 @@ export function trackInitTemplate(templateId: string, props?: { tailwind?: boole
  *
  * Item names are public registry identifiers, never user content or project
  * data. This routes through `trackEvent`, so an install that opted out
- * (`hyperframes telemetry disable`, `HYPERFRAMES_NO_TELEMETRY`, `DO_NOT_TRACK`)
+ * (`chalkframes telemetry disable`, `CHALKFRAMES_NO_TELEMETRY`, `DO_NOT_TRACK`)
  * emits nothing.
  */
 export function trackRegistryItemAdded(props: {
@@ -848,7 +848,7 @@ export function trackAuthLoginFailed(
   trackEvent("auth_login_failed", { method, reason }, distinctId);
 }
 
-// Associate this install with the signed-in HeyGen account after a completed
+// Associate this install with the signed-in Chalkframes account after a completed
 // sign-in. Emits a PostHog `$identify` alias whose `$anon_distinct_id` is the
 // install's anonymousId, so events recorded before sign-in stitch to the same
 // person instead of stranding as a separate anonymous profile. Routed through

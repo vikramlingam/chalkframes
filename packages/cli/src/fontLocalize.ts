@@ -19,8 +19,8 @@ function safeVersion(version: string): string {
  */
 export function stampFontVersions(html: string, versions: FontVersions): string {
   const tags =
-    `<meta name="hyperframes-font-compiler-version" content="${safeVersion(versions.producer)}">` +
-    `<meta name="hyperframes-font-localizer-version" content="${safeVersion(versions.localizer)}">`;
+    `<meta name="chalkframes-font-compiler-version" content="${safeVersion(versions.producer)}">` +
+    `<meta name="chalkframes-font-localizer-version" content="${safeVersion(versions.localizer)}">`;
   const headClose = html.search(/<\/head\s*>/i);
   if (headClose >= 0) return `${html.slice(0, headClose)}${tags}${html.slice(headClose)}`;
   const doctype = /^\s*<!doctype[^>]*>/i.exec(html);

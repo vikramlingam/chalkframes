@@ -1,5 +1,5 @@
-import { sameInstant } from "@hyperframes/core/clip-facts";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+import { sameInstant } from "@chalkframes/core/clip-facts";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import {
   findTargetElement,
   dedupeClonedCompositionId,

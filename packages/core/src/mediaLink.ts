@@ -1,4 +1,4 @@
-import { readMediaOffsetSeconds } from "@hyperframes/parsers/media-duration";
+import { readMediaOffsetSeconds } from "@chalkframes/parsers/media-duration";
 
 /**
  * Linked clips: members sharing a `data-link` id are edited as one (a detached

@@ -118,7 +118,7 @@ export function safeDownloadUrlIdentity(url: string): SafeDownloadUrlIdentity {
 /** Default safe structured sink for engine media call sites without a logger. */
 export function writeUrlDownloadTelemetry(event: UrlDownloadTelemetry): void {
   try {
-    process.stderr.write(`[hyperframes:download] ${JSON.stringify(event)}\n`);
+    process.stderr.write(`[chalkframes:download] ${JSON.stringify(event)}\n`);
   } catch {
     // Observability must never change download correctness.
   }

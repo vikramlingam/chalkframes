@@ -7,7 +7,7 @@
  * This is the safety net for porting WS-3 ops one at a time: each ported op
  * gets a fixture row here proving it matches the battle-tested original.
  *
- * The server picks the writer from HYPERFRAMES_GSAP_WRITER; acorn is the default.
+ * The server picks the writer from CHALKFRAMES_GSAP_WRITER; acorn is the default.
  */
 import { describe, expect, it } from "vitest";
 import { parseHTML } from "linkedom";

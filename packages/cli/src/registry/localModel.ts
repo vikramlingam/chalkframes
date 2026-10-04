@@ -34,7 +34,7 @@ export const LOCAL_MODEL_SIZE_MB = 33;
 /** bge retrieval expects short queries to carry this prefix; passages do not. */
 export const QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: ";
 
-const MODELS_DIR = join(homedir(), ".hyperframes", "models");
+const MODELS_DIR = join(homedir(), ".chalkframes", "models");
 
 /**
  * Where the two halves come from.

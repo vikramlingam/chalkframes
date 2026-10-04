@@ -1,8 +1,8 @@
 import { defineCommand } from "citty";
 import { existsSync, readFileSync } from "node:fs";
-import { readProjectFile } from "@hyperframes/parsers/asset-resolution";
+import { readProjectFile } from "@chalkframes/parsers/asset-resolution";
 import { resolve, dirname, basename, join, relative, sep } from "node:path";
-import { parseGsapScript, type GsapAnimation } from "@hyperframes/core/gsap-parser";
+import { parseGsapScript, type GsapAnimation } from "@chalkframes/core/gsap-parser";
 import type { Example } from "./_examples.js";
 import { c } from "../ui/colors.js";
 import { ensureDOMParser } from "../utils/dom.js";
@@ -10,11 +10,11 @@ import { resolveProject } from "../utils/project.js";
 import { withMeta } from "../utils/updateCheck.js";
 
 export const examples: Example[] = [
-  ["Surface every keyframe + motion path in the project", "hyperframes keyframes"],
-  ["Inspect one composition file", "hyperframes keyframes compositions/scene.html"],
-  ["Machine-readable output for an agent", "hyperframes keyframes --json"],
-  ["Only one element's keyframes", "hyperframes keyframes --selector '#puck-a'"],
-  ["Runtime-aware hint for CSS/Anime compositions", "hyperframes keyframes --runtime all"],
+  ["Surface every keyframe + motion path in the project", "chalkframes keyframes"],
+  ["Inspect one composition file", "chalkframes keyframes compositions/scene.html"],
+  ["Machine-readable output for an agent", "chalkframes keyframes --json"],
+  ["Only one element's keyframes", "chalkframes keyframes --selector '#puck-a'"],
+  ["Runtime-aware hint for CSS/Anime compositions", "chalkframes keyframes --runtime all"],
 ];
 
 // ── Surfaced shapes ──────────────────────────────────────────────────────────
@@ -889,7 +889,7 @@ const defaultKeyframesCommand: KeyframesCommandOptions = {
   name: "keyframes",
   description:
     "See, debug, and refine keyframes — surface GSAP, CSS @keyframes, Anime.js, paths, and onion-shot diagnostics",
-  invocation: "hyperframes keyframes",
+  invocation: "chalkframes keyframes",
   defaultRuntime: "all",
 };
 

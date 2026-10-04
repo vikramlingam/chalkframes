@@ -1,14 +1,14 @@
 import { existsSync, statSync } from "node:fs";
 import { realpath } from "./safePath.js";
 import { relative, resolve, sep } from "node:path";
-import { rewriteAssetPath } from "@hyperframes/parsers/asset-paths";
+import { rewriteAssetPath } from "@chalkframes/parsers/asset-paths";
 import {
   cleanAssetUrl,
   isRemoteOrInlineUrl,
   isUnresolvedAssetPlaceholder,
   maskNonScannableRanges,
   resolveLocalAssetCandidates,
-} from "@hyperframes/parsers/asset-resolution";
+} from "@chalkframes/parsers/asset-resolution";
 import { pixelFormatHasAlpha, probeMediaMetadata, type FfprobeRunner } from "./mediaMetadata.js";
 
 /**
@@ -80,7 +80,7 @@ export function shouldPrewarmProxy(facts: AssetCodecFacts): boolean {
 
 // Per process, and deliberately in one unit — a call to `resolveProxy` — so
 // the pair reads as a ratio. Summarised at exit on stderr, in the same
-// `[hyperframes:<area>] {json}` shape as `writeUrlDownloadTelemetry`.
+// `[chalkframes:<area>] {json}` shape as `writeUrlDownloadTelemetry`.
 const proxyDemand = { prewarmsRequested: 0, proxyRequests: 0 };
 
 /** Snapshot of this process's pre-warm demand counters. */
@@ -91,7 +91,7 @@ export function mediaProxyDemand(): { prewarmsRequested: number; proxyRequests: 
 function writeDemandLine(event: "prewarm_requested" | "summary"): void {
   try {
     process.stderr.write(
-      `[hyperframes:media-proxy] ${JSON.stringify({ event, ...proxyDemand })}\n`,
+      `[chalkframes:media-proxy] ${JSON.stringify({ event, ...proxyDemand })}\n`,
     );
   } catch {
     // Observability must never change proxy correctness.
@@ -100,7 +100,7 @@ function writeDemandLine(event: "prewarm_requested" | "summary"): void {
 
 /** Mirrors `isGpuProbeDebugEnabled` in packages/engine/src/utils/gpuEncoder.ts. */
 function isMediaProxyDebugEnabled(): boolean {
-  const value = process.env.HYPERFRAMES_DEBUG_MEDIA_PROXY;
+  const value = process.env.CHALKFRAMES_DEBUG_MEDIA_PROXY;
   return value === "1" || value === "true";
 }
 
@@ -282,7 +282,7 @@ export interface HtmlSourceLike {
 }
 
 // --- <video src> collection: shared primitives live in
-// @hyperframes/parsers/asset-resolution; the <video>-specific regex and the
+// @chalkframes/parsers/asset-resolution; the <video>-specific regex and the
 // pinned key derivation stay here.
 const VIDEO_SRC_RE = /<video\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
 

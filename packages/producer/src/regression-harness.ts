@@ -25,7 +25,7 @@ import {
   compareAudioEnvelopes,
   computeAudioResidualRmsDb,
 } from "./utils/audioRegression.js";
-import { parseFps, fpsToNumber } from "@hyperframes/core";
+import { parseFps, fpsToNumber } from "@chalkframes/core";
 import {
   checkDistributedSupport,
   type HarnessMode,
@@ -35,7 +35,7 @@ import {
 } from "./regression-harness-distributed.js";
 
 // `regression-harness-lambda-local` statically imports
-// `@hyperframes/aws-lambda`, which depends on @aws-sdk + @sparticuz/chromium.
+// `@chalkframes/aws-lambda`, which depends on @aws-sdk + @sparticuz/chromium.
 // In Dockerfile.test the workspace copy of aws-lambda's src isn't present,
 // so a static import here would fail at module-load time even when
 // running `--mode=in-process`. Load it on demand instead.
@@ -43,13 +43,13 @@ import {
 // The signature is typed via `RunLambdaLocalRender` (in its own types-only
 // file) instead of `typeof import(...)` so producer's tsc doesn't have to
 // type-check the implementation. The implementation imports
-// `@hyperframes/aws-lambda`, whose types come from `dist/index.d.ts` after
+// `@chalkframes/aws-lambda`, whose types come from `dist/index.d.ts` after
 // aws-lambda's build runs — a chicken-and-egg with producer's tsc that
 // would otherwise fail the whole-repo build.
 //
 // The dynamic import path is indirected through a variable so tsc can't
 // statically resolve the target file. Without this indirection tsc still
-// pulls `regression-harness-lambda-local.ts` (and its `@hyperframes/aws-lambda`
+// pulls `regression-harness-lambda-local.ts` (and its `@chalkframes/aws-lambda`
 // imports) into the program even though the tsconfig `exclude` list
 // nominally hides it. `tsx` resolves the path normally at runtime.
 import type { RunLambdaLocalRender } from "./regression-harness-lambda-local-types.js";
@@ -90,7 +90,7 @@ type TestMetadata = {
      * for rationals. The metadata validator normalizes both into an `Fps`
      * rational at load time so downstream code only sees the structured form.
      */
-    fps: import("@hyperframes/core").Fps;
+    fps: import("@chalkframes/core").Fps;
     /**
      * Output container. Defaults to `"mp4"`. `"png-sequence"` makes the
      * rendered output a directory of zero-padded RGBA PNGs instead of a
@@ -129,7 +129,7 @@ type TestMetadata = {
      */
     captureMode?: "screenshot" | "beginframe";
     /**
-     * Render-time variable overrides, equivalent to `hyperframes render
+     * Render-time variable overrides, equivalent to `chalkframes render
      * --variables '<json>'`. Injected as `window.__hfVariables` before any
      * page script runs so the runtime helper `getVariables()` returns the
      * merged result of declared defaults (`data-composition-variables`)
@@ -168,7 +168,7 @@ type CliOptions = {
    * Which render path to exercise. `in-process` (default) calls
    * `executeRenderJob`; `distributed-simulated` calls
    * `plan() → renderChunk() × N → assemble()` from
-   * `@hyperframes/producer/distributed`. See
+   * `@chalkframes/producer/distributed`. See
    * `regression-harness-distributed.ts`.
    */
   mode: HarnessMode;
@@ -970,7 +970,7 @@ export async function checkStreamDurationParity(
 // ── Test Execution ───────────────────────────────────────────────────────────
 
 export function createRegressionTempRoot(suiteId: string, parent: string = tmpdir()): string {
-  return mkdtempSync(join(parent, `hyperframes-test-${suiteId}-`));
+  return mkdtempSync(join(parent, `chalkframes-test-${suiteId}-`));
 }
 
 async function runTestSuite(

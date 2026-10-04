@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { DEFAULT_CONFIG, resolveConfig } from "@hyperframes/engine";
+import { DEFAULT_CONFIG, resolveConfig } from "@chalkframes/engine";
 import {
   createRenderRequest,
   distributedConfigFromRequest,

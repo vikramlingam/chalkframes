@@ -15,12 +15,12 @@ export async function resolveCaptureBrowserGpuMode(
   requestedMode: BrowserGpuMode,
   chromePath?: string,
 ): Promise<ResolvedBrowserGpuMode> {
-  const { resolveBrowserGpuMode } = await import("@hyperframes/engine");
+  const { resolveBrowserGpuMode } = await import("@chalkframes/engine");
   return resolveBrowserGpuMode(requestedMode, { chromePath });
 }
 
 // `compositionRequiresWebGpu` and the launch-time WebGPU guard now live in
-// @hyperframes/engine (browserManager.ts) — the shared choke point every
+// @chalkframes/engine (browserManager.ts) — the shared choke point every
 // buildChromeArgs caller goes through, CLI included. Re-exported here so
 // existing CLI imports don't need to change their module path.
-export { compositionRequiresWebGpu, assertWebGpuAdapterAvailable } from "@hyperframes/engine";
+export { compositionRequiresWebGpu, assertWebGpuAdapterAvailable } from "@chalkframes/engine";

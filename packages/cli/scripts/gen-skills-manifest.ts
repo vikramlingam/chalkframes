@@ -1,5 +1,5 @@
 // Generate (or verify) skills-manifest.json (repo root) — the published
-// "latest" fingerprint of the HyperFrames skill bundle.
+// "latest" fingerprint of the ChalkFrames skill bundle.
 //
 //   bun run --cwd packages/cli gen:skills-manifest          # write/update
 //   bun run --cwd packages/cli gen:skills-manifest --check  # verify only (CI)
@@ -47,7 +47,7 @@ function reportDrift(fresh: SkillsManifest, committed: SkillsManifest | null): v
   }
 }
 
-const fresh = buildManifest(skillsRoot, { source: "heygen-com/hyperframes" });
+const fresh = buildManifest(skillsRoot, { source: "vikramlingam/chalkframes" });
 
 // Read the committed manifest directly (no existsSync precheck) so there's no
 // check-then-write race on outPath — a missing or unreadable file just means

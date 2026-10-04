@@ -1,10 +1,10 @@
 /**
- * Chain resolver for HeyGen credentials.
+ * Chain resolver for Chalkframes credentials.
  *
  * Priority — first non-empty wins:
- *   1. `HEYGEN_API_KEY` env (matches heygen-cli)
- *   2. `HYPERFRAMES_API_KEY` env (alias for parity with other tools)
- *   3. `~/.heygen/credentials` (JSON) — unexpired OAuth, else api_key
+ *   1. `CHALKFRAMES_API_KEY` env (matches chalkframes-cli)
+ *   2. `CHALKFRAMES_API_KEY` env (alias for parity with other tools)
+ *   3. `~/.chalkframes/credentials` (JSON) — unexpired OAuth, else api_key
  *
  * Absent sources fall through. A broken file (parse error, bad shape)
  * surfaces immediately as `ErrInvalidStore` — silently falling back
@@ -49,18 +49,18 @@ export interface ResolveOptions {
 export async function resolveCredential(opts: ResolveOptions = {}): Promise<ResolvedCredential> {
   const now = (opts.now ?? (() => new Date()))();
 
-  const heygenEnv = process.env["HEYGEN_API_KEY"];
-  if (heygenEnv && heygenEnv.length > 0) {
-    if (!isHeaderSafe(heygenEnv)) {
-      throw ErrInvalidStore("HEYGEN_API_KEY contains control characters");
+  const chalkframesEnv = process.env["CHALKFRAMES_API_KEY"];
+  if (chalkframesEnv && chalkframesEnv.length > 0) {
+    if (!isHeaderSafe(chalkframesEnv)) {
+      throw ErrInvalidStore("CHALKFRAMES_API_KEY contains control characters");
     }
-    return { type: "api_key", key: heygenEnv, source: "env" };
+    return { type: "api_key", key: chalkframesEnv, source: "env" };
   }
 
-  const hfEnv = process.env["HYPERFRAMES_API_KEY"];
+  const hfEnv = process.env["CHALKFRAMES_API_KEY"];
   if (hfEnv && hfEnv.length > 0) {
     if (!isHeaderSafe(hfEnv)) {
-      throw ErrInvalidStore("HYPERFRAMES_API_KEY contains control characters");
+      throw ErrInvalidStore("CHALKFRAMES_API_KEY contains control characters");
     }
     return { type: "api_key", key: hfEnv, source: "env_alias" };
   }

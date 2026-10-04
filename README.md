@@ -1,202 +1,181 @@
-# Chalk Frames
+<p align="center">
+  <img src="assets/icon.png" alt="Chalk Frames" width="128" height="128" />
+</p>
 
-> **Autonomous AI video production.** Chalk Frames is a zero-setup web studio that
-> turns a URL, a script, a topic, or a PDF into a fully narrated, motion-designed
-> MP4 in one click.
+<h1 align="center">Chalk Frames</h1>
 
-Chalk Frames is an independent platform. Its rendering core (the headless-Chrome
-capture engine, producer, and CLI under `packages/`) descends from the
-Apache-2.0 [HyperFrames](https://github.com/heygen-com/hyperframes) project; see
-`LICENSE`. All upstream docs, skills, registry, and cloud-deploy packages were
-removed — only what the generator executes is kept.
+<p align="center">
+  <strong>Autonomous video production suite: turn any topic, URL, script, or PDF into narrated explainer videos.</strong>
+</p>
 
----
-
-## Overview
-
-The product lives in **`studio-web/`**. `packages/` holds the retained render
-toolchain that `studio-web/server.mjs` spawns (the `chalkframes` CLI).
-
-|                                      |                                                                                                 |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| **`studio-web/server.mjs`**          | Node HTTP server: AI directing → storyboard → TTS → composition authoring → validation → render |
-| **`studio-web/public/`**             | Single-page UI (`index.html`, `app.js`, `style.css`) with live SSE pipeline telemetry           |
-| **`studio-web/public/samples/`**     | 7 Kokoro TTS voice previews                                                                     |
-| **`studio-web/public/soundtracks/`** | 5 bundled background tracks                                                                     |
-| **`projects/`**                      | Generated output — one `prod-video_*` dir per job (composition HTML + VO + SFX + BGM)           |
-| **`studio-web/renders/`**            | Finished MP4s                                                                                   |
-
-**Pipeline:** ingest (URL / script / PDF) → OpenRouter "director" produces a
-JSON storyboard → Kokoro TTS per scene → FFmpeg soundtrack master → archetype
-HTML authoring → `chalkframes render` → MP4.
-
-**Design decision worth knowing:** the LLM chooses a **visual archetype** per
-scene (`split-comparison`, `architecture-pipeline`, `metric-stat`, `code-terminal`,
-`data-graph`, `bento-grid`, `quote-callout`, `features-cards`, `hook`, `outro`),
-so scenes don't all look alike. Durations are then re-timed from the _measured_
-voiceover length, not the LLM's guess.
-
-**Source-grounded generation requires an OpenRouter API key.** The old offline
-fallback ignored the uploaded document and narrated unrelated marketing claims;
-it has been disabled rather than delivering a misleading video. Rendering and
-speech synthesis still happen locally.
+<p align="center">
+  <a href="#quick-start">Quick Start</a> &bull;
+  <a href="#how-it-works">How It Works</a> &bull;
+  <a href="#features">Features</a> &bull;
+  <a href="#requirements">Requirements</a> &bull;
+  <a href="#configuration">Configuration</a> &bull;
+  <a href="#license">License</a>
+</p>
 
 ---
+
+Chalk Frames turns a topic, a URL, a written script or a PDF into a narrated explainer video. A language model plans the scenes, Kokoro reads the narration, and the scenes are rendered as HTML/GSAP animations or, for some math and algorithm beats, as Manim animations. Text to speech, rendering and video assembly run on your machine. The network is used for OpenRouter calls, the one-time downloads done by `bun run setup`, Google Fonts while rendering HTML scenes, and (for URL inputs) the sites you point it at. The bundled CLI sends no usage telemetry.
+
+> **Status: work in progress.** This is an early project. It works end to end on the machine it was developed on, but it has not been tested widely, parts of it are unverified, and things will change. See [Known limitations](#known-limitations) before relying on it.
+
+## How it works
+
+```
+input (topic | URL | script | PDF)
+  -> director LLM (OpenRouter) writes a JSON storyboard
+  -> validation: schema checks, escaping, archetype and engine routing, fallbacks
+  -> Kokoro text to speech, one WAV per scene
+  -> scene lengths are fixed in whole 30 fps frames from the measured audio
+  -> Manim scenes render to clips (optional, falls back to HTML on any failure)
+  -> HTML scenes render one at a time through the chalkframes CLI
+  -> every clip is re-encoded to one spec, checked for blank footage, and concatenated
+  -> master voiceover is padded to the exact frame count, mixed with music and effects
+  -> final MP4 in studio-web/renders/
+```
+
+- **The director never writes code.** It returns JSON. For Manim scenes that JSON is validated against a schema and passed to a fixed Python library of three primitives.
+- **Scene length comes from the audio.** Each scene is `max(voiceover length + 1.2 s, chapter target)`, rounded up to whole frames, so video and audio boundaries line up.
+- **Rendering is chunked.** Each HTML scene is rendered in its own headless Chrome session, then the clips are joined with `ffmpeg -c copy`. This keeps memory use per session bounded. Long videos have not been tested (see limitations).
+- **Failures degrade instead of aborting where possible.** A Manim scene that fails to render, times out, or produces blank footage is swapped for its HTML fallback. An HTML scene that renders blank is retried once with a plain title card, and the job fails if that is blank too.
+
+## What is in the repository
+
+| Path                                            | Purpose                                                                       |
+| ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| `studio-web/server.mjs`                         | HTTP server, director prompt, job pipeline, TTS, render orchestration         |
+| `studio-web/catalog.mjs`                        | Archetype catalog (30 entries) and the list shown to the director             |
+| `studio-web/renderers.mjs`                      | HTML, CSS and GSAP code for each archetype                                    |
+| `studio-web/quality.mjs`                        | Storyboard validation, escaping, archetype rotation, Manim routing rules      |
+| `studio-web/enrichment.mjs`, `fallbackText.mjs` | Fallback copy built from the scene's own words, never from stock text         |
+| `studio-web/stitcher.mjs`                       | Segment re-encoding, blank-frame detection, concat, audio assembly, final mux |
+| `studio-web/engines/manim/`                     | Manim integration: capability probe, schema, runner, planner, degrade logic   |
+| `studio-web/engines/manim/py/chalk_manim/`      | Python package with the three Manim primitives                                |
+| `studio-web/public/`                            | Web UI, 27 voice previews, 5 soundtracks, sound effects                       |
+| `packages/`                                     | Render toolchain the server calls (see below)                                 |
+| `projects/`                                     | Generated per-job projects (gitignored)                                       |
+| `studio-web/renders/`                           | Finished videos (gitignored)                                                  |
+
+`packages/` contains `cli`, `core`, `engine`, `producer`, `parsers`, `lint` and `studio-server`. They provide the `chalkframes` command that captures frames in headless Chrome and runs text to speech. These packages are derived from an Apache-2.0 licensed open-source project and have been heavily modified: renamed to `chalkframes`, trimmed of unused packages, and fixed. See [License](#license) for the attribution details.
+
+## Features
+
+- **Inputs:** topic (the model drafts a script), website URL, pasted script, or a PDF upload (25 MB limit). The API accepts durations from 15 to 600 seconds, landscape (1920x1080) or portrait (1080x1920).
+- **Archetypes:** 30 catalog entries. 27 are HTML scenes (title, stats, bento grids, step progressions, terminal views, charts, comparisons and others). 3 are Manim scenes.
+- **Manim primitives:** `manim-function-plot` (curve, tangent, area, morph), `manim-vector-transform` (2x2 matrix acting on the plane, with optional projection), `manim-network-topology` (layered network or BFS/DFS traversal). They draw plain text only, with no LaTeX. Function expressions go through a restricted grammar (no `eval`).
+- **Voices:** 27 English Kokoro voices (American and British, male and female), with preview clips.
+- **Audio:** 5 bundled soundtracks, plus sound effects mixed at scene boundaries.
+- **Palettes:** 4 built-in palettes and a custom hex palette. Scenes can use light, dark or accent themes.
+- **Models:** a list of OpenRouter model IDs is defined in `server.mjs`. Which ones work depends on your OpenRouter account.
+- **Live progress:** the UI follows each job over server-sent events.
 
 ## Requirements
 
-- **bun** ≥ 1.4 · **Node.js** ≥ 22 · **ffmpeg + ffprobe** on `PATH`
-- **Chrome/Chromium** — `chalkframes render` needs it
-- **Kokoro TTS** — install `kokoro-onnx` and `soundfile` in Python; if several
-  Python installs exist, set `HYPERFRAMES_PYTHON=/path/to/python-with-kokoro`
-  (legacy variable name, still read by the retained CLI)
-- An **OpenRouter API key** with access to the model selected in the UI
+Install these yourself (setup cannot):
 
-## Quickstart
+- Node.js 22 or newer
+- [Bun](https://bun.sh) (used for install and for building the workspace packages)
+- `ffmpeg` and `ffprobe` on your `PATH`
+- Python 3.10 to 3.12
+- An [OpenRouter](https://openrouter.ai) API key
 
-```bash
-bun install                 # installs workspace + pdf-parse
-bun run build               # builds the retained render toolchain in packages/
-HYPERFRAMES_PYTHON=/path/to/python-with-kokoro bun run dev
-# open http://localhost:4000
-```
+Setup fetches everything else. Manim Community Edition is optional: without it the app still works and Manim scenes use HTML fallbacks.
 
-Open <http://localhost:4000>, paste an OpenRouter key (stored in
-`localStorage`), drop in a URL/script/PDF, hit **Produce Video**.
-
-<details>
-<summary>Other scripts</summary>
+## Quick start
 
 ```bash
-bun run studio              # start the server (no file watching)
-bun run test:studio         # studio-web regression tests (node --test)
-bun run lint                # oxlint studio-web
-bun run format              # oxfmt studio-web
+git clone https://github.com/vikramlingam/chalkframes.git && cd chalkframes
+bun install
+cp .env.example .env   # then put your OPENROUTER_API_KEY in .env (or paste it in the UI later)
+bun run dev            # http://127.0.0.1:4000
 ```
 
-</details>
+`bun run dev` and `bun run studio` run `bun run setup` first. The first run takes a few minutes and needs about 1.5 GB of disk. Later runs skip every step that is already done. Setup:
 
-## Project layout
+1. checks for `ffmpeg` and `ffprobe`
+2. builds the renderer packages (`bun run build`)
+3. creates `.venv` and installs `kokoro-onnx` and `soundfile` into it, unless `CHALKFRAMES_PYTHON` is set or `python3` already has them
+4. downloads the Kokoro model (about 311 MB) and voices (about 27 MB) into `~/.cache/chalkframes/tts/`
+5. finds Chrome, or downloads one into `~/.cache/chalkframes/chrome/`
+6. creates `.env` from `.env.example` if it is missing
 
-```
-studio-web/
-  server.mjs            # the whole backend
-  public/               # UI + voice samples + soundtracks
-  renders/              # output MP4s (gitignored)
-projects/               # generated projects (per-job HTML + audio)
-packages/               # retained render toolchain: cli, engine, producer, core
-                        # (+ parsers, lint, studio-server, which core/cli depend on)
-```
+Model weights and Chrome are never stored in the repository.
+
+| Command               | What it does                                                        |
+| --------------------- | ------------------------------------------------------------------- |
+| `bun run setup`       | Run the steps above without starting the server                     |
+| `bun run doctor`      | Report what is missing, change nothing                              |
+| `bun run setup:manim` | Optional: install Manim into `.venv` and point `MANIM_PYTHON` at it |
+| `bun run studio`      | Start the server without file watching                              |
+| `bun run test`        | Run the test suites                                                 |
+
+The OpenRouter key can come from `.env` or from the key field in the UI (the UI keeps it in the browser's `localStorage`). `.env` is git-ignored; only `.env.example`, with empty values, is committed.
+
+Manim needs the Pango and Cairo system libraries (macOS: `brew install pango cairo pkg-config`; Debian/Ubuntu: `sudo apt-get install libpango1.0-dev libcairo2-dev pkg-config`).
 
 ## Configuration
 
-| Env    | Default | Notes |
-| ------ | ------- | ----- |
-| `PORT` | `4000`  |       |
+Settings are read from the environment. A `.env` file is loaded from the current directory, the repository root, or `studio-web/`.
 
-Voices, models, and palettes are hardcoded lists in `server.mjs`
-(`VOICES`, `MODELS`, `PALETTES`) — the palette set is WCAG-AA-audited.
+| Variable             | Default                                              | Meaning                                                        |
+| -------------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| `OPENROUTER_API_KEY` | none                                                 | Key used for the director and script drafting                  |
+| `PORT`               | `4000`                                               | Server port                                                    |
+| `HOST`               | `127.0.0.1`                                          | Bind address                                                   |
+| `CHALKFRAMES_PYTHON` | `.venv` from setup, else first Python on `PATH`      | Python with `kokoro-onnx` installed, used by `chalkframes tts` |
+| `MANIM_PYTHON`       | interpreter behind `manim` on `PATH`, else `python3` | Python with Manim installed                                    |
+| `MANIM_TIMEOUT_MS`   | `60000`                                              | Wall-clock limit for one Manim scene                           |
 
----
+## Manim, in short
 
-## Known issues
+Manim is optional. When a job starts, the server checks for Python, the `manim` package, `ffmpeg` and usable fonts (the result is cached for the life of the process), and only offers Manim archetypes to the director if the check passes. The Manim process runs with a reduced environment (no API keys) and a timeout.
 
-Everything in this section was found by a full audit and has since been **fixed**.
-Kept as a record of what was wrong and why the fixes matter.
+A Manim scene is accepted only if its brief validates, it has narration beats and a fallback archetype, it is not the first or last scene, and the share and run-length caps hold (at most 40% of scenes, at most 2 in a row). Anything else is switched to the fallback archetype, and the server logs the reason as `[DEGRADE REASON: Scene N: ...]`. The engine each scene received from the director is logged as `[DIRECTOR ENGINE ASSIGNMENT]`.
 
-### Fixed — correctness
+Whether the director chooses Manim for a given topic depends on the model. The prompt tells it to, but that is not guaranteed.
 
-1. **PDF upload was silently broken.** `pdf-parse` v2 has no callable default
-   export, so `pdfParse(buffer)` threw `TypeError`; the `catch` swallowed it into
-   a "warning" and the pipeline rendered with _no content_. Now binds the v2
-   `PDFParse` class (`new PDFParse({ data })` → `getText()` → `destroy()`), and
-   validates the `%PDF-` magic bytes, non-empty buffer, and a 25 MB cap. A PDF
-   with no extractable text now raises a clear error instead of rendering empty.
-   **Verified end-to-end:** `PDF parsed — 7 words extracted`.
-2. **Default music engine was invalid.** `musicEngine = "studio-acoustic"` was
-   never a `SOUNDTRACK_MAP` key, so every video silently used _Soothing Ambient_.
-   Default is now `soothing-ambient`, and an unknown engine logs a warning.
-3. **Duplicate audio track (10 of 15 older projects).** `whoosh` and `chime`
-   overlapped on track 2. Current source already puts chimes on track 3 —
-   **verified: newly generated projects lint with 0 errors, 0 warnings.** The old
-   `projects/` folders predate that fix.
-4. **Hardcoded `/opt/homebrew/bin/ffprobe`.** Now resolved from `PATH`, so the
-   pipeline works on Intel Macs and Linux too.
-5. **Non-unique job IDs.** `video_${Date.now()}` could collide for two requests
-   in the same millisecond. Now `video_${Date.now()}_${random}`.
+## Development
 
-### Fixed — security
+```bash
+bun run test           # quality, server, engine-upgrade and Manim suites
+bunx oxlint studio-web
+bunx oxfmt --check studio-web
+```
 
-6. **Server was exposed to the whole LAN.** `listen(PORT)` with no host bound
-   `0.0.0.0` — verified reachable at `http://192.168.1.2:4000`. Now binds
-   `127.0.0.1` by default (override with `HOST`).
-7. **Wildcard CORS + unauthenticated `POST /api/generate`** meant any webpage you
-   visited could drive the pipeline and spend your OpenRouter credits. CORS is now
-   same-origin only.
-8. **Shell injection.** Every `execAsync` template string is gone; `ffmpeg`,
-   `ffprobe`, and the `hyperframes` CLI now run via `execFile`/`spawn` with
-   argument arrays. Narration text is never interpreted by a shell.
-9. **SSRF.** The URL field is validated (`http`/`https` only) and refuses
-   loopback, link-local, and RFC1918 private targets.
-10. **Unbounded request body.** Capped at 40 MB → `413` instead of buffering an
-    arbitrary payload into RAM.
+At the time of writing the suite has 48 tests, all passing, and `oxlint` and `oxfmt --check` report nothing. The Manim render tests skip themselves when Manim is not installed.
 
-### Fixed — repo hygiene
+The packages under `packages/` have their own test suites inherited from the original project. They are not part of the commands above, and I have not kept them passing after the trimming and renaming.
 
-11. **`bun run lint` failed (exit 1)** — 5 `no-unused-vars` in your files. Removed.
-    `bunx oxlint .` now reports **0 errors, 0 warnings**.
-12. **`oxfmt --check` failed** on all 5 files. Reformatted — now clean.
-13. **`projects/` (348 MB) and `studio-web/renders/` were not gitignored** — a
-    `git add -A` would have staged 482 files / ~375 MB. Now ignored.
-14. **`pdf-parse` was in `dependencies`**; moved to `devDependencies` (it only
-    backs the local dev server).
+### Server API
 
-### Still open (needs your decision)
+`GET /api/voices`, `/api/models`, `/api/palettes`, `/api/config`, `/api/events?id=...` (progress stream), `POST /api/prepare-script`, `POST /api/generate`, and `GET /renders/<file>` for finished videos. The server runs one production at a time and answers `429` while busy. Request bodies are capped at 40 MB. Browser requests from other origins are refused, and URL inputs are checked so they cannot point at loopback or private addresses.
 
-15. **Pre-existing upstream build failure.** `bun run build` fails at
-    `@hyperframes/sdk-playground` (`ERR_UNKNOWN_FILE_EXTENSION ".ts"`).
-    `packages/` is untouched by this fork, so this is inherited from upstream —
-    it is not caused by Studio One.
-16. **Upstream test suite failures** occur in the untouched `packages/` workspace
-    on this machine. The parallel `bun run test` run failed in studio-server,
-    producer, core, cli, engine and studio; this is not a passing full-suite gate.
-    Studio One's own `node --test studio-web/*.test.mjs` regression suite passes.
-17. **Bundled audio licensing.** The 5 MP3 soundtracks and 7 Kokoro voice WAVs
-    ship with no attribution or license file. Add provenance before publishing.
-18. **`knip` reports 240 unused files** — all upstream noise, none from Studio One.
+## Known limitations
 
-### Further hardening after the follow-up audit
+- **Not fully verified.** The full pipeline has been run end to end on one macOS machine (Apple silicon, Node 22). Recent changes were each checked in pieces, but I have not re-run a complete live generation after every change.
+- **Portrait output** has had little testing. Several layouts were written for it but not reviewed frame by frame.
+- **Long videos.** The design aims to keep memory flat, but I have not rendered a ten minute video. Render time and disk use for long jobs are unmeasured.
+- **Manim render time** is not benchmarked. A scene is limited to 60 seconds by default.
+- **Fonts.** HTML scenes load Inter, JetBrains Mono and Playfair Display from Google Fonts, so rendering needs network access. Manim scenes use whichever supported font is installed locally (Helvetica Neue and Menlo on the development machine).
+- **English only.** Only English Kokoro voices are listed.
+- **Layout.** Archetype layouts follow a size and width convention, but not every archetype has been checked against it.
+- **Old projects.** Projects in `projects/` made before recent fixes can still contain broken scenes. Only new jobs get the fixes.
+- **Leftover naming.** Some internal names and docs under `packages/` may still use wording from the original project.
+- **Bundled audio** has no license information. See [License](#license).
+- **Dead domain links.** Some CLI messages and docs under `packages/` still point at `chalkframes.dev` and `api.chalkframes.dev`, which this project does not run. Commands that rely on them (publish, sign-in, hosted registry) will not work.
 
-- Video Range requests now support suffix/open-ended ranges and return `416` for
-  invalid ranges instead of crashing the process.
-- Studio One admits one production at a time (`429` with `Retry-After` when
-  busy); the slot stays reserved through encoding, not just until it starts.
-- SSE events are replayed to late clients; failed jobs clean up their incomplete
-  project directories. Previously created projects are not removed automatically.
-- Corrupt PDFs and blocked/unreachable URLs produce explicit errors rather than
-  unrelated fallback videos. The old no-key storyboard has been disabled because
-  it ignored the supplied brief or PDF.
-- Director storyboards are checked before TTS; scene IDs come from the server's
-  timeline rather than an LLM, and display text is escaped before HTML generation.
-  Voiceover text remains unescaped so the narrator reads the original words.
-- The website fetch checks DNS addresses before connecting and on each redirect,
-  pins the validated IP, limits the downloaded bytes and rejects unsafe hosts.
-- Browser cross-origin POSTs are refused, not merely hidden by CORS; PDF
-  filenames are inserted into the UI with `textContent`.
+## Contributing
 
-No hardcoded API keys were found. Audio asset provenance remains to be documented
-before public distribution.
+Issues and pull requests are welcome while the project is in flux. See `CONTRIBUTING.md`.
 
----
+## License
 
-## Audited
+The studio code (`studio-web/` and the Manim package) is MIT licensed, see `LICENSE`.
 
-Build · full test suite · oxlint · oxfmt --check · knip · path traversal ·
-LAN exposure · CORS · body-size cap · SSRF · shell-injection surface · secret
-scan · live end-to-end PDF ingest · `hyperframes lint` + `check` on every
-generated project (all pass WCAG AA, 92/92 text checks).
+The packages under `packages/` are derived from the open-source Hyperframes project by HeyGen, Inc. (Apache-2.0) and are heavily modified here: renamed to `chalkframes`, trimmed, and fixed. The original copyright notice is preserved in `LICENSE-APACHE-2.0` as Apache-2.0 requires, and the modifications are Copyright 2026 Vikram Lingam and the Chalk Frames contributors under the same license. See `LICENSE-APACHE-2.0` and `NOTICE`.
 
----
-
-Apache-2.0, inherited from upstream. Bundled audio assets are the exception —
-see "Still open" item 17.
+The audio files in `studio-web/public/soundtracks`, `studio-web/public/sfx` and `studio-web/public/samples` have no license file in this repository. Check their terms or replace them before you distribute anything built from this repository.

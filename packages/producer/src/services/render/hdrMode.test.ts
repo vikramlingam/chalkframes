@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import type { ExtractionResult, VideoColorSpace } from "@hyperframes/engine";
+import type { ExtractionResult, VideoColorSpace } from "@chalkframes/engine";
 import { findRenderHdrAutoPromotionTrigger, resolveEffectiveHdrMode } from "./hdrMode.js";
 
 function makeLog() {

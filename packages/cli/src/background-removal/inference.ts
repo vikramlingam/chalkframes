@@ -61,7 +61,7 @@ async function loadNative<T>(name: string, load: () => Promise<T>): Promise<T> {
   } catch (err) {
     throw new Error(
       `remove-background needs the optional native module '${name}', which isn't available ` +
-        `(${(err as Error).message}). Install it with \`npm i ${name}\`, or reinstall hyperframes with optional dependencies enabled.`,
+        `(${(err as Error).message}). Install it with \`npm i ${name}\`, or reinstall chalkframes with optional dependencies enabled.`,
     );
   }
 }

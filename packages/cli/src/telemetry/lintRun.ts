@@ -1,7 +1,7 @@
 // One place that turns a ProjectLintResult into telemetry, so `lint` and
 // `check` report identically instead of drifting apart.
 
-import { LINT_RULE_COUNT, LINT_RULE_GROUP_COUNTS, type ProjectLintResult } from "@hyperframes/lint";
+import { LINT_RULE_COUNT, LINT_RULE_GROUP_COUNTS, type ProjectLintResult } from "@chalkframes/lint";
 import { trackLintReport, trackLintRuleStreak } from "./events.js";
 import { recordLintRun } from "./lintStreaks.js";
 

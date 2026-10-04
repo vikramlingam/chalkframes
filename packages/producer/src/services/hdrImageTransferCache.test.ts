@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { convertTransfer } from "@hyperframes/engine";
+import { convertTransfer } from "@chalkframes/engine";
 import { createHdrImageTransferCache } from "./hdrImageTransferCache.ts";
 
 /**

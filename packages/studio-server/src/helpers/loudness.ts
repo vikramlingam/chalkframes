@@ -1,9 +1,9 @@
 import { execFile } from "node:child_process";
 import { isAbsolute, relative, resolve } from "node:path";
 import { promisify } from "node:util";
-import { isAudibleVideoElement } from "@hyperframes/core/audible-video";
-import { formatAudioGain, MAX_AUDIO_GAIN_DB } from "@hyperframes/core/audio-gain";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { isAudibleVideoElement } from "@chalkframes/core/audible-video";
+import { formatAudioGain, MAX_AUDIO_GAIN_DB } from "@chalkframes/core/audio-gain";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 
 const execFileAsync = promisify(execFile);
 

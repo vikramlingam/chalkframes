@@ -15,7 +15,7 @@
  * This is intentionally NOT wired into `regression-harness.ts` — the harness
  * compares each fixture against a golden MP4, but transparency requires a
  * different validation strategy (pixel inspection of the alpha channel). Run
- * this script via `bun run --filter @hyperframes/producer test:transparency`
+ * this script via `bun run --filter @chalkframes/producer test:transparency`
  * or directly via `tsx src/transparency-test.ts` from this package.
  */
 
@@ -25,7 +25,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { decodePng, psnrDb, runFfmpeg } from "@hyperframes/engine";
+import { decodePng, psnrDb, runFfmpeg } from "@chalkframes/engine";
 import { createRenderJob, executeRenderJob } from "./services/renderOrchestrator.js";
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
@@ -37,7 +37,7 @@ const SHADER_GOLDEN = join(SHADER_FIXTURE_DIR, "output", "output.mp4");
 
 const WIDTH = 200;
 const HEIGHT = 200;
-const FPS: import("@hyperframes/core").Fps = { num: 30, den: 1 };
+const FPS: import("@chalkframes/core").Fps = { num: 30, den: 1 };
 const PNG_SEQUENCE_FRAME_COUNT = FPS.num / FPS.den;
 const TRANSPARENT_X = 10; // expected fully transparent
 const TRANSPARENT_Y = 10;

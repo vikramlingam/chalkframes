@@ -9,7 +9,7 @@
  *   .png  → single RGBA still (only when input is also a single image)
  *
  * The encode flags for VP9-with-alpha mirror the `chunkEncoder.ts` pattern in
- * @hyperframes/engine — `-pix_fmt yuva420p` plus the
+ * @chalkframes/engine — `-pix_fmt yuva420p` plus the
  * `-metadata:s:v:0 alpha_mode=1` tag are what make Chrome's `<video>` element
  * decode the alpha plane.
  */
@@ -20,7 +20,7 @@ import { basename, dirname, extname, join } from "node:path";
 import { findFFmpeg, findFFprobe, getFFmpegInstallHint } from "../browser/ffmpeg.js";
 import { createSession, type Session } from "./inference.js";
 import { type Device, type ModelId } from "./manager.js";
-import { DEFAULT_VP9_CPU_USED, renderProvenanceArgs } from "@hyperframes/engine";
+import { DEFAULT_VP9_CPU_USED, renderProvenanceArgs } from "@chalkframes/engine";
 
 export type OutputFormat = "webm" | "mov" | "png";
 
@@ -113,7 +113,7 @@ interface EngineMetadata {
 
 async function probeMedia(inputPath: string): Promise<MediaInfo> {
   const isImage = inferInputKind(inputPath) === "image";
-  const engine = (await import("@hyperframes/engine")) as {
+  const engine = (await import("@chalkframes/engine")) as {
     extractMediaMetadata: (path: string) => Promise<EngineMetadata>;
   };
   const meta = await engine.extractMediaMetadata(inputPath);

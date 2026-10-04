@@ -1,16 +1,16 @@
 {
-  "name": "@hyperframes/cli",
+  "name": "@chalkframes/cli",
   "version": "0.8.111",
-  "description": "HyperFrames CLI — create, preview, and render HTML video compositions",
+  "description": "ChalkFrames CLI — create, preview, and render HTML video compositions",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heygen-com/hyperframes",
+    "url": "https://github.com/vikramlingam/chalkframes",
     "directory": "packages/cli"
   },
   "bin": {
     "chalkframes": "./bin/chalkframes.mjs",
-    "hyperframes-localize-fonts": "./bin/hyperframes-localize-fonts.mjs"
+    "chalkframes-localize-fonts": "./bin/chalkframes-localize-fonts.mjs"
   },
   "files": [
     "bin",
@@ -52,12 +52,12 @@
   "devDependencies": {
     "@clack/prompts": "^1.1.0",
     "@google/genai": "1.52.0",
-    "@hyperframes/core": "workspace:*",
-    "@hyperframes/engine": "workspace:*",
-    "@hyperframes/lint": "workspace:*",
-    "@hyperframes/parsers": "workspace:*",
-    "@hyperframes/producer": "workspace:*",
-    "@hyperframes/studio-server": "workspace:*",
+    "@chalkframes/core": "workspace:*",
+    "@chalkframes/engine": "workspace:*",
+    "@chalkframes/lint": "workspace:*",
+    "@chalkframes/parsers": "workspace:*",
+    "@chalkframes/producer": "workspace:*",
+    "@chalkframes/studio-server": "workspace:*",
     "@types/css-tree": "^3.2.0",
     "@types/fontkit": "^2.0.9",
     "@types/mime-types": "^3.0.1",

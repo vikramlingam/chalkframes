@@ -11,7 +11,7 @@ import {
 } from "./media-use.js";
 
 function tempCommandDir(): string {
-  return mkdtempSync(join(tmpdir(), "hyperframes-media-use-command-"));
+  return mkdtempSync(join(tmpdir(), "chalkframes-media-use-command-"));
 }
 
 describe("media-use command wiring", () => {

@@ -60,7 +60,7 @@ describe("regression temporary roots", () => {
   it("isolates repeated suite runs and preserves the old predictable directory", () => {
     const parent = mkdtempSync(join(tmpdir(), "hf-root-test-"));
     try {
-      const legacy = join(parent, "hyperframes-tests", "same-suite");
+      const legacy = join(parent, "chalkframes-tests", "same-suite");
       mkdirSync(legacy, { recursive: true });
       const sentinel = join(legacy, "keep.txt");
       writeFileSync(sentinel, "unrelated data");

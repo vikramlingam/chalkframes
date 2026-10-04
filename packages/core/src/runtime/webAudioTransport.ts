@@ -45,7 +45,7 @@ function logFallbackHandoff(el: HTMLMediaElement, priorMuted: boolean): void {
   if (priorMuted || el.paused || !getDebugSurface().__hfDebug) return;
   // eslint-disable-next-line no-console -- intentional debug surface
   console.debug(
-    "[hyperframes] webAudioTransport claimed fallback-playing element:",
+    "[chalkframes] webAudioTransport claimed fallback-playing element:",
     el.currentSrc || el.getAttribute("src") || "",
   );
 }

@@ -5,6 +5,58 @@
  * its HTML builder, GSAP choreography, and scoped CSS rules in one clean place.
  */
 
+import {
+  synthesizeFallbackText,
+  synthesizeFallbackNumber,
+  NEUTRAL_TOKENS,
+} from "./fallbackText.mjs";
+
+export { synthesizeFallbackText };
+
+/**
+ * Temporal pacing helper (runs in Node, returns GSAP source for the scene script).
+ *
+ * Spreads N sequential items across the narration window instead of revealing them all in
+ * the first second. After a 0.8s entrance buffer, item i becomes the "active" item at
+ *     t_i = 0.8 + i * dt,   dt = (sDur - 1.5) / N
+ * The active item gets an accent glow + 1.04 scale; earlier items settle to a dimmed state.
+ *
+ * `elementsExpr` is a JS expression (evaluated in the scene script) giving an array-like of
+ * elements. `options.activeProps` / `options.settledProps` are GSAP vars objects.
+ */
+export function scheduleStepProgression(tl, elementsExpr, totalDuration, options = {}) {
+  // `tl` names the timeline variable in the generated scene script (default "tl").
+  const timeline = typeof tl === "string" && tl ? tl : "tl";
+  const accent = typeof options.accent === "string" ? options.accent : "#6366f1";
+  const {
+    entranceBuffer = 0.8,
+    tailBuffer = 0.7,
+    transition = 0.45,
+    activeProps = {
+      scale: 1.04,
+      opacity: 1,
+      boxShadow: `0 0 0 2px ${accent}, 0 0 28px ${accent}66`,
+    },
+    settledProps = { scale: 1, opacity: 0.7, boxShadow: `0 0 0 1px ${accent}55` },
+  } = options;
+  // dt = (sDur - 1.5) / N with the default 0.8s entrance + 0.7s tail buffers.
+  const span = Math.max(1, Number(totalDuration) - entranceBuffer - tailBuffer);
+  const active = JSON.stringify({ ...activeProps, duration: transition, ease: "power2.out" });
+  const settled = JSON.stringify({ ...settledProps, duration: transition, ease: "power2.out" });
+  return `
+        (function () {
+          const __paced = Array.from(${elementsExpr});
+          const __n = __paced.length;
+          if (!__n) return;
+          const __dt = ${span.toFixed(4)} / __n;
+          __paced.forEach((__el, __k) => {
+            const __t = ${entranceBuffer} + __k * __dt;
+            ${timeline}.to(__el, ${active}, __t);
+            if (__k < __n - 1) ${timeline}.to(__el, ${settled}, __t + __dt);
+          });
+        })();`;
+}
+
 export function highlightCodeTokens(line) {
   const safe = String(line ?? "")
     .replace(/&/g, "&amp;")
@@ -110,7 +162,7 @@ registerArchetypeRenderer("hook", {
     return {
       innerHtml: `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "The Horizon")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "74px" : "88px"}">${h(scene.title)}<span class="cursor-blink"></span></h1>
         <p id="s${i + 1}-subtitle" class="editorial-subtitle" style="font-size: ${isPortrait ? "30px" : "30px"}">${h(scene.subtitle || "")}</p>
         ${frictionHtml}
@@ -141,11 +193,11 @@ registerArchetypeRenderer("outro", {
       innerHtml: `
         <div class="scene-inner">
           <div id="s${i + 1}-card" class="outro-card">
-            <div class="eyebrow" style="margin-bottom: 16px"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Next Steps")}</span></div>
+            <div class="eyebrow" style="margin-bottom: 16px"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
             <h1 class="editorial-title" style="font-size: ${isPortrait ? "74px" : "80px"}">${h(scene.title)}<span class="brand-dot">.</span></h1>
             <p class="editorial-subtitle" style="font-size: ${isPortrait ? "30px" : "24px"}; margin-top: 14px">${h(scene.subtitle || "")}</p>
             <div class="pricing-pills">${pillsHtml}</div>
-            <div class="cta-button"><span>${h(scene.cta || "Get Started Today")}</span><span class="cta-arrow">↗</span></div>
+            <div class="cta-button"><span>${h(scene.cta || "")}</span><span class="cta-arrow">↗</span></div>
           </div>
         </div>
       `,
@@ -222,18 +274,20 @@ registerArchetypeRenderer("kinetic-text", {
   getBackground: ({ activePalette }) =>
     `background: linear-gradient(135deg, ${activePalette.accent}22 0%, transparent 55%), ${activePalette.background};`,
   renderHtml: ({ scene, i, h }) => {
-    const mainWord = scene.kineticData?.mainWord || "AUTONOMOUS";
-    const accentWord = scene.kineticData?.accentWord || "PRECISION.";
+    const mainWord =
+      scene.kineticData?.mainWord ||
+      String(synthesizeFallbackText(scene, "metric", 0)).toUpperCase();
+    const accentWord =
+      scene.kineticData?.accentWord ||
+      String(synthesizeFallbackText(scene, "target", 0)).toUpperCase();
     const subText =
-      scene.kineticData?.subtitle ||
-      scene.title ||
-      "Engineered for deterministic broadcast execution.";
-    const badgeText = scene.kineticData?.badge || "Breakthrough Architecture";
+      scene.kineticData?.subtitle || scene.title || synthesizeFallbackText(scene, "caption", 0);
+    const badgeText = scene.kineticData?.badge || synthesizeFallbackText(scene, "index", 0);
     return {
       innerHtml: `
         <div class="scene-inner">
           <div class="ambient-glow"></div>
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Core Thesis")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <div class="kinetic-wrapper">
             <div id="s${i + 1}-k-badge" class="kinetic-pill">${h(badgeText)}</div>
             <div id="s${i + 1}-k-main" class="kinetic-hero-title">${h(mainWord)}</div>
@@ -266,13 +320,16 @@ registerArchetypeRenderer("kinetic-text", {
 // 4. Mobile Mockup
 registerArchetypeRenderer("mobile-mockup", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const appTitle = scene.mockupData?.appTitle || "Studio One Mobile";
-    const headerBadge = scene.mockupData?.headerBadge || "Active Engine";
-    const rawItems = scene.mockupData?.items || [
-      { title: "Realtime Ingestion", desc: "4K Composition Ready in 18ms", time: "Just now" },
-      { title: "Neural Orchestration", desc: "Deterministic audio & frame sync", time: "1m ago" },
-      { title: "Zero Cloud Leak", desc: "Local GPU hardware synthesis", time: "3m ago" },
-    ];
+    const appTitle =
+      scene.mockupData?.appTitle || scene.title || synthesizeFallbackText(scene, "node", 0);
+    const headerBadge = scene.mockupData?.headerBadge || synthesizeFallbackText(scene, "index", 0);
+    const rawItems =
+      scene.mockupData?.items ||
+      [0, 1, 2].map((k) => ({
+        title: synthesizeFallbackText(scene, "node", k),
+        desc: synthesizeFallbackText(scene, "caption", k),
+        time: "",
+      }));
     const items = rawItems.map((it, idx) =>
       typeof it === "string"
         ? { title: it, desc: "", time: "Live" }
@@ -285,7 +342,7 @@ registerArchetypeRenderer("mobile-mockup", {
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Mobile Experience")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="mobile-phone-frame">
             <div class="phone-speaker"></div>
@@ -355,14 +412,15 @@ registerArchetypeRenderer("radial-orbit", {
   getBackground: ({ activePalette }) =>
     `background: radial-gradient(circle at 50% 50%, ${activePalette.accent}24 0%, transparent 65%), ${activePalette.background};`,
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const centerTitle = scene.orbitData?.centerTitle || "Core Engine";
-    const centerSub = scene.orbitData?.centerSub || "Autonomous Pipeline";
-    const rawSatellites = scene.orbitData?.satellites || [
-      { label: "Deterministic Render", desc: "Pixel-perfect lockstep" },
-      { label: "Hardware Capture", desc: "GPU accelerated capture" },
-      { label: "Semantic Scripts", desc: "Source grounded" },
-      { label: "Neural Audio", desc: "Studio broadcast timbre" },
-    ];
+    const centerTitle =
+      scene.orbitData?.centerTitle || scene.title || synthesizeFallbackText(scene, "node", 0);
+    const centerSub = scene.orbitData?.centerSub || synthesizeFallbackText(scene, "index", 0);
+    const rawSatellites =
+      scene.orbitData?.satellites ||
+      [0, 1, 2, 3].map((k) => ({
+        label: synthesizeFallbackText(scene, "node", k + 1),
+        desc: synthesizeFallbackText(scene, "caption", k),
+      }));
     const satellites = rawSatellites.map((s, idx) =>
       typeof s === "string"
         ? { label: s, desc: "" }
@@ -371,7 +429,7 @@ registerArchetypeRenderer("radial-orbit", {
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Architecture Hub")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="orbit-stage">
             <svg class="orbit-svg" viewBox="0 0 700 700">
@@ -432,7 +490,7 @@ registerArchetypeRenderer("radial-orbit", {
 registerArchetypeRenderer("step-ladder", {
   getBackground: ({ isPortrait, activePalette }) =>
     `background: radial-gradient(circle at ${isPortrait ? "50% 50%" : "74% 50%"}, ${activePalette.accent}18 0%, transparent 60%), ${activePalette.background};`,
-  renderHtml: ({ scene, i, isPortrait, h }) => {
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
     const rawSteps = scene.stepData?.steps || [
       {
         stepNumber: "01",
@@ -533,21 +591,22 @@ registerArchetypeRenderer("step-ladder", {
         scope.querySelectorAll(".ladder-step-row").forEach((r, idx) => {
           tl.from(r, { opacity: 0, x: -30, duration: 0.5, ease: "power3.out" }, 0.8 + (idx * 0.35));
         });
+        ${scheduleStepProgression("tl", 'scope.querySelectorAll(".step-card")', sDur, { accent: activePalette.accent })}
       `,
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .ladder-container { display: flex; gap: 32px; width: 100%; max-width: ${isPortrait ? "920px" : "1100px"}; height: ${isPortrait ? "840px" : "480px"}; margin-top: 36px; text-align: left; align-items: stretch; }
+    [data-composition-id="${scene.id}"] .ladder-container { display: flex; gap: 32px; width: ${isPortrait ? "100%" : "min(1400px, 85vw)"}; max-width: ${isPortrait ? "920px" : "none"}; height: ${isPortrait ? "840px" : "560px"}; margin: 36px auto 0; text-align: left; align-items: stretch; }
     [data-composition-id="${scene.id}"] .ladder-track { width: 6px; background: ${activePalette.border}; border-radius: 3px; position: relative; }
     [data-composition-id="${scene.id}"] .ladder-fill { position: absolute; inset: 0; background: ${activePalette.accent}; border-radius: 3px; transform-origin: top; }
     [data-composition-id="${scene.id}"] .ladder-steps { display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
     [data-composition-id="${scene.id}"] .ladder-step-row { display: flex; align-items: center; gap: 24px; }
     [data-composition-id="${scene.id}"] .step-marker { width: 50px; height: 50px; border-radius: 50%; background: ${activePalette.card}; border: 2px solid ${activePalette.accent}; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 700; color: ${activePalette.accent}; box-shadow: 0 0 20px ${activePalette.accent}33; flex-shrink: 0; }
-    [data-composition-id="${scene.id}"] .step-card { flex: 1; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 20px; padding: 24px 30px; box-shadow: 0 12px 30px rgba(0,0,0,0.04); }
+    [data-composition-id="${scene.id}"] .step-card { flex: 1; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 20px; padding: 32px 36px; box-shadow: 0 12px 30px rgba(0,0,0,0.04); }
     [data-composition-id="${scene.id}"] .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    [data-composition-id="${scene.id}"] .step-title { font-family: "Playfair Display", serif; font-size: ${isPortrait ? "28px" : "24px"}; font-weight: 700; color: ${activePalette.text}; }
-    [data-composition-id="${scene.id}"] .step-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 600; color: ${activePalette.accent}; background: rgba(0,0,0,0.04); padding: 4px 12px; border-radius: 10px; }
-    [data-composition-id="${scene.id}"] .step-desc { font-size: ${isPortrait ? "20px" : "16px"}; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .step-title { font-family: "Playfair Display", serif; font-size: ${isPortrait ? "30px" : "32px"}; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .step-badge { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 600; color: ${activePalette.accent}; background: rgba(0,0,0,0.04); padding: 4px 12px; border-radius: 10px; }
+    [data-composition-id="${scene.id}"] .step-desc { font-size: ${isPortrait ? "22px" : "22px"}; color: ${activePalette.textMuted || activePalette.text}; }
   `,
 });
 
@@ -556,12 +615,15 @@ registerArchetypeRenderer("live-feed", {
   getBackground: ({ isPortrait, activePalette }) =>
     `background: radial-gradient(circle at ${isPortrait ? "50% 50%" : "74% 50%"}, ${activePalette.accent}18 0%, transparent 60%), ${activePalette.background};`,
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const rawItems = scene.feedData?.items || [
-      { icon: "⚡", text: "Zero Cold Start Execution", tag: "1.2ms", status: "Optimal" },
-      { icon: "🔒", text: "End-to-End Cryptographic Privacy", tag: "Local", status: "Verified" },
-      { icon: "✦", text: "Autonomous Motion Direction", tag: "AI Director", status: "Active" },
-      { icon: "✓", text: "Studio Grade 4K Render Engine", tag: "60 FPS", status: "Mastered" },
-    ];
+    const rawItems =
+      scene.feedData?.items ||
+      [0, 1, 2, 3].map((k) => ({
+        icon: "●",
+        text:
+          synthesizeFallbackText(scene, "caption", k) || synthesizeFallbackText(scene, "state", k),
+        tag: synthesizeFallbackText(scene, "index", k),
+        status: k === 0 ? "Active" : "Observed",
+      }));
     const items = rawItems.map((it, idx) =>
       typeof it === "string"
         ? { icon: "✦", text: it, tag: "Live", status: "Active" }
@@ -575,7 +637,7 @@ registerArchetypeRenderer("live-feed", {
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Realtime Activity")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 64px">${h(scene.title)}</h2>
         <div class="live-feed-stream">
           ${items
@@ -597,7 +659,7 @@ registerArchetypeRenderer("live-feed", {
       : `
       <div class="scene-inner split-hero-layout">
         <div class="split-col-left">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Realtime Telemetry")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="split-hero-title">${h(scene.title)}</h2>
           <p id="s${i + 1}-subtitle" class="split-hero-sub">${h(scene.subtitle || "Continuous automated telemetry streaming with verified frame persistence.")}</p>
           <div class="split-hero-badge"><span class="accent-spark">✦</span><span>Live Stream</span></div>
@@ -633,7 +695,7 @@ registerArchetypeRenderer("live-feed", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .live-feed-stream { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: ${isPortrait ? "920px" : "1100px"}; margin-top: 40px; }
+    [data-composition-id="${scene.id}"] .live-feed-stream { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; margin-top: 40px; }
     [data-composition-id="${scene.id}"] .feed-item-pill { background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 24px; padding: ${isPortrait ? "24px 32px" : "20px 28px"}; display: flex; align-items: center; gap: 18px; box-shadow: 0 12px 30px rgba(0,0,0,0.04); text-align: left; }
     [data-composition-id="${scene.id}"] .feed-pulse-dot { width: 12px; height: 12px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 12px #22c55e; flex-shrink: 0; }
     [data-composition-id="${scene.id}"] .feed-icon { font-size: 24px; color: ${activePalette.accent}; }
@@ -646,36 +708,27 @@ registerArchetypeRenderer("live-feed", {
 // 8. Isometric Stack
 registerArchetypeRenderer("isometric-stack", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const rawLayers = scene.stackData?.layers || [
-      {
-        name: "Presentation & Surface",
-        tech: "Chalk Frames Engine",
-        role: "Declarative Video DOM",
-      },
-      {
-        name: "Autonomous Direction",
-        tech: "Semantic Choreography Core",
-        role: "Tone & Kinetic Vectoring",
-      },
-      {
-        name: "Hardware Engine",
-        tech: "Puppeteer & GPU Pipeline",
-        role: "Deterministic Frame Capture",
-      },
-    ];
+    const rawLayers =
+      scene.stackData?.layers ||
+      [0, 1, 2].map((k) => ({
+        name: synthesizeFallbackText(scene, "node", k),
+        tech: synthesizeFallbackText(scene, "index", k),
+        role:
+          synthesizeFallbackText(scene, "caption", k) || synthesizeFallbackText(scene, "state", k),
+      }));
     const layers = rawLayers.map((l, idx) =>
       typeof l === "string"
-        ? { name: l, tech: "Core", role: `Layer ${idx + 1}` }
+        ? { name: l, tech: NEUTRAL_TOKENS.index[idx % 6], role: NEUTRAL_TOKENS.state[idx % 6] }
         : {
             name: l?.name || l?.title || `Layer ${idx + 1}`,
-            tech: l?.tech || "Core Component",
+            tech: l?.tech || NEUTRAL_TOKENS.index[idx % 6],
             role: l?.role || `Architecture Tier ${idx + 1}`,
           },
     );
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Layered Systems")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="isometric-container">
             ${layers
@@ -705,7 +758,7 @@ registerArchetypeRenderer("isometric-stack", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .isometric-container { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: ${isPortrait ? "920px" : "1200px"}; margin-top: 40px; }
+    [data-composition-id="${scene.id}"] .isometric-container { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; margin-top: 40px; }
     [data-composition-id="${scene.id}"] .iso-slab { background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-left: 8px solid ${activePalette.accent}; border-radius: 20px; padding: 28px 36px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 16px 40px rgba(0,0,0,0.05); text-align: left; }
     [data-composition-id="${scene.id}"] .iso-badge { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700; color: ${activePalette.accent}; width: 60px; }
     [data-composition-id="${scene.id}"] .iso-info { flex: 1; }
@@ -720,14 +773,17 @@ registerArchetypeRenderer("metric-stat", {
   getBackground: ({ isPortrait, activePalette }) =>
     `background: radial-gradient(circle at ${isPortrait ? "50% 45%" : "74% 50%"}, ${activePalette.accent}30 0%, transparent 60%), ${activePalette.background};`,
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const val = scene.metric?.value || "10x";
-    const label = scene.metric?.label || "Accelerated Execution Speed";
-    const badge = scene.metric?.badge || "Benchmarked vs Manual Production";
-    const subPills = scene.metric?.subPills || ["Deterministic 4K", "Zero Cloud Latency"];
+    const val = scene.metric?.value || String(synthesizeFallbackNumber(scene, 0));
+    const label = scene.metric?.label || scene.title || synthesizeFallbackText(scene, "metric", 0);
+    const badge = scene.metric?.badge || synthesizeFallbackText(scene, "target", 0);
+    const subPills = scene.metric?.subPills || [
+      synthesizeFallbackText(scene, "metric", 1),
+      synthesizeFallbackText(scene, "metric", 2),
+    ];
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Performance Metric")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.metric[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 64px">${h(scene.title)}</h2>
         <div id="s${i + 1}-metric-box" class="metric-hero-box portrait-metric">
           <div class="metric-circle-wrap">
@@ -750,10 +806,10 @@ registerArchetypeRenderer("metric-stat", {
       : `
       <div class="scene-inner split-hero-layout">
         <div class="split-col-left">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Performance Metric")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.metric[0])}</span></div>
           <h2 id="s${i + 1}-title" class="split-hero-title">${h(scene.title)}</h2>
           <p id="s${i + 1}-subtitle" class="split-hero-sub">${h(scene.subtitle || label || "Quantitative leap over conventional manual workflows.")}</p>
-          <div class="split-hero-badge"><span class="accent-spark">✦</span><span>${h(badge || "Verified Metric")}</span></div>
+          <div class="split-hero-badge"><span class="accent-spark">✦</span><span>${h(badge || NEUTRAL_TOKENS.target[0])}</span></div>
         </div>
         <div class="split-col-right">
           <div id="s${i + 1}-metric-box" class="metric-hero-box">
@@ -808,9 +864,18 @@ registerArchetypeRenderer("metric-stat", {
 // 10. Architecture Pipeline
 registerArchetypeRenderer("architecture-pipeline", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const n1 = scene.pipeline?.node1 || { title: "Raw Input", desc: "Documents & Specs" };
-    const n2 = scene.pipeline?.node2 || { title: "Neural Director", desc: "Semantic Choreography" };
-    const n3 = scene.pipeline?.node3 || { title: "Master Studio", desc: "Broadcast Render" };
+    const n1 = scene.pipeline?.node1 || {
+      title: synthesizeFallbackText(scene, "step", 0),
+      desc: synthesizeFallbackText(scene, "caption", 0),
+    };
+    const n2 = scene.pipeline?.node2 || {
+      title: synthesizeFallbackText(scene, "step", 1),
+      desc: synthesizeFallbackText(scene, "caption", 1),
+    };
+    const n3 = scene.pipeline?.node3 || {
+      title: synthesizeFallbackText(scene, "step", 2),
+      desc: synthesizeFallbackText(scene, "caption", 2),
+    };
     return {
       innerHtml: `
         <div class="scene-inner">
@@ -886,7 +951,7 @@ registerArchetypeRenderer("code-terminal", {
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Developer Engine")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 64px">${h(scene.title)}</h2>
         <div id="s${i + 1}-terminal" class="terminal-card">
           <div class="terminal-header">
@@ -943,7 +1008,7 @@ registerArchetypeRenderer("code-terminal", {
     };
   },
   renderCss: ({ scene, isPortrait }) => `
-    [data-composition-id="${scene.id}"] .terminal-card { width: 100%; max-width: ${isPortrait ? "940px" : "1100px"}; margin-top: 40px; background: #0c0d12; border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.4); text-align: left; }
+    [data-composition-id="${scene.id}"] .terminal-card { width: 100%; max-width: ${isPortrait ? "940px" : "min(1400px, 85vw)"}; margin-top: 40px; background: #0c0d12; border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.4); text-align: left; }
     [data-composition-id="${scene.id}"] .terminal-header { background: #161822; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
     [data-composition-id="${scene.id}"] .terminal-dots { display: flex; gap: 8px; }
     [data-composition-id="${scene.id}"] .terminal-dots span { width: 12px; height: 12px; border-radius: 50%; display: block; }
@@ -967,24 +1032,20 @@ registerArchetypeRenderer("code-terminal", {
 // 12. Split Comparison
 registerArchetypeRenderer("split-comparison", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const leftTitle = scene.compareLeft?.title || "Legacy Process";
-    const leftTag = scene.compareLeft?.tag || "High Friction";
-    const leftPoints = scene.compareLeft?.points || [
-      "Tedious manual timeline editing",
-      "Fragile cross-tool dependency",
-      "Slow export turnaround",
-    ];
-    const rightTitle = scene.compareRight?.title || "Autonomous Production";
-    const rightTag = scene.compareRight?.tag || "Breakthrough";
-    const rightPoints = scene.compareRight?.points || [
-      "Prompt and brief to full video",
-      "Code-accurate motion choreography",
-      "Instant GPU-accelerated 4K render",
-    ];
+    const leftTitle = scene.compareLeft?.title || synthesizeFallbackText(scene, "state", 1);
+    const leftTag = scene.compareLeft?.tag || synthesizeFallbackText(scene, "index", 1);
+    const leftPoints =
+      scene.compareLeft?.points ||
+      [0, 1, 2].map((k) => synthesizeFallbackText(scene, "state", k + 1));
+    const rightTitle = scene.compareRight?.title || synthesizeFallbackText(scene, "state", 0);
+    const rightTag = scene.compareRight?.tag || synthesizeFallbackText(scene, "index", 0);
+    const rightPoints =
+      scene.compareRight?.points ||
+      [0, 1, 2].map((k) => synthesizeFallbackText(scene, "target", k));
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "The Paradigm Shift")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.state[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="compare-container ${isPortrait ? "portrait-stack" : ""}">
             <div id="s${i + 1}-c-left" class="compare-card compare-friction">
@@ -1042,18 +1103,20 @@ registerArchetypeRenderer("custom-split", ARCHETYPE_RENDERERS["split-comparison"
 // 13. Data Graph
 registerArchetypeRenderer("data-graph", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const chartTitle = scene.chartData?.title || "Operational Velocity";
-    const chartBadge = scene.chartData?.badge || "+340% Throughput";
-    const bars = scene.chartData?.bars || [
-      { label: "Legacy NLE", value: "20%", height: 20 },
-      { label: "V1 Scripts", value: "45%", height: 45 },
-      { label: "V2 Templates", value: "68%", height: 68 },
-      { label: "Studio One", value: "100%", height: 96 },
-    ];
+    const chartTitle =
+      scene.chartData?.title || scene.title || synthesizeFallbackText(scene, "metric", 0);
+    const chartBadge = scene.chartData?.badge || synthesizeFallbackText(scene, "target", 0);
+    const bars =
+      scene.chartData?.bars ||
+      [0, 1, 2, 3].map((k) => ({
+        label: synthesizeFallbackText(scene, "metric", k),
+        value: String(synthesizeFallbackNumber(scene, k)),
+        height: 30 + k * 22,
+      }));
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Performance Gain")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 64px">${h(scene.title)}</h2>
         <div id="s${i + 1}-chart" class="chart-wrapper">
           <div class="chart-header">
@@ -1132,7 +1195,7 @@ registerArchetypeRenderer("data-graph", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .chart-wrapper { width: 100%; max-width: ${isPortrait ? "920px" : "1200px"}; height: ${isPortrait ? "660px" : "auto"}; margin-top: 40px; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 28px; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.06); text-align: left; display: flex; flex-direction: column; }
+    [data-composition-id="${scene.id}"] .chart-wrapper { width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; height: ${isPortrait ? "660px" : "auto"}; margin-top: 40px; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 28px; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.06); text-align: left; display: flex; flex-direction: column; }
     [data-composition-id="${scene.id}"] .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid ${activePalette.border}; }
     [data-composition-id="${scene.id}"] .chart-title { font-family: "Playfair Display", serif; font-size: 30px; font-weight: 700; color: ${activePalette.text}; }
     [data-composition-id="${scene.id}"] .chart-highlight-badge { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: #bd4522; background: rgba(189, 69, 34, 0.10); padding: 6px 18px; border-radius: 20px; }
@@ -1150,22 +1213,22 @@ registerArchetypeRenderer("data-graph", {
 registerArchetypeRenderer("bento-grid", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
     const main = scene.bento?.mainCard || {
-      title: "Autonomous Motion Choreography",
-      desc: "Engineered specifically to render fluid, broadcast-level typography without template fatigue.",
-      badge: "Core Innovation",
+      title: scene.title || synthesizeFallbackText(scene, "metric", 0),
+      desc: synthesizeFallbackText(scene, "caption", 0),
+      badge: synthesizeFallbackText(scene, "index", 0),
     };
     const sub1 = scene.bento?.subCard1 || {
-      title: "100% Private Local Execution",
-      badge: "Zero Cloud Leak",
+      title: synthesizeFallbackText(scene, "metric", 1),
+      badge: synthesizeFallbackText(scene, "index", 1),
     };
     const sub2 = scene.bento?.subCard2 || {
-      title: "Continuous Timeline Engine",
-      badge: "Seamless Vectors",
+      title: synthesizeFallbackText(scene, "metric", 2),
+      badge: synthesizeFallbackText(scene, "index", 2),
     };
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Capabilities")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="bento-wrapper ${isPortrait ? "portrait-stack" : ""}">
             <div id="s${i + 1}-b-hero" class="bento-tile bento-hero-tile">
@@ -1215,13 +1278,13 @@ registerArchetypeRenderer("quote-callout", {
     const qText =
       scene.quoteData?.quote ||
       "Simplicity is prerequisite for reliability. Clean abstractions outlast complex workarounds.";
-    const qAuthor = scene.quoteData?.author || "Core Architectural Axiom";
-    const qContext = scene.quoteData?.context || "Systems Engineering Principle";
-    const qBadge = scene.quoteData?.badge || "Foundational Rule";
+    const qAuthor = scene.quoteData?.author || scene.title || NEUTRAL_TOKENS.node[0];
+    const qContext = scene.quoteData?.context || NEUTRAL_TOKENS.state[0];
+    const qBadge = scene.quoteData?.badge || NEUTRAL_TOKENS.index[0];
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Core Axiom")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 58px">${h(scene.title)}</h2>
         <div id="s${i + 1}-quote-card" class="quote-card">
           <div class="quote-mark">“</div>
@@ -1239,7 +1302,7 @@ registerArchetypeRenderer("quote-callout", {
       : `
       <div class="scene-inner split-hero-layout">
         <div class="split-col-left">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Core Axiom")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="split-hero-title">${h(scene.title)}</h2>
           <p id="s${i + 1}-subtitle" class="split-hero-sub">${h(scene.subtitle || qContext || "Foundational architectural principle governing system invariants.")}</p>
           <div class="split-hero-badge"><span class="accent-spark">✦</span><span>${h(qBadge)}</span></div>
@@ -1272,7 +1335,7 @@ registerArchetypeRenderer("quote-callout", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .quote-card { width: 100%; max-width: ${isPortrait ? "920px" : "1200px"}; margin-top: 36px; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-left: 6px solid ${activePalette.accent}; border-radius: 24px; padding: ${isPortrait ? "40px 36px" : "48px 60px"}; box-shadow: 0 20px 60px rgba(0,0,0,0.06); text-align: left; }
+    [data-composition-id="${scene.id}"] .quote-card { width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; margin-top: 36px; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-left: 6px solid ${activePalette.accent}; border-radius: 24px; padding: ${isPortrait ? "40px 36px" : "48px 60px"}; box-shadow: 0 20px 60px rgba(0,0,0,0.06); text-align: left; }
     [data-composition-id="${scene.id}"] .quote-mark { font-family: "Playfair Display", serif; font-size: 72px; line-height: 1; color: ${activePalette.accent}; opacity: 0.8; margin-bottom: -16px; }
     [data-composition-id="${scene.id}"] .quote-text { font-family: "Playfair Display", serif; font-size: ${isPortrait ? "32px" : "36px"}; font-style: italic; font-weight: 500; line-height: 1.4; color: ${activePalette.text}; margin: 16px 0 28px; }
     [data-composition-id="${scene.id}"] .quote-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid ${activePalette.border}; }
@@ -1292,26 +1355,12 @@ registerArchetypeRenderer("flowchart-process", {
     const steps = (
       Array.isArray(rawSteps) && rawSteps.length > 0
         ? rawSteps
-        : [
-            {
-              stepNumber: "01",
-              title: "Ingestion & Filter",
-              desc: "Raw input capture and boundary checking",
-              isHighlighted: false,
-            },
-            {
-              stepNumber: "02",
-              title: "Transformation Engine",
-              desc: "Optimized non-blocking pipeline execution",
-              isHighlighted: true,
-            },
-            {
-              stepNumber: "03",
-              title: "Deterministic Output",
-              desc: "Verified result emission and state persistence",
-              isHighlighted: false,
-            },
-          ]
+        : [0, 1, 2].map((k) => ({
+            stepNumber: String(k + 1).padStart(2, "0"),
+            title: synthesizeFallbackText(scene, "step", k),
+            desc: synthesizeFallbackText(scene, "caption", k),
+            isHighlighted: k === 1,
+          }))
     ).slice(0, 4);
 
     const stepsHtml = steps
@@ -1324,7 +1373,7 @@ registerArchetypeRenderer("flowchart-process", {
           </div>
           <div class="flow-node-content">
             <div class="flow-node-title">${h(st.title || `Stage ${idx + 1}`)}</div>
-            <div class="flow-node-desc">${h(st.desc || "Step execution detail")}</div>
+            <div class="flow-node-desc">${h(st.desc || "")}</div>
           </div>
           ${
             idx < steps.length - 1
@@ -1346,7 +1395,7 @@ registerArchetypeRenderer("flowchart-process", {
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Process Architecture")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 60px">${h(scene.title)}</h2>
         <div id="s${i + 1}-flow-container" class="flow-process-container portrait-flow">
           ${stepsHtml}
@@ -1411,10 +1460,11 @@ registerArchetypeRenderer("kpi-counter-ring", {
   getBackground: ({ isPortrait, activePalette }) =>
     `background: radial-gradient(circle at ${isPortrait ? "50% 45%" : "74% 50%"}, ${activePalette.accent}30 0%, transparent 60%), ${activePalette.background};`,
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const kVal = scene.kpiData?.value || "+1,420%";
-    const kLabel = scene.kpiData?.label || "Throughput Efficiency";
-    const kTrend = scene.kpiData?.trend || "+84.2% YoY";
-    const kSubtitle = scene.kpiData?.subtitle || "Measured across distributed cluster workloads";
+    const kVal = scene.kpiData?.value || String(synthesizeFallbackNumber(scene, 0));
+    const kLabel =
+      scene.kpiData?.label || scene.title || synthesizeFallbackText(scene, "metric", 0);
+    const kTrend = scene.kpiData?.trend || synthesizeFallbackText(scene, "metric", 1);
+    const kSubtitle = scene.kpiData?.subtitle || synthesizeFallbackText(scene, "caption", 0);
     const kProgress = Math.min(100, Math.max(10, Number(scene.kpiData?.progress) || 82));
     const circumference = 880;
     const strokeDash = Math.round((kProgress / 100) * circumference);
@@ -1422,7 +1472,7 @@ registerArchetypeRenderer("kpi-counter-ring", {
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Performance Metric")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.metric[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 58px">${h(scene.title)}</h2>
         <div id="s${i + 1}-kpi-stage" class="kpi-ring-stage">
           <div class="kpi-ring-wrap">
@@ -1443,10 +1493,10 @@ registerArchetypeRenderer("kpi-counter-ring", {
       : `
       <div class="scene-inner split-hero-layout">
         <div class="split-col-left">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Performance Metric")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.metric[0])}</span></div>
           <h2 id="s${i + 1}-title" class="split-hero-title">${h(scene.title)}</h2>
           <p id="s${i + 1}-subtitle" class="split-hero-sub">${h(scene.subtitle || kSubtitle || "Measured across distributed cluster workloads and production benchmarks.")}</p>
-          <div class="split-hero-badge"><span class="accent-spark">✦</span><span>${h(kTrend || "Verified Metric")}</span></div>
+          <div class="split-hero-badge"><span class="accent-spark">✦</span><span>${h(kTrend || NEUTRAL_TOKENS.target[0])}</span></div>
         </div>
         <div class="split-col-right">
           <div id="s${i + 1}-kpi-stage" class="kpi-ring-stage">
@@ -1481,7 +1531,7 @@ registerArchetypeRenderer("kpi-counter-ring", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .kpi-ring-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 36px; width: 100%; max-width: ${isPortrait ? "920px" : "1200px"}; }
+    [data-composition-id="${scene.id}"] .kpi-ring-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 36px; width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; }
     [data-composition-id="${scene.id}"] .kpi-ring-wrap { position: relative; width: ${isPortrait ? "420px" : "360px"}; height: ${isPortrait ? "420px" : "360px"}; display: flex; align-items: center; justify-content: center; }
     [data-composition-id="${scene.id}"] .kpi-svg-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
     [data-composition-id="${scene.id}"] .kpi-track { fill: none; stroke: ${activePalette.border}; stroke-width: 14; opacity: 0.4; }
@@ -1499,26 +1549,18 @@ registerArchetypeRenderer("interactive-diff", {
   getBackground: ({ activePalette }) =>
     `background: linear-gradient(90deg, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 48%, rgba(255,255,255,0.04) 50%, rgba(16, 185, 129, 0.02) 52%, rgba(16, 185, 129, 0.06) 100%), ${activePalette.background};`,
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const tLeft = scene.diffData?.titleLeft || "Legacy Paradigm";
-    const bLeft = scene.diffData?.badgeLeft || "Deprecated";
+    const tLeft = scene.diffData?.titleLeft || synthesizeFallbackText(scene, "state", 1);
+    const bLeft = scene.diffData?.badgeLeft || synthesizeFallbackText(scene, "index", 1);
     const linesL =
       Array.isArray(scene.diffData?.linesLeft) && scene.diffData.linesLeft.length > 0
         ? scene.diffData.linesLeft
-        : [
-            "Monolithic blocking execution",
-            "Resource contention bottlenecks",
-            "Manual multi-step sync",
-          ];
-    const tRight = scene.diffData?.titleRight || "Modern Breakthrough";
-    const bRight = scene.diffData?.badgeRight || "State of the Art";
+        : [0, 1, 2].map((k) => synthesizeFallbackText(scene, "state", k + 1));
+    const tRight = scene.diffData?.titleRight || synthesizeFallbackText(scene, "state", 0);
+    const bRight = scene.diffData?.badgeRight || synthesizeFallbackText(scene, "index", 0);
     const linesR =
       Array.isArray(scene.diffData?.linesRight) && scene.diffData.linesRight.length > 0
         ? scene.diffData.linesRight
-        : [
-            "Zero-overhead streaming engine",
-            "Autonomous concurrency fabric",
-            "Instant deterministic output",
-          ];
+        : [0, 1, 2].map((k) => synthesizeFallbackText(scene, "target", k));
 
     const leftItems = linesL
       .map(
@@ -1536,7 +1578,7 @@ registerArchetypeRenderer("interactive-diff", {
     const innerHtml = isPortrait
       ? `
       <div class="scene-inner">
-        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Comparative Evolution")}</span></div>
+        <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
         <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: 58px">${h(scene.title)}</h2>
         <div id="s${i + 1}-diff-container" class="diff-split-container portrait-diff">
           <div class="diff-pane diff-pane-left">
@@ -1636,30 +1678,19 @@ registerArchetypeRenderer("interactive-diff", {
 // 19. Chat Exchange
 registerArchetypeRenderer("chat-exchange", {
   renderHtml: ({ scene, i, isPortrait, h }) => {
-    const channel = scene.chatData?.channelName || "Live Orchestration Stream";
+    const channel =
+      scene.chatData?.channelName || scene.title || synthesizeFallbackText(scene, "node", 0);
     const rawMsgs =
       Array.isArray(scene.chatData?.messages) && scene.chatData.messages.length > 0
         ? scene.chatData.messages
-        : [
-            {
-              sender: "Operator",
-              text: "Initiating multi-agent state reconciliation.",
-              isAi: false,
-              time: "10:04 AM",
-            },
-            {
-              sender: "Core Engine",
-              text: "All 18 state invariants validated in 0.8ms. Zero locks acquired.",
-              isAi: true,
-              time: "10:04 AM",
-            },
-            {
-              sender: "Dispatcher",
-              text: "Streaming output frame pipeline at 90 FPS.",
-              isAi: true,
-              time: "10:05 AM",
-            },
-          ];
+        : [0, 1, 2].map((k) => ({
+            sender: synthesizeFallbackText(scene, "node", k),
+            text:
+              synthesizeFallbackText(scene, "caption", k) ||
+              synthesizeFallbackText(scene, "state", k),
+            isAi: k > 0,
+            time: "",
+          }));
     const msgs = rawMsgs.slice(0, 3);
     const msgsHtml = msgs
       .map(
@@ -1669,7 +1700,7 @@ registerArchetypeRenderer("chat-exchange", {
         <div class="chat-bubble-body">
           <div class="chat-meta">
             <span class="chat-sender">${h(m.sender || (m.isAi ? "Engine" : "User"))}</span>
-            <span class="chat-time">${h(m.time || "Just now")}</span>
+            <span class="chat-time">${h(m.time || "")}</span>
           </div>
           <div class="chat-bubble-text">${h(m.text || "Status confirmation.")}</div>
         </div>
@@ -1681,7 +1712,7 @@ registerArchetypeRenderer("chat-exchange", {
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Realtime Dialogue")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "58px" : "66px"}">${h(scene.title)}</h2>
           <div id="s${i + 1}-chat-card" class="chat-stream-card">
             <div class="chat-stream-header">
@@ -1706,7 +1737,7 @@ registerArchetypeRenderer("chat-exchange", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .chat-stream-card { width: 100%; max-width: ${isPortrait ? "920px" : "1100px"}; margin-top: 36px; background: #0d0f17; border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.4); text-align: left; }
+    [data-composition-id="${scene.id}"] .chat-stream-card { width: 100%; max-width: ${isPortrait ? "920px" : "min(1400px, 85vw)"}; margin-top: 36px; background: #0d0f17; border: 1px solid rgba(255,255,255,0.12); border-radius: 28px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.4); text-align: left; }
     [data-composition-id="${scene.id}"] .chat-stream-header { background: #171924; padding: 18px 28px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     [data-composition-id="${scene.id}"] .chat-stream-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; }
     [data-composition-id="${scene.id}"] .chat-stream-title { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 600; color: #e2e8f0; flex: 1; }
@@ -1728,20 +1759,25 @@ registerArchetypeRenderer("chat-exchange", {
 
 // 20. Features Cards (Default Fallback Handler)
 export const renderDefaultCards = {
-  renderHtml: ({ scene, i, isPortrait, h }) => {
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
     const bulletsHtml = (
-      scene.cardRight?.bullets || [
-        "High speed execution",
-        "Private local processing",
-        "Zero lock-in",
-      ]
+      scene.cardRight?.bullets ||
+      [0, 1, 2].map(
+        (k) =>
+          synthesizeFallbackText(scene, "caption", k) || synthesizeFallbackText(scene, "state", k),
+      )
     )
       .map(
         (b, idx) =>
           `<li class="note-item" id="note-${i}-${idx + 1}"><span class="note-icon">✓</span><span>${h(b)}</span></li>`,
       )
       .join("\n");
-    const sampleWords = (scene.cardLeft?.sampleText || "Translating thoughts into clean execution.")
+    const sampleWords = (
+      scene.cardLeft?.sampleText ||
+      synthesizeFallbackText(scene, "caption", 0) ||
+      scene.title ||
+      ""
+    )
       .split(" ")
       .map((w) => `<span class="typed-word">${h(w)} </span>`)
       .join("");
@@ -1749,20 +1785,20 @@ export const renderDefaultCards = {
     return {
       innerHtml: `
         <div class="scene-inner">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Core Features")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h2 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "64px" : "68px"}">${h(scene.title)}</h2>
           <div class="cards-container ${isPortrait ? "portrait-stack" : ""}">
             <div id="s${i + 1}-card-a" class="feature-card">
               <div class="card-header">
-                <span class="card-title">${h(scene.cardLeft?.title || "Instant Core")}</span>
-                <span class="card-badge">${h(scene.cardLeft?.badge || "Active")}</span>
+                <span class="card-title">${h(scene.cardLeft?.title || NEUTRAL_TOKENS.metric[0])}</span>
+                <span class="card-badge">${h(scene.cardLeft?.badge || synthesizeFallbackText(scene, "index", 0))}</span>
               </div>
               <div class="email-body">${sampleWords}</div>
             </div>
             <div id="s${i + 1}-card-b" class="feature-card">
               <div class="card-header">
-                <span class="card-title">${h(scene.cardRight?.title || "Structured")}</span>
-                <span class="card-badge privacy">${h(scene.cardRight?.badge || "100% Offline")}</span>
+                <span class="card-title">${h(scene.cardRight?.title || synthesizeFallbackText(scene, "metric", 1))}</span>
+                <span class="card-badge privacy">${h(scene.cardRight?.badge || synthesizeFallbackText(scene, "index", 1))}</span>
               </div>
               <ul class="notes-list">${bulletsHtml}</ul>
             </div>
@@ -1776,21 +1812,22 @@ export const renderDefaultCards = {
         tl.from(scope.querySelector("#s${i + 1}-card-b"), { opacity: 0, y: 30, duration: 0.5 }, 0.9);
         const words = scope.querySelectorAll(".typed-word");
         words.forEach((w, idx) => { tl.to(w, { opacity: 1, duration: 0.04 }, 1.2 + (idx * 0.12)); });
-        scope.querySelectorAll(".note-item").forEach((n, idx) => { tl.to(n, { opacity: 1, y: 0, duration: 0.4 }, 2.0 + (idx * 0.8)); });
+        scope.querySelectorAll(".note-item").forEach((n) => { tl.to(n, { opacity: 0.55, y: 0, duration: 0.4 }, 2.0); });
+        ${scheduleStepProgression("tl", 'scope.querySelectorAll(".note-item")', sDur, { accent: activePalette.accent, activeProps: { opacity: 1, x: 10 }, settledProps: { opacity: 0.75, x: 0 } })}
       `,
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .cards-container { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; width: 100%; max-width: 1540px; margin-top: 36px; }
-    [data-composition-id="${scene.id}"] .feature-card { background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 24px; padding: ${isPortrait ? "36px 40px" : "40px"}; box-shadow: 0 16px 40px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-align: left; }
+    [data-composition-id="${scene.id}"] .cards-container { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "1fr 1fr"}; gap: 40px; width: ${isPortrait ? "100%" : "min(1400px, 85vw)"}; margin: 40px auto 0; align-items: stretch; }
+    [data-composition-id="${scene.id}"] .feature-card { background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 24px; padding: ${isPortrait ? "36px 40px" : "48px 40px"}; min-height: ${isPortrait ? "0" : "360px"}; box-shadow: 0 16px 40px rgba(0,0,0,0.04); display: flex; flex-direction: column; text-align: left; }
     [data-composition-id="${scene.id}"] .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid ${activePalette.border}; }
-    [data-composition-id="${scene.id}"] .card-title { font-family: "Playfair Display", serif; font-size: 32px; font-weight: 700; color: ${activePalette.text}; }
-    [data-composition-id="${scene.id}"] .card-badge { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 500; padding: 6px 14px; border-radius: 20px; background: rgba(0,0,0,0.06); color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .card-title { font-family: "Playfair Display", serif; font-size: 36px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .card-badge { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 500; padding: 6px 14px; border-radius: 20px; background: rgba(0,0,0,0.06); color: ${activePalette.text}; }
     [data-composition-id="${scene.id}"] .card-badge.privacy { background: #e9f3ec; color: #27623d; }
-    [data-composition-id="${scene.id}"] .email-body { font-size: 24px; line-height: 1.5; color: ${activePalette.text}; min-height: 100px; }
+    [data-composition-id="${scene.id}"] .email-body { font-size: 26px; line-height: 1.5; color: ${activePalette.text}; min-height: 100px; }
     [data-composition-id="${scene.id}"] .typed-word { display: inline; opacity: 0; }
     [data-composition-id="${scene.id}"] .notes-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
-    [data-composition-id="${scene.id}"] .note-item { display: flex; align-items: flex-start; gap: 14px; font-size: 20px; line-height: 1.45; color: ${activePalette.text}; opacity: 0; transform: translateY(12px); }
+    [data-composition-id="${scene.id}"] .note-item { display: flex; align-items: flex-start; gap: 14px; font-size: 24px; line-height: 1.45; color: ${activePalette.text}; opacity: 0; transform: translateY(12px); }
     [data-composition-id="${scene.id}"] .note-icon { width: 22px; height: 22px; border-radius: 6px; background: rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 3px; }
   `,
 };
@@ -1811,7 +1848,7 @@ registerArchetypeRenderer("bento-metric-grid", {
     scene?.theme === "dark" || activePalette?.isDark
       ? `background: radial-gradient(circle at 20% 20%, ${activePalette.accent}24 0%, transparent 60%), #0b0d14;`
       : `background: radial-gradient(circle at 20% 20%, ${activePalette.accent}18 0%, transparent 55%), ${activePalette.background};`,
-  renderHtml: ({ scene, i, isPortrait, h }) => {
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
     const metrics =
       Array.isArray(scene.bentoData?.metrics) && scene.bentoData.metrics.length
         ? scene.bentoData.metrics
@@ -1834,7 +1871,7 @@ registerArchetypeRenderer("bento-metric-grid", {
     return {
       innerHtml: `
         <div class="scene-inner" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "By The Numbers")}</span></div>
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
           <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "60px" : "72px"}">${h(scene.title)}</h1>
           <div id="s${i + 1}-bento" class="bento-grid">${tilesHtml}</div>
         </div>
@@ -1842,7 +1879,8 @@ registerArchetypeRenderer("bento-metric-grid", {
       gsapChoreography: `
         tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 20, duration: 0.5 }, 0.2);
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 25, duration: 0.6 }, 0.4);
-        tl.from(scope.querySelectorAll(".bento-tile"), { opacity: 0, y: 30, scale: 0.96, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.5);
+        tl.from(scope.querySelectorAll(".bento-tile"), { opacity: 0, y: 30, scale: 0.96, stagger: 0.08, duration: 0.55, ease: "power3.out" }, 0.5);
+        ${scheduleStepProgression("tl", 'scope.querySelectorAll(".bento-tile")', sDur, { accent: activePalette.accent })}
         tl.fromTo(scope.querySelectorAll(".bento-border"), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, stagger: 0.1, duration: 0.6, ease: "power2.inOut" }, 0.7);
         tl.from(scope.querySelectorAll(".bento-value"), {
           opacity: 0,
@@ -1856,14 +1894,14 @@ registerArchetypeRenderer("bento-metric-grid", {
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: ${isPortrait ? "16px" : "20px"}; margin-top: 48px; max-width: 1080px; }
-    [data-composition-id="${scene.id}"] .bento-tile { position: relative; overflow: hidden; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 20px; padding: ${isPortrait ? "26px" : "32px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .bento-grid { display: grid; grid-template-columns: ${isPortrait ? "repeat(2, 1fr)" : "repeat(3, 1fr)"}; gap: ${isPortrait ? "18px" : "24px"}; margin: 48px auto 0; width: ${isPortrait ? "100%" : "min(1400px, 85vw)"}; }
+    [data-composition-id="${scene.id}"] .bento-tile { position: relative; overflow: hidden; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 22px; padding: ${isPortrait ? "32px 24px" : "40px 32px"}; min-height: ${isPortrait ? "0" : "190px"}; text-align: left; }
     [data-composition-id="${scene.id}"] .bento-hero { grid-column: span 2; grid-row: span 2; background: ${activePalette.accent}14; }
     [data-composition-id="${scene.id}"] .bento-border { position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, ${activePalette.accent}, transparent); transform-origin: left; }
-    [data-composition-id="${scene.id}"] .bento-value { font-size: ${isPortrait ? "48px" : "64px"}; font-weight: 700; color: ${activePalette.text}; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    [data-composition-id="${scene.id}"] .bento-value { font-size: ${isPortrait ? "56px" : "76px"}; font-weight: 700; color: ${activePalette.text}; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
     [data-composition-id="${scene.id}"] .bento-unit { font-size: 0.45em; font-weight: 600; color: ${activePalette.accent}; margin-left: 6px; }
-    [data-composition-id="${scene.id}"] .bento-label { font-size: ${isPortrait ? "18px" : "20px"}; font-weight: 600; color: ${activePalette.text}; margin-top: 10px; }
-    [data-composition-id="${scene.id}"] .bento-detail { font-size: 16px; color: ${activePalette.textMuted || activePalette.muted || "#9ca3af"}; margin-top: 6px; }
+    [data-composition-id="${scene.id}"] .bento-label { font-size: ${isPortrait ? "22px" : "26px"}; font-weight: 600; color: ${activePalette.text}; margin-top: 10px; }
+    [data-composition-id="${scene.id}"] .bento-detail { font-size: 20px; color: ${activePalette.textMuted || activePalette.muted || "#9ca3af"}; margin-top: 6px; }
   `,
 });
 
@@ -1873,7 +1911,7 @@ registerArchetypeRenderer("terminal-flow", {
     scene?.theme === "dark" || activePalette?.isDark
       ? `background: radial-gradient(ellipse at 75% 20%, ${activePalette.accent}22 0%, transparent 55%), #0b0d14;`
       : `background: linear-gradient(120deg, ${activePalette.accent}14 0%, transparent 45%), ${activePalette.background};`,
-  renderHtml: ({ scene, i, isPortrait, h }) => {
+  renderHtml: ({ scene, i, h, sDur, activePalette }) => {
     const bullets = (
       Array.isArray(scene.terminalData?.bullets) && scene.terminalData.bullets.length
         ? scene.terminalData.bullets
@@ -1887,13 +1925,11 @@ registerArchetypeRenderer("terminal-flow", {
     const lines =
       Array.isArray(scene.terminalData?.lines) && scene.terminalData.lines.length
         ? scene.terminalData.lines
-        : [
-            {
-              prompt: "$",
-              text: "chalkframes render --out demo.mp4",
-              output: "✓ rendered 240 frames",
-            },
-          ];
+        : [0, 1, 2].map((k) => ({
+            prompt: ">",
+            text: synthesizeFallbackText(scene, "step", k),
+            output: synthesizeFallbackText(scene, "caption", k),
+          }));
     const termHtml = lines
       .map((l) => {
         const prompt = typeof l?.prompt === "string" ? l.prompt : "$";
@@ -1940,25 +1976,27 @@ registerArchetypeRenderer("terminal-flow", {
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, x: -32, duration: 0.5, ease: "power3.out" }, 0.25);
         tl.from(scope.querySelectorAll(".tf-bullet"), { opacity: 0, x: -24, stagger: 0.1, duration: 0.4 }, 0.5);
         tl.from(scope.querySelector("#s${i + 1}-term"), { opacity: 0, y: 36, scale: 0.97, duration: 0.65, ease: "power3.out" }, 0.3);
-        tl.from(scope.querySelectorAll(".tf-line"), { opacity: 0, y: 10, stagger: 0.22, duration: 0.32 }, 0.9);
+        tl.from(scope.querySelectorAll(".tf-line"), { opacity: 0.25, y: 10, duration: 0.32 }, 0.9);
+        ${scheduleStepProgression("tl", 'scope.querySelectorAll(".tf-line")', sDur, { accent: activePalette.accent })}
+        ${scheduleStepProgression("tl", 'scope.querySelectorAll(".tf-bullet")', sDur, { accent: activePalette.accent, activeProps: { opacity: 1, x: 8 }, settledProps: { opacity: 0.75, x: 0 } })}
         tl.to(scope.querySelector("#s${i + 1}-scan"), { y: "100%", duration: Math.max(2, sDur - 1.0), ease: "none", repeat: -1 }, 1.2);
         tl.to(scope.querySelector("#s${i + 1}-canvas"), { scale: 1.028, duration: Math.max(1, sDur - 1.0), ease: "none" }, 0.4);
       `,
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .tf-canvas { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; padding: ${isPortrait ? "90px 44px 60px" : "52px 72px 52px"}; box-sizing: border-box; overflow: hidden; }
+    [data-composition-id="${scene.id}"] .tf-canvas { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; padding: ${isPortrait ? "90px 44px 60px" : "56px 80px 56px"}; box-sizing: border-box; overflow: hidden; }
     [data-composition-id="${scene.id}"] .tf-hud-header { display: flex; align-items: center; gap: 20px; margin-bottom: ${isPortrait ? "28px" : "32px"}; }
     [data-composition-id="${scene.id}"] .tf-hud-trace { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "16px" : "15px"}; font-weight: 700; color: ${activePalette.accent}; letter-spacing: 0.12em; opacity: 0.75; }
     [data-composition-id="${scene.id}"] .tf-hud-tag { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "18px" : "16px"}; font-weight: 700; color: ${activePalette.text || "#f3f4f8"}; letter-spacing: 0.08em; text-transform: uppercase; }
-    [data-composition-id="${scene.id}"] .tf-split { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row; align-items: flex-start;"} gap: ${isPortrait ? "32px" : "52px"}; flex: 1; }
-    [data-composition-id="${scene.id}"] .tf-left { flex: 0 0 ${isPortrait ? "100%" : "38%"}; display: flex; flex-direction: column; justify-content: flex-start; }
-    [data-composition-id="${scene.id}"] .tf-hud-title { font-family: "Inter", sans-serif; font-size: ${isPortrait ? "42px" : "48px"}; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; color: ${activePalette.text || "#f3f4f8"}; margin: 0 0 24px; }
-    [data-composition-id="${scene.id}"] .tf-right { flex: 1; display: flex; align-items: flex-start; justify-content: flex-end; }
+    [data-composition-id="${scene.id}"] .tf-split { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row; align-items: center;"} gap: ${isPortrait ? "32px" : "56px"}; flex: 1; width: 100%; min-height: 0; }
+    [data-composition-id="${scene.id}"] .tf-left { flex: 0 0 ${isPortrait ? "100%" : "37%"}; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+    [data-composition-id="${scene.id}"] .tf-hud-title { font-family: "Inter", sans-serif; font-size: ${isPortrait ? "46px" : "56px"}; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; color: ${activePalette.text || "#f3f4f8"}; margin: 0 0 24px; }
+    [data-composition-id="${scene.id}"] .tf-right { flex: 1; width: 100%; min-height: ${isPortrait ? "520px" : "560px"}; display: flex; align-items: center; justify-content: center; }
     [data-composition-id="${scene.id}"] .tf-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
-    [data-composition-id="${scene.id}"] .tf-bullet { display: flex; align-items: flex-start; gap: 14px; font-size: ${isPortrait ? "19px" : "21px"}; color: ${activePalette.text || "#f3f4f8"}; line-height: 1.4; opacity: 0.9; }
+    [data-composition-id="${scene.id}"] .tf-bullet { display: flex; align-items: flex-start; gap: 14px; font-size: ${isPortrait ? "22px" : "24px"}; color: ${activePalette.text || "#f3f4f8"}; line-height: 1.4; opacity: 0.9; }
     [data-composition-id="${scene.id}"] .tf-bullet-dot { width: 8px; height: 8px; border-radius: 50%; background: ${activePalette.accent}; margin-top: 9px; flex-shrink: 0; box-shadow: 0 0 8px ${activePalette.accent}; }
-    [data-composition-id="${scene.id}"] .tf-terminal { width: 100%; max-width: ${isPortrait ? "100%" : "700px"}; background: #0d0e16; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.12); font-family: "JetBrains Mono", monospace; text-align: left; }
+    [data-composition-id="${scene.id}"] .tf-terminal { width: 100%; max-width: ${isPortrait ? "100%" : "none"}; min-height: ${isPortrait ? "480px" : "560px"}; background: #0d0e16; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.12); font-family: "JetBrains Mono", monospace; text-align: left; }
     [data-composition-id="${scene.id}"] .tf-titlebar { display: flex; align-items: center; gap: 8px; padding: 13px 18px; background: #13141e; border-bottom: 1px solid rgba(255,255,255,0.06); }
     [data-composition-id="${scene.id}"] .tf-dot { width: 12px; height: 12px; border-radius: 50%; }
     [data-composition-id="${scene.id}"] .tf-dot-red { background: #ff5f57; }
@@ -1966,11 +2004,11 @@ registerArchetypeRenderer("terminal-flow", {
     [data-composition-id="${scene.id}"] .tf-dot-green { background: #28c840; }
     [data-composition-id="${scene.id}"] .tf-title { margin-left: 8px; font-size: 13px; color: rgba(255,255,255,0.4); }
     [data-composition-id="${scene.id}"] .tf-title-path { margin-left: auto; font-size: 12px; color: ${activePalette.accent}88; }
-    [data-composition-id="${scene.id}"] .tf-body { padding: ${isPortrait ? "20px" : "24px 28px 32px"}; display: flex; flex-direction: column; gap: ${isPortrait ? "14px" : "18px"}; }
-    [data-composition-id="${scene.id}"] .tf-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-size: ${isPortrait ? "14px" : "16px"}; }
+    [data-composition-id="${scene.id}"] .tf-body { padding: ${isPortrait ? "20px" : "24px 28px 32px"}; display: flex; flex-direction: column; gap: ${isPortrait ? "18px" : "22px"}; flex: 1; justify-content: center; }
+    [data-composition-id="${scene.id}"] .tf-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; font-size: ${isPortrait ? "20px" : "22px"}; padding: 10px 14px; border-radius: 10px; }
     [data-composition-id="${scene.id}"] .tf-prompt { color: ${activePalette.accent}; font-weight: 700; }
     [data-composition-id="${scene.id}"] .tf-cmd { color: #e8e8f0; }
-    [data-composition-id="${scene.id}"] .tf-out { width: 100%; color: #6fca8a; font-size: ${isPortrait ? "13px" : "14px"}; padding-left: 20px; opacity: 0.85; }
+    [data-composition-id="${scene.id}"] .tf-out { width: 100%; color: #6fca8a; font-size: ${isPortrait ? "18px" : "20px"}; padding-left: 20px; opacity: 0.85; }
     [data-composition-id="${scene.id}"] .tf-scan-line { position: absolute; left: 0; right: 0; top: -2px; height: 2px; background: linear-gradient(90deg, transparent, ${activePalette.accent}66, transparent); pointer-events: none; }
   `,
 });
@@ -1981,34 +2019,44 @@ registerArchetypeRenderer("terminal-flow", {
 registerArchetypeRenderer("step-progression", {
   getBackground: ({ activePalette }) =>
     `background: radial-gradient(circle at 80% 15%, ${activePalette.accent}15 0%, transparent 50%), ${activePalette.background};`,
-  renderHtml: ({ scene, i, isPortrait, h }) => {
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
     const steps = (
       Array.isArray(scene.progressData?.steps) && scene.progressData.steps.length
         ? scene.progressData.steps
-        : [
-            { label: "Input", caption: "" },
-            { label: "Transform", caption: "" },
-            { label: "Output", caption: "" },
-          ]
+        : [0, 1, 2].map((k) => ({
+            label: synthesizeFallbackText(scene, "step", k),
+            caption: synthesizeFallbackText(scene, "caption", k),
+          }))
     ).slice(0, 4);
-    const activeIndex = Math.min(steps.length - 1, 1);
     const nodesHtml = steps
       .map((s, j) => {
-        const label = typeof s?.label === "string" ? s.label : `Step ${j + 1}`;
+        const label = typeof s?.label === "string" ? s.label : NEUTRAL_TOKENS.step[j];
         const caption = typeof s?.caption === "string" ? s.caption : "";
+        const captionHtml = caption ? `<div class="sp-caption">${h(caption)}</div>` : "";
         return `
-        <div class="sp-step${j === activeIndex ? " sp-active" : ""}">
-          <div class="sp-node"><span class="sp-node-core"></span></div>
-          <div class="sp-label">${h(label)}</div>
-          ${caption ? `<div class="sp-caption">${h(caption)}</div>` : ""}
+        <div class="sp-step">
+          <div class="sp-node"><span class="sp-node-core">${j + 1}</span></div>
+          <div class="sp-card">
+            <div class="sp-label">${h(label)}</div>
+            ${captionHtml}
+          </div>
         </div>`;
       })
       .join("\n");
+    const accent = activePalette.accent;
+    const paceCards = scheduleStepProgression("tl", 'scope.querySelectorAll(".sp-card")', sDur, {
+      accent,
+    });
+    const paceNodes = scheduleStepProgression("tl", 'scope.querySelectorAll(".sp-node")', sDur, {
+      accent,
+      activeProps: { scale: 1.14 },
+      settledProps: { scale: 1 },
+    });
     return {
       innerHtml: `
-        <div class="scene-inner" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
-          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "The Path")}</span></div>
-          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "56px" : "68px"}">${h(scene.title)}</h1>
+        <div class="scene-inner sp-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "56px" : "72px"}">${h(scene.title)}</h1>
           <div id="s${i + 1}-track" class="sp-track">
             <div class="sp-connector"></div>
             ${nodesHtml}
@@ -2019,19 +2067,22 @@ registerArchetypeRenderer("step-progression", {
         tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 20, duration: 0.5 }, 0.2);
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 25, duration: 0.6 }, 0.4);
         tl.fromTo(scope.querySelector(".sp-connector"), { scaleX: 0, opacity: 1 }, { scaleX: 1, opacity: 1, duration: 1.0, ease: "power2.inOut" }, 0.7);
-        tl.from(scope.querySelectorAll(".sp-step"), { opacity: 0, y: 26, stagger: 0.18, duration: 0.5, ease: "power3.out" }, 0.8);
-        tl.to(scope.querySelector(".sp-active .sp-node"), { boxShadow: "0 0 0 14px rgba(0,0,0,0)", duration: 0.8, repeat: -1, yoyo: true, ease: "sine.inOut" }, 1.5);
+        tl.from(scope.querySelectorAll(".sp-step"), { opacity: 0, y: 26, stagger: 0.14, duration: 0.5, ease: "power3.out" }, 0.8);
+        ${paceCards}
+        ${paceNodes}
       `,
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
-    [data-composition-id="${scene.id}"] .sp-track { position: relative; display: flex; justify-content: space-between; ${isPortrait ? "flex-direction: column; align-items: center; gap: 40px;" : ""} margin-top: 72px; max-width: 1080px; width: 100%; }
-    [data-composition-id="${scene.id}"] .sp-connector { position: absolute; ${isPortrait ? "left: 26px; top: 0; bottom: 0; width: 3px; height: auto; transform-origin: top;" : "left: 6%; right: 6%; top: 26px; height: 3px; transform-origin: left;"} background: linear-gradient(90deg, ${activePalette.accent}, ${activePalette.accent}44); border-radius: 2px; }
-    [data-composition-id="${scene.id}"] .sp-step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; ${isPortrait ? "flex-direction: row; width: 100%; gap: 20px;" : ""} text-align: center; }
-    [data-composition-id="${scene.id}"] .sp-node { width: 52px; height: 52px; border-radius: 50%; background: ${activePalette.background}; border: 3px solid ${activePalette.accent}; display: flex; align-items: center; justify-content: center; }
-    [data-composition-id="${scene.id}"] .sp-node-core { width: 16px; height: 16px; border-radius: 50%; background: ${activePalette.accent}; }
-    [data-composition-id="${scene.id}"] .sp-label { font-size: ${isPortrait ? "22px" : "24px"}; font-weight: 700; color: ${activePalette.text}; margin-top: 16px; }
-    [data-composition-id="${scene.id}"] .sp-caption { font-size: 17px; color: ${activePalette.border}; margin-top: 8px; max-width: 220px; }
+    [data-composition-id="${scene.id}"] .sp-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .sp-track { position: relative; display: flex; ${isPortrait ? "flex-direction: column; align-items: stretch; gap: 28px;" : "flex-direction: row; align-items: stretch; justify-content: space-between; gap: 28px;"} margin: ${isPortrait ? "44px" : "64px"} auto 0; width: ${isPortrait ? "100%" : "min(1400px, 85vw)"}; }
+    [data-composition-id="${scene.id}"] .sp-connector { position: absolute; ${isPortrait ? "left: 34px; top: 0; bottom: 0; width: 4px; height: auto; transform-origin: top;" : "left: 6%; right: 6%; top: 34px; height: 4px; transform-origin: left;"} background: linear-gradient(90deg, ${activePalette.accent}, ${activePalette.accent}44); border-radius: 2px; }
+    [data-composition-id="${scene.id}"] .sp-step { position: relative; z-index: 1; flex: 1 1 0; display: flex; ${isPortrait ? "flex-direction: row; align-items: flex-start; gap: 24px; text-align: left;" : "flex-direction: column; align-items: center; gap: 22px; text-align: center;"} }
+    [data-composition-id="${scene.id}"] .sp-node { flex: 0 0 auto; width: 68px; height: 68px; border-radius: 50%; background: ${activePalette.background}; border: 4px solid ${activePalette.accent}; display: flex; align-items: center; justify-content: center; }
+    [data-composition-id="${scene.id}"] .sp-node-core { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .sp-card { flex: 1; width: 100%; box-sizing: border-box; padding: 32px 24px; border-radius: 22px; background: ${activePalette.card}; border: 2px solid ${activePalette.border}; min-height: ${isPortrait ? "0" : "340px"}; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+    [data-composition-id="${scene.id}"] .sp-label { font-size: ${isPortrait ? "30px" : "38px"}; font-weight: 800; line-height: 1.2; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .sp-caption { font-size: ${isPortrait ? "24px" : "28px"}; line-height: 1.45; color: ${activePalette.textMuted || activePalette.text}; }
   `,
 });
 
@@ -2045,21 +2096,28 @@ registerArchetypeRenderer("vector-cluster-graph", {
     const rawClusters =
       Array.isArray(scene.clusters) && scene.clusters.length
         ? scene.clusters
-        : [
-            { name: "Semantic Intent", nodeCount: 16, active: true },
-            { name: "Syntactic Match", nodeCount: 9, active: false },
-            { name: "Pruned Subgraph", nodeCount: 12, active: false },
-          ];
+        : [0, 1, 2].map((k) => ({
+            name: synthesizeFallbackText(scene, "node", k),
+            nodeCount: [16, 9, 12][k],
+            active: k === 0,
+          }));
     const clusters = rawClusters.slice(0, 3);
-    const queryLabel = scene.queryLabel || 'q = embed("semantic intent")';
-    const stats = scene.stats || { metric: "99.4% Cosine Sim", latency: "1.2ms HNSW" };
+    const queryLabel = scene.queryLabel || synthesizeFallbackText(scene, "node", 0);
+    const stats = scene.stats || {
+      metric: synthesizeFallbackText(scene, "state", 0),
+      latency: synthesizeFallbackText(scene, "target", 0),
+    };
+    const statLabels = [
+      scene.stats?.metricLabel || NEUTRAL_TOKENS.metric[0],
+      scene.stats?.latencyLabel || NEUTRAL_TOKENS.metric[1],
+    ];
     const accent = activePalette?.accent || "#6366f1";
 
     return {
       innerHtml: `
         <div class="scene-inner vc-container${isPortrait ? " vc-portrait" : ""}">
           <div class="vc-left-col">
-            <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "Embedding Space")}</span></div>
+            <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || NEUTRAL_TOKENS.index[0])}</span></div>
             <h1 id="s${i + 1}-title" class="vc-title">${h(scene.title)}</h1>
             <p id="s${i + 1}-subtitle" class="vc-subtitle">${h(scene.subtitle || scene.voiceover?.slice(0, 130) || "")}</p>
             <div id="s${i + 1}-query" class="vc-query-chip">
@@ -2068,12 +2126,12 @@ registerArchetypeRenderer("vector-cluster-graph", {
             </div>
             <div class="vc-stats-grid">
               <div class="vc-stat-tile">
-                <span class="vc-stat-val">${h(stats.metric || "99.4% Sim")}</span>
-                <span class="vc-stat-lbl">Recall Score</span>
+                <span class="vc-stat-val">${h(stats.metric || NEUTRAL_TOKENS.state[0])}</span>
+                <span class="vc-stat-lbl">${h(statLabels[0])}</span>
               </div>
               <div class="vc-stat-tile">
-                <span class="vc-stat-val">${h(stats.latency || "1.2ms")}</span>
-                <span class="vc-stat-lbl">Search Latency</span>
+                <span class="vc-stat-val">${h(stats.latency || NEUTRAL_TOKENS.target[0])}</span>
+                <span class="vc-stat-lbl">${h(statLabels[1])}</span>
               </div>
             </div>
             <div class="vc-legend">
@@ -2083,7 +2141,7 @@ registerArchetypeRenderer("vector-cluster-graph", {
                 <div class="vc-legend-item${c.active ? " vc-active" : ""}">
                   <span class="vc-legend-dot" style="background:${c.active ? accent : "rgba(255,255,255,0.4)"}"></span>
                   <span class="vc-legend-name">${h(c.name || `Cluster ${cIdx + 1}`)}</span>
-                  <span class="vc-legend-cnt">${h(c.nodeCount || 10)} pts</span>
+                  <span class="vc-legend-cnt">${h(c.nodeCount || 10)}</span>
                 </div>`,
                 )
                 .join("")}
@@ -2109,7 +2167,7 @@ registerArchetypeRenderer("vector-cluster-graph", {
                 <line class="vc-edge" x1="460" y1="230" x2="520" y2="250" />
               </g>
 
-              <!-- Constellation Lines (Cluster 2: Syntactic Centroid 260, 380) -->
+              <!-- Constellation Lines (Cluster 2: secondary group 260, 380) -->
               <g class="vc-edges vc-edges-inactive">
                 <line class="vc-edge" x1="260" y1="380" x2="210" y2="350" />
                 <line class="vc-edge" x1="260" y1="380" x2="310" y2="360" />
@@ -2117,7 +2175,7 @@ registerArchetypeRenderer("vector-cluster-graph", {
                 <line class="vc-edge" x1="260" y1="380" x2="300" y2="420" />
               </g>
 
-              <!-- Constellation Lines (Cluster 3: Pruned Centroid 560, 400) -->
+              <!-- Constellation Lines (Cluster 3: tertiary group 560, 400) -->
               <g class="vc-edges vc-edges-inactive">
                 <line class="vc-edge" x1="560" y1="400" x2="510" y2="380" />
                 <line class="vc-edge" x1="560" y1="400" x2="620" y2="390" />
@@ -2125,10 +2183,10 @@ registerArchetypeRenderer("vector-cluster-graph", {
                 <line class="vc-edge" x1="560" y1="400" x2="600" y2="440" />
               </g>
 
-              <!-- Pruned Neighbor Traversal Candidates (Low-opacity dashed) -->
+              <!-- Alternate traversal candidates (Low-opacity dashed) -->
               <path class="vc-pruned-path" d="M 120 160 Q 180 280, 260 380" fill="none" stroke-dasharray="6 6" />
 
-              <!-- Traversal Path from Query Vector to Target Centroid -->
+              <!-- Traversal path from the source marker to the target node -->
               <path id="s${i + 1}-traversal" class="vc-traversal-path" d="M 120 160 Q 280 80, 490 180" fill="none" stroke-dasharray="460" stroke-dashoffset="460" />
 
               <!-- Target Centroid Halo & Node -->
@@ -2165,16 +2223,16 @@ registerArchetypeRenderer("vector-cluster-graph", {
                 <circle class="vc-node" cx="600" cy="440" r="5" />
               </g>
 
-              <!-- Query Vector Marker (Source) -->
+              <!-- Source marker -->
               <g class="vc-query-marker">
                 <circle class="vc-query-ripple" cx="120" cy="160" r="28" />
                 <circle class="vc-query-outer" cx="120" cy="160" r="14" />
                 <circle class="vc-query-inner" cx="120" cy="160" r="5" />
-                <text class="vc-query-svg-label" x="120" y="118" text-anchor="middle">q [Query Vector]</text>
+                <text class="vc-query-svg-label" x="120" y="118" text-anchor="middle">${h(String(queryLabel).slice(0, 24))}</text>
               </g>
 
               <!-- Centroid Target Label -->
-              <text class="vc-target-label" x="490" y="222" text-anchor="middle">Nearest Centroid</text>
+              <text class="vc-target-label" x="490" y="222" text-anchor="middle">${h(NEUTRAL_TOKENS.target[0])}</text>
             </svg>
           </div>
         </div>
@@ -2195,21 +2253,21 @@ registerArchetypeRenderer("vector-cluster-graph", {
   },
   renderCss: ({ scene, isPortrait, activePalette }) => `
     [data-composition-id="${scene.id}"] .vc-container { width: 100%; height: 100%; display: flex; flex-direction: ${isPortrait ? "column" : "row"}; align-items: center; justify-content: space-between; padding: ${isPortrait ? "100px 48px 60px" : "60px 80px"}; box-sizing: border-box; text-align: left; gap: 40px; }
-    [data-composition-id="${scene.id}"] .vc-left-col { flex: 0 0 ${isPortrait ? "100%" : "38%"}; max-width: ${isPortrait ? "920px" : "560px"}; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+    [data-composition-id="${scene.id}"] .vc-left-col { flex: 0 0 ${isPortrait ? "100%" : "37%"}; max-width: ${isPortrait ? "920px" : "none"}; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
     [data-composition-id="${scene.id}"] .vc-title { font-family: "Playfair Display", serif; font-size: ${isPortrait ? "56px" : "64px"}; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: ${activePalette.text}; margin-top: 8px; }
-    [data-composition-id="${scene.id}"] .vc-subtitle { font-size: ${isPortrait ? "22px" : "22px"}; color: ${activePalette.textMuted || activePalette.muted || activePalette.text}; line-height: 1.45; margin-top: 14px; }
+    [data-composition-id="${scene.id}"] .vc-subtitle { font-size: ${isPortrait ? "24px" : "24px"}; color: ${activePalette.textMuted || activePalette.muted || activePalette.text}; line-height: 1.45; margin-top: 14px; }
     [data-composition-id="${scene.id}"] .vc-query-chip { margin-top: 20px; display: inline-flex; align-items: center; gap: 10px; background: rgba(99, 102, 241, 0.1); border: 1px solid ${activePalette.accent}55; padding: 8px 18px; border-radius: 20px; font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 600; color: ${activePalette.accent}; }
     [data-composition-id="${scene.id}"] .vc-query-dot { width: 8px; height: 8px; border-radius: 50%; background: ${activePalette.accent}; box-shadow: 0 0 10px ${activePalette.accent}; }
     [data-composition-id="${scene.id}"] .vc-stats-grid { display: flex; gap: 14px; margin-top: 22px; width: 100%; }
     [data-composition-id="${scene.id}"] .vc-stat-tile { flex: 1; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; border-radius: 16px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
-    [data-composition-id="${scene.id}"] .vc-stat-val { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700; color: ${activePalette.text}; }
-    [data-composition-id="${scene.id}"] .vc-stat-lbl { font-size: 13px; color: ${activePalette.textMuted || activePalette.muted}; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    [data-composition-id="${scene.id}"] .vc-stat-val { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .vc-stat-lbl { font-size: 18px; color: ${activePalette.textMuted || activePalette.muted}; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
     [data-composition-id="${scene.id}"] .vc-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-    [data-composition-id="${scene.id}"] .vc-legend-item { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.04); border: 1px solid ${activePalette.border}; padding: 6px 14px; border-radius: 14px; font-size: 13px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .vc-legend-item { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.04); border: 1px solid ${activePalette.border}; padding: 10px 18px; border-radius: 16px; font-size: 20px; color: ${activePalette.textMuted || activePalette.text}; }
     [data-composition-id="${scene.id}"] .vc-legend-item.vc-active { border-color: ${activePalette.accent}; color: ${activePalette.text}; background: rgba(99, 102, 241, 0.08); font-weight: 600; }
     [data-composition-id="${scene.id}"] .vc-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-    [data-composition-id="${scene.id}"] .vc-legend-cnt { font-family: "JetBrains Mono", monospace; font-size: 11px; opacity: 0.7; }
-    [data-composition-id="${scene.id}"] .vc-right-canvas { flex: 0 0 ${isPortrait ? "100%" : "58%"}; height: ${isPortrait ? "580px" : "100%"}; display: flex; align-items: center; justify-content: center; position: relative; }
+    [data-composition-id="${scene.id}"] .vc-legend-cnt { font-family: "JetBrains Mono", monospace; font-size: 18px; opacity: 0.7; }
+    [data-composition-id="${scene.id}"] .vc-right-canvas { flex: 0 0 ${isPortrait ? "100%" : "61%"}; width: ${isPortrait ? "100%" : "61%"}; min-height: ${isPortrait ? "560px" : "560px"}; height: ${isPortrait ? "580px" : "100%"}; display: flex; align-items: center; justify-content: center; position: relative; }
     [data-composition-id="${scene.id}"] .vc-svg { width: 100%; height: 100%; overflow: visible; }
     [data-composition-id="${scene.id}"] .vc-edge { stroke: ${activePalette.accent}44; stroke-width: 1.5; }
     [data-composition-id="${scene.id}"] .vc-edges-inactive .vc-edge { stroke: rgba(255,255,255,0.12); }
@@ -2235,18 +2293,18 @@ registerArchetypeRenderer("kinetic-impact", {
     scene?.theme === "dark" || activePalette?.isDark
       ? `background: #06060c;`
       : `background: linear-gradient(160deg, ${activePalette.accent}08 0%, ${activePalette.background} 40%, ${activePalette.accent}0c 100%);`,
-  renderHtml: ({ scene, i, isPortrait, h, activePalette }) => {
+  renderHtml: ({ scene, i, h }) => {
     const rawLines =
       Array.isArray(scene.impactData?.lines) && scene.impactData.lines.length
         ? scene.impactData.lines
         : [scene.title || "INSTANT", scene.subtitle || "IMPACT."];
     const lines = rawLines.slice(0, 4);
     const tag = scene.impactData?.tag || scene.eyebrow || "";
-    const accent = activePalette?.accent || "#6366f1";
     const linesHtml = lines
       .map((line, idx) => {
         const isAccentLine =
-          idx === lines.length - 1 || (scene.impactData?.accent && line === scene.impactData.accent);
+          idx === lines.length - 1 ||
+          (scene.impactData?.accent && line === scene.impactData.accent);
         return `<div class="ki-line ki-line-${idx}${isAccentLine ? " ki-accent-line" : ""}" id="s${i + 1}-kl-${idx}">${h(String(line))}</div>`;
       })
       .join("\n");
@@ -2265,24 +2323,29 @@ registerArchetypeRenderer("kinetic-impact", {
         tl.fromTo(scope.querySelector("#s${i + 1}-ki-glow"), { scale: 0.4, opacity: 0 }, { scale: 1.6, opacity: 0.6, duration: 1.2, ease: "power2.out" }, 0);
         ${tag ? `tl.from(scope.querySelector("#s${i + 1}-ki-tag"), { opacity: 0, letterSpacing: "0.4em", duration: 0.5, ease: "power2.out" }, 0.1);` : ""}
         scope.querySelectorAll(".ki-line").forEach((el, idx) => {
-          tl.fromTo(el, { clipPath: "inset(0 100% 0 0)", opacity: 0.8 }, { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.45, ease: "power4.out" }, 0.25 + idx * 0.22);
+          // Reveal opens outward from the horizontal center, so the text never wipes in from the left edge.
+          tl.fromTo(el, { clipPath: "inset(0 50% 0 50%)", opacity: 0.8 }, { clipPath: "inset(0 0% 0 0%)", opacity: 1, duration: 0.45, ease: "power4.out" }, 0.25 + idx * 0.22);
         });
-        tl.to(scope.querySelector("#s${i + 1}-ki-words"), { y: -18, duration: Math.max(1.5, sDur - 1.2), ease: "sine.inOut" }, 1.2);
-        tl.to(scope.querySelector("#s${i + 1}-ki-glow"), { x: 60, y: -30, duration: Math.max(2, sDur - 0.8), ease: "sine.inOut" }, 0.8);
+        // Drift is symmetric around the centered position (-9px..+9px) instead of ending 18px off-center.
+        tl.fromTo(scope.querySelector("#s${i + 1}-ki-words"), { y: 9 }, { y: -9, duration: Math.max(1.5, sDur - 1.2), ease: "sine.inOut" }, 1.2);
+        tl.fromTo(scope.querySelector("#s${i + 1}-ki-glow"), { x: -30, y: 15 }, { x: 30, y: -15, duration: Math.max(2, sDur - 0.8), ease: "sine.inOut" }, 0.8);
       `,
     };
   },
   renderCss: ({ scene, isPortrait, activePalette }) => {
     const accent = activePalette?.accent || "#6366f1";
-    const textColor = activePalette?.isDark || scene?.theme === "dark" ? "#f3f4f8" : (activePalette?.text || "#111827");
+    const textColor =
+      activePalette?.isDark || scene?.theme === "dark"
+        ? "#f3f4f8"
+        : activePalette?.text || "#111827";
     const fontSize = isPortrait ? "96px" : "124px";
     return `
-    [data-composition-id="${scene.id}"] .ki-stage { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: ${isPortrait ? "100px 52px 80px" : "80px 100px"}; box-sizing: border-box; overflow: hidden; }
-    [data-composition-id="${scene.id}"] .ki-tag { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "18px" : "16px"}; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: ${accent}; margin-bottom: 32px; opacity: 0.8; }
-    [data-composition-id="${scene.id}"] .ki-words { display: flex; flex-direction: column; gap: ${isPortrait ? "8px" : "4px"}; z-index: 2; position: relative; }
-    [data-composition-id="${scene.id}"] .ki-line { font-family: "Inter", sans-serif; font-size: ${fontSize}; font-weight: 900; line-height: 0.96; letter-spacing: -0.04em; color: ${textColor}; text-transform: uppercase; clip-path: inset(0 0% 0 0); }
+    [data-composition-id="${scene.id}"] .ki-stage { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin: 0 auto; padding: ${isPortrait ? "100px 52px 80px" : "80px 100px"}; box-sizing: border-box; overflow: hidden; }
+    [data-composition-id="${scene.id}"] .ki-tag { text-align: center; margin-left: auto; margin-right: auto; font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "18px" : "16px"}; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: ${accent}; margin-bottom: 32px; opacity: 0.8; }
+    [data-composition-id="${scene.id}"] .ki-words { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; max-width: ${isPortrait ? "100%" : "min(1500px, 90vw)"}; margin-left: auto; margin-right: auto; gap: ${isPortrait ? "8px" : "4px"}; z-index: 2; position: relative; }
+    [data-composition-id="${scene.id}"] .ki-line { text-align: center; margin-left: auto; margin-right: auto; max-width: 100%; font-family: "Inter", sans-serif; font-size: ${fontSize}; font-weight: 900; line-height: 0.96; letter-spacing: -0.04em; color: ${textColor}; text-transform: uppercase; clip-path: inset(0 0% 0 0); }
     [data-composition-id="${scene.id}"] .ki-accent-line { color: ${accent}; text-shadow: 0 0 80px ${accent}55; }
-    [data-composition-id="${scene.id}"] .ki-glow-orb { position: absolute; width: ${isPortrait ? "600px" : "800px"}; height: ${isPortrait ? "600px" : "800px"}; border-radius: 50%; background: radial-gradient(circle, ${accent}28 0%, transparent 70%); filter: blur(80px); pointer-events: none; right: -200px; top: 50%; transform: translateY(-50%); z-index: 0; }
+    [data-composition-id="${scene.id}"] .ki-glow-orb { position: absolute; width: ${isPortrait ? "600px" : "800px"}; height: ${isPortrait ? "600px" : "800px"}; border-radius: 50%; background: radial-gradient(circle, ${accent}28 0%, transparent 70%); filter: blur(80px); pointer-events: none; left: 50%; top: 50%; margin-left: ${isPortrait ? "-300px" : "-400px"}; margin-top: ${isPortrait ? "-300px" : "-400px"}; z-index: 0; }
     [data-composition-id="${scene.id}"] .ki-grid-overlay { position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 1; }
   `;
   },
@@ -2298,8 +2361,10 @@ registerArchetypeRenderer("stat-spotlight", {
       ? `background: radial-gradient(circle at 50% 50%, ${accent}30 0%, ${accent}08 35%, #0b0d14 65%);`
       : `background: radial-gradient(circle at 50% 50%, ${accent}20 0%, ${accent}06 40%, ${activePalette.background} 70%);`;
   },
-  renderHtml: ({ scene, i, isPortrait, h, activePalette }) => {
-    const val = String(scene.spotlightData?.value ?? scene.metric?.value ?? "10M");
+  renderHtml: ({ scene, i, h, activePalette }) => {
+    const val = String(
+      scene.spotlightData?.value ?? scene.metric?.value ?? synthesizeFallbackNumber(scene, 0),
+    );
     const unit = String(scene.spotlightData?.unit ?? scene.metric?.label ?? "");
     const label = String(scene.spotlightData?.label ?? scene.title ?? "");
     const subLabel = String(scene.spotlightData?.subLabel ?? scene.subtitle ?? "");
@@ -2346,8 +2411,8 @@ registerArchetypeRenderer("stat-spotlight", {
   renderCss: ({ scene, isPortrait, activePalette }) => {
     const accent = activePalette?.accent || "#6366f1";
     const isDark = scene?.theme === "dark" || activePalette?.isDark;
-    const textColor = isDark ? "#f3f4f8" : (activePalette?.text || "#111827");
-    const mutedColor = isDark ? "#9ca3af" : (activePalette?.textMuted || "#6b7280");
+    const textColor = isDark ? "#f3f4f8" : activePalette?.text || "#111827";
+    const mutedColor = isDark ? "#9ca3af" : activePalette?.textMuted || "#6b7280";
     return `
     [data-composition-id="${scene.id}"] .ss-stage { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
     [data-composition-id="${scene.id}"] .ss-rings { position: absolute; width: ${isPortrait ? "90vw" : "70vh"}; height: ${isPortrait ? "90vw" : "70vh"}; max-width: ${isPortrait ? "880px" : "700px"}; max-height: ${isPortrait ? "880px" : "700px"}; pointer-events: none; }

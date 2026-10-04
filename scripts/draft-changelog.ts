@@ -21,7 +21,7 @@ import { CHANGELOG_REVIEW_TODO, CHANGELOG_STYLE_NOTE, compareSemver } from "./se
 const REVIEW_SUMMARY_BLOCK = [CHANGELOG_REVIEW_TODO, CHANGELOG_STYLE_NOTE].join("\n");
 
 const ROOT = join(import.meta.dirname, "..");
-const REPO_URL = "https://github.com/heygen-com/hyperframes";
+const REPO_URL = "https://github.com/vikramlingam/chalkframes";
 const DOCS_MARKER =
   "{/* New release entries are prepended by `bun run changelog:draft <version> --write`. */}";
 
@@ -376,7 +376,7 @@ function renderReleaseNotes(version: string, date: string, from: string, commits
   const compareUrl = `${REPO_URL}/compare/${from}...v${version}`;
 
   return [
-    `# HyperFrames v${version}`,
+    `# ChalkFrames v${version}`,
     "",
     `Released on ${date}.`,
     "",
@@ -397,7 +397,7 @@ function renderDocsUpdate(version: string, date: string, from: string, commits: 
 
   return [
     "<Update",
-    `  label="HyperFrames v${version}"`,
+    `  label="ChalkFrames v${version}"`,
     `  description="Released - ${date}"`,
     `  tags={${renderTagsLiteral(tags)}}`,
     ">",
@@ -537,7 +537,7 @@ function prependDocsUpdate(version: string, docsUpdate: string) {
   const changelogPath = join(ROOT, "docs", "changelog.mdx");
   const changelog = readFileSync(changelogPath, "utf-8");
 
-  if (changelog.includes(`label="HyperFrames v${version}"`)) {
+  if (changelog.includes(`label="ChalkFrames v${version}"`)) {
     console.log(`docs/changelog.mdx already has a v${version} entry; leaving it unchanged.`);
     return;
   }

@@ -16,8 +16,8 @@ import {
   fileContentVersion,
   HistoryBusyError,
   HistoryClosedError,
-} from "@hyperframes/studio-server";
-import { loadHyperframeRuntimeSource } from "@hyperframes/core";
+} from "@chalkframes/studio-server";
+import { loadChalkframeRuntimeSource } from "@chalkframes/core";
 import { loadRuntimeSource } from "./runtimeSource.js";
 import { findFFmpeg, findFFprobe } from "../browser/ffmpeg.js";
 import { createStudioServer, type StudioServer } from "./studioServer.js";
@@ -39,7 +39,7 @@ const producerState = vi.hoisted(() => ({
     _signal: AbortSignal,
   ): Promise<void> => Promise.resolve(),
 }));
-vi.mock("@hyperframes/producer", () => ({
+vi.mock("@chalkframes/producer", () => ({
   createRenderJob: (opts: Record<string, unknown>) => ({ ...opts, perfSummary: undefined }),
   executeRenderJob: (...args: Parameters<typeof producerState.executeRenderJob>) =>
     producerState.executeRenderJob(...args),
@@ -50,7 +50,7 @@ const engineState = vi.hoisted(() => ({
   },
   closeBrowserPool: async (): Promise<void> => {},
 }));
-vi.mock("@hyperframes/engine", () => ({
+vi.mock("@chalkframes/engine", () => ({
   acquireBrowser: (...args: unknown[]) => engineState.acquireBrowser(...args),
   buildChromeArgs: () => [],
   killTrackedProcesses: () => {},
@@ -75,8 +75,8 @@ vi.mock("../browser/manager.js", () => ({
 const historyState = vi.hoisted(() => ({
   open: null as null | ((...args: unknown[]) => Promise<unknown>),
 }));
-vi.mock("@hyperframes/studio-server", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@hyperframes/studio-server")>();
+vi.mock("@chalkframes/studio-server", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@chalkframes/studio-server")>();
   return {
     ...original,
     createProjectSignature: vi.fn(original.createProjectSignature),
@@ -120,14 +120,14 @@ afterEach(async () => {
   mockWatcher.removeAllListeners();
   server?.watcher.close();
   server = undefined;
-  delete process.env.HYPERFRAMES_FFMPEG_PATH;
-  delete process.env.HYPERFRAMES_FFPROBE_PATH;
+  delete process.env.CHALKFRAMES_FFMPEG_PATH;
+  delete process.env.CHALKFRAMES_FFPROBE_PATH;
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
 describe("loadRuntimeSource", () => {
   it("loads runtime source from the published core entrypoint", async () => {
-    await expect(loadRuntimeSource()).resolves.toBe(loadHyperframeRuntimeSource());
+    await expect(loadRuntimeSource()).resolves.toBe(loadChalkframeRuntimeSource());
   });
 });
 
@@ -197,7 +197,7 @@ describe("createStudioServer project history (D-491)", () => {
     writeFileSync(join(projectDir, "index.html"), "<html>new</html>");
 
     expect((await server.app.request(historyUrl)).status).toBe(200);
-    expect(existsSync(join(projectDir, ".hyperframes", "history-id"))).toBe(true);
+    expect(existsSync(join(projectDir, ".chalkframes", "history-id"))).toBe(true);
     await server.shutdown();
   });
 
@@ -218,10 +218,10 @@ describe("createStudioServer project history (D-491)", () => {
 });
 
 describe("createStudioServer autoProxy plumbing", () => {
-  it("hyperframes.json media.autoProxy=false flows through to the adapter", () => {
+  it("chalkframes.json media.autoProxy=false flows through to the adapter", () => {
     const projectDir = tmpProject();
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ media: { autoProxy: false } }),
     );
 
@@ -238,7 +238,7 @@ describe("createStudioServer autoProxy plumbing", () => {
   it("an explicit option (the preview command's resolved --proxy flag) wins over config", () => {
     const projectDir = tmpProject();
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ media: { autoProxy: false } }),
     );
 
@@ -251,7 +251,7 @@ describe("createStudioServer autoProxy plumbing", () => {
     const projectDir = tmpProject();
     server = createStudioServer({ projectDir, browserGpuMode: "software" });
 
-    const response = await server.app.request("/__hyperframes_config");
+    const response = await server.app.request("/__chalkframes_config");
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ browserGpuMode: "software" });
@@ -627,7 +627,7 @@ describe("FFmpeg environment endpoint", () => {
   it("reports the cause and a pasteable command when FFmpeg is unusable", async () => {
     // A configured-but-missing override is the one "no FFmpeg" state a test can
     // force on a machine that does have FFmpeg installed.
-    process.env.HYPERFRAMES_FFMPEG_PATH = join(tmpdir(), "hf-missing-ffmpeg");
+    process.env.CHALKFRAMES_FFMPEG_PATH = join(tmpdir(), "hf-missing-ffmpeg");
     server = createStudioServer({ projectDir: tmpProject() });
 
     const res = await server.app.request("/api/environment/ffmpeg");
@@ -751,7 +751,7 @@ describe("Studio file-change SSE", () => {
   it("still delivers a new file in a folder an old watchIgnore listed, for the file tree", async () => {
     const { projectDir } = await previewedProject();
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ preview: { watchIgnore: ["docs"] } }),
     );
     const [stream] = await subscribe(1);
@@ -790,7 +790,7 @@ describe("Studio file-change SSE", () => {
         method: "PUT",
         headers: {
           "If-Match": fileContentVersion("<html>before</html>"),
-          "X-Hyperframes-Write-Token": "studio-write-1",
+          "X-Chalkframes-Write-Token": "studio-write-1",
         },
         body: written,
       },
@@ -835,7 +835,7 @@ describe("Studio file-change SSE", () => {
     await post("/claim", { label: "Added a section", paths: ["extra.html"] });
     const streams = await subscribe(1);
 
-    await post("/step", { direction: "back" }, { "X-Hyperframes-Write-Token": "studio-undo-1" });
+    await post("/step", { direction: "back" }, { "X-Chalkframes-Write-Token": "studio-undo-1" });
     expect(existsSync(join(projectDir, "extra.html"))).toBe(false);
     mockWatcher.emit("change", "rename", "extra.html");
 

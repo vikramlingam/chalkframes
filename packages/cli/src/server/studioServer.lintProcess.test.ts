@@ -4,8 +4,8 @@ import * as path from "node:path";
 import { tmpdir } from "node:os";
 
 // Studio must lint outside its own process; any in-process project lint fails the request.
-vi.mock("@hyperframes/lint", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@hyperframes/lint")>()),
+vi.mock("@chalkframes/lint", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@chalkframes/lint")>()),
   lintProject: () => {
     throw new Error("project lint ran on the Studio server's event loop");
   },

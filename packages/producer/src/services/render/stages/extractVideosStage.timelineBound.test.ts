@@ -3,7 +3,7 @@ import {
   safeDownloadUrlIdentity,
   type ExtractionResult,
   type VideoElement,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { describe, expect, it, vi } from "vitest";
 import type { ProducerLogger } from "../../../logger.js";
 
@@ -13,8 +13,8 @@ const extractionCalls = vi.hoisted(
 const toneMapHdrToSdrCalls = vi.hoisted(() => new Array<boolean | undefined>());
 const fixtureState = vi.hoisted(() => ({ sourceDurationSeconds: 60 }));
 
-vi.mock("@hyperframes/engine", async (importOriginal) => {
-  const real = await importOriginal<typeof import("@hyperframes/engine")>();
+vi.mock("@chalkframes/engine", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@chalkframes/engine")>();
   return {
     ...real,
     extractAllVideoFrames: async (

@@ -12,7 +12,7 @@ describe("compileForRender natural media duration parity", () => {
   const audioPath = join(projectDir, "ten-seconds.wav");
 
   beforeAll(() => {
-    const ffmpeg = process.env.HYPERFRAMES_FFMPEG_PATH || "ffmpeg";
+    const ffmpeg = process.env.CHALKFRAMES_FFMPEG_PATH || "ffmpeg";
     const generate = (args: string[]) => {
       const generated = spawnSync(ffmpeg, ["-hide_banner", "-loglevel", "error", ...args], {
         encoding: "utf8",

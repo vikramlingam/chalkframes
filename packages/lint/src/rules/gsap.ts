@@ -24,16 +24,16 @@ interface LintParsedGsap {
 // instead of all-collapsed-at-0. It's also browser-safe, so this keeps recast
 // out of the lint graph entirely. Dynamic import preserves the lazy load.
 async function loadParseGsapScript(): Promise<(script: string) => LintParsedGsap> {
-  const mod = await import("@hyperframes/parsers/gsap-parser-acorn");
+  const mod = await import("@chalkframes/parsers/gsap-parser-acorn");
   return mod.parseGsapScriptAcorn as unknown as (script: string) => LintParsedGsap;
 }
 
 async function loadGsapScriptMotionPathFirstUseIndex(): Promise<(script: string) => number | null> {
-  const mod = await import("@hyperframes/parsers/gsap-parser-acorn");
+  const mod = await import("@chalkframes/parsers/gsap-parser-acorn");
   return mod.gsapScriptMotionPathFirstUseIndex;
 }
 import type { LintContext } from "../context";
-import type { HyperframeLintFinding, LintRule } from "../types";
+import type { ChalkframeLintFinding, LintRule } from "../types";
 import type { OpenTag } from "../utils";
 import {
   readAttr,
@@ -1013,7 +1013,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // gsap_undefined_css_variable
   async ({ tags, styles, scripts }) => {
     const definedVariables = collectStaticCssVariableDefinitions(tags, styles);
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const reported = new Set<string>();
     for (const script of scripts) {
       for (const win of await cachedExtractGsapWindows(script.content)) {
@@ -1044,7 +1044,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // overlapping_gsap_tweens + gsap_animates_clip_element
   // fallow-ignore-next-line complexity
   async ({ tags, scripts, styles }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const authoredHiddenSelectors = new Set(
       scripts.flatMap((script) => [...extractStandaloneHiddenSelectors(script.content)]),
     );
@@ -1265,7 +1265,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // gsap_css_transform_conflict
   // fallow-ignore-next-line complexity
   async ({ styles, scripts, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const cssTranslateSelectors = new Map<string, string>();
     const cssScaleSelectors = new Map<string, string>();
 
@@ -1497,7 +1497,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // audio_reactive_single_tween_per_group
   // fallow-ignore-next-line complexity
   ({ scripts, styles }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     if (!hasCaptionStyles(styles)) return findings;
 
     for (const script of scripts) {
@@ -1541,7 +1541,7 @@ export const gsapRules: LintRule<LintContext>[] = [
 
   // gsap_infinite_repeat
   ({ scripts, rootTag, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const declaredDuration = Number.parseFloat(
       rootTag ? (readAttr(rootTag.raw, "data-duration") ?? "") : "",
     );
@@ -1559,7 +1559,7 @@ export const gsapRules: LintRule<LintContext>[] = [
         severity: hasFiniteCompositionWindow ? "warning" : "error",
         message: hasFiniteCompositionWindow
           ? `GSAP tween uses \`repeat: -1\` (infinite), but the composition declares a finite ${declaredDuration}s window. ` +
-            "HyperFrames clips deterministic seeking and export to that explicit duration."
+            "ChalkFrames clips deterministic seeking and export to that explicit duration."
           : "GSAP tween uses `repeat: -1` (infinite) without a finite composition `data-duration`. " +
             "The timeline can report an unbounded duration and make render planning fail.",
         fixHint: hasFiniteCompositionWindow
@@ -1574,7 +1574,7 @@ export const gsapRules: LintRule<LintContext>[] = [
 
   // gsap_repeat_ceil_overshoot
   ({ scripts, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     // Match patterns like: repeat: Math.ceil(duration / X) - 1
     // or repeat: Math.ceil(totalDuration / cycleDuration) - 1
     const pattern = /repeat\s*:\s*Math\.ceil\s*\([^)]+\)\s*-\s*1/g;
@@ -1602,7 +1602,7 @@ export const gsapRules: LintRule<LintContext>[] = [
 
   // gsap_repeat_floor_unclamped
   ({ scripts, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     // A direct floor-minus-one expression becomes GSAP's infinite -1 sentinel when
     // the visible duration is shorter than one full cycle. Math.max-wrapped forms
     // intentionally do not match because `repeat:` is followed by Math.max, not Math.floor.
@@ -1630,7 +1630,7 @@ export const gsapRules: LintRule<LintContext>[] = [
 
   // gsap_timeline_not_registered
   ({ scripts, rawSource, options, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const canInheritFromHost =
       options.isSubComposition || rawSource.trimStart().toLowerCase().startsWith("<template");
 
@@ -1665,7 +1665,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // animation never renders when this composition is mounted as a sub-composition.
   // Register only AFTER the build completes (the documented async-setup contract).
   ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const script of scripts) {
       const content = stripJsComments(script.content);
       const regIdx = content.search(/window\s*\.\s*__timelines\s*\[/);
@@ -1701,7 +1701,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // permanently invisible.
   // fallow-ignore-next-line complexity
   async ({ styles, scripts, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const cssOpacityZeroSelectors = collectCssOpacityZeroSelectors(styles, tags);
 
     for (const script of scripts) {
@@ -1781,7 +1781,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // spacing, scale for size, x/y for position). An author who has consciously accepted a
   // stutter still has no flag to flip; that is deliberate, not a missing feature.
   async ({ scripts, tags, source }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
 
     // Byte-ranges of every <canvas layoutsubtree>. An element whose open-tag index falls
     // inside one of these ranges is html-in-canvas composited.
@@ -1940,7 +1940,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // they are exempt. The position PARAMETER ("+=0.5") is not a tween value — the
   // parser keeps it out of properties — so it can never be flagged here.
   async ({ scripts, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const tagsByToken = indexTagsByToken(tags);
     for (const script of scripts) {
       if (!/gsap\.timeline/.test(script.content)) continue;
@@ -1999,7 +1999,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // worker seeking non-linearly into iteration N skips the accumulation a sequential
   // playhead performed, so workers disagree on where the element is.
   ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const script of scripts) {
       const source = stripJsComments(script.content);
       const pattern = /repeatRefresh\s*:\s*true\b/g;
@@ -2039,7 +2039,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // with string positions ("+=0.5", labels), and position is irrelevant to whether a
   // VALUE is hazardous.
   async ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const parseGsapScript = await loadParseGsapScript();
     for (const script of scripts) {
       if (!/gsap\.timeline/.test(script.content)) continue;
@@ -2093,7 +2093,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // derived-output callbacks were excluded, but the remaining reads can still be
   // legitimate when the measured layout is static.
   ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const script of scripts) {
       const source = stripJsComments(script.content);
       if (!/gsap\.timeline/.test(source)) continue;
@@ -2180,7 +2180,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // and only live playback breaks. A rebuild that collected these to discard them also leaves
   // every previous keyframe in place and stacks the new ones on top.
   ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const script of scripts) {
       const source = stripJsComments(script.content);
       const timelineVars = collectTimelineVarNames(source);
@@ -2228,7 +2228,7 @@ export const gsapRules: LintRule<LintContext>[] = [
 
   // gsap_group_selector_keyframes
   ({ scripts }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const pattern = /\.(?:to|from|fromTo)\(\s*["']([^"']+,\s*[^"']+)["']\s*,\s*\{[^}]*keyframes/g;
     for (const { match, snippet } of scanScriptsForRegexMatches(scripts, pattern, {
       stripComments: true,
@@ -2261,7 +2261,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // the explicit fix form and is not flagged.
   // fallow-ignore-next-line complexity
   ({ scripts, styles, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const tagsByToken = indexTagsByToken(tags);
 
     const multiDashTokens = new Set<string>();
@@ -2360,7 +2360,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // binding, so late hard-kills can masquerade as position-0 sets. Genuine
   // initial-state hides are authored before the timeline's tweens.
   async ({ scripts, styles, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const cssHiddenSelectors = collectCssOpacityZeroSelectors(styles, tags);
     const tagsByToken = indexTagsByToken(tags);
     for (const script of scripts) {
@@ -2423,7 +2423,7 @@ export const gsapRules: LintRule<LintContext>[] = [
   // querySelector); createElementNS-built paths and unresolved variables are skipped.
   // fallow-ignore-next-line complexity
   ({ scripts, styles, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const tagsByToken = indexTagsByToken(tags);
     // CSS `d: path(...)` supplies geometry statically — treat like a static attribute.
     const cssProvidesD = styles.some((style) => /\bd\s*:\s*path\(/.test(style.content));

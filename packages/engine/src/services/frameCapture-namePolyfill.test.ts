@@ -6,7 +6,7 @@ import { dirname, resolve } from "node:path";
 // Regression coverage for the `window.__name` no-op shim that
 // `frameCapture.ts` registers via `page.evaluateOnNewDocument`.
 //
-// Background: `@hyperframes/engine` ships raw TypeScript (see
+// Background: `@chalkframes/engine` ships raw TypeScript (see
 // `packages/engine/package.json` — main and exports both point at
 // `./src/index.ts`). Downstream transpilers like tsx run esbuild with
 // keepNames=true, which wraps named functions in `__name(fn, "name")`

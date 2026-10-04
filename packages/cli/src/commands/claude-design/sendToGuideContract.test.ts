@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Semantic pin for the Claude Design "Send to HyperFrames" authoring guide. The guide is
+// Semantic pin for the Claude Design "Send to ChalkFrames" authoring guide. The guide is
 // LLM-facing prompt text, so a wording regression silently reintroduces a real failure mode.
 // A live Send-to import genericized a source design's concrete figures ("2.4M signals/sec" ->
 // "streaming now") because the guide both called the rebuild "lossy by nature" AND demanded
@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 // contradictory phrases cannot silently return. validate-docs proves syntax, not intent.
 const REPO_ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "..", "..", "..", "..", "..");
 const GUIDE = readFileSync(
-  join(REPO_ROOT, "docs", "guides", "claude-design-send-to-hyperframes.md"),
+  join(REPO_ROOT, "docs", "guides", "claude-design-send-to-chalkframes.md"),
   "utf8",
 );
 
@@ -30,7 +30,7 @@ describe("Send-to guide fidelity contract", () => {
   });
 
   // Pricing is LLM-facing contract too: the guide once labeled Enhance "the paid step", which
-  // teaches Claude the wrong billing boundary. The shipped model (heygen-server
+  // teaches Claude the wrong billing boundary. The shipped model (chalkframes-server
   // magic_edit/logic/usage_limits.py) is: import + enhance turns free; only Render is billed —
   // FREE accounts get 3 renders/month, paid plans 20 credits/rendered-minute. Pin the concept,
   // not an exact sentence, and block the retired Enhance-as-paid wording from returning.
@@ -42,6 +42,6 @@ describe("Send-to guide fidelity contract", () => {
   });
 
   it("does not restore the retired 'Enhance ... paid step' wording", () => {
-    expect(GUIDE).not.toContain("HeyGen media. This is the paid step");
+    expect(GUIDE).not.toContain("Chalkframes media. This is the paid step");
   });
 });

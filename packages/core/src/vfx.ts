@@ -18,7 +18,7 @@ export const HF_VFX_ATTR = "data-vfx-chain";
 
 /**
  * Chain files are versioned; a reader must refuse a version it doesn't know.
- * Exported for the exporter (hyperframes-ae-mcp), which stamps the version it
+ * Exported for the exporter (chalkframes-ae-mcp), which stamps the version it
  * emits; inside this repo only parse/serialize below read it.
  */
 // fallow-ignore-next-line unused-export

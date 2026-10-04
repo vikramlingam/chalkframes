@@ -18,7 +18,7 @@
  * `data-end` off so extract can resolve the id-ref later.
  */
 
-import { parseNumeric } from "@hyperframes/parsers/composition-contract";
+import { parseNumeric } from "@chalkframes/parsers/composition-contract";
 import {
   parseStrictFiniteTimingNumber,
   readElementRateSpec,

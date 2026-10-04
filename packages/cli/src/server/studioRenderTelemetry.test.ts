@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { RenderJob, RenderPerfSummary } from "@hyperframes/producer";
+import type { RenderJob, RenderPerfSummary } from "@chalkframes/producer";
 
 // Mock `../telemetry/events.js` so we can capture trackRenderComplete /
 // trackRenderError calls and verify the payload mapping without firing

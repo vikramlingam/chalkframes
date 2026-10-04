@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { isWithinProjectRoot } from "@hyperframes/parsers/asset-resolution";
+import { isWithinProjectRoot } from "@chalkframes/parsers/asset-resolution";
 import type { Hono } from "hono";
 import type { StudioApiAdapter } from "../types.js";
 import { isWaveformCacheDirectory, writeWaveformCache } from "../helpers/waveform.js";

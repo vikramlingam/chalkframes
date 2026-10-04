@@ -9,7 +9,7 @@ function sandbox() {
   const root = mkdtempSync(join(tmpdir(), "mu-misses-"));
   const home = join(root, "home");
   mkdirSync(home, { recursive: true });
-  process.env.HYPERFRAMES_MEDIA_HOME = home;
+  process.env.CHALKFRAMES_MEDIA_HOME = home;
   return { root, home };
 }
 
@@ -56,8 +56,8 @@ test("recordMiss swallows filesystem failures", () => {
 
 test("recordMiss stays best-effort when the media home cannot be resolved", () => {
   const savedEnv = { ...process.env };
-  delete process.env.HYPERFRAMES_MEDIA_HOME;
-  process.env.HYPERFRAMES_MEDIA_HOME_REQUIRED = "1";
+  delete process.env.CHALKFRAMES_MEDIA_HOME;
+  process.env.CHALKFRAMES_MEDIA_HOME_REQUIRED = "1";
   try {
     assert.doesNotThrow(() => recordMiss({ type: "sfx", intent: "no home", local_only: true }));
   } finally {

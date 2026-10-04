@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import {
   accumulatePeaks,
   buildPeakMapCacheKey,

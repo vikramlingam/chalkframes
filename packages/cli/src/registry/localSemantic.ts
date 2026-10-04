@@ -78,7 +78,7 @@ const CATALOG_ARTIFACT_TIMEOUT_MS = 30_000;
 /** Where the bundled vector set lives, overridable for development. */
 function localVectorDirectory(): string {
   return (
-    process.env["HYPERFRAMES_CATALOG_ARTIFACT_DIR"] ?? join(homedir(), ".hyperframes", "catalog")
+    process.env["CHALKFRAMES_CATALOG_ARTIFACT_DIR"] ?? join(homedir(), ".chalkframes", "catalog")
   );
 }
 

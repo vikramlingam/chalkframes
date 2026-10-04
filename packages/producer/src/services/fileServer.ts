@@ -3,7 +3,7 @@
  * File Server for Render Mode
  *
  * Lightweight HTTP server that serves the project directory inside Docker.
- * Key responsibility: inject the verified Hyperframe runtime + render mode extension
+ * Key responsibility: inject the verified Chalkframe runtime + render mode extension
  * into index.html on-the-fly, so Puppeteer can load the composition with
  * all relative URLs (compositions, CSS, JS, assets) resolving correctly.
  */
@@ -26,9 +26,9 @@ import { promisify } from "node:util";
 
 import { Readable } from "node:stream";
 import { join, extname, resolve, sep } from "node:path";
-import { injectScriptsAtHeadStart, injectScriptsIntoHtml } from "@hyperframes/core/compiler";
-import { fpsToNumber, type Fps } from "@hyperframes/core";
-import { getVerifiedHyperframeRuntimeSource } from "./hyperframeRuntimeLoader.js";
+import { injectScriptsAtHeadStart, injectScriptsIntoHtml } from "@chalkframes/core/compiler";
+import { fpsToNumber, type Fps } from "@chalkframes/core";
+import { getVerifiedChalkframeRuntimeSource } from "./chalkframeRuntimeLoader.js";
 import { getHfEarlyStub } from "../generated/hf-early-stub-inline.js";
 import { defaultLogger, type ProducerLogger } from "../logger.js";
 
@@ -146,7 +146,7 @@ export type RangeRequest =
  *   - `bytes=-SUFFIX`: last SUFFIX bytes.
  *
  * Multi-range requests (`bytes=0-99,200-299`) are treated as `absent`. The
- * caller serves the full body with 200. The hyperframes producer's use case
+ * caller serves the full body with 200. The chalkframes producer's use case
  * (Chrome `<video>` seeks, range-aware media stack) only ever issues single
  * ranges, so we don't take on the multipart-byteranges complexity here.
  *
@@ -546,7 +546,7 @@ function buildRenderModeScript(fps: Fps | undefined): string {
  * Early stub: ensures `window.__hf` exists *before* any user `<script>` in
  * `<body>` executes, and batches GSAP timeline construction via
  * requestAnimationFrame to prevent the main-thread hang described in
- * https://github.com/heygen-com/hyperframes/issues/1231.
+ * https://github.com/vikramlingam/chalkframes/issues/1231.
  *
  * Source: packages/producer/stubs/hf-early-stub.ts
  * Generated: packages/producer/src/generated/hf-early-stub-inline.ts
@@ -559,14 +559,14 @@ const HF_EARLY_STUB = getHfEarlyStub();
  *
  * When the engine is launched with `enablePageSideCompositing: true`, the
  * orchestrator injects this stub into the very top of every served HTML
- * page. The flag is read by `@hyperframes/shader-transitions`' engine-mode
+ * page. The flag is read by `@chalkframes/shader-transitions`' engine-mode
  * `init()` to switch from the default opacity-flip mode (which leaves
  * shader blending to the Node side via the hf#677 layered pipeline) to a
  * page-side WebGL compositor that runs the shader inside Chrome and
  * exposes a single opaque RGB frame for the engine to capture.
  *
  * Sentinel ONLY — no logic here. The compositor itself ships inside
- * `@hyperframes/shader-transitions` and is loaded by the composition's
+ * `@chalkframes/shader-transitions` and is loaded by the composition's
  * regular script bundle.
  *
  * Default OFF: when the flag is not set, behavior is byte-identical to
@@ -578,12 +578,12 @@ export const HF_PAGE_SIDE_COMPOSITING_STUB = `(function() {
 })();`;
 
 /**
- * Bridge script: maps window.__player (Hyperframe runtime) → window.__hf (engine protocol).
+ * Bridge script: maps window.__player (Chalkframe runtime) → window.__hf (engine protocol).
  * Injected after RENDER_MODE_SCRIPT so the engine's frameCapture can find window.__hf.
  *
  * This script *patches* the existing __hf object rather than replacing it, so
  * fields written during page-script execution (e.g. transitions metadata from
- * @hyperframes/shader-transitions) are preserved through to engine query time.
+ * @chalkframes/shader-transitions) are preserved through to engine query time.
  */
 const HF_BRIDGE_SCRIPT = `(function() {
   var __realSetInterval =
@@ -678,7 +678,7 @@ export interface FileServerOptions {
   port?: number;
   /** Scripts injected into <head> of every served HTML file before authored scripts. */
   preHeadScripts?: string[];
-  /** Scripts injected into <head> of index.html. Default: verified Hyperframe runtime. */
+  /** Scripts injected into <head> of index.html. Default: verified Chalkframe runtime. */
   headScripts?: string[];
   /** Scripts injected before </body> of index.html. Default: render mode extension. */
   bodyScripts?: string[];
@@ -696,7 +696,7 @@ export interface FileServerHandle {
 }
 
 /**
- * Set before the Hyperframes runtime executes so render/probe pages can avoid
+ * Set before the Chalkframes runtime executes so render/probe pages can avoid
  * preview-only initialization work that mutates the live visual timeline.
  * Audio automation is discovered by the producer in an isolated pass and
  * baked before frame capture.
@@ -762,15 +762,15 @@ export function createFileServer(options: FileServerOptions): Promise<FileServer
   // to window.__hf during page-script execution (e.g. shader-transitions
   // populating __hf.transitions) find it already defined. The full bridge in
   // bodyScripts later upgrades this stub with `seek` / `duration` once the
-  // Hyperframe runtime's __player is ready, while preserving any fields
+  // Chalkframe runtime's __player is ready, while preserving any fields
   // already written.
   const preHeadScripts = [
     HF_EARLY_STUB,
     RENDER_CAPTURE_MODE_SHIM,
     ...(options.preHeadScripts ?? []),
   ];
-  // Default scripts: Hyperframe runtime in <head>, render mode in </body>
-  const headScripts = options.headScripts ?? [getVerifiedHyperframeRuntimeSource()];
+  // Default scripts: Chalkframe runtime in <head>, render mode in </body>
+  const headScripts = options.headScripts ?? [getVerifiedChalkframeRuntimeSource()];
   const bodyScripts = options.bodyScripts ?? [buildRenderModeScript(options.fps), HF_BRIDGE_SCRIPT];
 
   const app = new Hono();

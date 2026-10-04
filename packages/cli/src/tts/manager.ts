@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { downloadFile } from "../utils/download.js";
 
-const CACHE_DIR = join(homedir(), ".cache", "hyperframes", "tts");
+const CACHE_DIR = join(homedir(), ".cache", "chalkframes", "tts");
 const MODELS_DIR = join(CACHE_DIR, "models");
 const VOICES_DIR = join(CACHE_DIR, "voices");
 

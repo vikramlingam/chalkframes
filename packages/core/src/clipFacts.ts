@@ -1,4 +1,4 @@
-/** Plain-field clip facts shared by the Ask-agent prompt, `studio_look` and `hyperframes timeline`. */
+/** Plain-field clip facts shared by the Ask-agent prompt, `studio_look` and `chalkframes timeline`. */
 
 export interface ClipLane {
   /** `volume`, or `fx.<nodeId>.<param>`. */

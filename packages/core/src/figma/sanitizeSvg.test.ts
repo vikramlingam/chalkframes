@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { sanitizeSvg } from "./sanitizeSvg";
 
 // Every payload below is drawn from the two adversarial-review reports against this file
-// (hyperframes-4291-b7ace99b.md, hyperframes-4291-c9a5f8f3.md) plus the original hardening
+// (chalkframes-4291-b7ace99b.md, chalkframes-4291-c9a5f8f3.md) plus the original hardening
 // suite. Each must fail against the pre-rewrite regex sanitizer and pass against this one.
 const HOSTILE_CASES: Array<[label: string, input: string, mustNotContain: string[]]> = [
   ["script element", `<svg><script>alert(1)</script><rect/></svg>`, ["<script", "alert(1)"]],

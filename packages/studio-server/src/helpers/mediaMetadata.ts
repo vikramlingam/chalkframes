@@ -4,8 +4,8 @@ import {
   firstFrameColourArgs,
   parseFirstFrameColour,
   type ToneMapSourceColour,
-} from "@hyperframes/core";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+} from "@chalkframes/core";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 
 export interface FfprobeRunResult {
   status: number | null;

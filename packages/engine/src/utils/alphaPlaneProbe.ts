@@ -66,7 +66,7 @@ export async function probeInputAlphaPlane(
 
 export function inputAlphaOpaqueWarning(src: string): string {
   return (
-    `[hyperframes:render] WARNING: video src="${src}" declares an alpha channel ` +
+    `[chalkframes:render] WARNING: video src="${src}" declares an alpha channel ` +
     "but its first frames decode fully opaque. If it should be transparent, re-export " +
     "it with an alpha pixel format and avoid remuxing afterward, which can drop the " +
     "alpha while keeping the tag.\n"

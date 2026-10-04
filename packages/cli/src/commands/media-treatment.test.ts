@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   HF_COLOR_GRADING_ACTIVE_EFFECT_KEYS,
   getHfColorGradingCapabilities,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 import {
   applyMediaTreatmentToHtml,
   getMediaTreatmentCapabilityDetail,

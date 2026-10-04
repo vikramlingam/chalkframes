@@ -26,7 +26,7 @@ const MEDIA_USE_ROW = {
   source: "search",
   description: "upbeat tech launch",
   duration: 25,
-  provenance: { provider: "heygen-audio", prompt: "upbeat tech launch" },
+  provenance: { provider: "chalkframes-audio", prompt: "upbeat tech launch" },
 };
 const IMAGE_ROW = {
   id: "image_001",
@@ -36,7 +36,7 @@ const IMAGE_ROW = {
   description: "gradient tech background",
   width: 1920,
   height: 1080,
-  provenance: { provider: "heygen-asset", prompt: "gradient tech background" },
+  provenance: { provider: "chalkframes-asset", prompt: "gradient tech background" },
 };
 const ICON_ROW = {
   id: "icon_001",
@@ -45,7 +45,7 @@ const ICON_ROW = {
   source: "search",
   description: "rocket",
   transparent: true,
-  provenance: { provider: "heygen-asset", prompt: "rocket" },
+  provenance: { provider: "chalkframes-asset", prompt: "rocket" },
 };
 const FIGMA_ROW = {
   id: "image_002",

@@ -74,11 +74,11 @@ function tmpProject(): string {
 }
 
 beforeEach(() => {
-  process.env.HYPERFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
+  process.env.CHALKFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
 });
 
 afterEach(() => {
-  delete process.env.HYPERFRAMES_FFPROBE_PATH;
+  delete process.env.CHALKFRAMES_FFPROBE_PATH;
   for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
   dirs = [];
 });
@@ -168,7 +168,7 @@ describe("probeAssetCodec", () => {
     const project = tmpProject();
     const videoPath = join(project, "clip.mp4");
     writeFileSync(videoPath, "fake video bytes");
-    process.env.HYPERFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
+    process.env.CHALKFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
 
     await expect(probeAssetCodec(videoPath)).resolves.toBeNull();
   });
@@ -178,7 +178,7 @@ describe("probeAssetCodec", () => {
     const videoPath = join(project, "clip.mp4");
     writeFileSync(videoPath, "fake video bytes");
     const cache = createMediaCodecProbeCache();
-    process.env.HYPERFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
+    process.env.CHALKFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
     await expect(probeAssetCodec(videoPath, undefined, cache)).resolves.toBeNull();
 
     const facts = await probeAssetCodec(videoPath, makeRunner({ [videoPath]: "hevc" }), cache);
@@ -337,7 +337,7 @@ describe("scanProjectMediaCodecMap", () => {
   it("omits an asset from the map (no throw) when ffprobe is unresolvable", async () => {
     const project = tmpProject();
     writeFileSync(join(project, "clip.mp4"), "fake video bytes");
-    process.env.HYPERFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
+    process.env.CHALKFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
 
     const map = await scanProjectMediaCodecMap(project, [{ html: videoHtml("clip.mp4") }]);
 

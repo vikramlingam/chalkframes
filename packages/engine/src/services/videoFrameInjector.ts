@@ -2,7 +2,7 @@
  * Video Frame Injector
  *
  * Creates a BeforeCaptureHook that replaces native <video> elements with
- * pre-extracted frame images during rendering. This is the Hyperframes-specific
+ * pre-extracted frame images during rendering. This is the Chalkframes-specific
  * video handling strategy — OSS users with different video pipelines can
  * provide their own hook or skip video injection entirely.
  */
@@ -19,7 +19,7 @@ import {
   RENDER_FRAME_ID_PREFIX,
   RENDER_FRAME_ID_SUFFIX,
   renderFrameIdForRenderId,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 
 export interface VideoFrameInjectorOptions extends Partial<
   Pick<EngineConfig, "frameDataUriCacheLimit" | "frameDataUriCacheBytesLimitMb">

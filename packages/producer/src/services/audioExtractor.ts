@@ -9,7 +9,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, rmSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { getFfmpegBinary, trackChildProcess } from "@hyperframes/engine";
+import { getFfmpegBinary, trackChildProcess } from "@chalkframes/engine";
 
 export interface AudioElement {
   id: string;

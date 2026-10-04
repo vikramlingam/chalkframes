@@ -15,7 +15,7 @@ const envWithNpxCli = {
 const npxCliPath = "C:/Program Files/nodejs/node_modules/npm/bin/npx-cli.js";
 const pathExists = (path) => path === npxCliPath;
 
-test("win32: routes the hyperframes tts call through node + npx-cli, never bare npx", async () => {
+test("win32: routes the chalkframes tts call through node + npx-cli, never bare npx", async () => {
   const captured = [];
   const fakeExec = (cmd, args, opts) => {
     captured.push({ cmd, args, opts });
@@ -35,7 +35,7 @@ test("win32: routes the hyperframes tts call through node + npx-cli, never bare 
   assert.equal(captured.length, 1);
   assert.equal(captured[0].cmd, envWithNpxCli.npm_node_execpath);
   assert.equal(captured[0].args[0], npxCliPath);
-  assert.deepEqual(captured[0].args.slice(1, 4), ["hyperframes", "tts", "hello there"]);
+  assert.deepEqual(captured[0].args.slice(1, 4), ["chalkframes", "tts", "hello there"]);
   assert.ok(captured[0].args.includes("--voice"));
   // execFileSync options survive the rerouting (pipes are what let the caller
   // read the "kokoro-onnx not installed" hint back out).
@@ -67,6 +67,6 @@ test("non-win32: spawns plain npx unchanged", async () => {
 
   assert.equal(captured.length, 1);
   assert.equal(captured[0].cmd, "npx");
-  assert.deepEqual(captured[0].args.slice(0, 3), ["hyperframes", "tts", "hola"]);
+  assert.deepEqual(captured[0].args.slice(0, 3), ["chalkframes", "tts", "hola"]);
   assert.ok(captured[0].args.includes("--lang"));
 });

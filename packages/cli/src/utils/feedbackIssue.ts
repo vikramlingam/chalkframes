@@ -3,7 +3,7 @@ import { FEEDBACK_RATING_SCALE } from "./feedbackRating.js";
 // Reading package.json at runtime from the single-file bundled CLI is awkward,
 // so we keep the canonical repo as a constant. It must match the `repository.url`
 // in packages/cli/package.json.
-export const HYPERFRAMES_REPO_URL = "https://github.com/heygen-com/hyperframes";
+export const CHALKFRAMES_REPO_URL = "https://github.com/vikramlingam/chalkframes";
 
 const TITLE_MAX = 80;
 // Pre-filled issue URLs have a practical length limit (~8 KB), so cap the
@@ -26,7 +26,7 @@ function normalizeRepoUrl(repoUrl: string): string {
     .trim()
     .replace(/\/$/, "")
     .replace(/\.git$/, "");
-  return trimmed || HYPERFRAMES_REPO_URL;
+  return trimmed || CHALKFRAMES_REPO_URL;
 }
 
 function truncate(value: string, max: number): string {
@@ -61,7 +61,7 @@ function buildIssueBody(input: IssueInput): string {
     "```",
     "",
     "---",
-    "_Filed via `hyperframes feedback --file-issue`._",
+    "_Filed via `chalkframes feedback --file-issue`._",
   ].join("\n");
 }
 

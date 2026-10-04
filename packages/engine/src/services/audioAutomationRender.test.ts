@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseAudioElements, volumeLaneKeyframes } from "./audioMixer.js";
-import type { HfAutomationLane } from "@hyperframes/core/audio-automation";
+import type { HfAutomationLane } from "@chalkframes/core/audio-automation";
 
 const lanes = (points: HfAutomationLane["points"], target = "volume") => ({
   lanes: [{ target, points }],

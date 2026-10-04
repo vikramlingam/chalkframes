@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DEFAULT_CONFIG, classifyCaptureFailure } from "@hyperframes/engine";
+import { DEFAULT_CONFIG, classifyCaptureFailure } from "@chalkframes/engine";
 import { createRenderJob, isTransientCaptureRetryEligible } from "../../renderOrchestrator.js";
 import { formatCaptureFrameName } from "../../../utils/paths.js";
 
@@ -16,8 +16,8 @@ const verifyDiskDrawElementSamples = vi.fn(async () => {});
 const getCapturePerfSummary = vi.fn(() => ({}));
 const executeParallelCapture = vi.fn();
 
-vi.mock("@hyperframes/engine", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@hyperframes/engine")>();
+vi.mock("@chalkframes/engine", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chalkframes/engine")>();
   return {
     ...actual,
     createCaptureSession: (...args: unknown[]) => createCaptureSession(...args),

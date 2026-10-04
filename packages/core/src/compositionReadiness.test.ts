@@ -228,7 +228,7 @@ describe("computeReadinessInput", () => {
   });
 
   it("returns null when no runtime ever ran (no window.__hf) instead of polling for __renderReady forever", () => {
-    // A probe-only composition (plain video/native duration, no HyperFrames
+    // A probe-only composition (plain video/native duration, no ChalkFrames
     // runtime injected) never sets window.__hf, so __renderReady would also
     // never be set — this is the exact shape that used to poll for the full
     // 8s shared timeout on every single Play.

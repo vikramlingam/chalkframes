@@ -1,7 +1,7 @@
 // fallow-ignore-file code-duplication
 // Regression: `lint --json` used process.exit() right after console.log(JSON).
 // process.exit() terminates before Node flushes an async (non-TTY / piped)
-// stdout, so piping `hyperframes lint --json` on Windows silently lost the whole
+// stdout, so piping `chalkframes lint --json` on Windows silently lost the whole
 // payload. The fix sets process.exitCode + returns so stdout drains first. These
 // tests lock that in: run() must NEVER call process.exit(), and must set the
 // right exitCode, for the success, error-findings, and thrown-error paths.

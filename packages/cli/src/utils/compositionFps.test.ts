@@ -52,7 +52,7 @@ describe("readAllowedCompositionFpsFromDir", () => {
   });
 
   function makeProject(indexBody: string): string {
-    const dir = mkdtempSync(join(tmpdir(), "hyperframes-composition-fps-"));
+    const dir = mkdtempSync(join(tmpdir(), "chalkframes-composition-fps-"));
     projectDirs.push(dir);
     writeFileSync(join(dir, "index.html"), wrap(indexBody));
     return dir;
@@ -99,7 +99,7 @@ describe("readAllowedCompositionFpsFromDir", () => {
   });
 
   it("returns null when index.html cannot be read", () => {
-    const dir = mkdtempSync(join(tmpdir(), "hyperframes-composition-fps-missing-"));
+    const dir = mkdtempSync(join(tmpdir(), "chalkframes-composition-fps-missing-"));
     projectDirs.push(dir);
 
     expect(readAllowedCompositionFpsFromDir(dir, allowedCloudFps)).toBeNull();

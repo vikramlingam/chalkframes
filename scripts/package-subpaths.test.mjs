@@ -8,7 +8,7 @@ import {
 
 describe("package subpath contracts", () => {
   const descriptor = {
-    package: "@hyperframes/example",
+    package: "@chalkframes/example",
     subpaths: {
       ".": {
         source: "./src/index.ts",
@@ -79,7 +79,7 @@ describe("package subpath contracts", () => {
 
   it("derives exact build aliases from selected public subpaths", () => {
     assert.deepEqual(sourceAliasEntries(descriptor, "/repo/packages/example", ["./browser"]), [
-      ["@hyperframes/example/browser", "/repo/packages/example/src/browser.ts"],
+      ["@chalkframes/example/browser", "/repo/packages/example/src/browser.ts"],
     ]);
   });
 
@@ -99,7 +99,7 @@ describe("package subpath contracts", () => {
 
   it("round-trips an existing dual manifest into a descriptor", () => {
     const manifest = {
-      name: "@hyperframes/example",
+      name: "@chalkframes/example",
       exports: exportsFromDescriptor(descriptor).local,
       publishConfig: { exports: exportsFromDescriptor(descriptor).published },
     };

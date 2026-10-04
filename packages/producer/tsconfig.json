@@ -15,8 +15,8 @@
     "types": ["@webgpu/types"],
     "baseUrl": ".",
     "paths": {
-      "@hyperframes/producer": ["./src/index.ts"],
-      "@hyperframes/producer/distributed": ["./src/distributed.ts"]
+      "@chalkframes/producer": ["./src/index.ts"],
+      "@chalkframes/producer/distributed": ["./src/distributed.ts"]
     }
   },
   "include": ["src/**/*"],

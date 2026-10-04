@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-// CI exports HYPERFRAMES_NO_TELEMETRY=1 (and users may set DO_NOT_TRACK), which
+// CI exports CHALKFRAMES_NO_TELEMETRY=1 (and users may set DO_NOT_TRACK), which
 // makes shouldTrack() short-circuit — and it caches that decision for the module's
 // lifetime. Clear both BEFORE the module under test is imported / first tracks.
-vi.stubEnv("HYPERFRAMES_NO_TELEMETRY", "");
+vi.stubEnv("CHALKFRAMES_NO_TELEMETRY", "");
 vi.stubEnv("DO_NOT_TRACK", "");
 
 // Pin config so the queue never touches disk and telemetry is enabled.

@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
-import { MEDIA_DURATION_FIXTURES } from "@hyperframes/parsers/media-duration-fixtures";
+import { MEDIA_DURATION_FIXTURES } from "@chalkframes/parsers/media-duration-fixtures";
 import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it, onTestFinished } from "vitest";
 import { ensureDOMParser } from "../utils/dom.js";
@@ -524,7 +524,7 @@ describe("formatTimeline", () => {
 
 const SKILL_DOC = join(
   dirname(fileURLToPath(import.meta.url)),
-  "../../../../skills/hyperframes-cli/references/upgrade-info-misc.md",
+  "../../../../skills/chalkframes-cli/references/upgrade-info-misc.md",
 );
 
 const EVAL_INDEX = `<div data-composition-id="main" data-duration="40">

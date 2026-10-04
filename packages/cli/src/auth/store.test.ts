@@ -148,8 +148,8 @@ describe("auth/store", () => {
     await expect(readStore(path)).rejects.toSatisfy((err) => isAuthError(err));
   });
 
-  it("accepts a legacy plaintext key of any HeyGen key format", async () => {
-    // Real HeyGen keys come in multiple formats (`sk_V2_…`, `hg_…`,
+  it("accepts a legacy plaintext key of any Chalkframes key format", async () => {
+    // Real Chalkframes keys come in multiple formats (`sk_V2_…`, `hg_…`,
     // partner keys, etc.). The CLI doesn't shape-check — the backend
     // does. Any single-line printable non-empty value is accepted as
     // a legacy key here; the next /v3/users/me call decides validity.
@@ -194,7 +194,7 @@ describe("auth/store", () => {
   });
 
   // --- Cross-CLI forward compatibility: unknown-field preservation. ---
-  // The credentials file is SHARED with the Go `heygen` CLI. If this CLI
+  // The credentials file is SHARED with the Go `chalkframes` CLI. If this CLI
   // strips keys it doesn't model when it writes the file back, it
   // silently destroys the other CLI's data (and vice versa). The writer
   // MUST round-trip unknown fields untouched.
@@ -216,9 +216,9 @@ describe("auth/store", () => {
     expect(onDisk.future_field).toEqual({ nested: [1, 2], flag: true });
   });
 
-  it("preserves the heygen-cli `user` block when this CLI rewrites only the credential", async () => {
-    // The exact cross-CLI data-loss scenario: heygen-cli wrote a `user`
-    // block; hyperframes-cli updates the api_key and must not drop it.
+  it("preserves the chalkframes-cli `user` block when this CLI rewrites only the credential", async () => {
+    // The exact cross-CLI data-loss scenario: chalkframes-cli wrote a `user`
+    // block; chalkframes-cli updates the api_key and must not drop it.
     await fs.writeFile(
       path,
       JSON.stringify({

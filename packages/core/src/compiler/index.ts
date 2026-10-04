@@ -72,9 +72,9 @@ export {
 
 // Static guard
 export {
-  validateHyperframeHtmlContract,
-  type HyperframeStaticFailureReason,
-  type HyperframeStaticGuardResult,
+  validateChalkframeHtmlContract,
+  type ChalkframeStaticFailureReason,
+  type ChalkframeStaticGuardResult,
 } from "./staticGuard";
 
 // Composition isolation helpers

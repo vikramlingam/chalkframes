@@ -14,7 +14,7 @@ describe("resolveProjectOrThrow", () => {
       const error = err as InvalidProjectError;
       expect(error.title).toBe("Invalid project directory: #");
       expect(error.hint).toContain("URL fragment");
-      expect(error.suggestion).toContain("hyperframes preview .");
+      expect(error.suggestion).toContain("chalkframes preview .");
     }
   });
 

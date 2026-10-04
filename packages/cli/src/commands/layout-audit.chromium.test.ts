@@ -4,7 +4,7 @@ import puppeteer, { type Browser } from "puppeteer-core";
 
 declare global {
   interface Window {
-    __hyperframesLayoutAudit(options: { time: number; tolerance: number }): { code: string }[];
+    __chalkframesLayoutAudit(options: { time: number; tolerance: number }): { code: string }[];
   }
 }
 
@@ -72,7 +72,7 @@ describe.runIf(executablePath)("layout audit in Chromium", () => {
         </div></body>`);
       await page.addScriptTag({ content: script });
       const issues = await page.evaluate(() =>
-        window.__hyperframesLayoutAudit({ time: 1, tolerance: 2 }),
+        window.__chalkframesLayoutAudit({ time: 1, tolerance: 2 }),
       );
       expect(issues.some((issue) => issue.code === "text_box_overflow")).toBe(error);
     } finally {

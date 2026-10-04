@@ -12,17 +12,17 @@ let previousCacheDir: string | undefined;
 let restoreFetch: (() => void) | undefined;
 
 beforeEach(() => {
-  previousCacheDir = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  previousCacheDir = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   cacheDir = mkdtempSync(join(tmpdir(), "hf-oblique-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
   _clearGoogleFontCssCacheForTests();
 });
 
 afterEach(() => {
   restoreFetch?.();
   _clearGoogleFontCssCacheForTests();
-  if (previousCacheDir === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = previousCacheDir;
+  if (previousCacheDir === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = previousCacheDir;
   rmSync(cacheDir, { recursive: true, force: true });
 });
 

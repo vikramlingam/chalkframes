@@ -73,10 +73,56 @@ import {
   archetypes,
   ARCHETYPE_FAMILY,
   MIDDLE_ARCHS,
+  MANIM_ARCHETYPES,
   ARCHETYPE_ALIASES,
   registerArchetype,
   formatCatalogForPrompt,
 } from "./catalog.mjs";
+import {
+  validateManimBrief,
+  validateBeats,
+  inferManimPrimitive,
+  DEFAULT_FALLBACK,
+} from "./engines/manim/schema.mjs";
+import { degradeScene } from "./engines/manim/degrade.mjs";
+import { enrichScene } from "./enrichment.mjs";
+
+/** Max share of scenes that may use Manim, and max consecutive Manim scenes. */
+export const MANIM_MAX_SHARE = 0.4;
+export const MANIM_MAX_CONSECUTIVE = 2;
+
+/**
+ * Decide whether a Manim scene may keep its engine. Returns { ok:true, brief, beats,
+ * fallback } or { ok:false, reason, fallback } -- the caller degrades on !ok.
+ */
+function planManimScene({ scene, archetype, index, lastIndex, enabled, count, max, run }) {
+  const requested = strictArchetype(scene.fallbackArchetype);
+  const fallbackOk =
+    requested &&
+    !MANIM_ARCHETYPES.includes(requested) &&
+    requested !== "hook" &&
+    requested !== "outro";
+  const fallback = fallbackOk ? requested : DEFAULT_FALLBACK[archetype] || "bento-metric-grid";
+  const no = (reason) => ({ ok: false, reason, fallback });
+  if (!enabled) return no("Manim engine unavailable");
+  if (index === 0 || index === lastIndex) return no("hook and outro must be html-gsap");
+  if (count >= max) return no(`Manim share capped at ${Math.round(MANIM_MAX_SHARE * 100)}%`);
+  if (run >= MANIM_MAX_CONSECUTIVE) return no("too many consecutive Manim scenes");
+  if (!fallbackOk) return no("missing or invalid fallbackArchetype");
+  let beats;
+  let brief;
+  try {
+    beats = validateBeats(scene.beats);
+  } catch (err) {
+    return no(err.message);
+  }
+  try {
+    brief = validateManimBrief(archetype, scene.manimData);
+  } catch (err) {
+    return no(`invalid manimData: ${err.message}`);
+  }
+  return { ok: true, brief, beats, fallback };
+}
 
 export {
   VISUAL_CATALOG,
@@ -165,6 +211,11 @@ function chooseArchetype({ requested, suggested, previous, window = 2, archetype
   if (requested && requested !== lastArchetype) {
     return requested;
   }
+  // A valid Manim primitive is never rotated away: the Manim gate (share cap, max 2 in a
+  // row, brief + fallback validation) decides, and logs why when it degrades one.
+  if (requested && MANIM_ARCHETYPES.includes(requested)) {
+    return requested;
+  }
 
   const recentArchetypes = previous.slice(-Math.max(window, archetypeWindow));
   const recentFamilies = new Set(previous.slice(-window).map(familyOf));
@@ -197,7 +248,7 @@ function safeTextFields(value) {
 }
 
 // The director owns prose, never filenames, IDs, arbitrary DOM markup or bar geometry.
-export function validateStoryboard(value, timing) {
+export function validateStoryboard(value, timing, { manimEnabled = false } = {}) {
   if (
     !value ||
     typeof value !== "object" ||
@@ -231,6 +282,9 @@ export function validateStoryboard(value, timing) {
   const rng = makeRng(hashSeed(`${value.productName}|${rawScenes.length}|${seedEntropy}`));
 
   const scenes = [];
+  const manimMax = Math.floor(rawScenes.length * MANIM_MAX_SHARE);
+  let manimCount = 0;
+  let manimRun = 0;
   for (let index = 0; index < rawScenes.length; index++) {
     const scene = rawScenes[index];
     if (!scene || typeof scene !== "object") {
@@ -352,6 +406,20 @@ export function validateStoryboard(value, timing) {
     // director's pick is honoured whenever it clears the window, and anything
     // generic, unknown, or visually repetitive is replaced from a rotation seeded
     // on the product name: varied across projects, identical for a given project.
+    // Honour an explicit `engine: "manim"` even when the archetype name is missing or not a
+    // manim-* id: recover the primitive from the shape of manimData (never override a valid
+    // director choice just because one field was named inconsistently).
+    if (
+      String(scene.engine || "").toLowerCase() === "manim" &&
+      !MANIM_ARCHETYPES.includes(strictArchetype(scene.archetype))
+    ) {
+      const inferred = inferManimPrimitive(scene.manimData);
+      if (inferred) scene.archetype = inferred;
+      else
+        console.warn(
+          `[DEGRADE REASON: Scene ${index + 1}: engine "manim" declared without a manim-* archetype or recognizable manimData]`,
+        );
+    }
     let resolvedArch = normalizeArchetype(scene.archetype);
     if (index > 0 && index < rawScenes.length - 1) {
       const requested = strictArchetype(scene.archetype);
@@ -444,7 +512,7 @@ export function validateStoryboard(value, timing) {
     )
       throw new Error(`Director scene ${index + 1} has invalid chart heights`);
 
-    const finalArchetype =
+    let finalArchetype =
       index === 0
         ? scene.archetype
           ? normalizeArchetype(scene.archetype)
@@ -456,272 +524,65 @@ export function validateStoryboard(value, timing) {
           : resolvedArch;
 
     // Intelligent domain-aware fallbacks so every archetype renders with high fidelity
-    const safeTitle = typeof scene.title === "string" ? scene.title.trim() : "System Architecture";
-    const enrichedScene = { ...scene };
+    let enrichedScene = { ...scene, engine: "html-gsap" };
 
-    if (
-      finalArchetype === "flowchart-process" &&
-      (!enrichedScene.flowData?.steps || !enrichedScene.flowData.steps.length)
-    ) {
-      enrichedScene.flowData = {
-        steps: [
-          {
-            stepNumber: "01",
-            title: "Ingestion & Filter",
-            desc: "Input capture & validation",
-            isHighlighted: false,
-          },
-          {
-            stepNumber: "02",
-            title: safeTitle,
-            desc: "Active pipeline processing",
-            isHighlighted: true,
-          },
-          {
-            stepNumber: "03",
-            title: "Deterministic Output",
-            desc: "Verified result emission",
-            isHighlighted: false,
-          },
-        ],
-      };
-    } else if (finalArchetype === "kpi-counter-ring") {
-      enrichedScene.kpiData = {
-        value: "10x",
-        label: safeTitle,
-        trend: "+84% Efficiency",
-        progress: 85,
-        subtitle: "Benchmarked across distributed workloads",
-        ...(enrichedScene.kpiData || {}),
-      };
-    } else if (finalArchetype === "interactive-diff") {
-      enrichedScene.diffData = {
-        titleLeft: "Legacy Paradigm",
-        badgeLeft: "Deprecated",
-        linesLeft: [
-          "Monolithic blocking execution",
-          "High latency jitter",
-          "Manual reconciliation",
-        ],
-        titleRight: "Modern Architecture",
-        badgeRight: "Optimized",
-        linesRight: [
-          "Zero-copy streaming pipeline",
-          "Sub-millisecond p99 latency",
-          "Deterministic execution",
-        ],
-        ...(enrichedScene.diffData || {}),
-      };
-    } else if (finalArchetype === "code-terminal") {
-      enrichedScene.codeDemo = {
-        filename: "orchestration.ts",
-        language: "TypeScript",
-        lines: [
-          "import { createPipeline } from './pipeline';",
-          "const pipeline = createPipeline();",
-          `await pipeline.run('${safeTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}');`,
-          "await pipeline.finalize();",
-        ],
-        output: "✓ Pipeline finished in 18ms. Output ready.",
-        ...(enrichedScene.codeDemo || {}),
-      };
-    } else if (finalArchetype === "kinetic-text" && !enrichedScene.kineticData) {
-      const words = safeTitle.split(/\s+/).filter(Boolean);
-      enrichedScene.kineticData = {
-        badge: "Core Breakthrough",
-        mainWord: (words[0] || "AUTONOMOUS").toUpperCase(),
-        accentWord: (words.slice(1, 3).join(" ") || "PRECISION.").toUpperCase(),
-        subtitle: scene.subtitle || "Engineered for deterministic broadcast execution.",
-      };
-    } else if (
-      finalArchetype === "radial-orbit" &&
-      (!enrichedScene.orbitData?.satellites || !enrichedScene.orbitData.satellites.length)
-    ) {
-      enrichedScene.orbitData = {
-        centerTitle: safeTitle,
-        centerSub: "Core Engine",
-        satellites: [
-          { label: "Deterministic Render", desc: "Pixel-perfect lockstep" },
-          { label: "Hardware Capture", desc: "GPU accelerated capture" },
-          { label: "Semantic Scripts", desc: "Source grounded" },
-          { label: "Neural Audio", desc: "Studio broadcast timbre" },
-        ],
-      };
-    } else if (
-      finalArchetype === "step-ladder" &&
-      (!enrichedScene.stepData?.steps || !enrichedScene.stepData.steps.length)
-    ) {
-      enrichedScene.stepData = {
-        steps: [
-          {
-            stepNumber: "01",
-            title: "Specification Parsing",
-            desc: "Deep extraction of requirements",
-            status: "Active",
-          },
-          {
-            stepNumber: "02",
-            title: safeTitle,
-            desc: "Dynamic choreography synthesis",
-            status: "Active",
-          },
-          {
-            stepNumber: "03",
-            title: "Master Broadcast Output",
-            desc: "Single-pass hardware render",
-            status: "Complete",
-          },
-        ],
-      };
-    } else if (
-      finalArchetype === "live-feed" &&
-      (!enrichedScene.feedData?.items || !enrichedScene.feedData.items.length)
-    ) {
-      enrichedScene.feedData = {
-        items: [
-          { icon: "⚡", text: safeTitle, tag: "1.2ms", status: "Optimal" },
-          {
-            icon: "🔒",
-            text: "End-to-End Cryptographic Privacy",
-            tag: "Local",
-            status: "Verified",
-          },
-          { icon: "✦", text: "Autonomous Motion Direction", tag: "AI Director", status: "Active" },
-          { icon: "✓", text: "Studio Grade Render Engine", tag: "60 FPS", status: "Mastered" },
-        ],
-      };
-    } else if (
-      finalArchetype === "isometric-stack" &&
-      (!enrichedScene.stackData?.layers || !enrichedScene.stackData.layers.length)
-    ) {
-      enrichedScene.stackData = {
-        layers: [
-          {
-            name: "Surface & Presentation",
-            tech: "Chalk Frames DOM",
-            role: "Declarative Video DOM",
-          },
-          { name: safeTitle, tech: "Semantic Choreography Core", role: "Tone & Kinetic Vectoring" },
-          { name: "Hardware Engine", tech: "GPU Pipeline", role: "Deterministic Frame Capture" },
-        ],
-      };
-    } else if (
-      finalArchetype === "data-graph" &&
-      (!enrichedScene.chartData?.bars || !enrichedScene.chartData.bars.length)
-    ) {
-      enrichedScene.chartData = {
-        title: safeTitle,
-        badge: "+340% Throughput",
-        bars: [
-          { label: "Legacy NLE", value: "20%", height: 20 },
-          { label: "V1 Scripts", value: "45%", height: 45 },
-          { label: "V2 Templates", value: "68%", height: 68 },
-          { label: "Chalk Frames", value: "100%", height: 96 },
-        ],
-      };
-    } else if (finalArchetype === "bento-grid" && !enrichedScene.bento) {
-      enrichedScene.bento = {
-        mainCard: {
-          title: safeTitle,
-          desc:
-            scene.subtitle ||
-            "Engineered specifically to render fluid, broadcast-level typography.",
-          badge: "Core Innovation",
-        },
-        subCard1: { title: "100% Private Local Execution", badge: "Zero Cloud Leak" },
-        subCard2: { title: "Continuous Timeline Engine", badge: "Seamless Vectors" },
-      };
-    } else if (finalArchetype === "quote-callout" && !enrichedScene.quoteData) {
-      enrichedScene.quoteData = {
-        quote:
-          scene.subtitle ||
-          "Simplicity is prerequisite for reliability. Clean abstractions outlast complex workarounds.",
-        author: safeTitle,
-        context: "Systems Engineering Principle",
-        badge: "Foundational Rule",
-      };
-    } else if (
-      finalArchetype === "chat-exchange" &&
-      (!enrichedScene.chatData?.messages || !enrichedScene.chatData.messages.length)
-    ) {
-      enrichedScene.chatData = {
-        channelName: "Live Cluster Dispatch",
-        messages: [
-          {
-            sender: "Operator",
-            text: `Initiating ${safeTitle} pipeline`,
-            isAi: false,
-            time: "10:04 AM",
-          },
-          {
-            sender: "Core Engine",
-            text: "Invariants validated in 0.8ms. Zero locks acquired.",
-            isAi: true,
-            time: "10:04 AM",
-          },
-          {
-            sender: "Dispatcher",
-            text: "Streaming output frame pipeline at 60 FPS.",
-            isAi: true,
-            time: "10:05 AM",
-          },
-        ],
-      };
-    } else if (
-      finalArchetype === "bento-metric-grid" &&
-      (!enrichedScene.bentoData?.metrics || !enrichedScene.bentoData.metrics.length)
-    ) {
-      enrichedScene.bentoData = {
-        metrics: [
-          { label: safeTitle, value: 3, unit: "phases", detail: "", hero: true },
-          { label: "Deterministic Frames", value: 60, unit: "fps", detail: "" },
-          { label: "Local Execution", value: 100, unit: "%", detail: "" },
-        ],
-      };
-    } else if (
-      finalArchetype === "terminal-flow" &&
-      (!enrichedScene.terminalData?.lines || !enrichedScene.terminalData.lines.length)
-    ) {
-      enrichedScene.terminalData = {
-        bullets: [{ text: safeTitle }],
-        lines: [
-          {
-            prompt: "$",
-            text: "chalkframes render --out demo.mp4",
-            output: "✓ rendered 240 frames",
-          },
-        ],
-      };
-    } else if (
-      finalArchetype === "step-progression" &&
-      (!enrichedScene.progressData?.steps || !enrichedScene.progressData.steps.length)
-    ) {
-      enrichedScene.progressData = {
-        steps: [
-          { label: "Input", caption: safeTitle },
-          { label: "Transform", caption: "" },
-          { label: "Output", caption: "" },
-        ],
-      };
-    } else if (finalArchetype === "vector-cluster-graph") {
-      enrichedScene.queryLabel =
-        typeof enrichedScene.queryLabel === "string" && enrichedScene.queryLabel.trim()
-          ? enrichedScene.queryLabel.trim()
-          : `q = embed("${safeTitle.slice(0, 32)}")`;
-      if (!Array.isArray(enrichedScene.clusters) || enrichedScene.clusters.length === 0) {
-        enrichedScene.clusters = [
-          { name: "Semantic Intent", nodeCount: 16, active: true },
-          { name: "Syntactic Match", nodeCount: 9, active: false },
-          { name: "Pruned Subgraph", nodeCount: 12, active: false },
-        ];
+    // Manim routing gate: keep the engine only when every rule passes; otherwise swap to
+    // the fallback archetype *before* enrichment so the fallback gets a full payload.
+    let manimClean = null;
+    if (MANIM_ARCHETYPES.includes(finalArchetype)) {
+      const plan = planManimScene({
+        scene,
+        archetype: finalArchetype,
+        index,
+        lastIndex: rawScenes.length - 1,
+        enabled: manimEnabled,
+        count: manimCount,
+        max: manimMax,
+        run: manimRun,
+      });
+      let twin = null;
+      if (plan.ok) {
+        // Narration is exactly the beats, so audio and animation cannot drift apart.
+        scene.voiceover = plan.beats.join(" ");
+        try {
+          // Pre-build the fully enriched HTML twin so a runtime Manim failure can swap
+          // to it instantly (same escaping + default payloads as any normal scene).
+          twin = validateStoryboard(
+            {
+              productName: value.productName,
+              seed: 0,
+              scenes: [
+                { archetype: "hook", title: "-", voiceover: "-" },
+                degradeScene({ ...scene, fallbackArchetype: plan.fallback }, "prebuilt twin"),
+                { archetype: "outro", title: "-", voiceover: "-" },
+              ],
+            },
+            [
+              { id: "twin-a", role: "hook" },
+              { id: "twin-b", role: "middle" },
+              { id: "twin-c", role: "outro" },
+            ],
+          ).scenes[1];
+        } catch (err) {
+          plan.ok = false;
+          plan.reason = `fallback scene invalid: ${err.message}`;
+        }
       }
-      if (!enrichedScene.stats || typeof enrichedScene.stats !== "object") {
-        enrichedScene.stats = {
-          metric: "99.4% Cosine Sim",
-          latency: "1.2ms HNSW",
-        };
+      if (plan.ok) {
+        manimClean = { manimData: plan.brief, beats: plan.beats, fallbackScene: twin };
+        enrichedScene.engine = "manim";
+        enrichedScene.fallbackArchetype = plan.fallback;
+      } else {
+        console.warn(`[DEGRADE REASON: Scene ${index + 1}: ${plan.reason}] -> ${plan.fallback}`);
+        enrichedScene = degradeScene({ ...scene, fallbackArchetype: plan.fallback }, plan.reason);
+        finalArchetype = enrichedScene.archetype;
       }
     }
+    manimCount += manimClean ? 1 : 0;
+    manimRun = manimClean ? manimRun + 1 : 0;
+
+    // Domain-agnostic payload enrichment (see enrichment.mjs / fallbackText.mjs).
+    enrichedScene = enrichScene(enrichedScene, finalArchetype);
 
     // Support scene-level theme: "dark" | "light" | "accent" (defaults to "light" if omitted)
     const rawTheme = typeof scene.theme === "string" ? scene.theme.toLowerCase().trim() : "";
@@ -732,6 +593,8 @@ export function validateStoryboard(value, timing) {
       ...safeTextFields(enrichedScene),
       id: timing[index].id,
       role: timing[index].role,
+      // Manim payloads are plain data for Python (never HTML), so keep them unescaped.
+      ...(manimClean || {}),
       voiceover: scene.voiceover,
       archetype: finalArchetype,
       theme,

@@ -1,11 +1,11 @@
-import type { LintContext, HyperframeLintFinding } from "../context";
+import type { LintContext, ChalkframeLintFinding } from "../context";
 import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
 import {
   HTML_BODY_CSS_WIDTH_FIRST_RE,
   HTML_BODY_CSS_HEIGHT_FIRST_RE,
   VIEWPORT_META_SIZE_RE,
-} from "@hyperframes/parsers/composition";
+} from "@chalkframes/parsers/composition";
 import {
   readAttr,
   readDecodedAttr,
@@ -187,14 +187,14 @@ function cssIdSelector(id: string): string {
 function reducedSpecificityIdFindings(
   rule: postcss.Rule,
   reported: Set<string>,
-): HyperframeLintFinding[] {
+): ChalkframeLintFinding[] {
   const positionProps = rule.nodes.flatMap((node) =>
     node.type === "decl" && !node.important && POSITION_PROPERTIES.has(node.prop.toLowerCase())
       ? [node.prop]
       : [],
   );
   if (positionProps.length === 0) return [];
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const selector of resolvedRuleSelectors(rule)) {
     const id = reported.has(selector) ? null : reducedSpecificityId(selector);
     if (id === null) continue;
@@ -367,7 +367,7 @@ function describeRootDimensionsDrift(
     return {
       message: `${declared}, but ${viewportMismatch}. The viewport meta has no effect on capture — the renderer sizes the viewport from the root's own data-width/data-height — so this is stale metadata, not a clipping risk.`,
       fixHint:
-        "update the meta viewport to match, or scaffold with `hyperframes init --resolution portrait`",
+        "update the meta viewport to match, or scaffold with `chalkframes init --resolution portrait`",
     };
   }
   const mismatches = viewportMismatch
@@ -376,14 +376,14 @@ function describeRootDimensionsDrift(
   return {
     message: `${declared}, but ${mismatches}. The scaffolded body clips the composition at its old size.`,
     fixHint:
-      "update html/body CSS and the meta viewport to match, or scaffold with `hyperframes init --resolution portrait`",
+      "update html/body CSS and the meta viewport to match, or scaffold with `chalkframes init --resolution portrait`",
   };
 }
 
-export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
+export const coreRules: Array<(ctx: LintContext) => ChalkframeLintFinding[]> = [
   // id_requires_css_escape
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       const id = readAttr(tag.raw, "id");
       if (!id || !/^\d/.test(id)) continue;
@@ -403,7 +403,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
   // root_missing_composition_id + root_missing_dimensions
   // fallow-ignore-next-line complexity
   ({ rootTag }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     if (!rootTag || !readDecodedAttr(rootTag.raw, "data-composition-id")) {
       findings.push({
         code: "root_missing_composition_id",
@@ -431,11 +431,11 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
   //
   // Render size and the runtime's forced #root size both read the root's own
   // data-width/data-height, so they stay correct. But editing only those two
-  // attributes — rather than scaffolding with `hyperframes init --resolution`,
+  // attributes — rather than scaffolding with `chalkframes init --resolution`,
   // which rewrites the scaffold's other copies of the resolution too — leaves
   // the `html, body` CSS and the `<meta viewport>` at the old value, and a
   // stale body with `overflow: hidden` visually clips the correctly-sized
-  // root. `hyperframes check`'s layout audits can't see it: they measure
+  // root. `chalkframes check`'s layout audits can't see it: they measure
   // against the root's own (already-correct) rect, not the body's.
   //
   // Sub-compositions are exempt: loadExternalCompositions (packages/core/src/
@@ -517,7 +517,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
       return [];
     }
     if (/(?:^|\s)data-no-timeline(?=[\s=/]|$)/i.test(rootTag?.attrs || "")) return [];
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     if (
       !TIMELINE_REGISTRY_INIT_PATTERN.test(source) &&
       !TIMELINE_REGISTRY_ASSIGN_PATTERN.test(source) &&
@@ -546,7 +546,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // timeline_id_mismatch
   ({ source, compositionIds }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const htmlCompIds = new Set(compositionIds);
     const timelineRegKeys = new Set<string>();
     for (const key of extractTimelineRegistryKeys(source)) {
@@ -567,7 +567,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // CSS selector safety
   ({ styles, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const reportedRepeatedIds = new Set<string>();
     const reportedHiddenStyleSelectors = new Set<string>();
     const reportedReducedIdSelectors = new Set<string>();
@@ -616,7 +616,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
           findings.push({
             code: "runtime_hidden_style_opacity",
             severity: "error",
-            message: `Selector "${selector}" observes HyperFrames' runtime-owned hidden style and forces opacity to zero. The renderer hides each native video before copying its computed opacity to the visible replacement frame, so this rule makes both transparent.`,
+            message: `Selector "${selector}" observes ChalkFrames' runtime-owned hidden style and forces opacity to zero. The renderer hides each native video before copying its computed opacity to the visible replacement frame, so this rule makes both transparent.`,
             selector,
             fixHint:
               'Restrict the guard to sub-composition hosts, for example `[data-composition-src][style*="visibility: hidden"]` and `[data-composition-file][style*="visibility: hidden"]`. Do not derive arbitrary element or media opacity from runtime-owned inline visibility.',
@@ -630,7 +630,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // unclosed_tag_swallowed_element
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       if (!hasUnquotedLessThan(tag.attrs)) continue;
       findings.push({
@@ -659,12 +659,12 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // invalid_inline_script_syntax (JS parse error)
   ({ scripts, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const script of scripts) {
       const attrs = script.attrs || "";
       if (
         /\bsrc\s*=/.test(attrs) ||
-        /\btype\s*=\s*["'](?:application\/json|application\/hyperframes-slideshow\+json|importmap|module)["']/.test(
+        /\btype\s*=\s*["'](?:application\/json|application\/chalkframes-slideshow\+json|importmap|module)["']/.test(
           attrs,
         )
       )
@@ -685,7 +685,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // host_missing_composition_id
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       const src = readAttr(tag.raw, "data-composition-src");
       if (!src) continue;
@@ -704,7 +704,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // scoped_css_missing_wrapper
   ({ styles, compositionIds }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const scopedCssCompositionIds = new Set<string>();
     for (const style of styles) {
       for (const compId of extractCompositionIdsFromCss(style.content)) {
@@ -727,7 +727,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // studio_missing_editable_id
   ({ tags, rootTag }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       if (rootTag && tag.index === rootTag.index) continue;
       if (!isStudioTimelineElement(tag)) continue;
@@ -751,7 +751,7 @@ export const coreRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
 
   // non_deterministic_code
   ({ scripts, locate }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const patterns: Array<{
       pattern: RegExp;
       label: string;

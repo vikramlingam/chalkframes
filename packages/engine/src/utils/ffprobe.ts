@@ -4,7 +4,7 @@ import { createReadStream, readFileSync, statSync } from "fs";
 import { chunkCrc32 } from "./crc32.js";
 import { StringDecoder } from "node:string_decoder";
 import { basename } from "path";
-import { redactTelemetryString } from "@hyperframes/core";
+import { redactTelemetryString } from "@chalkframes/core";
 import { FFPROBE_PATH_ENV, getFfprobeBinary } from "./ffmpegBinaries.js";
 import { ManagedChildProcess } from "./managedChildProcess.js";
 import { trackChildProcess } from "./processTracker.js";

@@ -53,7 +53,7 @@ async function noticeWith(opts: {
     else process.env[k] = v;
   }
   // Default to a non-CI interactive terminal unless the test overrides env.
-  for (const name of ["CI", "HYPERFRAMES_NO_UPDATE_CHECK"]) {
+  for (const name of ["CI", "CHALKFRAMES_NO_UPDATE_CHECK"]) {
     if (!(name in (opts.env ?? {}))) delete process.env[name];
   }
 
@@ -89,34 +89,34 @@ describe("printUpdateNotice — install-method-aware command", () => {
   });
 
   it("shows the detected manager's command for an owned global install", async () => {
-    const out = await noticeWith({ installerCommand: "brew upgrade hyperframes" });
+    const out = await noticeWith({ installerCommand: "brew upgrade chalkframes" });
     expect(out).toContain("Update available");
-    expect(out).toContain("brew upgrade hyperframes");
-    expect(out).not.toContain("npx hyperframes@latest");
+    expect(out).toContain("brew upgrade chalkframes");
+    expect(out).not.toContain("npx chalkframes@latest");
   });
 
-  it("falls back to npx hyperframes@latest when the install method is skip/unknown", async () => {
+  it("falls back to npx chalkframes@latest when the install method is skip/unknown", async () => {
     const out = await noticeWith({ installerCommand: null });
-    expect(out).toContain("npx hyperframes@latest");
+    expect(out).toContain("npx chalkframes@latest");
   });
 
   it("is suppressed on a non-TTY stderr", async () => {
-    const out = await noticeWith({ installerCommand: "brew upgrade hyperframes", isTTY: false });
+    const out = await noticeWith({ installerCommand: "brew upgrade chalkframes", isTTY: false });
     expect(out).toBe("");
   });
 
   it("is suppressed in CI", async () => {
     const out = await noticeWith({
-      installerCommand: "brew upgrade hyperframes",
+      installerCommand: "brew upgrade chalkframes",
       env: { CI: "true" },
     });
     expect(out).toBe("");
   });
 
-  it("is suppressed by the HYPERFRAMES_NO_UPDATE_CHECK opt-out", async () => {
+  it("is suppressed by the CHALKFRAMES_NO_UPDATE_CHECK opt-out", async () => {
     const out = await noticeWith({
-      installerCommand: "brew upgrade hyperframes",
-      env: { HYPERFRAMES_NO_UPDATE_CHECK: "1" },
+      installerCommand: "brew upgrade chalkframes",
+      env: { CHALKFRAMES_NO_UPDATE_CHECK: "1" },
     });
     expect(out).toBe("");
   });
@@ -263,8 +263,8 @@ describe("printDeprecationNotice", () => {
 
     expect(stdoutWrites).toEqual([]);
     expect(stderrWrites).toHaveLength(1);
-    expect(stderrWrites[0]).toContain("hyperframes validate");
-    expect(stderrWrites[0]).toContain("hyperframes check");
+    expect(stderrWrites[0]).toContain("chalkframes validate");
+    expect(stderrWrites[0]).toContain("chalkframes check");
   });
 });
 
@@ -277,7 +277,7 @@ describe("checkForUpdate — registry boundary guard", () => {
 
   function clearOptOuts(): void {
     vi.stubEnv("CI", "");
-    vi.stubEnv("HYPERFRAMES_NO_UPDATE_CHECK", "");
+    vi.stubEnv("CHALKFRAMES_NO_UPDATE_CHECK", "");
   }
 
   it("still asks the registry from a run without a terminal", async () => {
@@ -304,7 +304,7 @@ describe("checkForUpdate — registry boundary guard", () => {
     }
   });
 
-  it.each(["CI", "HYPERFRAMES_NO_UPDATE_CHECK"])(
+  it.each(["CI", "CHALKFRAMES_NO_UPDATE_CHECK"])(
     "skips the background registry request when %s=1",
     async (name) => {
       clearOptOuts();
@@ -379,7 +379,7 @@ describe("updateCheckDue / cachedUpdateCheck — what the parent reads without f
   async function load(config: Record<string, unknown>) {
     vi.resetModules();
     vi.stubEnv("CI", "");
-    vi.stubEnv("HYPERFRAMES_NO_UPDATE_CHECK", "");
+    vi.stubEnv("CHALKFRAMES_NO_UPDATE_CHECK", "");
     vi.doMock("./env.js", () => ({ isDevMode: () => false }));
     vi.doMock("../telemetry/config.js", () => ({
       readConfig: () => ({ ...config }),

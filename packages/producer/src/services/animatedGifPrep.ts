@@ -11,8 +11,8 @@ import {
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { parseHTML } from "linkedom";
-import { parseAnimatedGifMetadata, type AnimatedGifMetadata } from "@hyperframes/core";
-import { DEFAULT_VP9_CPU_USED, runFfmpeg } from "@hyperframes/engine";
+import { parseAnimatedGifMetadata, type AnimatedGifMetadata } from "@chalkframes/core";
+import { DEFAULT_VP9_CPU_USED, runFfmpeg } from "@chalkframes/engine";
 import { isHttpUrl } from "../utils/urlDownloader.js";
 import { encoderFailureError } from "./render/encoderInterruption.js";
 

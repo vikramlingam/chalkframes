@@ -1,0 +1,36 @@
+Chalk Frames
+Copyright (c) 2026 Vikram Lingam and the Chalk Frames contributors
+
+LICENSING OVERVIEW
+------------------
+This repository contains work under two licenses:
+
+1. MIT  (see LICENSE)
+   Original Chalk Frames code:
+     - studio-web/            (studio server, UI, director, archetype renderers)
+     - studio-web/stitcher.mjs
+     - studio-web/engines/manim/  (Manim engine and chalk_manim Python package)
+
+2. Apache License 2.0  (see LICENSE-APACHE-2.0)
+   The rendering packages under packages/ (cli, core, engine, producer,
+   parsers, lint, studio-server) are derived from the open-source
+   "Hyperframes" project by HeyGen, Inc., Copyright 2026 HeyGen, Inc.,
+   which is licensed under the Apache License, Version 2.0. The original
+   copyright notice is preserved in LICENSE-APACHE-2.0, as required by
+   Apache-2.0 section 4.
+
+   Modifications made in this repository (rebranding to "Chalk Frames",
+   removal of unused packages, and fixes) are
+   Copyright 2026 Vikram Lingam and the Chalk Frames contributors and are
+   likewise released under the Apache License, Version 2.0.
+
+THIRD-PARTY SOFTWARE
+--------------------
+Chalk Frames invokes, but does not redistribute, the following tools, which
+carry their own licenses: Manim Community Edition (MIT), FFmpeg (LGPL/GPL),
+Kokoro-82M / kokoro-onnx (Apache-2.0), and Chromium (BSD-style).
+
+Bundled media: studio-web/public/soundtracks, studio-web/public/sfx and
+studio-web/public/samples are included for development convenience.
+Verify the redistribution terms of these audio files before publishing a
+release; replace them with assets you have rights to if unsure.

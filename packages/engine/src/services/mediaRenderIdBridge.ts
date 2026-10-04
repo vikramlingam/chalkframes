@@ -19,7 +19,7 @@
  * `renderFrameSibling.test.ts` pins the sibling-id format both sides build.
  */
 
-import { MEDIA_RENDER_ID_ATTR } from "@hyperframes/core";
+import { MEDIA_RENDER_ID_ATTR } from "@chalkframes/core";
 import type { Page } from "puppeteer-core";
 
 declare global {

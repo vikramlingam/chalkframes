@@ -11,7 +11,7 @@ describe("parseCompositions", () => {
   });
 
   it("resolves relative sub-composition starts when computing host duration", () => {
-    const baseDir = mkdtempSync(join(tmpdir(), "hyperframes-compositions-"));
+    const baseDir = mkdtempSync(join(tmpdir(), "chalkframes-compositions-"));
 
     try {
       const compositionsDir = join(baseDir, "compositions");
@@ -88,7 +88,7 @@ describe("parseSubComposition", () => {
   });
 
   it("treats a data-composition-src that points at a folder as inline instead of crashing", () => {
-    const baseDir = mkdtempSync(join(tmpdir(), "hyperframes-compositions-"));
+    const baseDir = mkdtempSync(join(tmpdir(), "chalkframes-compositions-"));
 
     try {
       mkdirSync(join(baseDir, "compositions", "intro"), { recursive: true });

@@ -94,7 +94,7 @@ export {
 
 // Parsers — GSAP helpers. The AST parser (parseGsapScriptAcorn and write ops)
 // is browser-safe; mutation helpers are in gsapWriterAcorn.
-export type { GsapAnimation, GsapMethod, ParsedGsap } from "@hyperframes/parsers";
+export type { GsapAnimation, GsapMethod, ParsedGsap } from "@chalkframes/parsers";
 
 export {
   serializeGsapAnimations,
@@ -102,8 +102,8 @@ export {
   validateCompositionGsap,
   keyframesToGsapAnimations,
   gsapAnimationsToKeyframes,
-} from "@hyperframes/parsers";
-export type { ParsedHtml, CompositionMetadata } from "@hyperframes/parsers";
+} from "@chalkframes/parsers";
+export type { ParsedHtml, CompositionMetadata } from "@chalkframes/parsers";
 
 export {
   parseHtml,
@@ -112,16 +112,16 @@ export {
   removeElementFromHtml,
   validateCompositionHtml,
   extractCompositionMetadata,
-} from "@hyperframes/parsers";
+} from "@chalkframes/parsers";
 
 // Generators
-export type { SerializeOptions } from "./generators/hyperframes";
+export type { SerializeOptions } from "./generators/chalkframes";
 
 export {
-  generateHyperframesHtml,
+  generateChalkframesHtml,
   generateGsapTimelineScript,
-  generateHyperframesStyles,
-} from "./generators/hyperframes";
+  generateChalkframesStyles,
+} from "./generators/chalkframes";
 
 // Compiler (timing only — browser-safe, no linkedom/esbuild)
 export type {
@@ -164,8 +164,8 @@ export {
   renderFrameIdForRenderId,
 } from "./runtime/renderFrameSibling";
 
-// Lint moved to @hyperframes/lint. Import lint APIs from @hyperframes/lint
-// directly, or via the back-compat stub at @hyperframes/core/lint. Not
+// Lint moved to @chalkframes/lint. Import lint APIs from @chalkframes/lint
+// directly, or via the back-compat stub at @chalkframes/core/lint. Not
 // re-exported here — doing so would cycle core's main entry through the lint
 // package (which imports core utilities back).
 export {
@@ -266,22 +266,22 @@ export {
 
 // Inline scripts
 export {
-  HYPERFRAME_RUNTIME_ARTIFACTS,
-  HYPERFRAME_RUNTIME_CONTRACT,
-  loadHyperframeRuntimeSource,
-  type HyperframeRuntimeContract,
-} from "./inline-scripts/hyperframe";
+  CHALKFRAME_RUNTIME_ARTIFACTS,
+  CHALKFRAME_RUNTIME_CONTRACT,
+  loadChalkframeRuntimeSource,
+  type ChalkframeRuntimeContract,
+} from "./inline-scripts/chalkframe";
 export {
-  HYPERFRAME_RUNTIME_GLOBALS,
-  HYPERFRAME_BRIDGE_SOURCES,
-  HYPERFRAME_CONTROL_ACTIONS,
-  type HyperframeControlAction,
+  CHALKFRAME_RUNTIME_GLOBALS,
+  CHALKFRAME_BRIDGE_SOURCES,
+  CHALKFRAME_CONTROL_ACTIONS,
+  type ChalkframeControlAction,
 } from "./inline-scripts/runtimeContract";
-export { getHyperframeRuntimeScript } from "./generated/runtime-inline";
+export { getChalkframeRuntimeScript } from "./generated/runtime-inline";
 export {
-  buildHyperframesRuntimeScript,
-  type HyperframesRuntimeBuildOptions,
-} from "./inline-scripts/hyperframesRuntime.engine";
+  buildChalkframesRuntimeScript,
+  type ChalkframesRuntimeBuildOptions,
+} from "./inline-scripts/chalkframesRuntime.engine";
 export {
   MEDIA_VISUAL_STYLE_PROPERTIES,
   copyMediaVisualStyles,
@@ -301,11 +301,11 @@ export {
   realProjectRoot,
   resolveWithinProject,
 } from "./safePath";
-export { isHyperframesProject, PROJECT_MARKER_FILES } from "./projectRule";
+export { isChalkframesProject, PROJECT_MARKER_FILES } from "./projectRule";
 export type {
-  HyperframePickerApi,
-  HyperframePickerBoundingBox,
-  HyperframePickerElementInfo,
+  ChalkframePickerApi,
+  ChalkframePickerBoundingBox,
+  ChalkframePickerElementInfo,
 } from "./inline-scripts/pickerApi";
 
 // Frame adapters

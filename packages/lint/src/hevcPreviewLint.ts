@@ -1,18 +1,18 @@
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { rewriteAssetPath } from "@hyperframes/parsers/asset-paths";
-import { parseNumeric } from "@hyperframes/parsers/composition-contract";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { rewriteAssetPath } from "@chalkframes/parsers/asset-paths";
+import { parseNumeric } from "@chalkframes/parsers/composition-contract";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import {
   cleanAssetUrl,
   isRemoteOrInlineUrl,
   isUnresolvedAssetPlaceholder,
   maskNonScannableRanges,
   resolveExistingLocalAsset,
-} from "@hyperframes/parsers/asset-resolution";
+} from "@chalkframes/parsers/asset-resolution";
 import { parseHTML } from "linkedom";
-import type { HyperframeLintFinding } from "./types.js";
+import type { ChalkframeLintFinding } from "./types.js";
 import { mediaSrcTagRe } from "./utils";
 
 /** Structurally compatible with `project.ts`'s (unexported) `HtmlSource` —
@@ -262,7 +262,7 @@ async function probePlayableVideoDuration(
 export async function lintVideoMediaStartPastEof(
   projectDir: string,
   htmlSources: HtmlSourceLike[],
-): Promise<HyperframeLintFinding[]> {
+): Promise<ChalkframeLintFinding[]> {
   const slotsByPath = collectLocalFiniteVideoSlots(projectDir, htmlSources);
   if (slotsByPath.size === 0) return [];
   const ffprobePath = findFfBinary("ffprobe", { configuredMustExist: true });
@@ -272,7 +272,7 @@ export async function lintVideoMediaStartPastEof(
   const durations = await mapWithProbeConcurrency(entries, (entry) =>
     probePlayableVideoDuration(ffprobePath, entry[0]),
   );
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const [index, [, slots]] of entries.entries()) {
     const sourceDuration = durations[index];
     if (sourceDuration == null) continue;
@@ -305,7 +305,7 @@ export async function lintVideoMediaStartPastEof(
  */
 export async function lintHevcPreviewCodec(
   candidates: Map<string, string>,
-): Promise<HyperframeLintFinding[]> {
+): Promise<ChalkframeLintFinding[]> {
   if (candidates.size === 0) return [];
 
   const ffprobePath = findFfBinary("ffprobe", { configuredMustExist: true });
@@ -331,8 +331,8 @@ export async function lintHevcPreviewCodec(
         "If playback still fails, verify ffmpeg/ffprobe are installed and auto-proxying is enabled.",
       fixHint:
         unique.length === 1
-          ? `If "${unique[0]}" fails to play in preview, run hyperframes doctor and confirm media.autoProxy is not false.`
-          : "If these files fail to play in preview, run hyperframes doctor and confirm media.autoProxy is not false.",
+          ? `If "${unique[0]}" fails to play in preview, run chalkframes doctor and confirm media.autoProxy is not false.`
+          : "If these files fail to play in preview, run chalkframes doctor and confirm media.autoProxy is not false.",
     },
   ];
 }

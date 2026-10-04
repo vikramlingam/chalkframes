@@ -64,11 +64,11 @@ describe("registry types", () => {
 
   describe("type guards", () => {
     const baseFiles = [
-      { path: "x.html", target: "compositions/x.html", type: "hyperframes:composition" as const },
+      { path: "x.html", target: "compositions/x.html", type: "chalkframes:composition" as const },
     ];
     const example: ExampleItem = {
       name: "demo",
-      type: "hyperframes:example",
+      type: "chalkframes:example",
       title: "Demo",
       description: "d",
       dimensions: { width: 1920, height: 1080 },
@@ -77,7 +77,7 @@ describe("registry types", () => {
     };
     const block: BlockItem = {
       name: "demo-block",
-      type: "hyperframes:block",
+      type: "chalkframes:block",
       title: "Demo Block",
       description: "d",
       dimensions: { width: 1080, height: 1350 },
@@ -86,7 +86,7 @@ describe("registry types", () => {
     };
     const component: ComponentItem = {
       name: "demo-component",
-      type: "hyperframes:component",
+      type: "chalkframes:component",
       title: "Demo Component",
       description: "d",
       files: baseFiles,
@@ -132,12 +132,12 @@ describe("registry types", () => {
 
   describe("schema files", () => {
     it("registry.json has the expected $id", () => {
-      expect(registrySchema.$id).toBe("https://hyperframes.heygen.com/schema/registry.json");
+      expect(registrySchema.$id).toBe("https://chalkframes.dev/schema/registry.json");
     });
 
     it("registry-item.json has the expected $id", () => {
       expect(registryItemSchema.$id).toBe(
-        "https://hyperframes.heygen.com/schema/registry-item.json",
+        "https://chalkframes.dev/schema/registry-item.json",
       );
     });
   });
@@ -145,13 +145,13 @@ describe("registry types", () => {
   describe("type-level sanity", () => {
     it("RegistryManifest accepts well-formed shape", () => {
       const m: RegistryManifest = {
-        $schema: "https://hyperframes.heygen.com/schema/registry.json",
-        name: "hyperframes",
-        homepage: "https://hyperframes.heygen.com",
+        $schema: "https://chalkframes.dev/schema/registry.json",
+        name: "chalkframes",
+        homepage: "https://chalkframes.dev",
         items: [
-          { name: "warm-grain", type: "hyperframes:example" },
-          { name: "linkedin-post-card", type: "hyperframes:block" },
-          { name: "shader-wipe", type: "hyperframes:component" },
+          { name: "warm-grain", type: "chalkframes:example" },
+          { name: "linkedin-post-card", type: "chalkframes:block" },
+          { name: "shader-wipe", type: "chalkframes:component" },
         ],
       };
       expect(m.items).toHaveLength(3);
@@ -168,7 +168,7 @@ describe("registry types", () => {
       // @ts-expect-error — ComponentItem forbids `dimensions`.
       const _bad1: ComponentItem = {
         name: "bad",
-        type: "hyperframes:component",
+        type: "chalkframes:component",
         title: "Bad",
         description: "d",
         files: [],
@@ -177,7 +177,7 @@ describe("registry types", () => {
       // @ts-expect-error — ComponentItem forbids `duration`.
       const _bad2: ComponentItem = {
         name: "bad",
-        type: "hyperframes:component",
+        type: "chalkframes:component",
         title: "Bad",
         description: "d",
         files: [],
@@ -192,7 +192,7 @@ describe("registry types", () => {
       // @ts-expect-error — ExampleItem requires `dimensions`.
       const _bad1: ExampleItem = {
         name: "bad",
-        type: "hyperframes:example",
+        type: "chalkframes:example",
         title: "Bad",
         description: "d",
         duration: 5,
@@ -201,7 +201,7 @@ describe("registry types", () => {
       // @ts-expect-error — BlockItem requires `duration`.
       const _bad2: BlockItem = {
         name: "bad",
-        type: "hyperframes:block",
+        type: "chalkframes:block",
         title: "Bad",
         description: "d",
         dimensions: { width: 1, height: 1 },
@@ -215,11 +215,11 @@ describe("registry types", () => {
     it("optional metadata fields are accepted", () => {
       const item: ComponentItem = {
         name: "shader-wipe",
-        type: "hyperframes:component",
+        type: "chalkframes:component",
         title: "Shader Wipe",
         description: "d",
-        author: "heygen",
-        authorUrl: "https://example.com/heygen",
+        author: "chalkframes",
+        authorUrl: "https://example.com/chalkframes",
         sourcePrompt: "Create a shader wipe.",
         license: "Apache-2.0",
         minCliVersion: "0.4.0",
@@ -228,12 +228,12 @@ describe("registry types", () => {
           {
             path: "shader-wipe.html",
             target: "compositions/components/shader-wipe/shader-wipe.html",
-            type: "hyperframes:snippet",
+            type: "chalkframes:snippet",
           },
         ],
       };
-      expect(item.author).toBe("heygen");
-      expect(item.authorUrl).toBe("https://example.com/heygen");
+      expect(item.author).toBe("chalkframes");
+      expect(item.authorUrl).toBe("https://example.com/chalkframes");
       expect(item.sourcePrompt).toBe("Create a shader wipe.");
     });
   });

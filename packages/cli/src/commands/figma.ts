@@ -1,5 +1,5 @@
 /**
- * `hyperframes figma` — import figma assets, tokens, and components over
+ * `chalkframes figma` — import figma assets, tokens, and components over
  * the REST API (design spec: phases 1–3 run on REST; motion/shaders are
  * MCP-only and live in the /figma skill, not this command).
  *
@@ -13,15 +13,15 @@ import { c } from "../ui/colors.js";
 export const examples: Example[] = [
   [
     "Import a frame as a frozen SVG asset",
-    "hyperframes figma asset 'https://www.figma.com/design/KEY/T?node-id=1-2'",
+    "chalkframes figma asset 'https://www.figma.com/design/KEY/T?node-id=1-2'",
   ],
-  ["Import as PNG at 2x", "hyperframes figma asset KEY:1-2 --format png --scale 2"],
-  ["Pull brand tokens into the composition", "hyperframes figma tokens KEY"],
-  ["Import a frame as an editable HTML component", "hyperframes figma component KEY:10-20"],
+  ["Import as PNG at 2x", "chalkframes figma asset KEY:1-2 --format png --scale 2"],
+  ["Pull brand tokens into the composition", "chalkframes figma tokens KEY"],
+  ["Import a frame as an editable HTML component", "chalkframes figma component KEY:10-20"],
 ];
 
 const HELP = `
-${c.bold("hyperframes figma")} ${c.dim("<subcommand> [args]")}
+${c.bold("chalkframes figma")} ${c.dim("<subcommand> [args]")}
 
 Import figma content over the REST API. Requires ${c.accent("FIGMA_TOKEN")}.
 

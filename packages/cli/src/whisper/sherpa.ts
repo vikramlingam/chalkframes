@@ -35,7 +35,7 @@ const MODEL_REVISION = "2bda32ec70b097a55adaa07d9a7173915b43cc78";
 export const PARAKEET_MODEL_DIR = join(
   homedir(),
   ".cache",
-  "hyperframes",
+  "chalkframes",
   "parakeet",
   "parakeet-tdt-0.6b-v3-int8",
 );
@@ -310,7 +310,7 @@ function decode(wavPath: string, signal: AbortSignal): Promise<SherpaWindow[]> {
       process.execPath,
       args,
       {
-        env: { ...process.env, HYPERFRAMES_PARAKEET_INPUT: JSON.stringify(input) },
+        env: { ...process.env, CHALKFRAMES_PARAKEET_INPUT: JSON.stringify(input) },
         maxBuffer: 256 * 1024 * 1024,
         timeout: decodeTimeoutMs(getPreparedWavDurationSeconds(wavPath) ?? 0),
         signal,

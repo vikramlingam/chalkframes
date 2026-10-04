@@ -5,7 +5,7 @@ import { parseHTML } from "linkedom";
 /**
  * Read a composition's declared frame rate from its root element's `data-fps`
  * attribute — the same attribute the runtime honors (core/runtime/init.ts) — so
- * `hyperframes render` can default to it instead of a hard-coded 30 when `--fps`
+ * `chalkframes render` can default to it instead of a hard-coded 30 when `--fps`
  * is not passed. Returns the raw attribute string (for the caller to validate
  * via `parseFps`, which supports fractional rates like `30000/1001`), or `null`
  * when no root `data-fps` is present.

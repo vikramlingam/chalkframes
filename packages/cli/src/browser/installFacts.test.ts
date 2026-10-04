@@ -4,7 +4,7 @@ import { describeBrowserInstall } from "./installFacts.js";
 describe("describeBrowserInstall", () => {
   it("reads the build and drive from a Windows managed-cache path", () => {
     const path =
-      "D:\\Users\\a\\.cache\\hyperframes\\chrome-headless-shell\\win64-152.0.7928.2\\chrome-headless-shell.exe";
+      "D:\\Users\\a\\.cache\\chalkframes\\chrome-headless-shell\\win64-152.0.7928.2\\chrome-headless-shell.exe";
     expect(describeBrowserInstall(path)).toEqual({
       build: "152.0.7928.2",
       pathAscii: true,

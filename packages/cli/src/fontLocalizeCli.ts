@@ -1,5 +1,5 @@
 // fallow-ignore-file unused-file
-import { injectDeterministicFontFaces } from "@hyperframes/producer";
+import { injectDeterministicFontFaces } from "@chalkframes/producer";
 import { runFontLocalize, stampFontVersions } from "./fontLocalize.js";
 import { PRODUCER_VERSION, VERSION } from "./version.js";
 

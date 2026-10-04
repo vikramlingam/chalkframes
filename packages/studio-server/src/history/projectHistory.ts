@@ -14,7 +14,7 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 import {
   DELETED_VERSION,
   fileContentVersion,
@@ -58,7 +58,7 @@ import {
 } from "./historyLog.js";
 
 /** Where hosts keep project histories unless told otherwise: outside every project, so no tidy-up takes one away. */
-export const DEFAULT_HISTORY_ROOT = join(homedir(), ".cache", "hyperframes", "history");
+export const DEFAULT_HISTORY_ROOT = join(homedir(), ".cache", "chalkframes", "history");
 
 export interface ProjectHistoryOptions {
   projectDir: string;

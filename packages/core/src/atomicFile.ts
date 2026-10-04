@@ -54,7 +54,7 @@ export function createFileAtomically(
     try {
       operations.unlinkSync(tempPath);
     } catch (error) {
-      console.warn(`[hyperframes] created ${filePath} but could not remove ${tempPath}: ${error}`);
+      console.warn(`[chalkframes] created ${filePath} but could not remove ${tempPath}: ${error}`);
     }
   });
 }

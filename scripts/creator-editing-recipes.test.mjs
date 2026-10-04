@@ -1,17 +1,17 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { lintHyperframeHtml } from "../packages/lint/src/index.ts";
+import { lintChalkframeHtml } from "../packages/lint/src/index.ts";
 
-const OWNER = "skills/hyperframes-core/references/creator-editing-recipes.md";
-const STUDIO_SKILL = "skills/hyperframes-studio/SKILL.md";
+const OWNER = "skills/chalkframes-core/references/creator-editing-recipes.md";
+const STUDIO_SKILL = "skills/chalkframes-studio/SKILL.md";
 const VOLUME_TWEEN = /\.(?:to|from|fromTo|set)\(\s*["'`]#[\w-]+["'`]\s*,\s*\{[^}]*\bvolume\s*:/;
 const TWEEN_SCANNED = [
-  "skills/hyperframes-core/references/variables-and-media.md",
-  "skills/hyperframes-core/references/data-attributes.md",
-  "skills/hyperframes-animation/adapters/gsap.md",
-  "skills/hyperframes-audio/SKILL.md",
-  "skills/hyperframes-audio/references/attributes.md",
+  "skills/chalkframes-core/references/variables-and-media.md",
+  "skills/chalkframes-core/references/data-attributes.md",
+  "skills/chalkframes-animation/adapters/gsap.md",
+  "skills/chalkframes-audio/SKILL.md",
+  "skills/chalkframes-audio/references/attributes.md",
   "skills/music-to-video/references/montage.md",
   "skills/media-use/references/operations.md",
   "packages/cli/src/docs/data-attributes.md",
@@ -30,7 +30,7 @@ test("every html example in the owner doc lints with no errors and no volume dou
   const blocks = htmlBlocks(await read(OWNER));
   assert.ok(blocks.length >= 10, "expected the owner doc to keep its worked examples");
   for (const [i, block] of blocks.entries()) {
-    const { findings } = await lintHyperframeHtml(wrap(block), { filePath: "index.html" });
+    const { findings } = await lintChalkframeHtml(wrap(block), { filePath: "index.html" });
     const bad = findings.filter(
       (f) => f.severity === "error" || f.code.startsWith("audio_volume_"),
     );
@@ -58,8 +58,8 @@ test("the Studio skill holds conventions only and points at the owner doc for ed
 
 test("the Remotion translation docs do not claim volume ramps are unsupported", async () => {
   for (const path of [
-    "skills/remotion-to-hyperframes/references/limitations.md",
-    "skills/remotion-to-hyperframes/references/media.md",
+    "skills/remotion-to-chalkframes/references/limitations.md",
+    "skills/remotion-to-chalkframes/references/media.md",
   ]) {
     assert.doesNotMatch(await read(path), /static `data-volume` only/, path);
   }

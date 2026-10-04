@@ -2,8 +2,8 @@ export { shouldBlockRender } from "./shouldBlockRender.js";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
-import { rewriteAssetPath } from "@hyperframes/parsers/asset-paths";
-import { checkSubCompositionUsability } from "@hyperframes/parsers/sub-composition-validity";
+import { rewriteAssetPath } from "@chalkframes/parsers/asset-paths";
+import { checkSubCompositionUsability } from "@chalkframes/parsers/sub-composition-validity";
 import { parseHTML } from "linkedom";
 import {
   cleanAssetUrl,
@@ -16,19 +16,19 @@ import {
   resolveExistingLocalAsset,
   resolveLocalAssetCandidates,
   resolveProjectRelativeSrc,
-} from "@hyperframes/parsers/asset-resolution";
+} from "@chalkframes/parsers/asset-resolution";
 import {
   collectLocalVideoCandidates,
   lintHevcPreviewCodec,
   lintVideoMediaStartPastEof,
 } from "./hevcPreviewLint.js";
-import { lintHyperframeHtml } from "./hyperframeLinter.js";
+import { lintChalkframeHtml } from "./chalkframeLinter.js";
 import type {
-  HyperframeLintFinding,
-  HyperframeLintResult,
-  HyperframeLinterOptions,
+  ChalkframeLintFinding,
+  ChalkframeLintResult,
+  ChalkframeLinterOptions,
 } from "./types.js";
-import type { ParsableDocumentLike } from "@hyperframes/parsers/sub-composition-validity";
+import type { ParsableDocumentLike } from "@chalkframes/parsers/sub-composition-validity";
 import { isAudibleVideoTag, mediaSrcTagRe } from "./utils";
 
 /** Adapts linkedom's `parseHTML` to the `checkSubCompositionUsability` contract. */
@@ -64,7 +64,7 @@ function querySelectorAllIncludingTemplates(root: ParentNode, selector: string):
 }
 
 export interface ProjectLintResult {
-  results: Array<{ file: string; result: HyperframeLintResult; contentHash: string }>;
+  results: Array<{ file: string; result: ChalkframeLintResult; contentHash: string }>;
   totalErrors: number;
   totalWarnings: number;
   totalInfos: number;
@@ -176,7 +176,7 @@ function resolveCssAssetCandidates(
 export async function lintProject(
   projectDir: string,
   entryFile?: string,
-  hostOptions: Pick<HyperframeLinterOptions, "host"> = {},
+  hostOptions: Pick<ChalkframeLinterOptions, "host"> = {},
 ): Promise<ProjectLintResult> {
   const indexPath = entryFile ? resolve(entryFile) : resolve(projectDir, "index.html");
   if (entryFile && !isWithinProjectRoot(projectDir, indexPath)) {
@@ -190,7 +190,7 @@ export async function lintProject(
   let totalInfos = 0;
 
   const rootHtml = readFileSync(indexPath, "utf-8");
-  const rootResult = await lintHyperframeHtml(rootHtml, {
+  const rootResult = await lintChalkframeHtml(rootHtml, {
     ...hostOptions,
     filePath: indexPath,
     externalStyles: collectExternalStyles(projectDir, rootHtml, rootCompSrcPath),
@@ -230,7 +230,7 @@ export async function lintProject(
       // Anchored to the file's ROOT element so a real composition that merely
       // inlines snippet markup (or mentions the token in text) is still linted.
       if (isSnippetFragment(html)) continue;
-      const result = await lintHyperframeHtml(html, {
+      const result = await lintChalkframeHtml(html, {
         ...hostOptions,
         filePath,
         isSubComposition: true,
@@ -283,7 +283,7 @@ export async function lintProject(
 function lintBlankRootWithStandaloneComposition(
   rootHtml: string,
   htmlSources: HtmlSource[],
-): HyperframeLintFinding[] {
+): ChalkframeLintFinding[] {
   const { document: rootDocument } = parseHTML(rootHtml);
   const root = rootDocument.querySelector("body [data-composition-id]");
   // A no-media scaffold has no rendered descendants and can silently mask an authored file below.
@@ -324,8 +324,8 @@ function lintBlankRootWithStandaloneComposition(
 function lintProjectAudioFiles(
   projectDir: string,
   htmlSources: HtmlSource[],
-): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
 
   let audioFiles: string[];
   try {
@@ -361,8 +361,8 @@ function lintProjectAudioFiles(
 function lintAudioSrcNotFound(
   projectDir: string,
   htmlSources: HtmlSource[],
-): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
 
   const audioSrcRe = mediaSrcTagRe("audio");
 
@@ -404,8 +404,8 @@ function lintAudioSrcNotFound(
 function lintMissingLocalAsset(
   projectDir: string,
   htmlSources: HtmlSource[],
-): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
 
   const localAssetSrcRe = mediaSrcTagRe("video|img|source");
 
@@ -456,7 +456,7 @@ function lintMissingLocalAsset(
       fixHint:
         unique.length === 1
           ? `Add "${unique[0]}" to the project directory, or update the src attribute to point to an existing file. ` +
-            "Common cause: captured asset filenames are unreliable (heygen-logo.svg often contains Google, nvidia-logo.svg may contain Autodesk, etc.). " +
+            "Common cause: captured asset filenames are unreliable (chalkframes-logo.svg often contains Google, nvidia-logo.svg may contain Autodesk, etc.). " +
             "Open the contact sheets and verify the file actually exists at this path before referencing it."
           : "Add the missing files to the project directory, or update the src attributes to point to existing files. " +
             "Captured asset filenames are unreliable — verify against capture/contact-sheets/ and capture/extracted/asset-descriptions.md.",
@@ -469,7 +469,7 @@ function lintMissingLocalAsset(
 function lintTextureMaskAssetNotFound(
   projectDir: string,
   htmlSources: HtmlSource[],
-): HyperframeLintFinding[] {
+): ChalkframeLintFinding[] {
   const missingByFile = new Map<string, Set<string>>();
 
   for (const { html, compSrcPath } of htmlSources) {
@@ -496,7 +496,7 @@ function lintTextureMaskAssetNotFound(
     }
   }
 
-  return [...missingByFile].map(([file, found]): HyperframeLintFinding => {
+  return [...missingByFile].map(([file, found]): ChalkframeLintFinding => {
     const urls = [...found];
     return {
       code: "texture_mask_asset_not_found",
@@ -511,8 +511,8 @@ function lintTextureMaskAssetNotFound(
   });
 }
 
-function lintMultipleRootCompositions(projectDir: string): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function lintMultipleRootCompositions(projectDir: string): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   try {
     const rootHtmlFiles = readdirSync(projectDir).filter(
       (file) => file.endsWith(".html") && !file.startsWith("._"),
@@ -540,8 +540,8 @@ function lintMultipleRootCompositions(projectDir: string): HyperframeLintFinding
   return findings;
 }
 
-function lintDuplicateAudioTracks(htmlSources: HtmlSource[]): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function lintDuplicateAudioTracks(htmlSources: HtmlSource[]): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   function extractAttr(tag: string, name: string): string | null {
     const re = new RegExp(`\\b${name}\\s*=\\s*["']([^"']+)["']`, "i");
     const m = tag.match(re);
@@ -618,7 +618,7 @@ function lintDuplicateAudioTracks(htmlSources: HtmlSource[]): HyperframeLintFind
 function lintMissingOrEmptySubComposition(
   projectDir: string,
   rootHtml: string,
-): HyperframeLintFinding[] {
+): ChalkframeLintFinding[] {
   // Dedup by src path — the same reference can appear from nested sub-comps.
   const checked = new Map<string, { srcPath: string; problem: string; folder?: true }>();
   const visited = new Set<string>();
@@ -679,7 +679,7 @@ function lintMissingOrEmptySubComposition(
 
   walk(rootHtml);
 
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const { srcPath, problem, folder } of checked.values()) {
     findings.push({
       code: "missing_or_empty_sub_composition",

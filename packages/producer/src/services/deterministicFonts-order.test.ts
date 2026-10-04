@@ -8,14 +8,14 @@ let previousCacheDir: string | undefined;
 let testCacheDir: string;
 
 beforeAll(() => {
-  previousCacheDir = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  previousCacheDir = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   testCacheDir = mkdtempSync(join(tmpdir(), "hf-font-order-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = testCacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = testCacheDir;
 });
 
 afterAll(() => {
-  if (previousCacheDir === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = previousCacheDir;
+  if (previousCacheDir === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = previousCacheDir;
   rmSync(testCacheDir, { recursive: true, force: true });
 });
 
@@ -59,7 +59,7 @@ describe("deterministic font faces come after every stylesheet", () => {
   ])("follows %s", async (_case, page) => {
     const result = await inject(`<!doctype html><html>${page(family())}</html>`);
 
-    const injected = result.indexOf("data-hyperframes-deterministic-fonts");
+    const injected = result.indexOf("data-chalkframes-deterministic-fonts");
     expect(injected).toBeGreaterThan(-1);
     expect(injected).toBeGreaterThan(result.indexOf("fonts.googleapis.com/css2"));
     expect(injected).toBeGreaterThan(result.indexOf("<style>body"));

@@ -1,5 +1,5 @@
-import { applyFileMutations, fileContentVersion } from "@hyperframes/studio-server";
-import type { AppliedFileMutation } from "@hyperframes/studio-server";
+import { applyFileMutations, fileContentVersion } from "@chalkframes/studio-server";
+import type { AppliedFileMutation } from "@chalkframes/studio-server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describeProject, type ProjectTimeline, type TimelineRow } from "./describeProject.js";
@@ -187,9 +187,9 @@ async function applyAndPrint(args: {
 }): Promise<void> {
   const receipt = applyMutation(args.setup, args.after);
   if (receipt && "error" in receipt)
-    return refusal(receipt.error, "re-run hyperframes timeline", args.json);
+    return refusal(receipt.error, "re-run chalkframes timeline", args.json);
   if (!receipt && args.after !== args.before) {
-    return refusal("mutation produced no receipt", "re-run hyperframes timeline", args.json);
+    return refusal("mutation produced no receipt", "re-run chalkframes timeline", args.json);
   }
   args.result.after = rowsForFile(await args.describeSource(args.after), args.row.file);
   args.result.receipt = receipt ? publicReceipt(receipt) : null;

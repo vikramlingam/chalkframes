@@ -17,7 +17,7 @@ import {
   type RunFfmpegResult,
   type VideoElement,
   type VideoMetadata,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { createRenderJob } from "../../renderOrchestrator.js";
 import { resolveHdrVideoFrameIndex } from "../../hdrCompositor.js";

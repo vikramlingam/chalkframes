@@ -1,5 +1,5 @@
 {
-  "package": "@hyperframes/producer",
+  "package": "@chalkframes/producer",
   "subpaths": {
     ".": {
       "source": "./src/index.ts",

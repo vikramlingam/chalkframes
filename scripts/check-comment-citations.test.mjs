@@ -205,14 +205,14 @@ test("the same names without the negation still fail", (t) => {
 
 test("a sentence that names another repo is not this repo's to resolve", (t) => {
   const { failures } = checkSubject(t, {
-    "src/subject.ts": oneLiner("// Mirrors `publish.yml` in heygen-com/other-repo."),
+    "src/subject.ts": oneLiner("// Mirrors `publish.yml` in chalkframes/other-repo."),
   });
   assert.deepEqual(failures, []);
 });
 
 test("a sentence that names this repo is still resolved", (t) => {
   const { failures } = checkSubject(t, {
-    "src/subject.ts": oneLiner("// Mirrors `publish.yml` in heygen-com/hyperframes."),
+    "src/subject.ts": oneLiner("// Mirrors `publish.yml` in vikramlingam/chalkframes."),
   });
   assert.equal(failures.length, 1);
   assert.match(failures[0].why, /no such file/);
@@ -228,7 +228,7 @@ test("a sentence that names an installed dependency is not this repo's to resolv
 test("the repo a paragraph names covers a citation two lines later", (t) => {
   const { failures } = checkSubject(t, {
     "src/subject.ts": [
-      "// heygen-com/other-repo splits it the same way:",
+      "// chalkframes/other-repo splits it the same way:",
       "// its roster hooks pass a limit, and it fetches the pack separately",
       "// through `getAvatarGroupLookList`.",
       "export const subject = 1;",
@@ -241,7 +241,7 @@ test("the repo a paragraph names covers a citation two lines later", (t) => {
 test("a paragraph break ends that cover", (t) => {
   const { failures } = checkSubject(t, {
     "src/subject.ts": [
-      "// heygen-com/other-repo splits it the same way.",
+      "// chalkframes/other-repo splits it the same way.",
       "export const between = 1;",
       "// It fetches the pack through `getAvatarGroupLookList`.",
       "export const subject = 1;",
@@ -835,14 +835,14 @@ test("a TODO whose parentheses name nobody fails", (t) => {
     failsWith(t, `// ${marker}: cache this`, /TODO/);
 });
 test("a TODO linking its issue passes", (t) =>
-  passes(t, "// TODO: cache this, https://github.com/heygen-com/hyperframes/issues/4012"));
+  passes(t, "// TODO: cache this, https://github.com/vikramlingam/chalkframes/issues/4012"));
 test("a TODO's issue link ending a sentence passes", (t) =>
-  passes(t, "// TODO: cache this, see https://github.com/heygen-com/hyperframes/issues/4012."));
+  passes(t, "// TODO: cache this, see https://github.com/vikramlingam/chalkframes/issues/4012."));
 test("an issue path on another host does not stand in for the issue", (t) => {
   for (const url of [
-    "https://evil.example/github.com/heygen-com/hyperframes/issues/4012",
-    "https://evil.example/?next=github.com/heygen-com/hyperframes/issues/4012",
-    "https://github.com.evil.example/heygen-com/hyperframes/issues/4012",
+    "https://evil.example/github.com/vikramlingam/chalkframes/issues/4012",
+    "https://evil.example/?next=github.com/vikramlingam/chalkframes/issues/4012",
+    "https://github.com.evil.example/vikramlingam/chalkframes/issues/4012",
   ])
     failsWith(t, `// TODO: cache this, ${url}`, /TODO/);
 });

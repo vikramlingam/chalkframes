@@ -65,7 +65,7 @@ vi.mock("../utils/ffprobe.js", async (importOriginal) => {
   return { ...actual, extractAudioMetadata: extractAudioMetadataMock };
 });
 
-import { RATE_RANGE } from "@hyperframes/core/audio-automation";
+import { RATE_RANGE } from "@chalkframes/core/audio-automation";
 import { parseAudioElements, processCompositionAudio } from "./audioMixer.js";
 
 describe("parseAudioElements strict literal timing", () => {

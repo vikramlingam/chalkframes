@@ -1,4 +1,4 @@
-// Skills freshness: give the HyperFrames skill bundle a content fingerprint so
+// Skills freshness: give the ChalkFrames skill bundle a content fingerprint so
 // we can answer "are the installed skills the latest version?" across every
 // agent platform (Claude Code, Codex, …) — independent of how they were
 // installed.
@@ -59,7 +59,7 @@ export interface SkillEntry {
 }
 
 export interface SkillsManifest {
-  /** Source repo, e.g. "heygen-com/hyperframes". */
+  /** Source repo, e.g. "vikramlingam/chalkframes". */
   source: string;
   /** Per-skill fingerprint, keyed by skill name. */
   skills: Record<string, SkillEntry>;
@@ -109,7 +109,7 @@ export interface SkillsCheckResult {
   lockMissing: boolean;
 }
 
-const DEFAULT_REPO_SLUG = "heygen-com/hyperframes";
+const DEFAULT_REPO_SLUG = "vikramlingam/chalkframes";
 /** Manifest filename, published at the repo root. */
 export const MANIFEST_FILE = "skills-manifest.json";
 const FETCH_TIMEOUT_MS = 4000;
@@ -118,24 +118,24 @@ const FETCH_TIMEOUT_MS = 4000;
 //
 // Two tiers decide what installs eagerly vs on demand:
 //
-//   core     — the `/hyperframes` entry router plus the shared domain skills
-//              (`hyperframes-*`, `media-use`) that every creation workflow
-//              references structurally (sibling `../hyperframes-animation/…`
+//   core     — the `/chalkframes` entry router plus the shared domain skills
+//              (`chalkframes-*`, `media-use`) that every creation workflow
+//              references structurally (sibling `../chalkframes-animation/…`
 //              paths, "call /media-use" preambles). These must be present and
 //              current for ANY workflow to run, so `init` / `skills update`
 //              keep them fresh.
 //   on-demand — everything else: the end-user workflow skills (pr-to-video,
 //              embedded-captions, …) and optional integrations (figma). They
 //              install lazily, when their workflow is actually triggered
-//              (`hyperframes skills update <name>`), instead of being sprayed
+//              (`chalkframes skills update <name>`), instead of being sprayed
 //              onto every machine that runs `init`.
 
 /** The entry/router skill — the capability map that routes every request. */
-const ENTRY_SKILL = "hyperframes";
+const ENTRY_SKILL = "chalkframes";
 
 /** True for skills every workflow depends on (see "Skill tiers" above). */
 export function isCoreSkill(name: string): boolean {
-  return name === ENTRY_SKILL || name.startsWith("hyperframes-") || name === "media-use";
+  return name === ENTRY_SKILL || name.startsWith("chalkframes-") || name === "media-use";
 }
 
 /**
@@ -148,15 +148,15 @@ export function isCoreSkill(name: string): boolean {
  * can't drift silently; update it when core membership changes.
  */
 export const FALLBACK_CORE_SKILLS: readonly string[] = [
-  "hyperframes",
-  "hyperframes-animation",
-  "hyperframes-audio",
-  "hyperframes-cli",
-  "hyperframes-core",
-  "hyperframes-creative",
-  "hyperframes-keyframes",
-  "hyperframes-registry",
-  "hyperframes-studio",
+  "chalkframes",
+  "chalkframes-animation",
+  "chalkframes-audio",
+  "chalkframes-cli",
+  "chalkframes-core",
+  "chalkframes-creative",
+  "chalkframes-keyframes",
+  "chalkframes-registry",
+  "chalkframes-studio",
   "media-use",
 ];
 
@@ -309,14 +309,14 @@ function scopeForDir(dir: string, home: string, cwd: string): "project" | "globa
 }
 
 /**
- * Find the first skill root that actually contains HyperFrames skills. A
+ * Find the first skill root that actually contains ChalkFrames skills. A
  * `--dir` override (if given) is treated as a `.../skills` directory directly;
  * its scope is inferred (see scopeForDir) so removed-detection reads the right
  * lock. Otherwise scan global ($HOME) then project (cwd), auto-discovering hosts.
  *
  * Global is checked FIRST to match how agents actually load skills: Claude Code
  * (and most others) give the personal/global scope priority over the project
- * scope, and HyperFrames now installs globally. Checking global-first means
+ * scope, and ChalkFrames now installs globally. Checking global-first means
  * `check` reports on the copy the agent will really use — not a stale project
  * copy that a newer global install silently overrides.
  */
@@ -408,7 +408,7 @@ export function diffSkills(
     // anything installed-but-outdated, or a missing CORE skill (the entry
     // router + shared domain skills every workflow needs). A missing
     // on-demand skill is NOT an update — it installs when its workflow is
-    // triggered (`hyperframes skills update <name>`). Counting it here is what
+    // triggered (`chalkframes skills update <name>`). Counting it here is what
     // used to make `init` re-pull the full skill set onto machines that
     // deliberately installed a subset.
     updateAvailable: summary.outdated > 0 || summary.coreMissing > 0,
@@ -419,7 +419,7 @@ export function diffSkills(
 
 // ── Removed-upstream (orphaned) skills ────────────────────────────────────────
 //
-// `skills add` / `init` / `hyperframes skills update` only ever add or refresh —
+// `skills add` / `init` / `chalkframes skills update` only ever add or refresh —
 // none of them delete a skill that was renamed or dropped upstream (e.g.
 // graphic-overlays → talking-head-recut), so a stale bundle lingers forever and
 // the manifest-only diff above can't see it. We surface these by cross-checking
@@ -496,13 +496,13 @@ function readSkillLock(path: string): SkillLock | null {
 }
 
 /**
- * The skill names the upstream lock attributes to HyperFrames, for a scope.
+ * The skill names the upstream lock attributes to ChalkFrames, for a scope.
  * The mirror MUST scope by this — never by listing `~/.claude/skills`, which is
  * shared across sources, so a directory listing would fan a user's gstack /
  * personal / company skills out to every agent. Same source-attribution the
  * prune uses. Empty when the lock is absent (we can't attribute → mirror none).
  */
-export function hyperframesSkillNames(opts: {
+export function chalkframesSkillNames(opts: {
   scope: "project" | "global";
   cwd?: string;
   home?: string;

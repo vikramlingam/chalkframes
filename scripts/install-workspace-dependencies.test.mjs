@@ -8,7 +8,7 @@ import test from "node:test";
 const installScript = new URL("./ci/install-workspace-dependencies.sh", import.meta.url);
 
 function runInstall({ succeedOnAttempt }) {
-  const root = mkdtempSync(join(tmpdir(), "hyperframes-bun-install-test-"));
+  const root = mkdtempSync(join(tmpdir(), "chalkframes-bun-install-test-"));
   const binDir = join(root, "bin");
   const countFile = join(root, "attempts");
   const argsFile = join(root, "args");

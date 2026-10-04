@@ -301,7 +301,7 @@ describe("registerThumbnailRoutes", () => {
 
     const indexPath = join(project.dir, "index.html");
     writeFileSync(indexPath, `<div data-composition-id="main" data-width="640" data-height="360">`);
-    const manualEditsDir = join(project.dir, ".hyperframes");
+    const manualEditsDir = join(project.dir, ".chalkframes");
     mkdirSync(manualEditsDir, { recursive: true });
     const manualEditsPath = join(manualEditsDir, "studio-manual-edits.json");
     writeFileSync(manualEditsPath, `{"version":1,"edits":[]}`);
@@ -544,7 +544,7 @@ describe("registerThumbnailRoutes", () => {
 
     const indexPath = join(project.dir, "index.html");
     writeFileSync(indexPath, `<div data-composition-id="main" data-width="640" data-height="360">`);
-    const motionDir = join(project.dir, ".hyperframes");
+    const motionDir = join(project.dir, ".chalkframes");
     mkdirSync(motionDir, { recursive: true });
     const motionPath = join(motionDir, "studio-motion.json");
     writeFileSync(motionPath, `{"version":1,"motions":[]}`);

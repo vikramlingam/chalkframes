@@ -292,7 +292,7 @@ describe("history routes", () => {
     const { projectDir, call } = await demoProject();
     writeFileSync(join(projectDir, "index.html"), "B");
     await call("/claim", { label: "Moved Title", paths: ["index.html"] });
-    await call("/step", { direction: "back" }, { "X-Hyperframes-Write-Token": "studio-1" });
+    await call("/step", { direction: "back" }, { "X-Chalkframes-Write-Token": "studio-1" });
     expect(readFileSync(join(projectDir, "index.html"), "utf8")).toBe("A");
     expect(
       identifyFileWrite(join(projectDir, "index.html"), fileContentVersion("A")),
@@ -306,7 +306,7 @@ describe("history routes", () => {
     const { projectDir, call } = await demoProject();
     writeFileSync(join(projectDir, "extra.html"), "added");
     await call("/claim", { label: "Added a section", paths: ["extra.html"] });
-    await call("/step", { direction: "back" }, { "X-Hyperframes-Write-Token": "studio-2" });
+    await call("/step", { direction: "back" }, { "X-Chalkframes-Write-Token": "studio-2" });
     expect(existsSync(join(projectDir, "extra.html"))).toBe(false);
     expect(identifyFileWrite(join(projectDir, "extra.html"), DELETED_VERSION)).toMatchObject({
       writeToken: "studio-2",

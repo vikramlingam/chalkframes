@@ -1,5 +1,5 @@
 // ── Composition data types ───────────────────────────────────────────────────
-// Moved from @hyperframes/core/core.types in the parsers extraction refactor.
+// Moved from @chalkframes/core/core.types in the parsers extraction refactor.
 // These are the types produced and consumed by the parser pipeline.
 
 export interface Asset {
@@ -59,7 +59,7 @@ const RESOLUTION_ALIASES: Record<string, CanvasResolution> = {
  * error deep inside the render pipeline. Consumers that know the composition's
  * dimensions can consult this set to decide whether to auto-adapt the preset's
  * orientation instead — see `adaptAspectAgnosticResolution` in the compile
- * stage (`@hyperframes/producer`) and `suggestMatchingPreset` here.
+ * stage (`@chalkframes/producer`) and `suggestMatchingPreset` here.
  *
  * Orientation-suffixed aliases (`1080p-portrait`, `4k-square`, …) are absent
  * on purpose: the user *did* pick an orientation, and honoring it is important
@@ -99,7 +99,7 @@ export function normalizeResolutionFlag(input: string | undefined): CanvasResolu
  * Consumers pair this signal with the composition's dimensions (in a
  * follow-up pass after HTML parse) to pick the right preset via
  * `suggestMatchingPreset` — see `adaptAspectAgnosticResolution` in the
- * compile stage (`@hyperframes/producer`) for the canonical remap.
+ * compile stage (`@chalkframes/producer`) for the canonical remap.
  */
 export function isAspectAgnosticResolutionAlias(input: string | undefined): boolean {
   if (!input) return false;
@@ -122,8 +122,8 @@ export function isAspectAgnosticResolutionAlias(input: string | undefined): bool
  *
  * Exported to centralize the two-step pattern (`normalizeResolutionFlag` +
  * `isAspectAgnosticResolutionAlias`) that would otherwise be duplicated at
- * every entrypoint that emits a `DistributedRenderConfig` (`hyperframes
- * cloudrun render`, `hyperframes lambda render` / `render-batch`, the local
+ * every entrypoint that emits a `DistributedRenderConfig` (`chalkframes
+ * cloudrun render`, `chalkframes lambda render` / `render-batch`, the local
  * CLI). Divergence between those callers is what shipped the portrait-1080p
  * regression this helper prevents from recurring.
  */

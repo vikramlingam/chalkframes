@@ -9,11 +9,11 @@
  * of it lands in scrollback or CI logs.
  */
 
-// Both HeyGen key prefixes: legacy `hg_…` and current `sk_V2_…` (plus
+// Both Chalkframes key prefixes: legacy `hg_…` and current `sk_V2_…` (plus
 // any `sk_<segment>_…` partner format). A bare key echoed inline in an
 // error body — without an Authorization:/x-api-key: header anchor —
 // must still be redacted, so we match the prefix directly.
-const HEYGEN_KEY = /\b(hg|sk)_[A-Za-z0-9_-]{4,}/g;
+const CHALKFRAMES_KEY = /\b(hg|sk)_[A-Za-z0-9_-]{4,}/g;
 // Redact the ENTIRE header value to end-of-line. `Authorization: Bearer
 // <token>` is two whitespace-separated words, so a `\S+` would stop after
 // the scheme and leave the opaque token exposed.
@@ -37,7 +37,7 @@ const JSON_FIELD = new RegExp(`("(?:${SECRET_FIELDS.join("|")})"\\s*:\\s*)"[^"]*
 
 export function scrubCredentials(s: string): string {
   return s
-    .replace(HEYGEN_KEY, "$1_<redacted>")
+    .replace(CHALKFRAMES_KEY, "$1_<redacted>")
     .replace(HEADER_LINE, "$1: <redacted>")
     .replace(JWT, "<jwt-redacted>")
     .replace(FORM_FIELD, "$1=<redacted>")

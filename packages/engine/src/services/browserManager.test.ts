@@ -341,7 +341,7 @@ describe("resolveBrowserGpuMode", () => {
   });
 
   it("warns when explicit 'hardware' probes to software, but still honours it", async () => {
-    // heygen-com/hyperframes#2967: `--browser-gpu` inside a container with no
+    // vikramlingam/chalkframes#2967: `--browser-gpu` inside a container with no
     // GPU passthrough rendered 19186 frames on CPU with no diagnostic.
     setMockWebGlProbe({
       hasWebGL: true,
@@ -392,7 +392,7 @@ describe("resolveBrowserGpuMode", () => {
     expect(await resolveBrowserGpuMode("hardware", { platform: "linux" })).toBe("hardware");
     const warning = String(warn.mock.calls[0]?.[0]);
     expect(warning).toContain("GPU probe could not run");
-    expect(warning).toContain("hyperframes doctor");
+    expect(warning).toContain("chalkframes doctor");
     expect(warning).not.toContain("--gpus all");
   });
 
@@ -572,13 +572,13 @@ function resolveHeadlessShellInSubprocess(
 
 describe("resolveHeadlessShellPath", () => {
   const originalHeadlessShellPath = process.env.PRODUCER_HEADLESS_SHELL_PATH;
-  const originalHyperframesBrowserPath = process.env.HYPERFRAMES_BROWSER_PATH;
+  const originalChalkframesBrowserPath = process.env.CHALKFRAMES_BROWSER_PATH;
 
   afterEach(() => {
     if (originalHeadlessShellPath === undefined) delete process.env.PRODUCER_HEADLESS_SHELL_PATH;
     else process.env.PRODUCER_HEADLESS_SHELL_PATH = originalHeadlessShellPath;
-    if (originalHyperframesBrowserPath === undefined) delete process.env.HYPERFRAMES_BROWSER_PATH;
-    else process.env.HYPERFRAMES_BROWSER_PATH = originalHyperframesBrowserPath;
+    if (originalChalkframesBrowserPath === undefined) delete process.env.CHALKFRAMES_BROWSER_PATH;
+    else process.env.CHALKFRAMES_BROWSER_PATH = originalChalkframesBrowserPath;
   });
 
   it("throws a clear error when PRODUCER_HEADLESS_SHELL_PATH points at a missing binary", () => {
@@ -589,13 +589,13 @@ describe("resolveHeadlessShellPath", () => {
     );
   });
 
-  it("uses HYPERFRAMES_BROWSER_PATH when the CLI resolved a browser explicitly", () => {
-    const dir = mkdtempSync(join(tmpdir(), "hyperframes-engine-browser-env-"));
+  it("uses CHALKFRAMES_BROWSER_PATH when the CLI resolved a browser explicitly", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chalkframes-engine-browser-env-"));
     try {
       const binary = join(dir, "chrome-headless-shell");
       writeFileSync(binary, "");
       delete process.env.PRODUCER_HEADLESS_SHELL_PATH;
-      process.env.HYPERFRAMES_BROWSER_PATH = binary;
+      process.env.CHALKFRAMES_BROWSER_PATH = binary;
 
       expect(resolveHeadlessShellPath({})).toBe(binary);
     } finally {
@@ -637,7 +637,7 @@ describe("resolveHeadlessShellPath", () => {
   ])(
     "selects only the host-compatible cached shell on $hostPlatform/$hostArch when every platform is present",
     ({ hostPlatform, hostArch, expectedDirectory, expectedExecutable }) => {
-      const home = mkdtempSync(join(tmpdir(), "hyperframes-engine-browser-platform-"));
+      const home = mkdtempSync(join(tmpdir(), "chalkframes-engine-browser-platform-"));
       try {
         const cacheVersion = join(
           home,
@@ -662,7 +662,7 @@ describe("resolveHeadlessShellPath", () => {
 
         const env = { ...process.env, HOME: home, USERPROFILE: home };
         delete env.PRODUCER_HEADLESS_SHELL_PATH;
-        delete env.HYPERFRAMES_BROWSER_PATH;
+        delete env.CHALKFRAMES_BROWSER_PATH;
         const stdout = resolveHeadlessShellInSubprocess(env, {
           platform: hostPlatform,
           arch: hostArch,
@@ -682,7 +682,7 @@ describe("resolveHeadlessShellPath", () => {
   ])(
     "does not select a foreign cached shell on unsupported $hostPlatform/$hostArch",
     ({ hostPlatform, hostArch }) => {
-      const home = mkdtempSync(join(tmpdir(), "hyperframes-engine-browser-unsupported-"));
+      const home = mkdtempSync(join(tmpdir(), "chalkframes-engine-browser-unsupported-"));
       try {
         const cacheVersion = join(
           home,
@@ -702,7 +702,7 @@ describe("resolveHeadlessShellPath", () => {
 
         const env = { ...process.env, HOME: home, USERPROFILE: home };
         delete env.PRODUCER_HEADLESS_SHELL_PATH;
-        delete env.HYPERFRAMES_BROWSER_PATH;
+        delete env.CHALKFRAMES_BROWSER_PATH;
         const stdout = resolveHeadlessShellInSubprocess(env, {
           platform: hostPlatform,
           arch: hostArch,
@@ -716,13 +716,13 @@ describe("resolveHeadlessShellPath", () => {
     },
   );
 
-  it("reuses chrome-headless-shell from the HyperFrames-managed cache", () => {
-    const home = mkdtempSync(join(tmpdir(), "hyperframes-engine-browser-cache-"));
+  it("reuses chrome-headless-shell from the ChalkFrames-managed cache", () => {
+    const home = mkdtempSync(join(tmpdir(), "chalkframes-engine-browser-cache-"));
     try {
       const binary = join(
         home,
         ".cache",
-        "hyperframes",
+        "chalkframes",
         "chrome",
         "chrome-headless-shell",
         "linux-152.0.7928.2",
@@ -738,7 +738,7 @@ describe("resolveHeadlessShellPath", () => {
       // os.homedir() reads HOME on POSIX and USERPROFILE on Windows.
       const env = { ...process.env, HOME: home, USERPROFILE: home };
       delete env.PRODUCER_HEADLESS_SHELL_PATH;
-      delete env.HYPERFRAMES_BROWSER_PATH;
+      delete env.CHALKFRAMES_BROWSER_PATH;
       const stdout = resolveHeadlessShellInSubprocess(env, { platform: "linux", arch: "x64" });
 
       expect(stdout).toBe(binary);
@@ -748,13 +748,13 @@ describe("resolveHeadlessShellPath", () => {
   });
 
   it("skips managed-cache builds newer than Chrome 150 on macOS 12", () => {
-    const home = mkdtempSync(join(tmpdir(), "hyperframes-engine-browser-macos12-"));
+    const home = mkdtempSync(join(tmpdir(), "chalkframes-engine-browser-macos12-"));
     try {
       const shell = (version: string) =>
         join(
           home,
           ".cache",
-          "hyperframes",
+          "chalkframes",
           "chrome",
           "chrome-headless-shell",
           `mac-${version}`,
@@ -767,7 +767,7 @@ describe("resolveHeadlessShellPath", () => {
       }
       const env = { ...process.env, HOME: home, USERPROFILE: home };
       delete env.PRODUCER_HEADLESS_SHELL_PATH;
-      delete env.HYPERFRAMES_BROWSER_PATH;
+      delete env.CHALKFRAMES_BROWSER_PATH;
       const stdout = resolveHeadlessShellInSubprocess(env, {
         platform: "darwin",
         arch: "x64",

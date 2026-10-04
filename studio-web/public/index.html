@@ -20,7 +20,70 @@
       <!-- Minimalist Luxury Header -->
       <header class="studio-header">
         <div class="brand">
-          <span class="brand-monogram">CF</span>
+          <div class="brand-monogram" title="Chalk Frames">
+            <svg
+              class="chalk-icon"
+              viewBox="0 0 32 32"
+              width="28"
+              height="28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="hdrChalkBody"
+                  x1="12"
+                  y1="5"
+                  x2="22"
+                  y2="19"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="60%" stop-color="#f1f5f9" />
+                  <stop offset="100%" stop-color="#cbd5e1" />
+                </linearGradient>
+                <linearGradient
+                  id="hdrChalkShade"
+                  x1="15"
+                  y1="7"
+                  x2="21"
+                  y2="19"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#64748b" stop-opacity="0.45" />
+                </linearGradient>
+                <linearGradient
+                  id="hdrChalkStroke"
+                  x1="4"
+                  y1="26"
+                  x2="28"
+                  y2="26"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                  <stop offset="50%" stop-color="#e2e8f0" stop-opacity="0.75" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M5 26.5C10.5 25.8 17 26.8 27.5 26"
+                stroke="url(#hdrChalkStroke)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-dasharray="0.3 2.2 8 1.4 5"
+              />
+              <circle cx="27" cy="22" r="0.9" fill="#ffffff" opacity="0.8" />
+              <circle cx="29.5" cy="25" r="0.6" fill="#ffffff" opacity="0.55" />
+              <circle cx="24.5" cy="18" r="0.7" fill="#ffffff" opacity="0.65" />
+              <g transform="translate(4, -1) rotate(42 16 16)">
+                <rect x="13.5" y="6" width="5.5" height="15" rx="1.8" fill="url(#hdrChalkBody)" />
+                <rect x="16.5" y="6" width="2.5" height="15" rx="1.2" fill="url(#hdrChalkShade)" />
+                <ellipse cx="16.25" cy="6" rx="2.75" ry="1.2" fill="#ffffff" />
+                <path d="M13.5 21L15.5 24.5L19 21Z" fill="#e2e8f0" />
+              </g>
+            </svg>
+          </div>
           <div class="brand-text">
             <h1 class="brand-title">CHALK FRAMES</h1>
             <p class="brand-subtitle">Autonomous video production suite</p>
@@ -162,6 +225,26 @@
                     <option value="am_adam">Adam (American Male, steady)</option>
                     <option value="bf_emma">Emma (British Female, thoughtful)</option>
                     <option value="am_michael">Michael (American Male, conversational)</option>
+                    <option value="af_bella">Bella (American Female)</option>
+                    <option value="af_sarah">Sarah (American Female)</option>
+                    <option value="af_sky">Sky (American Female)</option>
+                    <option value="af_nicole">Nicole (American Female)</option>
+                    <option value="af_alloy">Alloy (American Female)</option>
+                    <option value="af_aoede">Aoede (American Female)</option>
+                    <option value="af_jessica">Jessica (American Female)</option>
+                    <option value="af_kore">Kore (American Female)</option>
+                    <option value="af_river">River (American Female)</option>
+                    <option value="am_echo">Echo (American Male)</option>
+                    <option value="am_eric">Eric (American Male)</option>
+                    <option value="am_fenrir">Fenrir (American Male)</option>
+                    <option value="am_liam">Liam (American Male)</option>
+                    <option value="am_onyx">Onyx (American Male)</option>
+                    <option value="am_puck">Puck (American Male)</option>
+                    <option value="bf_alice">Alice (British Female)</option>
+                    <option value="bf_lily">Lily (British Female)</option>
+                    <option value="bm_daniel">Daniel (British Male)</option>
+                    <option value="bm_fable">Fable (British Male)</option>
+                    <option value="bm_lewis">Lewis (British Male)</option>
                   </select>
                 </div>
                 <button
@@ -260,7 +343,7 @@
                 <textarea
                   id="sourceTopicInput"
                   rows="3"
-                  placeholder="Enter any topic in the world (e.g. Human Anatomy: The Cardiovascular System, Quantum Computing, How React Fiber Works, The Roman Empire, Photosynthesis...)"
+                  placeholder="Enter any topic in the world"
                   spellcheck="false"
                 ></textarea>
 
@@ -268,49 +351,21 @@
                   <div class="topic-style-select-wrap">
                     <label for="topicStyleSelect" class="topic-style-label">Style:</label>
                     <select id="topicStyleSelect" class="topic-style-select">
-                      <option value="explainer" selected>Visual Explainer (Engaging, intuitive, balanced)</option>
-                      <option value="deep-dive">Deep Technical / Scientific (Code, anatomy, architectures)</option>
-                      <option value="educational">Foundational Educational (Step-by-step concepts, clear analogies)</option>
-                      <option value="documentary">Cinematic Documentary (Story-driven, milestones, quotes)</option>
+                      <option value="explainer" selected>
+                        Visual Explainer (Engaging, intuitive, balanced)
+                      </option>
+                      <option value="deep-dive">
+                        Deep Technical / Scientific (Code, anatomy, architectures)
+                      </option>
+                      <option value="educational">
+                        Foundational Educational (Step-by-step concepts, clear analogies)
+                      </option>
+                      <option value="documentary">
+                        Cinematic Documentary (Story-driven, milestones, quotes)
+                      </option>
                     </select>
                   </div>
-                  <button type="button" id="prepareScriptBtn" class="btn-secondary-action">
-                    <span class="btn-draft-icon">⚡</span>
-                    <span class="btn-draft-text">Draft Script First</span>
-                  </button>
                 </div>
-
-                <div class="topic-suggestions">
-                  <span class="suggestion-label">Quick topics:</span>
-                  <div class="topic-chips-scroll">
-                    <button type="button" class="topic-chip" data-topic="Human Anatomy: The Cardiovascular System & Heart Mechanics">Anatomy: Heart Mechanics</button>
-                    <button type="button" class="topic-chip" data-topic="Quantum Computing: Superposition, Entanglement & Qubits">Quantum Computing</button>
-                    <button type="button" class="topic-chip" data-topic="How Modern CPU Architecture Works: Pipelining & Branch Prediction">CPU Architecture</button>
-                    <button type="button" class="topic-chip" data-topic="Photosynthesis & Cellular Energy Production in Plants">Biology: Photosynthesis</button>
-                    <button type="button" class="topic-chip" data-topic="The Physics of Black Holes & Event Horizons">Physics: Black Holes</button>
-                    <button type="button" class="topic-chip" data-topic="Distributed Systems: Raft Consensus Algorithm Explained">Distributed Raft Consensus</button>
-                    <button type="button" class="topic-chip" data-topic="The Fall of the Western Roman Empire: Key Turning Points">History: Fall of Rome</button>
-                  </div>
-                </div>
-
-                <!-- Live Generated Script Drawer (appears when user clicks Draft Script First) -->
-                <div class="topic-script-preview hidden" id="topicScriptPreview">
-                  <div class="preview-header">
-                    <div class="preview-title-badge">
-                      <span class="badge-dot"></span>
-                      <span id="previewTitle">Generated Script Preview</span>
-                    </div>
-                    <div class="preview-actions">
-                      <button type="button" id="useInCustomScriptBtn" class="btn-pill-subtle">Edit in Custom Script Tab →</button>
-                      <button type="button" id="closePreviewBtn" class="btn-close-subtle" title="Hide Preview">✕</button>
-                    </div>
-                  </div>
-                  <pre class="preview-body" id="previewBody"></pre>
-                </div>
-
-                <span class="field-hint"
-                  >Enter literally any subject — programming, human anatomy, physics, history, or philosophy. AI will research, craft the script, and generate the full video.</span
-                >
               </div>
             </div>
 

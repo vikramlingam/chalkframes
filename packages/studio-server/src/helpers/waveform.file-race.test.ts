@@ -34,7 +34,7 @@ vi.mock("node:child_process", async () => {
     }),
   };
 });
-vi.mock("@hyperframes/parsers/ff-binaries", () => ({ findFfBinary: () => "ffmpeg" }));
+vi.mock("@chalkframes/parsers/ff-binaries", () => ({ findFfBinary: () => "ffmpeg" }));
 vi.mock("node:fs", async (importOriginal) => {
   const fs = await importOriginal<typeof import("node:fs")>();
   return {

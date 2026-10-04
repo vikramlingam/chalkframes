@@ -9,7 +9,8 @@ import { dirname, join } from "node:path";
 import { withFileLock } from "./config-lock.mjs";
 import { globalMediaDir } from "./media-home.mjs";
 
-const POSTHOG_API_KEY = "phc_zjjbX0PnWxERXrMHhkEJWj9A9BhGVLRReICgsfTMmpx";
+// No analytics key is shipped, so optedOut() is always true. See telemetry/posthogKey.ts.
+const POSTHOG_API_KEY = "";
 const POSTHOG_HOST = "https://us.i.posthog.com";
 const TIMEOUT_MS = 1500;
 let identifiedAccount = false;
@@ -38,7 +39,8 @@ function posthogHost() {
 /** True when telemetry must NOT be sent (opt-out envs, CI, dev). */
 export function optedOut() {
   return (
-    process.env.HYPERFRAMES_NO_TELEMETRY === "1" ||
+    !POSTHOG_API_KEY.startsWith("phc_") ||
+    process.env.CHALKFRAMES_NO_TELEMETRY === "1" ||
     process.env.DO_NOT_TRACK === "1" ||
     process.env.CI === "true" ||
     process.env.CI === "1" ||
@@ -48,7 +50,7 @@ export function optedOut() {
 
 // Read and write the shared config so media-use keeps one identity per install.
 function sharedConfigPath() {
-  return join(homedir(), ".hyperframes", "config.json");
+  return join(homedir(), ".chalkframes", "config.json");
 }
 
 function readSharedConfig() {
@@ -116,8 +118,8 @@ function anonymousId() {
   }
 }
 
-function heygenAccountDistinctId() {
-  const file = join(process.env.HEYGEN_CONFIG_DIR || join(homedir(), ".heygen"), "credentials");
+function chalkframesAccountDistinctId() {
+  const file = join(process.env.CHALKFRAMES_CONFIG_DIR || join(homedir(), ".chalkframes"), "credentials");
   try {
     if (!existsSync(file)) return null;
     const raw = readFileSync(file, "utf8").trim();
@@ -146,7 +148,7 @@ function showTelemetryNotice() {
     console.error(
       [
         "media-use sends usage telemetry: media type, resolution source, and provider; never intent text, file names, or paths.",
-        "If you sign in to HeyGen, usage links to your account email or username. Opt out with HYPERFRAMES_NO_TELEMETRY=1 or DO_NOT_TRACK=1.",
+        "If you sign in to Chalkframes, usage links to your account email or username. Opt out with CHALKFRAMES_NO_TELEMETRY=1 or DO_NOT_TRACK=1.",
       ].join("\n"),
     );
     updateSharedConfig({ telemetryNoticeShown: true });
@@ -181,7 +183,7 @@ async function postEvent(event, properties, distinctId) {
 
 async function identifyAccount(anonId) {
   if (optedOut() || identifiedAccount) return;
-  const distinctId = heygenAccountDistinctId();
+  const distinctId = chalkframesAccountDistinctId();
   if (!distinctId) return;
   identifiedAccount = true;
   await postEvent("$identify", { $anon_distinct_id: anonId }, distinctId);

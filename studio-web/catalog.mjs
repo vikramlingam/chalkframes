@@ -38,7 +38,13 @@ export const VISUAL_CATALOG = [
     description:
       "Pure full-bleed display typography TAKEOVER — NO eyebrow, NO cards, NO subtitles. Huge aggressive condensed-gothic or ultra-bold sans text (110–140px) spanning the full screen with clip-path mask reveals and word-slam stagger. Best for thesis statements, paradigm shifts, or any moment that needs maximum visual impact.",
     payloadHint: "impactData: { lines: [string], accent: string, tag }",
-    aliases: ["impact-text", "full-bleed-typography", "word-slam", "condensed-title", "typographic-takeover"],
+    aliases: [
+      "impact-text",
+      "full-bleed-typography",
+      "word-slam",
+      "condensed-title",
+      "typographic-takeover",
+    ],
   },
   {
     id: "stat-spotlight",
@@ -47,7 +53,13 @@ export const VISUAL_CATALOG = [
     description:
       "Massive centered metric spotlight — one huge number (140px glow font), radiating conic/radial background glow, and concentric SVG pulse rings. Zero cards, zero clutter. Used to land a single decisive number with maximum cinematic weight.",
     payloadHint: "spotlightData: { value, unit, label, subLabel }",
-    aliases: ["number-spotlight", "metric-spotlight", "focal-metric", "single-stat", "cinematic-metric"],
+    aliases: [
+      "number-spotlight",
+      "metric-spotlight",
+      "focal-metric",
+      "single-stat",
+      "cinematic-metric",
+    ],
   },
   {
     id: "mobile-mockup",
@@ -237,6 +249,41 @@ export const VISUAL_CATALOG = [
       "title, subtitle, queryLabel, clusters[{name, nodeCount, active}], stats: {metric, latency}",
     aliases: ["vector-space", "cluster-graph", "knn-search"],
   },
+  // Manim primitives: rendered by a Python worker, not HTML. They are director-selectable
+  // but never part of random rotation (a rotated pick would have no brief to render).
+  {
+    id: "manim-function-plot",
+    family: "math-anim",
+    engine: "manim",
+    isMiddle: true,
+    description:
+      "MATH ANIMATION (Manim). Animated 2D function graph with optional tangent line, shaded area, and morph into a second curve. ONLY for calculus/algebra/physics beats where a curve changing IS the explanation. Never for marketing or UI beats.",
+    payloadHint:
+      'manimData: { title, expr (x, numbers, + - * / ^, sin cos tan exp log sqrt abs, pi), xRange: [a, b], tangentAt?, area?: [a, b], expr2? }, beats: ["narration sentence", ...] (1-6), fallbackArchetype: "bento-metric-grid", fallbackPayload: { bentoData }',
+    aliases: ["function-plot", "graph-plot", "calculus-plot"],
+  },
+  {
+    id: "manim-vector-transform",
+    family: "math-anim",
+    engine: "manim",
+    isMiddle: true,
+    description:
+      "MATH ANIMATION (Manim). A 2x2 matrix transforming the plane: grid warp, basis vectors, a sample vector and an optional projection onto a line. ONLY for linear-algebra beats (transformations, shear, rotation, projection).",
+    payloadHint:
+      'manimData: { title, matrix: [[a, b], [c, d]], vector?: [x, y], projectOnto?: [x, y], showBasis? }, beats: ["narration sentence", ...], fallbackArchetype: "vector-cluster-graph", fallbackPayload: { clusters, stats }',
+    aliases: ["matrix-transform", "linear-transform", "vector-projection"],
+  },
+  {
+    id: "manim-network-topology",
+    family: "math-anim",
+    engine: "manim",
+    isMiddle: true,
+    description:
+      "MATH ANIMATION (Manim). Layered neural network with a forward-pass pulse, OR a graph traversal (BFS/DFS) lighting nodes in visit order. ONLY for ML architecture or graph-algorithm beats.",
+    payloadHint:
+      'manimData: { title, layers: [3,5,4,2], labels?: [..] } OR { title, nodes: ["A","B",..], edges: [[0,1],..], start?, algorithm?: "bfs"|"dfs" }, beats: ["narration sentence", ...], fallbackArchetype: "vector-cluster-graph", fallbackPayload: { clusters, stats }',
+    aliases: ["neural-network", "graph-traversal", "network-graph"],
+  },
 ];
 
 /** Set of all allowed archetype IDs. */
@@ -249,8 +296,14 @@ export const ARCHETYPE_FAMILY = Object.fromEntries(
 
 /** Archetypes eligible for middle scenes (non-hook, non-outro). */
 export const MIDDLE_ARCHS = VISUAL_CATALOG.filter(
-  (item) => item.isMiddle !== false && item.id !== "hook" && item.id !== "outro",
+  (item) =>
+    item.isMiddle !== false && item.engine !== "manim" && item.id !== "hook" && item.id !== "outro",
 ).map((item) => item.id);
+
+/** Archetypes rendered by the Manim worker rather than HTML/GSAP. */
+export const MANIM_ARCHETYPES = VISUAL_CATALOG.filter((item) => item.engine === "manim").map(
+  (item) => item.id,
+);
 
 /** Deliberate aliases mapping alternative names to exact archetype IDs. */
 export const ARCHETYPE_ALIASES = {};
@@ -291,7 +344,11 @@ export function registerArchetype(entryOrId, maybeOptions = {}) {
   archetypes.add(id);
   ARCHETYPE_FAMILY[id] = normalizedEntry.family;
 
-  if (normalizedEntry.isMiddle && !MIDDLE_ARCHS.includes(id)) {
+  if (
+    normalizedEntry.isMiddle &&
+    normalizedEntry.engine !== "manim" &&
+    !MIDDLE_ARCHS.includes(id)
+  ) {
     MIDDLE_ARCHS.push(id);
   } else if (!normalizedEntry.isMiddle) {
     const idx = MIDDLE_ARCHS.indexOf(id);
@@ -308,9 +365,11 @@ export function registerArchetype(entryOrId, maybeOptions = {}) {
 /**
  * Formats all registered archetypes dynamically into the director prompt.
  */
-export function formatCatalogForPrompt() {
-  return VISUAL_CATALOG.map((item) => {
-    const hint = item.payloadHint ? ` (${item.payloadHint})` : "";
-    return `   - "${item.id}": ${item.description}${hint}`;
-  }).join("\n");
+export function formatCatalogForPrompt({ manim = true } = {}) {
+  return VISUAL_CATALOG.filter((item) => manim || item.engine !== "manim")
+    .map((item) => {
+      const hint = item.payloadHint ? ` (${item.payloadHint})` : "";
+      return `   - "${item.id}": ${item.description}${hint}`;
+    })
+    .join("\n");
 }

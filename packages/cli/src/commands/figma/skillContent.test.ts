@@ -18,7 +18,7 @@ describe("figma SKILL.md telemetry beacons", () => {
     expect(SKILL_MD).toContain("figma-motion");
     expect(SKILL_MD).toContain("figma-shaders");
     expect(SKILL_MD).toContain("figma-storyboard");
-    expect(SKILL_MD).toContain("hyperframes events");
+    expect(SKILL_MD).toContain("chalkframes events");
   });
 
   it("instructs the completion beacon with an outcome", () => {
@@ -39,7 +39,7 @@ describe("figma storyboard doctrine pins", () => {
     ["CLAUDE.md", ["CLAUDE.md"]],
     ["README.md", ["README.md"]],
     ["docs/guides/skills.mdx", ["docs", "guides", "skills.mdx"]],
-    ["skills/hyperframes/SKILL.md", ["skills", "hyperframes", "SKILL.md"]],
+    ["skills/chalkframes/SKILL.md", ["skills", "chalkframes", "SKILL.md"]],
   ];
 
   it("every catalog surface says reconstructed motion, never animatics", () => {

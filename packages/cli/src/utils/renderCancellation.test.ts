@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRenderCancellationScope, stoppedByCancelSignal } from "./renderCancellation.js";
 
 const { setHostHandlesSigint } = vi.hoisted(() => ({ setHostHandlesSigint: vi.fn() }));
-vi.mock("@hyperframes/engine", () => ({ setHostHandlesSigint }));
+vi.mock("@chalkframes/engine", () => ({ setHostHandlesSigint }));
 
 afterEach(() => {
   vi.useRealTimers();
@@ -151,8 +151,8 @@ describe("createRenderCancellationScope ancestor monitoring", () => {
   it("leaves SIGHUP ignored and parent ownership untracked for detached renders", () => {
     const handlers = new Map<string, () => void>();
     const parentPid = vi.fn(() => 50);
-    const previous = process.env.HYPERFRAMES_RENDER_DETACHED;
-    process.env.HYPERFRAMES_RENDER_DETACHED = "1";
+    const previous = process.env.CHALKFRAMES_RENDER_DETACHED;
+    process.env.CHALKFRAMES_RENDER_DETACHED = "1";
     try {
       const cancellation = createRenderCancellationScope({
         signalTarget: {
@@ -168,8 +168,8 @@ describe("createRenderCancellationScope ancestor monitoring", () => {
       expect(cancellation.signal.aborted).toBe(false);
       cancellation.dispose();
     } finally {
-      if (previous === undefined) delete process.env.HYPERFRAMES_RENDER_DETACHED;
-      else process.env.HYPERFRAMES_RENDER_DETACHED = previous;
+      if (previous === undefined) delete process.env.CHALKFRAMES_RENDER_DETACHED;
+      else process.env.CHALKFRAMES_RENDER_DETACHED = previous;
     }
   });
 });

@@ -196,7 +196,7 @@ interface RuntimeReadinessWindow extends Omit<Window, "__hf"> {
 }
 
 /** Declared-compute readiness input: waits on `window.__renderReady`. A
- * probe-only composition (no HyperFrames runtime injected) never sets
+ * probe-only composition (no ChalkFrames runtime injected) never sets
  * it — __hf absent means nothing to wait on, not an 8s poll for a flag
  * that was never going to flip. */
 export function computeReadinessInput(doc: Document, signal: AbortSignal): Promise<void> | null {

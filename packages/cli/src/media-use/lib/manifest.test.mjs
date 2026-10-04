@@ -34,7 +34,7 @@ import {
   promote,
 } from "./cache.mjs";
 
-process.env.HYPERFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-media-home-"));
+process.env.CHALKFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-media-home-"));
 
 let tmp;
 
@@ -54,7 +54,7 @@ function makeRecord(overrides = {}) {
     source: "search",
     description: "soft minimal ambient",
     duration: 11,
-    provenance: { provider: "heygen.audio.sounds", prompt: "subtle tech" },
+    provenance: { provider: "chalkframes.audio.sounds", prompt: "subtle tech" },
     ...overrides,
   };
 }

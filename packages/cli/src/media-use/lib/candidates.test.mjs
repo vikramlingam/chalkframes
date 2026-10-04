@@ -6,13 +6,13 @@ import { tmpdir } from "node:os";
 import { listCandidates, formatCandidates, CANDIDATE_CAP } from "./candidates.mjs";
 import { findGlobalBySha } from "./cache.mjs";
 
-// candidates + findGlobalBySha are offline (no heygen), so we can point HYPERFRAMES_MEDIA_HOME
+// candidates + findGlobalBySha are offline (no chalkframes), so we can point CHALKFRAMES_MEDIA_HOME
 // to a temp dir and seed a fake global ~/.media manifest deterministically.
 function sandbox() {
   const root = mkdtempSync(join(tmpdir(), "mu-cand-"));
   const project = join(root, "proj");
   const home = join(root, "home");
-  process.env.HYPERFRAMES_MEDIA_HOME = home;
+  process.env.CHALKFRAMES_MEDIA_HOME = home;
   return { root, project, home };
 }
 function seedManifest(dir, records) {
@@ -31,7 +31,7 @@ function glob(id, type, description, prompt, sha) {
     reusable: true,
     cached_path: `/x/${sha}/${id}.wav`,
     description,
-    provenance: { prompt, provider: "heygen.audio.sounds" },
+    provenance: { prompt, provider: "chalkframes.audio.sounds" },
   };
 }
 

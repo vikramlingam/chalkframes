@@ -5,8 +5,8 @@ import {
   VIEWPORT_META_SIZE_RE,
 } from "./canvasScaffoldPatterns.js";
 
-// Both callers key off group numbers: @hyperframes/lint's
-// root_dimensions_mismatch reads the digits, @hyperframes/cli's
+// Both callers key off group numbers: @chalkframes/lint's
+// root_dimensions_mismatch reads the digits, @chalkframes/cli's
 // applyResolutionPreset substitutes `$1<new>$3<new>` to keep the text around
 // them. Pin the layout here so neither can renumber against the other.
 const CASES = [

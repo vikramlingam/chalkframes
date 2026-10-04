@@ -1,5 +1,5 @@
 /**
- * Poll a HyperFrames render until it reaches a terminal state.
+ * Poll a ChalkFrames render until it reaches a terminal state.
  *
  * Defaults: 10s interval, 60min cap — confirmed with the API owner. The
  * `start_to_close` timeout on the underlying Temporal workflow is the
@@ -10,14 +10,14 @@
  * so the JSON-emitting modes upstream don't get garbled.
  */
 
-import type { HyperframesCloudClient } from "./_gen/client.js";
-import type { HyperframesRenderDetail, HyperframesRenderStatus } from "./_gen/types.js";
+import type { ChalkframesCloudClient } from "./_gen/client.js";
+import type { ChalkframesRenderDetail, ChalkframesRenderStatus } from "./_gen/types.js";
 
 export interface PollOptions {
   intervalMs?: number;
   maxWaitMs?: number;
   /** Called once per tick with the latest render state. */
-  onTick?: (detail: HyperframesRenderDetail, elapsedMs: number) => void;
+  onTick?: (detail: ChalkframesRenderDetail, elapsedMs: number) => void;
   /** Inject a clock for tests. */
   now?: () => number;
   /** Inject a sleep for tests. */
@@ -28,11 +28,11 @@ export interface PollOptions {
 export const DEFAULT_POLL_INTERVAL_MS = 10_000;
 export const DEFAULT_MAX_WAIT_MS = 60 * 60 * 1000;
 
-const TERMINAL_STATUSES: ReadonlySet<HyperframesRenderStatus> = new Set(["completed", "failed"]);
+const TERMINAL_STATUSES: ReadonlySet<ChalkframesRenderStatus> = new Set(["completed", "failed"]);
 
 export class PollTimeoutError extends Error {
-  readonly lastDetail: HyperframesRenderDetail;
-  constructor(lastDetail: HyperframesRenderDetail, elapsedMs: number) {
+  readonly lastDetail: ChalkframesRenderDetail;
+  constructor(lastDetail: ChalkframesRenderDetail, elapsedMs: number) {
     super(
       `Render ${lastDetail.render_id} did not reach a terminal state within ${Math.round(elapsedMs / 1000)}s`,
     );
@@ -41,12 +41,12 @@ export class PollTimeoutError extends Error {
   }
 }
 
-export function isTerminal(status: HyperframesRenderStatus): boolean {
+export function isTerminal(status: ChalkframesRenderStatus): boolean {
   return TERMINAL_STATUSES.has(status);
 }
 
 /**
- * Poll `GET /v3/hyperframes/renders/{id}` until status is `completed` or
+ * Poll `GET /v3/chalkframes/renders/{id}` until status is `completed` or
  * `failed`, or `maxWaitMs` elapses (in which case throws
  * {@link PollTimeoutError}). Errors from the underlying request bubble
  * up immediately — they are not retried, because every error class the
@@ -54,10 +54,10 @@ export function isTerminal(status: HyperframesRenderStatus): boolean {
  * on a retry inside the poll window.
  */
 export async function pollUntilTerminal(
-  client: HyperframesCloudClient,
+  client: ChalkframesCloudClient,
   renderId: string,
   options: PollOptions = {},
-): Promise<HyperframesRenderDetail> {
+): Promise<ChalkframesRenderDetail> {
   const intervalMs = options.intervalMs ?? DEFAULT_POLL_INTERVAL_MS;
   const maxWaitMs = options.maxWaitMs ?? DEFAULT_MAX_WAIT_MS;
   const now = options.now ?? (() => Date.now());

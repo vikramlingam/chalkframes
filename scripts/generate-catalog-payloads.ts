@@ -4,7 +4,7 @@
  *
  * Writes each catalog item's compiled composition to
  * `docs/public/catalog/<type>/<name>.json` so the docs site can mount it in a
- * live `<hyperframes-player>` instead of an uploaded MP4.
+ * live `<chalkframes-player>` instead of an uploaded MP4.
  *
  * Why JSON and not the composition HTML itself: the docs host publishes only
  * JSON and image files out of `docs/public`. `.html`, `.js` and `.css` are
@@ -387,7 +387,7 @@ async function main(): Promise<void> {
   const mode = process.env.CATALOG_FETCH_MIRROR === "record" ? "record" : "replay";
   // A warm font cache would skip fetches the mirror needs to see, so every run starts with an empty one.
   const fontCache = mkdtempSync(join(tmpdir(), "catalog-fonts-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = fontCache;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = fontCache;
   const mirror = installFetchMirror(fetchMirrorDir, mode);
   try {
     await generate(only, type);

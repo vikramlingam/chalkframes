@@ -31,12 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabPdf = document.getElementById("tabPdf");
   const sourceTopicInput = document.getElementById("sourceTopicInput");
   const topicStyleSelect = document.getElementById("topicStyleSelect");
-  const prepareScriptBtn = document.getElementById("prepareScriptBtn");
-  const topicScriptPreview = document.getElementById("topicScriptPreview");
-  const previewTitle = document.getElementById("previewTitle");
-  const previewBody = document.getElementById("previewBody");
-  const useInCustomScriptBtn = document.getElementById("useInCustomScriptBtn");
-  const closePreviewBtn = document.getElementById("closePreviewBtn");
   const sourceUrlInput = document.getElementById("sourceUrlInput");
   const sourceScriptInput = document.getElementById("sourceScriptInput");
   const pdfDropZone = document.getElementById("pdfDropZone");
@@ -332,77 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Topic suggestion chips
-  document.querySelectorAll(".topic-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      sourceTopicInput.value = chip.dataset.topic;
-      sourceTopicInput.focus();
-    });
-  });
-
-  // Draft Script First button
-  prepareScriptBtn.addEventListener("click", async () => {
-    const topic = sourceTopicInput.value.trim();
-    if (!topic) {
-      alert("Please enter a topic or subject first (e.g. Human Anatomy, Quantum Computing, etc.)");
-      sourceTopicInput.focus();
-      return;
-    }
-    const apiKey = apiKeyInput.value.trim();
-    if (!apiKey && !hasServerKey) {
-      alert("Please enter an OpenRouter API key to draft the script.");
-      apiKeyInput.focus();
-      return;
-    }
-
-    const originalBtnHtml = prepareScriptBtn.innerHTML;
-    prepareScriptBtn.disabled = true;
-    prepareScriptBtn.innerHTML = `
-      <span class="btn-draft-icon">⏳</span>
-      <span class="btn-draft-text">Drafting Script...</span>
-    `;
-
-    try {
-      const resp = await fetch("/api/prepare-script", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          apiKey,
-          model: modelSelect.value,
-          topic,
-          topicStyle: topicStyleSelect.value,
-          duration: currentDuration,
-          format: currentFormat,
-        }),
-      });
-      const data = await resp.json();
-      if (!resp.ok || !data.success) {
-        throw new Error(data.error || "Failed to generate script");
-      }
-
-      previewTitle.textContent = `${data.title} (${data.domain})`;
-      previewBody.textContent = data.script;
-      topicScriptPreview.classList.remove("hidden");
-    } catch (err) {
-      alert(`Could not draft script: ${err.message}`);
-    } finally {
-      prepareScriptBtn.disabled = false;
-      prepareScriptBtn.innerHTML = originalBtnHtml;
-    }
-  });
-
-  useInCustomScriptBtn.addEventListener("click", () => {
-    if (previewBody.textContent) {
-      sourceScriptInput.value = previewBody.textContent;
-      const scriptTabBtn = document.querySelector(`.tab-btn[data-tab="script"]`);
-      if (scriptTabBtn) scriptTabBtn.click();
-    }
-  });
-
-  closePreviewBtn.addEventListener("click", () => {
-    topicScriptPreview.classList.add("hidden");
-  });
-
   // 6b. PDF Drop Zone
   function setPdfFile(file) {
     if (!file || file.type !== "application/pdf") {
@@ -532,9 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourcePdfName = currentSourceType === "pdf" ? currentPdfName : null;
 
     if (currentSourceType === "topic" && !sourceTopic) {
-      alert(
-        "Please enter a topic or concept for the video (e.g. Human Anatomy, Quantum Computing, etc.)",
-      );
+      alert("Please enter a topic in the world");
       sourceTopicInput.focus();
       return;
     }

@@ -75,7 +75,7 @@ describe("TransportClock stall policy — interactive playback", () => {
     clock.play();
     // Two independent "drivers" reading the same clock, exactly as
     // packages/core/src/runtime/init.ts's transportTick and
-    // packages/player/src/hyperframes-player.ts's parent-tick bridge do —
+    // packages/player/src/chalkframes-player.ts's parent-tick bridge do —
     // neither is a distinguished caller; both just call now().
     const driverA = () => clock.now();
     const driverB = () => clock.now();

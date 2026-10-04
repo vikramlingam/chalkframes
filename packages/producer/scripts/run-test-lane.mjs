@@ -17,7 +17,7 @@ const tests = discoverProducerTests().filter(
 function run(args) {
   const result = spawnSync("bun", args, {
     cwd: PRODUCER_ROOT,
-    env: { ...process.env, HYPERFRAMES_TEST_LANE: lane },
+    env: { ...process.env, CHALKFRAMES_TEST_LANE: lane },
     stdio: "inherit",
   });
   if (result.error) throw result.error;

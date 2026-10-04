@@ -120,7 +120,7 @@ const missing = before.filter((p) => !afterSet.has(p));
 const added = after.filter((p) => !beforeSet.has(p));
 const liveRegistryPages = new Set(
   readJson(path.join(root, "registry", "registry.json")).items.map((item) => {
-    const kind = item.type === "hyperframes:block" ? "blocks" : "components";
+    const kind = item.type === "chalkframes:block" ? "blocks" : "components";
     return `/catalog/${kind}/${item.name}`;
   }),
 );

@@ -14,7 +14,7 @@ export * from "./mediaDuration.js";
 export * from "./compositionDuration.js";
 
 // Pure, browser-safe composition primitives shared by the linter (so it can
-// consume them without depending on @hyperframes/core). The Node-only asset
+// consume them without depending on @chalkframes/core). The Node-only asset
 // path helpers live behind the ./asset-paths subpath to keep this entry
 // browser-safe.
 export { decodeUrlPathVariants } from "./utils/urlPath.js";

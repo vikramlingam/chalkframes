@@ -30,7 +30,7 @@ export const OPTIONAL_PACKAGES = {
   "@google/genai": "1.52.0",
 } as const satisfies Record<OptionalPackage, string>;
 
-export const CACHE_DIR = join(homedir(), ".cache", "hyperframes", "optional");
+export const CACHE_DIR = join(homedir(), ".cache", "chalkframes", "optional");
 
 export interface OptionalPackageDeps {
   cacheDir: string;

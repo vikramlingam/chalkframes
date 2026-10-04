@@ -1,2 +1,2 @@
-/** @deprecated Import from @hyperframes/lint */
-export * from "@hyperframes/lint";
+/** @deprecated Import from @chalkframes/lint */
+export * from "@chalkframes/lint";

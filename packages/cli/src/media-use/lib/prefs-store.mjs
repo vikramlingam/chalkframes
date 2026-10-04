@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { globalMediaDir } from "./media-home.mjs";
 
 /**
- * Remembered defaults — the lightweight tier of HyperFrames user memory.
+ * Remembered defaults — the lightweight tier of ChalkFrames user memory.
  *
  * Two files, same shape as the rest of media-use's storage split:
  * - project `.media/preferences.json` — committed with the repo, so the whole

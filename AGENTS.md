@@ -1,95 +1,68 @@
-# Hyperframes
+# Chalk Frames — agent guide
 
-Open-source video rendering framework: write HTML, render video.
+Chalk Frames turns a topic, URL, script or PDF into a narrated explainer video.
+An LLM director writes a JSON storyboard, Kokoro reads the narration, and scenes
+are rendered as HTML/GSAP (optionally Manim), then stitched with FFmpeg.
 
-## Skills
+The server and web UI live in `studio-web/`. The renderer toolchain it calls
+(the `chalkframes` CLI) lives in `packages/`.
 
-This repo ships AI agent skills via [vercel-labs/skills](https://github.com/vercel-labs/skills). Install them before writing compositions — they encode framework-specific patterns that generic docs don't cover. **Default to the core set** — the `/hyperframes` router installs each creation workflow on demand; install everything only when the user explicitly asks for the full set.
-
-```bash
-npx hyperframes skills update           # default: installs/refreshes the core set — workflows install on demand
-npx hyperframes skills                  # all 21 published skills at once
-npx skills add heygen-com/hyperframes   # interactive picker (terminal only; repo-internal skills are excluded by default)
-```
-
-**Creation workflows** route through one entry skill — read `/hyperframes` first: it orients you to the whole surface, confirms the brief up front (the intent layer), and maps "make me a…" intent — usually a video, but also a navigable deck (`/slideshow`) or a composition port (`/remotion-to-hyperframes`) — to a concrete workflow. Consult it before invoking a specific workflow:
-
-- `/product-launch-video` — any **website** URL (or a pre-written script / text brief in no-capture mode) → a product launch / promo video, or a site tour / showcase featuring the site's own captured screens; up to ~3 min (sweet spot ~30-90s).
-- `/faceless-explainer` — arbitrary text, **no URL and no website capture** → faceless explainer, up to ~3 min (sweet spot ~30-90s); every visual is LLM-invented (typography / abstract graphics / diagram / data-viz).
-- `/embedded-captions` — an existing talking-head video (MP4) → the same footage with captions / subtitles added (verbatim rail + embedded climax, or pure-cinematic embed); the footage itself is untouched (no NLE-style editing).
-- `/talking-head-recut` — an existing talking-head / interview / podcast video (MP4) → the same footage packaged with designed **graphic overlays** (kinetic titles, lower-thirds, data callouts, pull-quotes, side panels, pip) synced to the transcript; the clip plays unchanged underneath, footage untouched. For plain captions/subtitles → `/embedded-captions`.
-- `/pr-to-video` — a GitHub PR (URL / `owner/repo#N` / "this PR") → code-change explainer, up to ~3 min (changelog / feature reveal / fix / refactor). A PR link, not a product website.
-- `/motion-graphics` — a short (typically under 10s) design-led **motion graphic**, motion-is-the-message, no narration: kinetic type, a stat / number count-up, a chart, a logo sting, a lower-third / overlay, or an animated tweet / headline / captured-page highlight; rendered to MP4 or a transparent overlay. Longer / narrated / custom → `/general-video`.
-- `/music-to-video` — a **music track** (audio file, video to pull audio from, or one generated from a mood brief) → beat-synced video (lyric / slideshow / kinetic promo). Music drives pacing; user-supplied images / videos are cut onto the same beat grid.
-- `/slideshow` — a **presentation / pitch deck / interactive deck** — discrete slides, fragment reveals, branching, hotspot navigation, presenter mode. Output is a navigable deck, not a rendered video.
-- `/general-video` — fallback for any other video creation (title card, longer brand / sizzle reel, multi-scene montage, static loop, custom composition) and the home of **companion mode** — co-create with the full HyperFrames toolbox; the original hyperframes flow — design → plan → layout → build → validate, any length.
-
-**Porting an existing composition?** `/remotion-to-hyperframes` translates a Remotion (React) video composition into HyperFrames HTML — a source migration, separate from the creation workflows above.
-
-## Issue and PR triage
-
-Read [TRIAGE.md](TRIAGE.md) before classifying issues, advertising contribution work, or triaging PRs. Check current source and overlapping PRs; keep difficulty, readiness, and ownership separate. Apply changes only within the task's authorization and verify the resulting GitHub state.
-
-## Build & Test
+## Setup
 
 ```bash
-bun install     # Install dependencies (NOT pnpm — do not create pnpm-lock.yaml)
-bun run build   # Build all packages
-bun run test    # Run all tests
+bun install
+cp .env.example .env   # add OPENROUTER_API_KEY
+bun run dev            # runs `bun run setup` first, then serves http://127.0.0.1:4000
+bun run doctor         # report what is missing without changing anything
 ```
 
-### Linting & Formatting
+Setup builds `packages/`, creates `.venv` with kokoro-onnx, and downloads the
+Kokoro weights and Chrome into `~/.cache/chalkframes`. Manim is optional
+(`bun run setup:manim`).
 
-Uses **oxlint** and **oxfmt** (not eslint, not prettier, not biome).
+## Build and test
 
 ```bash
-bunx oxlint <files>        # Lint
-bunx oxfmt <files>         # Format
-bunx oxfmt --check <files> # Check formatting (CI / pre-commit)
+bun run build    # builds the packages under packages/
+bun run test     # quality, server, engine-upgrade and Manim suites
+bunx oxlint studio-web scripts/setup.mjs
+bunx oxfmt --check studio-web
 ```
 
-Always lint and format changed files before committing. Lefthook pre-commit hooks enforce this automatically.
+Licensing: `studio-web/` is MIT; `packages/` is Apache-2.0 (the project is
+derived from HeyGen's open-source Hyperframes and heavily modified — see
+`NOTICE` and `LICENSE-APACHE-2.0`). Keep new files under the license of their
+directory, and never remove the upstream attribution.
 
-### Composition Validation
+## Conventions
 
-After creating or editing any `.html` composition:
-
-```bash
-npx hyperframes lint       # Static HTML structure check
-npx hyperframes check      # Browser gate (headless Chrome — runtime errors, layout, motion, WCAG contrast)
-```
-
-Both must pass before previewing or considering work complete.
+- Package manager: bun (not pnpm/npm for workspace operations).
+- Conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`).
+- TypeScript: avoid `any` and `as` casts; prefer type guards.
+- Compositions are HTML files with `data-*` attributes; clips need
+  `class="clip"`; register one paused GSAP root timeline per composition on
+  `window.__timelines`.
+- Renderers must be deterministic: no `Date.now()`, no unseeded
+  `Math.random()`, no render-time network fetches.
+- New visual archetypes: register in `studio-web/catalog.mjs` and
+  `studio-web/renderers.mjs`.
+- Never commit secrets (`.env` is gitignored) or generated output
+  (`projects/`, `studio-web/renders/`).
 
 ## Project Structure
 
 ```
 packages/
-  cli/                  → hyperframes CLI (create, preview, lint, render)
-  core/                 → Types, parsers, generators, linter, runtime, frame adapters
+  cli/                  → chalkframes CLI (capture, tts, browser, render)
+  core/                 → Types, parsers, generators, linter, runtime
   engine/               → Seekable page-to-video capture engine (Puppeteer + FFmpeg)
-  player/               → Embeddable <hyperframes-player> web component
-  producer/             → Full rendering pipeline (capture + encode + audio mix)
-  shader-transitions/   → WebGL shader transitions for compositions
-  studio/               → Browser-based composition editor UI (read packages/studio/AGENTS.md first)
-registry/
-  blocks/               → Installable sub-composition scenes (50+)
-  components/           → Installable effects and snippets
-  examples/             → Starter project templates
-docs/                   → Mintlify documentation site (hyperframes.heygen.com)
-skills/                 → AI agent skill definitions
+  producer/             → Rendering pipeline (capture + encode + audio mix)
+  parsers/              → Composition parsers
+  lint/                 → Composition linter
+  studio-server/        → Studio backend server
+studio-web/             → Production suite: HTTP server, director, renderers, stitcher
+  engines/manim/        → Manim engine and the chalk_manim Python package
+  public/               → Web UI, voice previews, soundtracks, SFX
+scripts/                → Repo scripts (setup.mjs is the first-run setup)
 ```
 
-## Key Conventions
-
-- **Package manager**: bun (not pnpm, not npm for workspace operations)
-- **Commit format**: Conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`)
-- **TypeScript**: Avoid `any` and `as T` assertions. Prefer type guards and narrowing.
-- **Compositions**: HTML files with `data-*` attributes. Clips need `class="clip"`. Register one paused GSAP root timeline per composition on `window.__timelines`. Scene timelines manually added to that root must not be paused, or they will not advance when the root is seeked.
-- **Frame Adapters**: Animation runtimes plug in via the seek-by-frame adapter pattern. GSAP is the primary adapter.
-- **Deterministic rendering**: No `Date.now()`, no unseeded `Math.random()`, no render-time network fetches.
-
-## Documentation
-
-- Docs: https://hyperframes.heygen.com/introduction
-- Catalog (50+ blocks): https://hyperframes.heygen.com/catalog/blocks/data-chart

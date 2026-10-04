@@ -187,7 +187,7 @@ export function runCancellableProcess(
   });
 }
 
-const SETUP_RESULT_PREFIX = "HYPERFRAMES_RENDER_SETUP_RESULT:";
+const SETUP_RESULT_PREFIX = "CHALKFRAMES_RENDER_SETUP_RESULT:";
 
 export async function runRenderSetupWorker<T>(
   mode: "browser" | "lint" | "orphan-cleanup",
@@ -210,7 +210,7 @@ export async function runRenderSetupWorker<T>(
         env: {
           ...process.env,
           ...options.env,
-          HYPERFRAMES_RENDER_SETUP_INPUT: JSON.stringify(input),
+          CHALKFRAMES_RENDER_SETUP_INPUT: JSON.stringify(input),
         },
       },
     );

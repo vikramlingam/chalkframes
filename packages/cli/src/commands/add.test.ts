@@ -2,8 +2,8 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { RegistryItem, RegistryManifest } from "@hyperframes/core";
-import { lintHyperframeHtml } from "@hyperframes/lint";
+import type { RegistryItem, RegistryManifest } from "@chalkframes/core";
+import { lintChalkframeHtml } from "@chalkframes/lint";
 import type { RunAddResult } from "./add.js";
 import {
   AddError,
@@ -25,24 +25,24 @@ vi.mock("../telemetry/events.js", () => ({ trackRegistryItemAdded: vi.fn() }));
 // ── Fixtures ────────────────────────────────────────────────────────────────
 
 const MANIFEST: RegistryManifest = {
-  $schema: "https://hyperframes.heygen.com/schema/registry.json",
+  $schema: "https://chalkframes.dev/schema/registry.json",
   name: "test",
   homepage: "https://example.com",
   items: [
-    { name: "my-block", type: "hyperframes:block" },
-    { name: "deprecated-block", type: "hyperframes:block" },
-    { name: "future-block", type: "hyperframes:block" },
-    { name: "dep-block", type: "hyperframes:block" },
-    { name: "base-component", type: "hyperframes:component" },
-    { name: "my-component", type: "hyperframes:component" },
-    { name: "my-example", type: "hyperframes:example" },
+    { name: "my-block", type: "chalkframes:block" },
+    { name: "deprecated-block", type: "chalkframes:block" },
+    { name: "future-block", type: "chalkframes:block" },
+    { name: "dep-block", type: "chalkframes:block" },
+    { name: "base-component", type: "chalkframes:component" },
+    { name: "my-component", type: "chalkframes:component" },
+    { name: "my-example", type: "chalkframes:example" },
   ],
 };
 
 const BLOCK_ITEM: RegistryItem = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "my-block",
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   title: "My Block",
   description: "Block for tests",
   dimensions: { width: 1080, height: 1350 },
@@ -51,32 +51,32 @@ const BLOCK_ITEM: RegistryItem = {
     {
       path: "my-block.html",
       target: "compositions/my-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
 
 const COMPONENT_ITEM: RegistryItem = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "my-component",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   title: "My Component",
   description: "Component for tests",
   files: [
     {
       path: "my-component.html",
       target: "compositions/components/my-component/my-component.html",
-      type: "hyperframes:snippet",
+      type: "chalkframes:snippet",
     },
     {
       path: "my-component.css",
       target: "compositions/components/my-component/my-component.css",
-      type: "hyperframes:style",
+      type: "chalkframes:style",
     },
     {
       path: "assets/mask.png",
       target: "assets/my-component/mask.png",
-      type: "hyperframes:asset",
+      type: "chalkframes:asset",
     },
   ],
 };
@@ -90,7 +90,7 @@ const DEPRECATED_BLOCK_ITEM: RegistryItem = {
     {
       path: "deprecated-block.html",
       target: "compositions/deprecated-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
@@ -104,22 +104,22 @@ const FUTURE_BLOCK_ITEM: RegistryItem = {
     {
       path: "future-block.html",
       target: "compositions/future-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
 
 const BASE_COMPONENT_ITEM: RegistryItem = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "base-component",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   title: "Base Component",
   description: "Base component dependency for tests",
   files: [
     {
       path: "base-component.css",
       target: "compositions/components/base-component/base-component.css",
-      type: "hyperframes:style",
+      type: "chalkframes:style",
     },
   ],
 };
@@ -134,20 +134,20 @@ const DEP_BLOCK_ITEM: RegistryItem = {
     {
       path: "dep-block.html",
       target: "compositions/dep-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
 
 const EXAMPLE_ITEM: RegistryItem = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "my-example",
-  type: "hyperframes:example",
+  type: "chalkframes:example",
   title: "My Example",
   description: "Example for tests",
   dimensions: { width: 1920, height: 1080 },
   duration: 10,
-  files: [{ path: "index.html", target: "index.html", type: "hyperframes:composition" }],
+  files: [{ path: "index.html", target: "index.html", type: "chalkframes:composition" }],
 };
 
 const ITEM_BY_NAME: Record<string, RegistryItem> = {
@@ -210,9 +210,9 @@ function writeRegistryConfig(
   paths: typeof DEFAULT_TEST_PATHS = DEFAULT_TEST_PATHS,
 ): void {
   writeFileSync(
-    join(dir, "hyperframes.json"),
+    join(dir, "chalkframes.json"),
     JSON.stringify({
-      $schema: "https://hyperframes.heygen.com/schema/hyperframes.json",
+      $schema: "https://chalkframes.dev/schema/chalkframes.json",
       registry: uniqueBase(),
       paths,
     }),
@@ -277,7 +277,7 @@ describe("add command pure helpers", () => {
     it("gives the block host the composition id that check requires", async () => {
       const snip = buildSnippet(BLOCK_ITEM, "compositions/my-block.html", null, "my-block-root");
       const html = `<!doctype html><html><body><div data-composition-id="root" data-width="1080" data-height="1350">${snip}</div></body></html>`;
-      const { findings } = await lintHyperframeHtml(html);
+      const { findings } = await lintChalkframeHtml(html);
       expect(findings.map((f) => f.code)).not.toContain("host_missing_composition_id");
       expect(snip).toContain('data-composition-id="my-block-root"');
     });
@@ -306,19 +306,19 @@ describe("runAdd (integration, mocked registry)", () => {
   it("installs a block into the default compositions/ path and returns the snippet", async () => {
     const dir = tmp();
     try {
-      // Write hyperframes.json so runAdd uses our unique baseUrl.
+      // Write chalkframes.json so runAdd uses our unique baseUrl.
       writeRegistryConfig(dir);
 
       const result = await runAdd({ name: "my-block", projectDir: dir, skipClipboard: true });
       expect(result.ok).toBe(true);
       expect(result.name).toBe("my-block");
-      expect(result.type).toBe("hyperframes:block");
+      expect(result.type).toBe("chalkframes:block");
       expect(result.written).toHaveLength(1);
       expect(result.installed).toEqual(["my-block"]);
       expect(result.warnings).toEqual([]);
       expect(existsSync(join(dir, "compositions/my-block.html"))).toBe(true);
       const installed = readFileSync(join(dir, "compositions/my-block.html"), "utf-8");
-      expect(installed).toContain("<!-- hyperframes-registry-item: my-block -->");
+      expect(installed).toContain("<!-- chalkframes-registry-item: my-block -->");
       expect(installed).toContain('data-composition-id="my-block-root"');
       expect(result.snippet).toContain("compositions/my-block.html");
       expect(result.snippet).toContain('data-composition-id="my-block-root"');
@@ -398,7 +398,7 @@ describe("runAdd (integration, mocked registry)", () => {
         runAdd({ name: "dep-block", projectDir: dir, skipClipboard: true, vars: '{"maths":1}' }),
       ).rejects.toThrow(/maths: expected boolean, got number/);
       expect(existsSync(join(dir, "compositions/components/base-component"))).toBe(false);
-      expect(existsSync(join(dir, "hyperframes.lock.json"))).toBe(false);
+      expect(existsSync(join(dir, "chalkframes.lock.json"))).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -440,13 +440,13 @@ describe("runAdd (integration, mocked registry)", () => {
       expect(trackRegistryItemAdded).toHaveBeenCalledTimes(2);
       expect(trackRegistryItemAdded).toHaveBeenCalledWith({
         item: "base-component",
-        itemType: "hyperframes:component",
+        itemType: "chalkframes:component",
         requested: false,
         source: "cli",
       });
       expect(trackRegistryItemAdded).toHaveBeenCalledWith({
         item: "dep-block",
-        itemType: "hyperframes:block",
+        itemType: "chalkframes:block",
         requested: true,
         source: "cli",
       });
@@ -487,7 +487,7 @@ describe("runAdd (integration, mocked registry)", () => {
 describe("variable values in the snippet", () => {
   const block = {
     name: "split-flap-board",
-    type: "hyperframes:block",
+    type: "chalkframes:block",
     duration: 3.5,
     dimensions: { width: 1920, height: 1080 },
   } as unknown as RegistryItem;
@@ -535,7 +535,7 @@ describe("describeInstallFailure", () => {
   });
 
   it("names the project's own registry when it is not the public one", () => {
-    // The reported failure: hyperframes.json pointed at a private host with a
+    // The reported failure: chalkframes.json pointed at a private host with a
     // self-signed certificate. Telling that reader to check their connection
     // sends them to debug the one thing that was working.
     const message = describeInstallFailure(
@@ -550,7 +550,7 @@ describe("describeInstallFailure", () => {
   it("stays quiet about the registry when it is the default one", () => {
     const message = describeInstallFailure(
       new Error("fetch failed"),
-      "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry",
+      "https://raw.githubusercontent.com/vikramlingam/chalkframes/main/registry",
     );
 
     expect(message).not.toContain("not the public registry");

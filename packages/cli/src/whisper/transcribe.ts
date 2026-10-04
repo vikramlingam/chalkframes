@@ -290,13 +290,13 @@ function isVideoFile(filePath: string): boolean {
  *
  * MUST be unique per call AND per process: callers run many `transcribe`
  * invocations in parallel (e.g. the product-launch-video audio pipeline spawns
- * one `hyperframes transcribe` per scene at once). A `Date.now()`-based name
+ * one `chalkframes transcribe` per scene at once). A `Date.now()`-based name
  * collides when two conversions land in the same millisecond — they clobber
  * each other's WAV in the shared tmpdir, so whisper transcribes the wrong
  * scene's audio and every colliding scene gets identical word timings.
  */
 function tempWavPath(): string {
-  return join(tmpdir(), `hyperframes-audio-${process.pid}-${randomUUID()}.wav`);
+  return join(tmpdir(), `chalkframes-audio-${process.pid}-${randomUUID()}.wav`);
 }
 
 function runFfmpeg(ffmpegPath: string, args: string[], output: string, timeout: number): void {
@@ -599,7 +599,7 @@ export function wrapWhisperTimeoutError(err: unknown, options: WrapWhisperTimeou
     : `auto-scaled default for model ${options.model}`;
   const message =
     `Whisper transcription exceeded ${seconds}s (${source}). ` +
-    `Raise --timeout <ms> or set HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS. ` +
+    `Raise --timeout <ms> or set CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS. ` +
     `Slow CPUs (e.g. emulated arm64/x64, low-power laptops) may need many ` +
     `multiples of realtime on heavier models — medium.en can run ~10-15x ` +
     `realtime on constrained hardware.`;

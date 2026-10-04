@@ -1,9 +1,9 @@
 {
-  "name": "@hyperframes/parsers",
+  "name": "@chalkframes/parsers",
   "version": "0.8.111",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heygen-com/hyperframes",
+    "url": "https://github.com/vikramlingam/chalkframes",
     "directory": "packages/parsers"
   },
   "files": [
@@ -241,11 +241,12 @@
     "recast": "^0.23.11"
   },
   "devDependencies": {
-    "@hyperframes/core": "workspace:*",
+    "@chalkframes/core": "workspace:*",
     "@types/node": "^25.0.10",
     "tsup": "^8.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vitest": "^4.1.11"
-  }
+  },
+  "license": "Apache-2.0"
 }

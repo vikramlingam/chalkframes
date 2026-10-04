@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeAll } from "vitest";
-import { DEFAULT_IMAGE_TIMELINE_DURATION_SECONDS } from "@hyperframes/parsers/media-duration";
+import { DEFAULT_IMAGE_TIMELINE_DURATION_SECONDS } from "@chalkframes/parsers/media-duration";
 import { createRuntimeStartTimeResolver } from "./startResolver";
 
 // jsdom doesn't provide CSS.escape — polyfill it

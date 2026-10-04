@@ -14,7 +14,7 @@ export const skillModuleCopies = [
     workflows.map((skill) => `skills/${skill}/scripts/lib/bgm-volume.mjs`),
   ],
   [
-    "skills/hyperframes/scripts/lib/frame-packets-core.mjs",
+    "skills/chalkframes/scripts/lib/frame-packets-core.mjs",
     [...workflows, "general-video"].map(
       (skill) => `skills/${skill}/scripts/lib/frame-packets-core.mjs`,
     ),

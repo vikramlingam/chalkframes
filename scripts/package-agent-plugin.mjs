@@ -22,7 +22,7 @@ function validateManifests(read) {
     "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
     "Unexpected Agent Plugins schema",
   );
-  assert.equal(portable.name, "hyperframes", "Invalid plugin identity");
+  assert.equal(portable.name, "chalkframes", "Invalid plugin identity");
   assert.match(
     String(portable.version),
     /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/,
@@ -75,11 +75,11 @@ export function packagePlugin(root = ROOT) {
   for (const path of paths) git("cat-file", "-e", `HEAD:${path}`);
   const out = join(root, "dist");
   mkdirSync(out, { recursive: true });
-  const archive = join(out, "hyperframes-agent-plugin.zip");
+  const archive = join(out, "chalkframes-agent-plugin.zip");
   git(
     "archive",
     "--format=zip",
-    "--prefix=hyperframes/",
+    "--prefix=chalkframes/",
     "--output",
     archive,
     "HEAD",
@@ -97,12 +97,12 @@ export function packagePlugin(root = ROOT) {
     skills: published,
   };
   writeFileSync(
-    join(out, "hyperframes-agent-plugin.json"),
+    join(out, "chalkframes-agent-plugin.json"),
     JSON.stringify(metadata, null, 2) + "\n",
   );
   writeFileSync(
-    join(out, "hyperframes-agent-plugin.sha256"),
-    `${sha256}  hyperframes-agent-plugin.zip\n`,
+    join(out, "chalkframes-agent-plugin.sha256"),
+    `${sha256}  chalkframes-agent-plugin.zip\n`,
   );
   return metadata;
 }

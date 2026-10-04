@@ -8,9 +8,9 @@ const { subpaths } = JSON.parse(readFileSync(resolve(packageDir, "package-subpat
 function refuse(name: string): never {
   throw new Error(`a light entry loaded ${name}`);
 }
-vi.mock("@hyperframes/core", () => refuse("@hyperframes/core"));
-vi.mock("@hyperframes/core/compiler", () => refuse("@hyperframes/core/compiler"));
-vi.mock("@hyperframes/core/lint", () => refuse("@hyperframes/core/lint"));
+vi.mock("@chalkframes/core", () => refuse("@chalkframes/core"));
+vi.mock("@chalkframes/core/compiler", () => refuse("@chalkframes/core/compiler"));
+vi.mock("@chalkframes/core/lint", () => refuse("@chalkframes/core/lint"));
 vi.mock("hono", () => refuse("hono"));
 vi.mock("postcss", () => refuse("postcss"));
 vi.mock("sharp", () => refuse("sharp"));

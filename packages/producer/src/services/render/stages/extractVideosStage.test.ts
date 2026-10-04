@@ -7,8 +7,8 @@ import type {
   ExtractionResult,
   VideoElement,
   VideoExtractionFailure,
-} from "@hyperframes/engine";
-import { resolveProjectRelativeSrc } from "@hyperframes/engine";
+} from "@chalkframes/engine";
+import { resolveProjectRelativeSrc } from "@chalkframes/engine";
 import {
   appendAutoDetectedVideoAudio,
   assertVideoExtractionSucceeded,

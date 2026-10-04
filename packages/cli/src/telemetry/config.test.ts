@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 // In-memory fake filesystem so these tests exercise the REAL config.ts
 // module (parsing, caching, readConfigFresh's cache-bypass) without ever
-// touching the developer/CI machine's actual ~/.hyperframes/config.json —
+// touching the developer/CI machine's actual ~/.chalkframes/config.json —
 // homedir() is resolved once at config.ts's module-load time, so faking
 // HOME via env var would only work in a fresh process, not inside a shared
 // vitest worker.
@@ -65,7 +65,7 @@ vi.mock("./policy.js", () => ({
 // Derived here rather than exported from config.ts: the pre-move path is
 // frozen history, so pinning the literal is the point — an export would just
 // let a rename pass silently, and it has no non-test consumer.
-const LEGACY_STATE_PATH = join(homedir(), ".local", "state", "hyperframes", "install-state.json");
+const LEGACY_STATE_PATH = join(homedir(), ".local", "state", "chalkframes", "install-state.json");
 
 describe("config.ts — readConfig / readConfigFresh / writeConfig (real module, faked fs)", () => {
   let readConfig: typeof import("./config.js").readConfig;
@@ -326,8 +326,8 @@ describe("install-state rollover (breaker survives a config re-mint)", () => {
     expect(readConfigFresh().bucketSeed, "lineage lost after reset").toBe(second);
   });
 
-  // The move: state used to live in ~/.local/state/hyperframes/ so it would
-  // survive `rm -rf ~/.hyperframes`. Review rejected persisting state outside
+  // The move: state used to live in ~/.local/state/chalkframes/ so it would
+  // survive `rm -rf ~/.chalkframes`. Review rejected persisting state outside
   // the config dir to defeat the user's reset, so it now shares CONFIG_DIR.
   it("keeps install-state inside the config dir, so deleting that dir is a full reset", () => {
     readConfig();
@@ -393,7 +393,7 @@ describe("bucket-seed carryover (cohorts survive a config wipe)", () => {
   });
 
   // The counterpart, and the reason install-state shares CONFIG_DIR: a seed
-  // that outlived `rm -rf ~/.hyperframes` would be a persistent identifier
+  // that outlived `rm -rf ~/.chalkframes` would be a persistent identifier
   // defeating the only reset the user has.
   it("the seed does NOT survive deleting the config dir — that reset is real", () => {
     const first = readConfig();
@@ -664,7 +664,7 @@ describe("install-state authority — negative latch and seed", () => {
     expect(readConfig().bucketSeed).toBe("seed-B");
   });
 
-  // A corrupt file OUTSIDE ~/.hyperframes survived the documented reset and
+  // A corrupt file OUTSIDE ~/.chalkframes survived the documented reset and
   // reported a predecessor forever.
   it("deletes an unreadable pre-move state file instead of reporting it forever", () => {
     fsState.files.set(LEGACY_STATE_PATH, "{truncated");
@@ -709,7 +709,7 @@ describe("an unwritable config dir must not re-roll the seed", () => {
   });
 
   it("stays silent for an install that opted out of telemetry", async () => {
-    policyState.runtimeOverride = "HYPERFRAMES_NO_TELEMETRY";
+    policyState.runtimeOverride = "CHALKFRAMES_NO_TELEMETRY";
     const fs = await import("node:fs");
     vi.mocked(fs.writeFileSync).mockImplementation(() => {
       throw new Error("EACCES: permission denied");

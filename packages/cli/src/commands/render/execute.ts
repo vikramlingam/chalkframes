@@ -1,6 +1,6 @@
 // fallow-ignore-file code-duplication
 import { mkdirSync, readFileSync } from "node:fs";
-import type { CanvasResolution, OutputResolutionIssueKind } from "@hyperframes/core";
+import type { CanvasResolution, OutputResolutionIssueKind } from "@chalkframes/core";
 import { c } from "../../ui/colors.js";
 import { errorBox, formatBytes } from "../../ui/format.js";
 import { formatLintStartupMessage } from "../../utils/lintFormat.js";
@@ -215,7 +215,7 @@ async function ensureRenderBrowser(plan: RenderPlan, signal?: AbortSignal): Prom
     errorBox(
       "Chrome not found",
       normalizeErrorMessage(error),
-      "Run: npx hyperframes browser ensure",
+      "Run: npx chalkframes browser ensure",
     );
     failCommand();
   }

@@ -186,7 +186,7 @@ async function main(): Promise<void> {
         "That is fine: adding a registry item does not require it. Open the pull request\n" +
         "and a maintainer regenerates the index before merge.\n\n" +
         "To do it yourself, fetch the model once with:\n" +
-        "  hyperframes catalog --query anything --on-device\n",
+        "  chalkframes catalog --query anything --on-device\n",
     );
     process.exit(EXIT_NO_MODEL);
   }

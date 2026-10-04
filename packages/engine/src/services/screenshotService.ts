@@ -8,7 +8,7 @@
 // fallow-ignore-file code-duplication
 import { type Page } from "puppeteer-core";
 import { type CaptureOptions } from "../types.js";
-import { COLOR_GRADING_SOURCE_HIDDEN_ATTR } from "@hyperframes/core/color-grading";
+import { COLOR_GRADING_SOURCE_HIDDEN_ATTR } from "@chalkframes/core/color-grading";
 import {
   HF_COLOR_GRADING_CANVAS_ID_PREFIX,
   MEDIA_RENDER_ID_ATTR,
@@ -16,7 +16,7 @@ import {
   RENDER_FRAME_ID_PREFIX,
   RENDER_FRAME_ID_SUFFIX,
   renderFrameIdForRenderId,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 
 export const cdpSessionCache = new WeakMap<Page, import("puppeteer-core").CDPSession>();
 
@@ -197,7 +197,7 @@ export async function beginFrameCapture(
  * every video render through a CDP capture path prone to producing phantom
  * duplicate content on SwiftShader (#2550).
  *
- * Callers measure once after page settle. Hyperframes compositions have a
+ * Callers measure once after page settle. Chalkframes compositions have a
  * fixed-height, overflow-clipped render surface; timeline animation may move
  * pixels within that surface but must not grow document flow during capture.
  */

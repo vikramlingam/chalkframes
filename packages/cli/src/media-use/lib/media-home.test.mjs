@@ -9,7 +9,7 @@ import { cachePut } from "./cache.mjs";
 import { globalMediaDir } from "./media-home.mjs";
 
 const HOME = mkdtempSync(join(tmpdir(), "media-home-"));
-process.env.HYPERFRAMES_MEDIA_HOME = HOME;
+process.env.CHALKFRAMES_MEDIA_HOME = HOME;
 
 test("the global cache writes into the media home a test points it at", () => {
   const work = mkdtempSync(join(tmpdir(), "media-home-src-"));
@@ -26,8 +26,8 @@ test("the global cache writes into the media home a test points it at", () => {
 function runProbe(env) {
   const lib = new URL("./media-home.mjs", import.meta.url).href;
   const childEnv = { ...process.env };
-  delete childEnv.HYPERFRAMES_MEDIA_HOME;
-  delete childEnv.HYPERFRAMES_MEDIA_HOME_REQUIRED;
+  delete childEnv.CHALKFRAMES_MEDIA_HOME;
+  delete childEnv.CHALKFRAMES_MEDIA_HOME_REQUIRED;
   delete childEnv.NODE_TEST_CONTEXT;
   const run = spawnSync(
     process.execPath,
@@ -42,9 +42,9 @@ function runProbe(env) {
 }
 
 test("a repo test run that never points the media home anywhere fails instead of writing", () => {
-  const { status, output } = runProbe({ HYPERFRAMES_MEDIA_HOME_REQUIRED: "1" });
+  const { status, output } = runProbe({ CHALKFRAMES_MEDIA_HOME_REQUIRED: "1" });
   assert.notEqual(status, 0, output);
-  assert.match(output, /set HYPERFRAMES_MEDIA_HOME to a temp dir/);
+  assert.match(output, /set CHALKFRAMES_MEDIA_HOME to a temp dir/);
 });
 
 // Node sets NODE_TEST_CONTEXT for every project's test runs, so another project whose own tests

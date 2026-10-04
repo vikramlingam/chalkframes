@@ -24,14 +24,14 @@ import {
   CANVAS_DIMENSIONS,
   checkOutputResolutionCompatibility,
   type CanvasResolution,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 import type {
   AudioElement,
   ExtractedFrames,
   ImageElement,
   ParallelProgress,
   VideoElement,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { CompiledComposition } from "../htmlCompiler.js";
 import { defaultLogger, type ProducerLogger } from "../../logger.js";
 import { isPathInside } from "../../utils/paths.js";
@@ -465,7 +465,7 @@ export function createMemorySampler(intervalMs: number = 250): MemorySampler {
 
 /**
  * Symlink (or copy) each extracted-frames directory into a stable path
- * under `compiledDir/__hyperframes_video_frames/<videoId>/`, and rewrite
+ * under `compiledDir/__chalkframes_video_frames/<videoId>/`, and rewrite
  * the per-frame paths so the file server can serve them.
  *
  * Exported for integration tests; not part of the stable public API —
@@ -573,7 +573,7 @@ export function materializeExtractedFramesForCompiledDir(
   const pathModule = options.pathModule ?? materializePathModule;
   const fileSystem = options.fileSystem ?? materializeFileSystem;
   const resolvedCompiledDir = pathModule.resolve(compiledDir);
-  const compiledFrameRoot = pathModule.join(resolvedCompiledDir, "__hyperframes_video_frames");
+  const compiledFrameRoot = pathModule.join(resolvedCompiledDir, "__chalkframes_video_frames");
 
   for (const ext of extracted) {
     const resolvedOut = pathModule.resolve(ext.outputDir);

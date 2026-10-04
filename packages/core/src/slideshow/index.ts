@@ -1,2 +1,2 @@
-// Moved to @hyperframes/parsers/slideshow. Re-exported here for back-compat.
-export * from "@hyperframes/parsers/slideshow";
+// Moved to @chalkframes/parsers/slideshow. Re-exported here for back-compat.
+export * from "@chalkframes/parsers/slideshow";

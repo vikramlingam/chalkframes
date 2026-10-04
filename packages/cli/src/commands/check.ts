@@ -21,10 +21,10 @@ import type { CaptionZoneOptions, FrameCheckOptions, LayoutOptions } from "../ut
 import { resolveLocalBrowserGpuMode } from "../browser/gpuPolicy.js";
 
 export const examples: Example[] = [
-  ["Run the full verification gate", "hyperframes check"],
-  ["Output one agent-readable envelope", "hyperframes check --json"],
-  ["Persist the five audited contrast frames", "hyperframes check --snapshots"],
-  ["Also fail on warnings", "hyperframes check --strict"],
+  ["Run the full verification gate", "chalkframes check"],
+  ["Output one agent-readable envelope", "chalkframes check --json"],
+  ["Persist the five audited contrast frames", "chalkframes check --snapshots"],
+  ["Also fail on warnings", "chalkframes check --strict"],
 ];
 
 export interface CheckCommandDependencies {
@@ -96,7 +96,7 @@ const CHECK_COMMAND_ARGS = {
   proxy: {
     type: "boolean",
     description:
-      "Auto-transcode browser-hostile video codecs (default: hyperframes.json media.autoProxy, which defaults on)",
+      "Auto-transcode browser-hostile video codecs (default: chalkframes.json media.autoProxy, which defaults on)",
     default: undefined,
   },
   "browser-gpu": {

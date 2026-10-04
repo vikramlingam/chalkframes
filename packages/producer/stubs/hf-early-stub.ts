@@ -1,6 +1,6 @@
 // fallow-ignore-file unused-file complexity
 /**
- * HyperFrames early stub — injected at the very start of `<head>` before any
+ * ChalkFrames early stub — injected at the very start of `<head>` before any
  * other scripts run. Compiled to an IIFE by scripts/build-hf-early-stub.ts.
  *
  * This file lives outside `src/` intentionally: it is compiled by a separate
@@ -10,12 +10,12 @@
  * Responsibilities
  * ─────────────────────────────────────────────────────────────────────────────
  *   1. Create `window.__hf` so page scripts can write to it before the bridge
- *      loads (e.g. @hyperframes/shader-transitions writes transition metadata
+ *      loads (e.g. @chalkframes/shader-transitions writes transition metadata
  *      during its init() call, which runs before end-of-body scripts).
  *
  *   2. Intercept `window.gsap` assignment and batch `timeline.to/from/fromTo/set`
  *      calls via requestAnimationFrame to prevent the main-thread hang described
- *      in https://github.com/heygen-com/hyperframes/issues/1231.
+ *      in https://github.com/vikramlingam/chalkframes/issues/1231.
  *
  * GSAP batching background
  * ─────────────────────────────────────────────────────────────────────────────

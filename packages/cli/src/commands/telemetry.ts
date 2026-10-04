@@ -11,14 +11,14 @@ import { failCommand } from "../utils/commandResult.js";
 import type { Example } from "./_examples.js";
 
 export const examples: Example[] = [
-  ["Check current telemetry status", "hyperframes telemetry status"],
-  ["Disable telemetry", "hyperframes telemetry disable"],
-  ["Enable telemetry", "hyperframes telemetry enable"],
+  ["Check current telemetry status", "chalkframes telemetry status"],
+  ["Disable telemetry", "chalkframes telemetry disable"],
+  ["Enable telemetry", "chalkframes telemetry enable"],
 ];
 
 function describeOverride(source: Exclude<TelemetryStatusSource, "config">): string {
   switch (source) {
-    case "HYPERFRAMES_NO_TELEMETRY":
+    case "CHALKFRAMES_NO_TELEMETRY":
     case "DO_NOT_TRACK":
       return `${source} is set`;
     case "dev_mode":
@@ -66,9 +66,9 @@ function runStatus(): void {
   console.log(`  ${c.dim("State:")}      ${c.accent(STATE_PATH)}`);
   console.log(`  ${c.dim("Tracked commands:")} ${c.bold(String(config.commandCount))}`);
   console.log();
-  console.log(`  ${c.dim("Disable:")}    ${c.accent("hyperframes telemetry disable")}`);
+  console.log(`  ${c.dim("Disable:")}    ${c.accent("chalkframes telemetry disable")}`);
   console.log(
-    `  ${c.dim("Env var:")}    ${c.accent("HYPERFRAMES_NO_TELEMETRY=1")} ${c.dim("or")} ${c.accent("DO_NOT_TRACK=1")}`,
+    `  ${c.dim("Env var:")}    ${c.accent("CHALKFRAMES_NO_TELEMETRY=1")} ${c.dim("or")} ${c.accent("DO_NOT_TRACK=1")}`,
   );
   console.log();
 }
@@ -87,7 +87,7 @@ export default defineCommand({
 
     if (!subcommand || subcommand === "") {
       console.log(`
-${c.bold("hyperframes telemetry")} ${c.dim("<subcommand>")}
+${c.bold("chalkframes telemetry")} ${c.dim("<subcommand>")}
 
 Manage anonymous usage data collection.
 
@@ -107,7 +107,7 @@ ${c.bold("WHAT WE DON'T COLLECT:")}
   ${c.dim("\u2022")} IP addresses (discarded by our analytics provider)
   ${c.dim("\u2022")} Any personally identifiable information
 
-${c.dim("You can also set")} ${c.accent("HYPERFRAMES_NO_TELEMETRY=1")} ${c.dim("or")} ${c.accent("DO_NOT_TRACK=1")} ${c.dim("to disable.")}
+${c.dim("You can also set")} ${c.accent("CHALKFRAMES_NO_TELEMETRY=1")} ${c.dim("or")} ${c.accent("DO_NOT_TRACK=1")} ${c.dim("to disable.")}
 `);
       return;
     }
@@ -121,7 +121,7 @@ ${c.dim("You can also set")} ${c.accent("HYPERFRAMES_NO_TELEMETRY=1")} ${c.dim("
         return runStatus();
       default:
         console.error(
-          `${c.error("Unknown subcommand:")} ${subcommand}\n\nRun ${c.accent("hyperframes telemetry --help")} for usage.`,
+          `${c.error("Unknown subcommand:")} ${subcommand}\n\nRun ${c.accent("chalkframes telemetry --help")} for usage.`,
         );
         failCommand();
     }

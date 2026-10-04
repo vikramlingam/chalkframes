@@ -36,8 +36,8 @@
  */
 
 import { join } from "node:path";
-import type { EngineConfig } from "@hyperframes/engine";
-import { suggestMatchingPreset, type CanvasResolution } from "@hyperframes/core";
+import type { EngineConfig } from "@chalkframes/engine";
+import { suggestMatchingPreset, type CanvasResolution } from "@chalkframes/core";
 import type { CompiledComposition } from "../../htmlCompiler.js";
 import { compileForRender } from "../../htmlCompiler.js";
 import type { ProducerLogger } from "../../../logger.js";

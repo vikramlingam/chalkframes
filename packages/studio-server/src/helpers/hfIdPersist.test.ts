@@ -13,8 +13,8 @@ import { join } from "node:path";
 import { stampFileHfIds } from "./hfIdPersist.js";
 
 const hooks = vi.hoisted(() => ({ minting: undefined as (() => void) | undefined }));
-vi.mock("@hyperframes/parsers/hf-ids", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@hyperframes/parsers/hf-ids")>();
+vi.mock("@chalkframes/parsers/hf-ids", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chalkframes/parsers/hf-ids")>();
   return {
     ...actual,
     ensureHfIds: (html: string) => {

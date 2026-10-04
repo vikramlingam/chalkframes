@@ -148,11 +148,11 @@ describe("isFontResourceError", () => {
 });
 
 describe("formatConsoleDiagnostic", () => {
-  it("surfaces HyperFrames page logs with a dedicated host prefix", () => {
+  it("surfaces ChalkFrames page logs with a dedicated host prefix", () => {
     expect(
-      formatConsoleDiagnostic("info", '[hyperframes] render runtime fps {"canonicalFps":30}', ""),
+      formatConsoleDiagnostic("info", '[chalkframes] render runtime fps {"canonicalFps":30}', ""),
     ).toEqual({
-      text: '[HyperFrames] render runtime fps {"canonicalFps":30}',
+      text: '[ChalkFrames] render runtime fps {"canonicalFps":30}',
       suppressHostLog: false,
     });
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it, setSystemTime } from "bun:test";
-import type { ParallelProgress } from "@hyperframes/engine";
+import type { ParallelProgress } from "@chalkframes/engine";
 import type { RenderJob } from "../renderOrchestrator.js";
 import { reportWorkerStartup, resolveBrowserMediaEnd } from "./shared.js";
 

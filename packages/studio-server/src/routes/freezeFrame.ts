@@ -2,10 +2,10 @@ import { execFile } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import type { Hono } from "hono";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import type { StudioApiAdapter } from "../types.js";
 import { mkdirWithinProject, pinWithinProject } from "../helpers/safePath.js";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 import { backupPathForResponse, snapshotBeforeWrite } from "../helpers/backupJournal.js";
 import {
   createWriteToken,
@@ -168,7 +168,7 @@ export function registerFreezeFrameRoutes(
     });
     if (!folded) return c.json({ error: "Freeze target was not found in the file" }, 400);
     const written = writeFolded(project.dir, absPath, body.path, before, folded.html, {
-      token: body.transactionToken ?? c.req.header("X-Hyperframes-Write-Token"),
+      token: body.transactionToken ?? c.req.header("X-Chalkframes-Write-Token"),
     });
     if ("error" in written) return c.json({ error: written.error }, written.status);
     const { version, writeToken, backupPath } = written;

@@ -1,7 +1,7 @@
 import { cpus, freemem, platform, release } from "node:os";
 import { existsSync, readFileSync, statfsSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { getSystemTotalMb } from "@hyperframes/engine";
+import { getSystemTotalMb } from "@chalkframes/engine";
 import {
   detectAgentRuntime,
   detectAgentHints,
@@ -63,7 +63,7 @@ export interface SystemMeta {
   agent_hint: string | null;
   term_program: string | null;
   agent_env_hints: string | null;
-  /** App that launched the CLI, from HYPERFRAMES_CLIENT (`<app>/<version>/<channel>`); null from a shell. */
+  /** App that launched the CLI, from CHALKFRAMES_CLIENT (`<app>/<version>/<channel>`); null from a shell. */
   client: string | null;
 }
 
@@ -73,7 +73,7 @@ let cached: SystemMeta | null = null;
 const CLIENT_TAG = /^[a-z0-9][a-z0-9._+-]{0,31}(\/[a-z0-9._+-]{1,32}){0,3}$/i;
 
 function readClientTag(): string | null {
-  const tag = process.env["HYPERFRAMES_CLIENT"]?.trim() ?? "";
+  const tag = process.env["CHALKFRAMES_CLIENT"]?.trim() ?? "";
   return CLIENT_TAG.test(tag) ? tag : null;
 }
 

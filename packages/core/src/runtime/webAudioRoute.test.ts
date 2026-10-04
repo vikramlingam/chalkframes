@@ -252,7 +252,7 @@ describe("reportWebAudioMediaRoute", () => {
     reportWebAudioMediaRoute(el, classifyWebAudioMediaRoute(el));
 
     // The CLI's check gate matches this token, not the prose around it.
-    expect(info.mock.calls[0]?.[0]).toContain("[hyperframes] runtime_web_audio_bypass");
+    expect(info.mock.calls[0]?.[0]).toContain("[chalkframes] runtime_web_audio_bypass");
     expect(post).toHaveBeenCalledWith(
       expect.objectContaining({ type: "diagnostic", code: "runtime_web_audio_bypass" }),
       "*",

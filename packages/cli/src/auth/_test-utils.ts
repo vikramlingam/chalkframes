@@ -11,11 +11,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const ENV_KEYS = [
-  "HEYGEN_API_KEY",
-  "HYPERFRAMES_API_KEY",
-  "HEYGEN_CONFIG_DIR",
-  "HEYGEN_API_URL",
-  "HYPERFRAMES_OAUTH_CLIENT_ID",
+  "CHALKFRAMES_API_KEY",
+  "CHALKFRAMES_API_KEY",
+  "CHALKFRAMES_CONFIG_DIR",
+  "CHALKFRAMES_API_URL",
+  "CHALKFRAMES_OAUTH_CLIENT_ID",
 ] as const;
 
 type EnvKey = (typeof ENV_KEYS)[number];
@@ -29,7 +29,7 @@ export interface EnvFixture {
 
 /**
  * Take a snapshot of the auth-related env, clear them, make a tmp
- * `HEYGEN_CONFIG_DIR`, and return a `restore()` that undoes all of
+ * `CHALKFRAMES_CONFIG_DIR`, and return a `restore()` that undoes all of
  * the above.
  */
 export async function setupTempAuthEnv(prefix = "hf-auth-test-"): Promise<EnvFixture> {
@@ -39,7 +39,7 @@ export async function setupTempAuthEnv(prefix = "hf-auth-test-"): Promise<EnvFix
     saved[k] = process.env[k];
     delete process.env[k];
   }
-  process.env["HEYGEN_CONFIG_DIR"] = dir;
+  process.env["CHALKFRAMES_CONFIG_DIR"] = dir;
 
   const restore = async (): Promise<void> => {
     for (const k of ENV_KEYS) {

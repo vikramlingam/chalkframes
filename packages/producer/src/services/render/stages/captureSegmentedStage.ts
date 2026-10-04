@@ -32,7 +32,7 @@ import {
   type CaptureSession,
   type EngineConfig,
   type StreamingEncoder,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { FileServerHandle } from "../../fileServer.js";
 import type { ProducerLogger } from "../../../logger.js";
 import type { ProgressCallback, RenderJob } from "../../renderOrchestrator.js";

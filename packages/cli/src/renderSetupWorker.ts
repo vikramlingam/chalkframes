@@ -4,15 +4,15 @@ import { lintProject } from "./utils/lintProject.js";
 import { killOrphanedProcesses } from "./utils/orphanCleanup.js";
 import { installRenderSetupSignalHandlers } from "./renderSetupWorkerLifecycle.js";
 
-const RESULT_PREFIX = "HYPERFRAMES_RENDER_SETUP_RESULT:";
+const RESULT_PREFIX = "CHALKFRAMES_RENDER_SETUP_RESULT:";
 const mode = process.argv[2];
-const input = JSON.parse(process.env.HYPERFRAMES_RENDER_SETUP_INPUT ?? "{}");
+const input = JSON.parse(process.env.CHALKFRAMES_RENDER_SETUP_INPUT ?? "{}");
 
 const disposeSignalHandlers = installRenderSetupSignalHandlers(
   process,
   releaseOwnedBrowserInstallLock,
   (signal) => process.kill(process.pid, signal),
-  process.env.HYPERFRAMES_RENDER_DETACHED !== "1",
+  process.env.CHALKFRAMES_RENDER_DETACHED !== "1",
 );
 
 let result: unknown;

@@ -7,14 +7,14 @@ import {
   directorySizeBytes,
   gcExtractionCache,
   resolveExtractCacheDir,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import {
   DEFAULT_HISTORY_ROOT,
   PROXY_CACHE_DIR_NAME,
   cleanupProxyCache,
   listProjectHistories,
   pruneGoneProjectHistories,
-} from "@hyperframes/studio-server";
+} from "@chalkframes/studio-server";
 import type { Example } from "./_examples.js";
 import { c } from "../ui/colors.js";
 import { formatBytes } from "../ui/format.js";
@@ -24,10 +24,10 @@ import { redactHome } from "./doctor.js";
 import { withMeta } from "../utils/updateCheck.js";
 
 export const examples: Example[] = [
-  ["See what HyperFrames left on disk, remove nothing", "hyperframes clean --dry-run"],
-  ["Remove it", "hyperframes clean"],
-  ["Also remove snapshot folders", "hyperframes clean --snapshots"],
-  ["For agents", "hyperframes clean --json"],
+  ["See what ChalkFrames left on disk, remove nothing", "chalkframes clean --dry-run"],
+  ["Remove it", "chalkframes clean"],
+  ["Also remove snapshot folders", "chalkframes clean --snapshots"],
+  ["For agents", "chalkframes clean --json"],
 ];
 
 /** A render dir with no owner record (made before owners were recorded) counts as abandoned after this long idle. */
@@ -75,7 +75,7 @@ async function attempt(sweep: Sweep, step: () => unknown): Promise<void> {
   }
 }
 
-/** A HyperFrames project: its index.html holds a composition root, not just any website. */
+/** A ChalkFrames project: its index.html holds a composition root, not just any website. */
 function isProject(dir: string): boolean {
   try {
     return readFileSync(join(dir, "index.html"), "utf-8").includes("data-composition-id");
@@ -171,7 +171,7 @@ function sweepExtractCache(sweep: Sweep): void {
   });
 }
 
-/** Everything HyperFrames left behind that no running render or preview uses; removed unless `dryRun`. */
+/** Everything ChalkFrames left behind that no running render or preview uses; removed unless `dryRun`. */
 export async function cleanLeftovers(options: CleanOptions): Promise<CleanResult> {
   const historyRoot = options.historyRoot ?? DEFAULT_HISTORY_ROOT;
   const tempDir = options.tempDir ?? tmpdir();
@@ -221,7 +221,7 @@ const redactPaths = (rows: Leftover[]) =>
   rows.map((row) => ({ ...row, path: redactHome(row.path) }));
 
 export default defineCommand({
-  meta: { name: "clean", description: "Find and remove what HyperFrames left on disk" },
+  meta: { name: "clean", description: "Find and remove what ChalkFrames left on disk" },
   args: {
     dir: {
       type: "positional",

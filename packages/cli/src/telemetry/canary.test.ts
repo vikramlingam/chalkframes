@@ -30,9 +30,9 @@ vi.mock("./policy.js", () => ({
 
 // The registry is data; pin a known shape so these tests don't move when a
 // real canary is added or ramped.
-vi.mock("@hyperframes/core/canary-registry", async () => {
-  const actual = await vi.importActual<typeof import("@hyperframes/core/canary-registry")>(
-    "@hyperframes/core/canary-registry",
+vi.mock("@chalkframes/core/canary-registry", async () => {
+  const actual = await vi.importActual<typeof import("@chalkframes/core/canary-registry")>(
+    "@chalkframes/core/canary-registry",
   );
   return {
     ...actual,
@@ -115,7 +115,7 @@ describe("telemetry opt-out is canary opt-out", () => {
     });
   });
 
-  it.each(["HYPERFRAMES_NO_TELEMETRY", "DO_NOT_TRACK", "dev_mode"])(
+  it.each(["CHALKFRAMES_NO_TELEMETRY", "DO_NOT_TRACK", "dev_mode"])(
     "does not enrol under the %s runtime override, even with the preference on",
     (source) => {
       configState.telemetryEnabled = true;
@@ -151,7 +151,7 @@ describe("telemetry opt-out is canary opt-out", () => {
 
 describe("bucketing unit", () => {
   it("buckets on the bucketSeed when present — the unit that survives config wipes", async () => {
-    const { evaluateCanary } = await import("@hyperframes/core/canary");
+    const { evaluateCanary } = await import("@chalkframes/core/canary");
     configState.bucketSeed = "5f1c9d2e-0000-4000-8000-aaaaaaaaaaaa";
     const viaBinding = resolveCanary("test-gamma").bucket;
     // 50, not 100: at 100 evaluateCanary short-circuits before bucketing and
@@ -172,7 +172,7 @@ describe("bucketing unit", () => {
   });
 
   it("falls back to the anonymousId when no seed exists (failed legacy backfill)", async () => {
-    const { evaluateCanary } = await import("@hyperframes/core/canary");
+    const { evaluateCanary } = await import("@chalkframes/core/canary");
     const viaBinding = resolveCanary("test-gamma").bucket;
     const byId = evaluateCanary({
       feature: "test-gamma",

@@ -1,6 +1,6 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * `hyperframes cloud list` — page through GET /v3/hyperframes/renders.
+ * `chalkframes cloud list` — page through GET /v3/chalkframes/renders.
  *
  * Cursor pagination: `--limit` caps a single page (max 100 per the
  * spec), `--all` walks `next_token` until exhausted. Default page size
@@ -14,7 +14,7 @@ import { reportApiError } from "../../cloud/errors.js";
 import { parseIntFlag } from "../../cloud/parsing.js";
 import { colorStatus } from "../../cloud/statusColor.js";
 import { withMeta } from "../../utils/updateCheck.js";
-import type { HyperframesRenderDetail } from "../../cloud/index.js";
+import type { ChalkframesRenderDetail } from "../../cloud/index.js";
 import { c } from "../../ui/colors.js";
 import { errorBox } from "../../ui/format.js";
 
@@ -69,8 +69,8 @@ export default defineCommand({
 async function fetchAll(
   client: Awaited<ReturnType<typeof createCloudClient>>,
   pageSize: number | undefined,
-): Promise<HyperframesRenderDetail[]> {
-  const out: HyperframesRenderDetail[] = [];
+): Promise<ChalkframesRenderDetail[]> {
+  const out: ChalkframesRenderDetail[] = [];
   const seenCursors = new Set<string>();
   let token: string | undefined;
   for (let page = 0; page < MAX_ALL_PAGES; page++) {
@@ -109,7 +109,7 @@ async function fetchAll(
 
 // fallow-ignore-next-line complexity
 function emit(
-  renders: HyperframesRenderDetail[],
+  renders: ChalkframesRenderDetail[],
   asJson: boolean,
   nextToken: string | null,
   hasMore: boolean,

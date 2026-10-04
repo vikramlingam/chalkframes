@@ -1,6 +1,6 @@
 /**
- * Read/write the shared `~/.heygen/credentials` file (JSON contents,
- * no `.json` extension — the path matches heygen-cli).
+ * Read/write the shared `~/.chalkframes/credentials` file (JSON contents,
+ * no `.json` extension — the path matches chalkframes-cli).
  *
  * Current format:
  *   {
@@ -20,14 +20,14 @@
  *     }
  *   }
  *
- * Legacy: a single-line plaintext API key (the format heygen-cli has
+ * Legacy: a single-line plaintext API key (the format chalkframes-cli has
  * written historically). If `JSON.parse` rejects the file, we treat the
  * trimmed contents as an API key; the next write upgrades to JSON.
  *
  * Writes go to a temp file + rename, 0600 mode, parent dir 0700.
  *
  * Cross-CLI forward compatibility: this file is SHARED with the Go
- * `heygen` CLI (and any future tool). Either CLI may write keys this
+ * `chalkframes` CLI (and any future tool). Either CLI may write keys this
  * version doesn't model yet. To avoid one CLI silently clobbering the
  * other's data on round-trip, the reader stashes every unrecognized
  * top-level key (and every unrecognized key inside the `oauth` / `user`
@@ -91,7 +91,7 @@ export interface OAuthTokens {
  * credential so `auth status` can show "Logged in as ..." without
  * re-hitting the API. All fields optional; a file with no `user` block
  * (a pre-this-change login) is fully backwards-compatible. Mirrors the
- * `user` block heygen-cli writes — see `internal/auth/user_store.go`.
+ * `user` block chalkframes-cli writes — see `internal/auth/user_store.go`.
  */
 export interface StoredUserInfo {
   email?: string;
@@ -446,7 +446,7 @@ function serializeUser(u: StoredUserInfo): Record<string, unknown> {
 }
 
 /**
- * Legacy-plaintext heuristic. HeyGen API keys come in multiple formats
+ * Legacy-plaintext heuristic. Chalkframes API keys come in multiple formats
  * (`sk_V2_…`, historic `hg_…`, partner keys, etc.) and the CLI should
  * NOT shape-check them — the backend's `/v3/users/me` is the source of
  * truth and the existing `auth login` rollback handles bad keys cleanly.

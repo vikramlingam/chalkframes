@@ -84,7 +84,7 @@ async function main() {
   // Skills bundled into the published CLI. Branches don't all carry the same
   // skills/ tree (it gets restructured), so each entry is existsSync-guarded:
   // a missing skill dir warns + skips instead of crashing the build.
-  for (const skill of ["hyperframes", "hyperframes-cli", "gsap", "media-use"]) {
+  for (const skill of ["chalkframes", "chalkframes-cli", "gsap", "media-use"]) {
     const src = join(REPO_ROOT, "skills", skill);
     if (!existsSync(src)) {
       console.warn(`[build-copy] skill not found, skipping: skills/${skill}`);
@@ -131,13 +131,13 @@ async function main() {
   // `play`. resolvePlayerPath/resolveSlideshowPath look for these alongside the
   // built CLI (dist/<name>.global.js), so they must ship in the package — the
   // monorepo-dev fallback paths don't exist once installed from npm. Without
-  // this, `npx hyperframes present` fails with "@hyperframes/player not found".
+  // this, `npx chalkframes present` fails with "@chalkframes/player not found".
   const playerDist = join(REPO_ROOT, "packages", "player", "dist");
   const playerGlobals = [
-    [join(playerDist, "hyperframes-player.global.js"), join(DIST, "hyperframes-player.global.js")],
+    [join(playerDist, "chalkframes-player.global.js"), join(DIST, "chalkframes-player.global.js")],
     [
-      join(playerDist, "slideshow", "hyperframes-slideshow.global.js"),
-      join(DIST, "hyperframes-slideshow.global.js"),
+      join(playerDist, "slideshow", "chalkframes-slideshow.global.js"),
+      join(DIST, "chalkframes-slideshow.global.js"),
     ],
   ];
   for (const [src, dest] of playerGlobals) {

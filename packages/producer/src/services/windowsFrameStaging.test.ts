@@ -16,8 +16,8 @@ import { createRenderJob, executeRenderJob } from "./renderOrchestrator.js";
 import { materializeExtractedFramesForCompiledDir } from "./render/shared.js";
 
 const staging = vi.hoisted((): { requestedCopy?: boolean } => ({}));
-vi.mock("@hyperframes/engine", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@hyperframes/engine")>()),
+vi.mock("@chalkframes/engine", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@chalkframes/engine")>()),
   assertConfiguredFfmpegBinariesExist: () => {},
 }));
 vi.mock("./render/stages/compileStage.js", () => ({

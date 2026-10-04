@@ -10,7 +10,7 @@ import {
   statSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 
 const SAMPLE_RATE = 4000;
 const PEAK_COUNT = 4000;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COLOR_GRADING_ADVANCED_LIMITS } from "@hyperframes/parsers/color-grading-contract";
+import { COLOR_GRADING_ADVANCED_LIMITS } from "@chalkframes/parsers/color-grading-contract";
 import { unitFloatToByte } from "./colorLuts";
 import {
   calculateHfColorGradingSecondaryMask,
@@ -17,7 +17,7 @@ import {
   normalizeHfColorGradingWithVariables,
   serializeHfColorGrading,
 } from "./colorGrading";
-import { lintHyperframeHtml } from "./lint";
+import { lintChalkframeHtml } from "./lint";
 
 describe("color grading", () => {
   it("derives grade and effect preset views from their actual payloads", () => {
@@ -45,10 +45,10 @@ describe("color grading", () => {
       </body></html>
     `;
 
-    const valid = await lintHyperframeHtml(html(serializeHfColorGrading(grading)));
+    const valid = await lintChalkframeHtml(html(serializeHfColorGrading(grading)));
     expect(valid.findings.filter((finding) => finding.severity === "error")).toEqual([]);
 
-    const invalid = await lintHyperframeHtml(html('{"effects":{"notARealEffect":1}}'));
+    const invalid = await lintChalkframeHtml(html('{"effects":{"notARealEffect":1}}'));
     expect(invalid.findings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

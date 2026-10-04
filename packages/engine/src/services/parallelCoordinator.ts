@@ -474,7 +474,7 @@ export function distributeFramesInterleaved(
  * Decide whether a parallel worker should run the per-worker SwiftShader
  * assertion. Gated to worker 0 only: workers within a chunk share the same
  * Chrome binary, flags, and OS/driver state, so one verification per chunk
- * is sufficient. See `heygen-com/hyperframes#955`.
+ * is sufficient. See `vikramlingam/chalkframes#955`.
  */
 export function shouldVerifyWorkerGpu(workerId: number, config?: Partial<EngineConfig>): boolean {
   return config?.browserGpuMode === "software" && workerId === 0;
@@ -486,7 +486,7 @@ export function shouldVerifyWorkerGpu(workerId: number, config?: Partial<EngineC
  * `captureFrame`/`captureFrameToBuffer`/`captureFrameToBufferPipelined` take
  * no abort signal of their own — a native browser call wedged inside one of
  * them (WSL2 hangs the very first drawElement/BeginFrame capture at frame 0
- * with no error, heygen-com/hyperframes#3441) cannot be cancelled, only
+ * with no error, vikramlingam/chalkframes#3441) cannot be cancelled, only
  * raced. Without this, the `signal?.aborted` checks at the top of the
  * `captureFrameRange` loop are a no-op the moment a worker is already
  * awaiting a hung call: nothing revisits that check until the await settles,
@@ -783,7 +783,7 @@ async function psnrForDiskSample(
           `ffmpeg or the \`psnr\` filter is unavailable — ${detail}. The preflight in ` +
           "initDrawElementOrTransparentBackground normally catches this at bootstrap; if you " +
           "hit this after a successful preflight, ffmpeg was replaced mid-render or " +
-          "HYPERFRAMES_FFMPEG_PATH now points at a different binary.",
+          "CHALKFRAMES_FFMPEG_PATH now points at a different binary.",
         { cause: err },
       );
     }

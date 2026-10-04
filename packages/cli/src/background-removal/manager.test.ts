@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 describe("background-removal/manager — selectProviders", () => {
   beforeEach(() => {
     vi.resetModules();
-    delete process.env["HYPERFRAMES_CUDA"];
+    delete process.env["CHALKFRAMES_CUDA"];
   });
 
   afterEach(() => {
@@ -34,7 +34,7 @@ describe("background-removal/manager — selectProviders", () => {
     expect(choice.label).toBe("CoreML");
   });
 
-  it("auto falls back to CPU on linux without HYPERFRAMES_CUDA", async () => {
+  it("auto falls back to CPU on linux without CHALKFRAMES_CUDA", async () => {
     vi.doMock("node:os", () => ({
       platform: () => "linux",
       arch: () => "x64",
@@ -46,8 +46,8 @@ describe("background-removal/manager — selectProviders", () => {
     expect(choice.label).toBe("CPU");
   });
 
-  it("auto picks CUDA on linux when HYPERFRAMES_CUDA=1", async () => {
-    process.env["HYPERFRAMES_CUDA"] = "1";
+  it("auto picks CUDA on linux when CHALKFRAMES_CUDA=1", async () => {
+    process.env["CHALKFRAMES_CUDA"] = "1";
     vi.doMock("node:os", () => ({
       platform: () => "linux",
       arch: () => "x64",

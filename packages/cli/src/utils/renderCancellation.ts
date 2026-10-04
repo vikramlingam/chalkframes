@@ -1,4 +1,4 @@
-import { setHostHandlesSigint } from "@hyperframes/engine";
+import { setHostHandlesSigint } from "@chalkframes/engine";
 import {
   processAncestorSnapshot,
   processIdentity,
@@ -81,7 +81,7 @@ function captureRenderAncestors(
   lookupIdentity: (pid: number) => string | null,
   isAlive: (pid: number) => boolean,
 ): RenderAncestor[] {
-  if (options.detached ?? process.env.HYPERFRAMES_RENDER_DETACHED === "1") return [];
+  if (options.detached ?? process.env.CHALKFRAMES_RENDER_DETACHED === "1") return [];
   if (platform !== "linux" && options.parentPid === undefined && options.identity === undefined) {
     return (options.ancestorSnapshot ?? processAncestorSnapshot)(pid);
   }
@@ -114,7 +114,7 @@ export function createRenderCancellationScope(
     if (!controller.signal.aborted) controller.abort(new Error(reason));
   };
 
-  const detached = options.detached ?? process.env.HYPERFRAMES_RENDER_DETACHED === "1";
+  const detached = options.detached ?? process.env.CHALKFRAMES_RENDER_DETACHED === "1";
   const signalHandlers = installSignalHandlers(detached, signalTarget, abort);
   setHostHandlesSigint(true);
   const lookupIdentity = options.identity ?? processIdentity;

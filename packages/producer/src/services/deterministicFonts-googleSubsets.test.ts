@@ -15,7 +15,7 @@
  * glyphs. Result: Latin letters absent from the embedded font fell back to a
  * different font (the visible "wrong A" glitch).
  *
- * These tests inject `fetchImpl` (no network) and a temp `HYPERFRAMES_FONT_CACHE_DIR`
+ * These tests inject `fetchImpl` (no network) and a temp `CHALKFRAMES_FONT_CACHE_DIR`
  * so they are hermetic.
  */
 
@@ -34,16 +34,16 @@ const LOCAL_FONT_FILE = join(LOCAL_FONT_DIR, "hf-authored-fail-test.woff2");
 const LOCAL_FONT_BYTES = "LOCAL_ONLY_BYTES";
 
 beforeAll(() => {
-  prevCacheEnv = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  prevCacheEnv = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   cacheDir = mkdtempSync(join(tmpdir(), "hf-font-cache-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
   mkdirSync(LOCAL_FONT_DIR, { recursive: true });
   writeFileSync(LOCAL_FONT_FILE, LOCAL_FONT_BYTES);
 });
 
 afterAll(() => {
-  if (prevCacheEnv === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = prevCacheEnv;
+  if (prevCacheEnv === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = prevCacheEnv;
   rmSync(cacheDir, { recursive: true, force: true });
   rmSync(LOCAL_FONT_FILE, { force: true });
 });
@@ -202,7 +202,7 @@ describe("authored Google font stylesheet", () => {
       .find((block) => block.includes('font-family: "Fraunces"'));
     expect(frauncesFace).toBeDefined();
     expect(frauncesFace).not.toContain(b64("NUNITO_LINKED"));
-    expect(result.indexOf("data-hyperframes-deterministic-fonts")).toBeGreaterThan(
+    expect(result.indexOf("data-chalkframes-deterministic-fonts")).toBeGreaterThan(
       result.indexOf(AUTHORED_HREF),
     );
   });
@@ -219,7 +219,7 @@ describe("authored Google font stylesheet", () => {
 
     expect(urls.some((url) => url.includes("ital,wght@"))).toBe(false);
     expect(result).not.toContain(b64("FRAUNCES_WIDE"));
-    expect(result).not.toContain("data-hyperframes-deterministic-fonts");
+    expect(result).not.toContain("data-chalkframes-deterministic-fonts");
   });
 
   it("still requests by family name when the page has no Google link", async () => {

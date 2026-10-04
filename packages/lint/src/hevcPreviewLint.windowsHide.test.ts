@@ -6,7 +6,7 @@ vi.mock("node:child_process", () => {
   const mocked = { execFile: execFileMock };
   return { ...mocked, default: mocked };
 });
-vi.mock("@hyperframes/parsers/ff-binaries", () => ({
+vi.mock("@chalkframes/parsers/ff-binaries", () => ({
   findFfBinary: () => "/fake/bin/ffprobe",
 }));
 

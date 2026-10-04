@@ -1,4 +1,4 @@
-import type { RateSpec } from "@hyperframes/core";
+import type { RateSpec } from "@chalkframes/core";
 
 export interface AudioVolumeKeyframe {
   time: number;

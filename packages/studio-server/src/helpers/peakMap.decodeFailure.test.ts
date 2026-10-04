@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 // Stand-in binaries: ffprobe reports a stereo stream, ffmpeg writes samples and then fails.
 const fakeBin = vi.hoisted(() => ({ dir: "" }));
-vi.mock("@hyperframes/parsers/ff-binaries", () => ({
+vi.mock("@chalkframes/parsers/ff-binaries", () => ({
   findFfBinary: (name: string) => join(fakeBin.dir, name),
 }));
 

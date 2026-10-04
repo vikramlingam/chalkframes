@@ -11,14 +11,14 @@ import { waveWarpSampleRef } from "../../../core/src/vfx/refs/waveWarp";
  *
  * Rebuild the bundle before running this file, or it tests a stale runtime:
  *
- *     cd packages/core && bun run build:hyperframes-runtime
+ *     cd packages/core && bun run build:chalkframes-runtime
  *
  * `drawElementImage` lives behind `--enable-features=CanvasDrawElement`, which
  * the engine's own browser launcher already passes
  * (`packages/engine/src/services/browserManager.ts`,
  * `CANVAS_DRAW_ELEMENT_FEATURE_FLAG`).
  */
-const RUNTIME_PATH = resolve(import.meta.dirname, "../../../core/dist/hyperframe.runtime.iife.js");
+const RUNTIME_PATH = resolve(import.meta.dirname, "../../../core/dist/chalkframe.runtime.iife.js");
 
 const HOST_W = 160;
 const HOST_H = 120;
@@ -247,7 +247,7 @@ function twoHostFixture(chain: string): string {
  * seek-completion barrier, then ONE settle race — `setTimeout(100)` against a
  * double rAF, copied from the CLI's default `animationFrameSettle: "race"`
  * (`packages/cli/src/capture/captureCompositionFrame.ts`). Whatever has not
- * painted by the time this returns is what `hyperframes snapshot` screenshots
+ * painted by the time this returns is what `chalkframes snapshot` screenshots
  * as blank.
  */
 async function seekAndDrainBarrier(page: Page, t: number): Promise<void> {
@@ -556,7 +556,7 @@ describe("data-vfx-chain in the browser", () => {
 
   /**
    * Loud-error collector per page. A chain the runtime refused — the shape a
-   * stale `dist/hyperframe.runtime.iife.js` takes, since a kernel it has never
+   * stale `dist/chalkframe.runtime.iife.js` takes, since a kernel it has never
    * heard of is an unknown effect type — otherwise surfaces as an unreadable
    * `expected false to be true` two helpers away.
    */
@@ -567,7 +567,7 @@ describe("data-vfx-chain in the browser", () => {
     pageErrors.set(page, errors);
     page.on("console", (message) => {
       const text = message.text();
-      if (text.includes("[HyperFrames] composition script error:")) errors.push(text);
+      if (text.includes("[ChalkFrames] composition script error:")) errors.push(text);
     });
     page.on("pageerror", (error) => errors.push(error.message));
     return errors;
@@ -687,7 +687,7 @@ describe("data-vfx-chain in the browser", () => {
   }, 60_000);
 
   /**
-   * `hyperframes snapshot` (and `check`/`compare`/`validate`/`layout`, and
+   * `chalkframes snapshot` (and `check`/`compare`/`validate`/`layout`, and
    * Studio's thumbnail capture) seek through the same `renderSeek` the engine
    * does, but never read
    * `__hf_page_composite_pending` and never call `__hf_page_composite_resolve`
@@ -735,7 +735,7 @@ describe("data-vfx-chain in the browser", () => {
 
   /**
    * The same snapshot-family path, but joined rather than raced. Every
-   * `hyperframes` seek caller (`snapshot`/`check`/`compare`/`validate`/
+   * `chalkframes` seek caller (`snapshot`/`check`/`compare`/`validate`/
    * `layout`) drains `__hfWaitForSeekCompletion` and then allows exactly one
    * settle race before screenshotting. The preview-side capture used to be
    * fire-and-forget AND sequential per host, so N hosts cost up to 2N frames

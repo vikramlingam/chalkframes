@@ -3,10 +3,10 @@ import {
   patchElementInHtml,
   removeElementFromHtml,
   splitElementInHtml,
-} from "@hyperframes/studio-server";
-import type { AppliedFileMutation, PatchOperation } from "@hyperframes/studio-server";
-import { fpsToNumber, parseFpsWithDefault } from "@hyperframes/core";
-import { isInsideSpan, sameInstant, spansShareTime } from "@hyperframes/core/clip-facts";
+} from "@chalkframes/studio-server";
+import type { AppliedFileMutation, PatchOperation } from "@chalkframes/studio-server";
+import { fpsToNumber, parseFpsWithDefault } from "@chalkframes/core";
+import { isInsideSpan, sameInstant, spansShareTime } from "@chalkframes/core/clip-facts";
 import { readCompositionFps } from "../utils/compositionFps.js";
 import { readFileSync } from "node:fs";
 import type { ProjectTimeline, TimelineRow } from "./describeProject.js";

@@ -220,7 +220,7 @@ function logGpuProbeFailure(
 }
 
 function isGpuProbeDebugEnabled(): boolean {
-  const value = process.env.HYPERFRAMES_DEBUG_GPU_PROBE;
+  const value = process.env.CHALKFRAMES_DEBUG_GPU_PROBE;
   return value === "1" || value === "true";
 }
 

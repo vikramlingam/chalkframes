@@ -133,10 +133,10 @@ describe("measurePlanSizeBreakdown path boundaries", () => {
 
   it("classifies staged extracted frames separately from compiled assets", () => {
     const dir = mkdtempSync(join(runRoot, "staged-breakdown-"));
-    mkdirSync(join(dir, "__hyperframes_video_frames", "video-1"), { recursive: true });
+    mkdirSync(join(dir, "__chalkframes_video_frames", "video-1"), { recursive: true });
     writeFileSync(join(dir, "index.html"), Buffer.alloc(25));
     writeFileSync(
-      join(dir, "__hyperframes_video_frames", "video-1", "frame_000001.jpg"),
+      join(dir, "__chalkframes_video_frames", "video-1", "frame_000001.jpg"),
       Buffer.alloc(75),
     );
 

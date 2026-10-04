@@ -1,6 +1,6 @@
 // fallow-ignore-file code-duplication
 import { describe, it, expect } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 describe("adapter rules", () => {
   it("reports error when GSAP is used without a GSAP script tag", async () => {
@@ -14,7 +14,7 @@ describe("adapter rules", () => {
     window.__timelines["main"] = tl;
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_gsap_script");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -33,7 +33,7 @@ describe("adapter rules", () => {
     window.__timelines["main"] = tl;
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_gsap_script");
     expect(finding).toBeUndefined();
   });
@@ -49,7 +49,7 @@ describe("adapter rules", () => {
     window.__timelines["main"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_lottie_script");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -66,7 +66,7 @@ describe("adapter rules", () => {
     lottie.loadAnimation({ container: document.getElementById('lottie'), path: 'anim.json' });
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_lottie_script");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -84,7 +84,7 @@ describe("adapter rules", () => {
     window.__timelines["main"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_lottie_script");
     expect(finding).toBeUndefined();
   });
@@ -100,7 +100,7 @@ describe("adapter rules", () => {
     const renderer = new THREE.WebGLRenderer();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -119,7 +119,7 @@ describe("adapter rules", () => {
     const renderer = new THREE.WebGLRenderer();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeUndefined();
   });
@@ -135,7 +135,7 @@ describe("adapter rules", () => {
     const scene = new THREE.Scene();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeUndefined();
   });
@@ -151,7 +151,7 @@ describe("adapter rules", () => {
     const scene = new THREE.Scene();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeUndefined();
   });
@@ -168,7 +168,7 @@ describe("adapter rules", () => {
     THREE.foo();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeUndefined();
   });
@@ -184,7 +184,7 @@ describe("adapter rules", () => {
     const scene = new THREE.Scene();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeUndefined();
   });
@@ -200,7 +200,7 @@ describe("adapter rules", () => {
     const scene = new THREE.Scene();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_three_script");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -217,7 +217,7 @@ describe("adapter rules", () => {
     window.__timelines["main"] = { totalDuration: function() { return 3; } };
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const adapterFindings = result.findings.filter((f) =>
       ["missing_gsap_script", "missing_lottie_script", "missing_three_script"].includes(f.code),
     );

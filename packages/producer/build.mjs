@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build script for @hyperframes/producer (public OSS package)
+ * Build script for @chalkframes/producer (public OSS package)
  *
  * Bundles src/server.ts → dist/public-server.js (standalone server).
  */
@@ -38,7 +38,7 @@ const workspaceAliases = {
 const workspaceAliasPlugin = {
   name: "workspace-alias",
   setup(build) {
-    build.onResolve({ filter: /^@hyperframes\/(?:engine|core)(?:\/.*)?$/ }, (args) => {
+    build.onResolve({ filter: /^@chalkframes\/(?:engine|core)(?:\/.*)?$/ }, (args) => {
       const path = workspaceAliases[args.path];
       return path ? { path } : undefined;
     });
@@ -77,13 +77,13 @@ await Promise.all([
 import { copyFileSync, existsSync, readFileSync } from "fs";
 const coreDistDir = resolve(scriptDir, "../core/dist");
 try {
-  const manifestSrc = resolve(coreDistDir, "hyperframe.manifest.json");
+  const manifestSrc = resolve(coreDistDir, "chalkframe.manifest.json");
   if (existsSync(manifestSrc)) {
-    copyFileSync(manifestSrc, "dist/hyperframe.manifest.json");
+    copyFileSync(manifestSrc, "dist/chalkframe.manifest.json");
     const manifest = JSON.parse(readFileSync(manifestSrc, "utf8"));
-    const runtimeIife = manifest?.artifacts?.iife || "hyperframe.runtime.iife.js";
+    const runtimeIife = manifest?.artifacts?.iife || "chalkframe.runtime.iife.js";
     copyFileSync(resolve(coreDistDir, runtimeIife), `dist/${runtimeIife}`);
-    console.log(`[Build] Copied runtime: hyperframe.manifest.json, ${runtimeIife}`);
+    console.log(`[Build] Copied runtime: chalkframe.manifest.json, ${runtimeIife}`);
   }
 } catch (e) {
   console.warn("[Build] Warning: Could not copy runtime artifacts:", e.message);

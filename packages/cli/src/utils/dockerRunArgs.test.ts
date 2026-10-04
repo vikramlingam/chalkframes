@@ -18,7 +18,7 @@ const BASE: DockerRenderOptions = {
 };
 
 const FIXED_INPUT = {
-  imageTag: "hyperframes-renderer:0.0.0-test",
+  imageTag: "chalkframes-renderer:0.0.0-test",
   projectDir: "/abs/proj",
   outputDir: "/abs/out",
   outputFilename: "out.mp4",
@@ -41,7 +41,7 @@ describe("buildDockerRunArgs", () => {
         "/abs/proj:/project:ro",
         "-v",
         "/abs/out:/output",
-        "hyperframes-renderer:0.0.0-test",
+        "chalkframes-renderer:0.0.0-test",
         "/project",
         "--output",
         "/output/out.mp4",
@@ -87,7 +87,7 @@ describe("buildDockerRunArgs", () => {
         "/abs/proj:/project:ro",
         "-v",
         "/abs/out:/output",
-        "hyperframes-renderer:0.0.0-test",
+        "chalkframes-renderer:0.0.0-test",
         "/project",
         "--output",
         "/output/out.mp4",
@@ -144,7 +144,7 @@ describe("buildDockerRunArgs", () => {
       options: { ...BASE, gpu: true },
     });
     // `--gpus all` is a docker run flag (host passthrough); `--gpu` is the
-    // hyperframes CLI flag forwarded into the container — both must be set.
+    // chalkframes CLI flag forwarded into the container — both must be set.
     expect(on).toContain("--gpus");
     expect(on).toContain("all");
     expect(on).toContain("--gpu");
@@ -467,7 +467,7 @@ describe("buildDockerRunArgs", () => {
   // land in its native --platform value.
   it("emits linux/arm64 when host platform is arm64", () => {
     const args = buildDockerRunArgs({
-      imageTag: "hyperframes-renderer:0.0.0-test",
+      imageTag: "chalkframes-renderer:0.0.0-test",
       projectDir: "/abs/proj",
       outputDir: "/abs/out",
       outputFilename: "out.mp4",
@@ -507,32 +507,32 @@ describe("resolveDockerPlatform", () => {
     const result = resolveDockerPlatform();
     // Must equal the explicit-arg form (env override notwithstanding, which
     // wouldn't be set in the test runner unless deliberately stubbed).
-    const expected = process.env.HYPERFRAMES_DOCKER_PLATFORM
-      ? process.env.HYPERFRAMES_DOCKER_PLATFORM
+    const expected = process.env.CHALKFRAMES_DOCKER_PLATFORM
+      ? process.env.CHALKFRAMES_DOCKER_PLATFORM
       : resolveDockerPlatform(process.arch, {});
     expect(result).toBe(expected);
   });
 
-  it("honors HYPERFRAMES_DOCKER_PLATFORM override on an arm64 host (Rosetta-Node / parity-regen escape hatch)", () => {
-    expect(resolveDockerPlatform("arm64", { HYPERFRAMES_DOCKER_PLATFORM: "linux/amd64" })).toBe(
+  it("honors CHALKFRAMES_DOCKER_PLATFORM override on an arm64 host (Rosetta-Node / parity-regen escape hatch)", () => {
+    expect(resolveDockerPlatform("arm64", { CHALKFRAMES_DOCKER_PLATFORM: "linux/amd64" })).toBe(
       "linux/amd64",
     );
   });
 
-  it("honors HYPERFRAMES_DOCKER_PLATFORM override on an amd64 host", () => {
-    expect(resolveDockerPlatform("x64", { HYPERFRAMES_DOCKER_PLATFORM: "linux/arm64" })).toBe(
+  it("honors CHALKFRAMES_DOCKER_PLATFORM override on an amd64 host", () => {
+    expect(resolveDockerPlatform("x64", { CHALKFRAMES_DOCKER_PLATFORM: "linux/arm64" })).toBe(
       "linux/arm64",
     );
   });
 
-  it("trims whitespace from HYPERFRAMES_DOCKER_PLATFORM and ignores empty override", () => {
-    expect(resolveDockerPlatform("arm64", { HYPERFRAMES_DOCKER_PLATFORM: "  linux/amd64  " })).toBe(
+  it("trims whitespace from CHALKFRAMES_DOCKER_PLATFORM and ignores empty override", () => {
+    expect(resolveDockerPlatform("arm64", { CHALKFRAMES_DOCKER_PLATFORM: "  linux/amd64  " })).toBe(
       "linux/amd64",
     );
     // Empty/whitespace-only override falls back to arch detection — important
     // for shells where `export FOO=""` would otherwise pin platform to "".
-    expect(resolveDockerPlatform("arm64", { HYPERFRAMES_DOCKER_PLATFORM: "" })).toBe("linux/arm64");
-    expect(resolveDockerPlatform("arm64", { HYPERFRAMES_DOCKER_PLATFORM: "   " })).toBe(
+    expect(resolveDockerPlatform("arm64", { CHALKFRAMES_DOCKER_PLATFORM: "" })).toBe("linux/arm64");
+    expect(resolveDockerPlatform("arm64", { CHALKFRAMES_DOCKER_PLATFORM: "   " })).toBe(
       "linux/arm64",
     );
   });

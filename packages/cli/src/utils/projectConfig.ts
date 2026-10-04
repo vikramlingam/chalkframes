@@ -1,9 +1,9 @@
 /**
- * Read and write `hyperframes.json` — the per-project config that tells
- * `hyperframes add` which registry to pull items from and where to drop them
+ * Read and write `chalkframes.json` — the per-project config that tells
+ * `chalkframes add` which registry to pull items from and where to drop them
  * in the user's project tree.
  *
- * The file is created by `hyperframes init` and optionally edited by users to
+ * The file is created by `chalkframes init` and optionally edited by users to
  * point at custom registries or reshape their project layout.
  */
 
@@ -13,13 +13,13 @@ import { DEFAULT_REGISTRY_URL } from "../registry/index.js";
 import { normalizeSkillSlug } from "../telemetry/skill.js";
 import { writeNewFileSync } from "./writeNewFile.js";
 
-export const PROJECT_CONFIG_FILENAME = "hyperframes.json";
-const PROJECT_CONFIG_SCHEMA_URL = "https://hyperframes.heygen.com/schema/hyperframes.json";
+export const PROJECT_CONFIG_FILENAME = "chalkframes.json";
+const PROJECT_CONFIG_SCHEMA_URL = "https://chalkframes.dev/schema/chalkframes.json";
 
 export interface ProjectConfigPaths {
-  /** Where `hyperframes:block` items land, relative to project root. */
+  /** Where `chalkframes:block` items land, relative to project root. */
   blocks: string;
-  /** Where `hyperframes:component` items land, relative to project root. */
+  /** Where `chalkframes:component` items land, relative to project root. */
   components: string;
   /** Where asset files (images, fonts, videos) land, relative to project root. */
   assets: string;
@@ -35,7 +35,7 @@ export interface ProjectConfigMedia {
 }
 
 /**
- * One catalog item installed into this project by `hyperframes add`.
+ * One catalog item installed into this project by `chalkframes add`.
  *
  * Installed files are plain composition HTML with no provenance marker, so
  * this manifest is the only record that a file came from the registry. It is
@@ -45,7 +45,7 @@ export interface ProjectConfigMedia {
 export interface RegistryItemRecord {
   /** Registry item name, e.g. "data-chart". */
   name: string;
-  /** Registry item type, e.g. "hyperframes:block". */
+  /** Registry item type, e.g. "chalkframes:block". */
   type: string;
   /** Primary installed file, relative to the project root. */
   target: string;
@@ -61,14 +61,14 @@ export interface ProjectConfig {
   media?: ProjectConfigMedia;
   /**
    * Owning authoring-workflow skill slug (e.g. "product-launch-video"). Stamped
-   * by `hyperframes init --skill` or seeded from the first `hyperframes render
+   * by `chalkframes init --skill` or seeded from the first `chalkframes render
    * --skill`, then read back so every later render of this project — re-render,
    * `npm run render`, `--batch`, preview — is attributed to it on anonymous
    * telemetry without the caller re-passing the flag.
    */
   authoringSkill?: string;
   /**
-   * Catalog items installed by `hyperframes add`, in install order. Append-only
+   * Catalog items installed by `chalkframes add`, in install order. Append-only
    * and deduped by name; removing an item from the project does not prune it,
    * so a later render still reports it as installed-but-unused rather than
    * silently forgetting it was ever tried.
@@ -104,7 +104,7 @@ export function projectConfigPath(projectDir: string): string {
  */
 export type ProjectConfigReadStatus = "ok" | "missing" | "unreadable";
 
-/** Read `hyperframes.json`, distinguishing an absent file from a broken one. */
+/** Read `chalkframes.json`, distinguishing an absent file from a broken one. */
 export function readProjectConfigWithStatus(projectDir: string): {
   status: ProjectConfigReadStatus;
   config?: ProjectConfig;
@@ -125,7 +125,7 @@ export function readProjectConfigWithStatus(projectDir: string): {
   }
 }
 
-/** Read `hyperframes.json` from a project directory. */
+/** Read `chalkframes.json` from a project directory. */
 export function readProjectConfig(projectDir: string): ProjectConfig | undefined {
   // Missing file or corrupt JSON → no config.
   return readProjectConfigWithStatus(projectDir).config;
@@ -179,7 +179,7 @@ function normalizeRegistryItems(raw: unknown): RegistryItemRecord[] | undefined 
   return items.length > 0 ? items : undefined;
 }
 
-/** Write `hyperframes.json` to a project directory. Overwrites if present. */
+/** Write `chalkframes.json` to a project directory. Overwrites if present. */
 export function writeProjectConfig(
   projectDir: string,
   config: ProjectConfig = DEFAULT_PROJECT_CONFIG,
@@ -188,7 +188,7 @@ export function writeProjectConfig(
   writeFileSync(path, JSON.stringify(config, null, 2) + "\n", "utf-8");
 }
 
-/** Create `hyperframes.json` without replacing an existing file or following a symlink. */
+/** Create `chalkframes.json` without replacing an existing file or following a symlink. */
 export function createProjectConfig(
   projectDir: string,
   config: ProjectConfig = DEFAULT_PROJECT_CONFIG,
@@ -209,7 +209,7 @@ export function loadProjectConfig(projectDir: string): ProjectConfig {
  * Resolve whether auto-proxying of browser-hostile video codecs (HEVC, etc.)
  * is enabled for a project's live-preview surfaces. A caller's explicit
  * `--proxy`/`--no-proxy` flag always wins over the project config, in either
- * direction. Falls back to the committed `hyperframes.json`
+ * direction. Falls back to the committed `chalkframes.json`
  * `media.autoProxy` setting, and finally to `true` when neither is set.
  * Render is never affected by this setting: it always uses the original file.
  */
@@ -231,7 +231,7 @@ function isFileNotFound(error: unknown): boolean {
 }
 
 /**
- * Persist the owning authoring-skill slug into `hyperframes.json` so every
+ * Persist the owning authoring-skill slug into `chalkframes.json` so every
  * later render of this project — re-render, `npm run render`, `--batch`,
  * preview — is attributed to the workflow that created it, without the caller
  * re-passing `--skill`.
@@ -242,7 +242,7 @@ function isFileNotFound(error: unknown): boolean {
  * empty slug is ignored. Best effort: a read-only or missing project directory
  * never fails the render it rode in on.
  *
- * One of two writers that touch an ALREADY EXISTING `hyperframes.json` (the
+ * One of two writers that touch an ALREADY EXISTING `chalkframes.json` (the
  * other is {@link recordProjectRegistryItems}; absent-only callers use
  * {@link createProjectConfig}), so it must not
  * round-trip through {@link normalizeConfig}:
@@ -293,7 +293,7 @@ export function seedProjectAuthoringSkill(projectDir: string, rawSkill: unknown)
 }
 
 /**
- * Append installed catalog items to `hyperframes.json` so a later render can
+ * Append installed catalog items to `chalkframes.json` so a later render can
  * report which of them the finished video actually used.
  *
  * Same in-place patch discipline as {@link seedProjectAuthoringSkill}, and for

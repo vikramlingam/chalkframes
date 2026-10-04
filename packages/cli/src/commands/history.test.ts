@@ -19,7 +19,7 @@ import {
   fileContentVersion,
   openProjectHistory,
   type StudioApiAdapter,
-} from "@hyperframes/studio-server";
+} from "@chalkframes/studio-server";
 import { runCommand } from "citty";
 import { Hono } from "hono";
 import { afterEach, describe, expect, it, onTestFinished, vi } from "vitest";
@@ -78,7 +78,7 @@ function project() {
   return { dir, write, read, files, hf, json, turn };
 }
 
-/** A running preview over the project's history, as `hyperframes preview` serves it. */
+/** A running preview over the project's history, as `chalkframes preview` serves it. */
 async function preview(dir: string) {
   const history = await openProjectHistory({
     projectDir: dir,
@@ -128,7 +128,7 @@ async function turnCutByStudio(
   return held;
 }
 
-describe.each(["direct", "preview"])("hyperframes history (%s)", (mode) => {
+describe.each(["direct", "preview"])("chalkframes history (%s)", (mode) => {
   async function setup() {
     const p = project();
     await p.hf(); // the first open records the baseline
@@ -254,7 +254,7 @@ describe.each(["direct", "preview"])("hyperframes history (%s)", (mode) => {
   });
 });
 
-describe("hyperframes history, one owner", () => {
+describe("chalkframes history, one owner", () => {
   it("lets go of the history when a new project takes the folder's path mid-command", async () => {
     const { dir, hf } = project();
     await hf("begin", "--who", "claude", "--label", "Retitle");
@@ -297,7 +297,7 @@ describe("hyperframes history, one owner", () => {
       startedAt: 1,
       lastWriteAt: Date.now(),
     };
-    writeFileSync(join(dir, ".hyperframes", "history-turn.json"), JSON.stringify(turn));
+    writeFileSync(join(dir, ".chalkframes", "history-turn.json"), JSON.stringify(turn));
     write("index.html", "A2");
 
     expect((await json("end")).entry).toMatchObject({
@@ -397,7 +397,7 @@ describe("hyperframes history, one owner", () => {
 
     const refused = await hf("undo", "--who", "claude");
     expect(refused.code).toBe(2);
-    expect(refused.out).toContain("hyperframes history undo --who claude --just-this");
+    expect(refused.out).toContain("chalkframes history undo --who claude --just-this");
     expect(files(), "no part stays undone").toEqual(["A3", "N2"]);
 
     expect((await hf("undo", "--who", "claude", "--just-this")).code).toBe(0);
@@ -409,7 +409,7 @@ describe("hyperframes history, one owner", () => {
     await hf();
     const who = { kind: "agent", name: "claude" };
     const marker = { via: "direct", id: "turn-1", who, label: "Retitle", startedAt: 1 };
-    writeFileSync(join(dir, ".hyperframes", "history-turn.json"), JSON.stringify(marker));
+    writeFileSync(join(dir, ".chalkframes", "history-turn.json"), JSON.stringify(marker));
     write("index.html", "A2");
 
     expect((await json()).entries[0]).toMatchObject({ who: { kind: "outside" } });
@@ -418,7 +418,7 @@ describe("hyperframes history, one owner", () => {
   it("a CLI run waits while another process holds the history, instead of forking its log", async () => {
     const { dir, write } = project();
     const home = tempDir("hf-history-cli-home-");
-    const historyRoot = join(home, ".cache", "hyperframes", "history");
+    const historyRoot = join(home, ".cache", "chalkframes", "history");
     const held = await openProjectHistory({ projectDir: dir, historyRoot });
     write("index.html", "A2");
     const cli = resolve(fileURLToPath(import.meta.url), "..", "..", "cli.ts");
@@ -427,8 +427,8 @@ describe("hyperframes history, one owner", () => {
         ...process.env,
         HOME: home,
         USERPROFILE: home,
-        HYPERFRAMES_SKIP_UPDATE_CHECK: "1",
-        HYPERFRAMES_NO_TELEMETRY: "1",
+        CHALKFRAMES_SKIP_UPDATE_CHECK: "1",
+        CHALKFRAMES_NO_TELEMETRY: "1",
       },
     });
     const exited = new Promise<number | null>((done) => child.on("exit", done));
@@ -449,7 +449,7 @@ describe("hyperframes history, one owner", () => {
   });
 });
 
-describe("hyperframes history, refusals", () => {
+describe("chalkframes history, refusals", () => {
   it("undo --who refuses once the agent's newest entry is already undone", async () => {
     const { read, hf, turn } = project();
     await hf();

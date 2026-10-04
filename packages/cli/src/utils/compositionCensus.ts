@@ -1,8 +1,8 @@
 import { parseHTML } from "linkedom";
 
 /**
- * A privacy-preserving structural anatomy of a HyperFrames composition. The
- * agent fills this before submitting a non-clean `hyperframes feedback` so
+ * A privacy-preserving structural anatomy of a ChalkFrames composition. The
+ * agent fills this before submitting a non-clean `chalkframes feedback` so
  * maintainers can pattern-match the report against known bug families without
  * receiving the composition ZIP.
  *

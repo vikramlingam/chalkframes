@@ -1,6 +1,6 @@
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 
 export const PEAK_BIN_SECONDS = 0.05;
 const PEAK_SAMPLE_RATE = 48_000;

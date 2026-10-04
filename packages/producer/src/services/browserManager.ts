@@ -1,5 +1,5 @@
 /**
- * Re-exported from @hyperframes/engine.
+ * Re-exported from @chalkframes/engine.
  * @see engine/src/services/browserManager.ts for implementation.
  */
 export {
@@ -12,4 +12,4 @@ export {
   type BuildChromeArgsOptions,
   type CaptureMode,
   type AcquiredBrowser,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";

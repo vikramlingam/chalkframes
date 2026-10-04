@@ -10,10 +10,10 @@
 
 export const PLAN_SCHEMA_VERSION = 1 as const;
 export const PLAN_ARTIFACT_LAYOUT = "plan-dir-v1" as const;
-export const PLAN_HASH_SCHEMA = "hyperframes-plan-hash-v1" as const;
+export const PLAN_HASH_SCHEMA = "chalkframes-plan-hash-v1" as const;
 export const PLAN_V2_SCHEMA_VERSION = 2 as const;
 export const PLAN_V2_ARTIFACT_LAYOUT = "content-addressed-plan-v2" as const;
-export const PLAN_V2_HASH_SCHEMA = "hyperframes-plan-manifest-hash-v2" as const;
+export const PLAN_V2_HASH_SCHEMA = "chalkframes-plan-manifest-hash-v2" as const;
 export const PLAN_PROTOCOL_UNSUPPORTED = "PLAN_PROTOCOL_UNSUPPORTED" as const;
 
 export interface PlanProtocolDescriptor {

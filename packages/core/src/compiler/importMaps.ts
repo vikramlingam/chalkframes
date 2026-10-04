@@ -46,7 +46,7 @@ function mergeEntries(
     if (!(specifier in into)) into[specifier] = url;
     else if (into[specifier] !== url) {
       console.warn(
-        `[HyperFrames] import map conflict for "${specifier}"${where}: keeping ${into[specifier]}, ignoring ${url}.`,
+        `[ChalkFrames] import map conflict for "${specifier}"${where}: keeping ${into[specifier]}, ignoring ${url}.`,
       );
     }
   }
@@ -64,7 +64,7 @@ export function mergeImportMapsIntoDocument(doc: Document, maps: ImportMap[]): v
   try {
     page = el ? JSON.parse(el.textContent || "{}") : {};
   } catch {
-    console.warn("[HyperFrames] the page's import map is not valid JSON; replacing it.");
+    console.warn("[ChalkFrames] the page's import map is not valid JSON; replacing it.");
   }
   const imports = { ...page.imports };
   const scopes = { ...page.scopes };

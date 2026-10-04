@@ -15,8 +15,8 @@ import {
   HDR_AUTO_PROMOTION_PIPELINE,
   isHdrColorSpace,
   sanitizeHdrAutoPromotionAsset,
-} from "@hyperframes/engine";
-import type { ExtractionResult, HdrTransfer, VideoColorSpace } from "@hyperframes/engine";
+} from "@chalkframes/engine";
+import type { ExtractionResult, HdrTransfer, VideoColorSpace } from "@chalkframes/engine";
 import type { ProducerLogger } from "../../logger.js";
 import type { RenderConfig } from "../renderOrchestrator.js";
 

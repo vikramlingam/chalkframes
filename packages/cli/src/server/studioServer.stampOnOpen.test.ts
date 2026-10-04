@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { tmpdir } from "node:os";
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import { createStudioServer, type StudioServer } from "./studioServer.js";
 
 const SCENES = Array.from({ length: 24 }, (_, i) => `s${String(i).padStart(2, "0")}`);

@@ -5,14 +5,14 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 const files = {
-  router: "skills/hyperframes/SKILL.md",
-  keyframes: "skills/hyperframes-keyframes/SKILL.md",
-  cli: "skills/hyperframes-cli/SKILL.md",
-  audio: "skills/hyperframes-audio/SKILL.md",
+  router: "skills/chalkframes/SKILL.md",
+  keyframes: "skills/chalkframes-keyframes/SKILL.md",
+  cli: "skills/chalkframes-cli/SKILL.md",
+  audio: "skills/chalkframes-audio/SKILL.md",
   webAudioTransport: "packages/core/src/runtime/webAudioTransport.ts",
-  coreClips: "skills/hyperframes-core/references/tracks-and-clips.md",
+  coreClips: "skills/chalkframes-core/references/tracks-and-clips.md",
   generalVideo: "skills/general-video/SKILL.md",
-  editingRecipes: "skills/hyperframes-core/references/creator-editing-recipes.md",
+  editingRecipes: "skills/chalkframes-core/references/creator-editing-recipes.md",
   runtimeMedia: "packages/core/src/runtime/media.ts",
   runtimeInit: "packages/core/src/runtime/init.ts",
   timingNumbers: "packages/core/src/runtime/playbackRate.ts",
@@ -52,19 +52,19 @@ test("router loads the owning skills for creator picture and sound edits", async
     ],
     files.router,
   );
-  assert.match(router, /cut.*trim.*splice.*reorder[\s\S]{0,500}hyperframes-core/i);
+  assert.match(router, /cut.*trim.*splice.*reorder[\s\S]{0,500}chalkframes-core/i);
   assert.match(
     router,
-    /zoom.*punch.*reframe.*Ken Burns.*camera move[\s\S]{0,500}hyperframes-keyframes/i,
+    /zoom.*punch.*reframe.*Ken Burns.*camera move[\s\S]{0,500}chalkframes-keyframes/i,
   );
   assert.match(
     router,
-    /match cut.*whip pan[\s\S]{0,500}hyperframes-animation[\s\S]{0,300}hyperframes-keyframes[\s\S]{0,300}hyperframes-registry/i,
+    /match cut.*whip pan[\s\S]{0,500}chalkframes-animation[\s\S]{0,300}chalkframes-keyframes[\s\S]{0,300}chalkframes-registry/i,
   );
-  assert.match(router, /fade.*crossfade.*gain.*duck[\s\S]{0,700}hyperframes-audio/i);
+  assert.match(router, /fade.*crossfade.*gain.*duck[\s\S]{0,700}chalkframes-audio/i);
   assert.match(
     router,
-    /picture and sound[\s\S]{0,700}hyperframes-core[\s\S]{0,300}hyperframes-audio/i,
+    /picture and sound[\s\S]{0,700}chalkframes-core[\s\S]{0,300}chalkframes-audio/i,
   );
   assert.match(router, /media-use[\s\S]{0,180}sourc|sourc[\s\S]{0,180}media-use/i);
 });
@@ -85,14 +85,14 @@ test("keyframes states truthful creator capabilities and ownership boundaries", 
       /data-start/,
       /data-duration/,
       /data-media-start/,
-      /hyperframes-core/,
-      /hyperframes-audio/,
+      /chalkframes-core/,
+      /chalkframes-audio/,
     ],
     files.keyframes,
   );
   assert.match(
     keyframes,
-    /source[\s\S]{0,80}cut[\s\S]{0,80}trim[\s\S]{0,80}reorder[\s\S]{0,500}hyperframes-core/i,
+    /source[\s\S]{0,80}cut[\s\S]{0,80}trim[\s\S]{0,80}reorder[\s\S]{0,500}chalkframes-core/i,
   );
   assert.match(keyframes, /non-timed|non-clip/);
   assert.match(keyframes, /wrapper inside the clip|inner.*wrapper/i);
@@ -106,13 +106,13 @@ test("CLI requires domain skills before authoring or diagnosing creator edits", 
   const cli = await read(files.cli);
   assert.match(
     cli,
-    /before[\s\S]{0,120}(zoom|punch-in)[\s\S]{0,180}(reframe|camera)[\s\S]{0,180}keyframe[\s\S]{0,220}read `?\/hyperframes-keyframes/i,
+    /before[\s\S]{0,120}(zoom|punch-in)[\s\S]{0,180}(reframe|camera)[\s\S]{0,180}keyframe[\s\S]{0,220}read `?\/chalkframes-keyframes/i,
   );
-  assert.match(cli, /before `?hyperframes keyframes`?[\s\S]{0,180}read `?\/hyperframes-keyframes/i);
-  assert.match(cli, /cut.*trim.*splice.*source timing[\s\S]{0,250}hyperframes-core/i);
+  assert.match(cli, /before `?chalkframes keyframes`?[\s\S]{0,180}read `?\/chalkframes-keyframes/i);
+  assert.match(cli, /cut.*trim.*splice.*source timing[\s\S]{0,250}chalkframes-core/i);
   assert.match(
     cli,
-    /fade[\s\S]{0,100}crossfade[\s\S]{0,100}volume automation[\s\S]{0,100}carve[\s\S]{0,100}FX[\s\S]{0,300}hyperframes-audio/i,
+    /fade[\s\S]{0,100}crossfade[\s\S]{0,100}volume automation[\s\S]{0,100}carve[\s\S]{0,100}FX[\s\S]{0,300}chalkframes-audio/i,
   );
 });
 
@@ -127,7 +127,7 @@ test("audio skill owns placed-track fades, automation, ducking, and effects", as
       /duck/i,
       /data-automation/,
       /gain.*EQ.*compressor.*limiter.*gate.*saturat.*delay.*reverb.*chorus.*phaser.*bitcrush/is,
-      /clip timing.*hyperframes-core|hyperframes-core.*clip timing/is,
+      /clip timing.*chalkframes-core|chalkframes-core.*clip timing/is,
       /sourcing.*media-use|media-use.*sourcing/is,
     ],
     files.audio,
@@ -156,7 +156,7 @@ test("keyframes routes visual crop and mask handoffs without claiming temporal s
       /split-screen handoff/i,
       /polygon[\s\S]{0,50}mask transition|mask[\s\S]{0,50}polygon transition/i,
       /visual transition[\s\S]{0,120}(not|isn't|is not)[\s\S]{0,80}(temporal|source)[\s\S]{0,80}(trim|splice)/i,
-      /hyperframes-core[\s\S]{0,160}(timeline|clip timing)/i,
+      /chalkframes-core[\s\S]{0,160}(timeline|clip timing)/i,
     ],
     files.keyframes,
   );
@@ -185,7 +185,7 @@ test("core and general-video author temporal edits as duplicated source-range cl
       surface,
     );
   }
-  assert.match(router, /cut this footage[\s\S]{0,300}hyperframes-core/i);
+  assert.match(router, /cut this footage[\s\S]{0,300}chalkframes-core/i);
   requiresAll(keyframes, [/zoom/i, /punch/i, /pan/i, /crop|mask|clip-path/i], files.keyframes);
   assert.match(keyframes, /inner[\s\S]{0,80}wrapper/i);
   assert.match(keyframes, /not a temporal source trim or[\s\S]{0,40}splice/i);
@@ -245,12 +245,12 @@ test("creator editing recipes are copyable, owned, mathematical, and limitation-
       /distinct tracks[\s\S]{0,120}overlap[\s\S]{0,120}opposing/i,
       /same-track overlap is valid/i,
       /inner wrapper[\s\S]{0,100}not[\s\S]{0,50}(clip element|timed clip)/i,
-      /source cuts[\s\S]{0,80}hyperframes-core/i,
+      /source cuts[\s\S]{0,80}chalkframes-core/i,
     ],
     files.editingRecipes,
   );
   const [core, general] = await Promise.all([
-    read("skills/hyperframes-core/SKILL.md"),
+    read("skills/chalkframes-core/SKILL.md"),
     read(files.generalVideo),
   ]);
   assert.match(core, /creator-editing-recipes\.md/);

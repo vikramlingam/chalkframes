@@ -42,8 +42,8 @@ import {
   runFfmpeg,
   type TimelineExtractionWindow,
   type VideoMetadata,
-} from "@hyperframes/engine";
-import { fpsToFfmpegArg, fpsToNumber } from "@hyperframes/core";
+} from "@chalkframes/engine";
+import { fpsToFfmpegArg, fpsToNumber } from "@chalkframes/core";
 import type { ProducerLogger } from "../../../logger.js";
 import {
   closeHdrVideoFrameSource,

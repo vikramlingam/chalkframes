@@ -1,2 +1,2 @@
-/** @deprecated Import from @hyperframes/parsers/gsap-parser */
-export * from "@hyperframes/parsers/gsap-parser";
+/** @deprecated Import from @chalkframes/parsers/gsap-parser */
+export * from "@chalkframes/parsers/gsap-parser";

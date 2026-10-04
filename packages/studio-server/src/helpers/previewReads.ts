@@ -3,7 +3,7 @@ import { dirname, join, parse, relative, resolve } from "node:path";
 import { STUDIO_SIGNATURE_MANIFEST_PATHS } from "./projectSignature.js";
 import { realFilePath } from "./safePath.js";
 
-const ALWAYS_AFFECTS = ["hyperframes.json", ...STUDIO_SIGNATURE_MANIFEST_PATHS];
+const ALWAYS_AFFECTS = ["chalkframes.json", ...STUDIO_SIGNATURE_MANIFEST_PATHS];
 const REFERENCE =
   /\b(?:src|href|poster|data-composition-src)\s*=\s*(?:"([^"\n]*)"|'([^'\n]*)')|url\(\s*(?:"([^"\n]*)"|'([^'\n]*)'|([^"'\s)]+))/gi;
 // macOS and Windows volumes ignore letter case by default, so it is not part of a path's identity there.

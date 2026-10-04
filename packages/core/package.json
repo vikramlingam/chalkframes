@@ -1,10 +1,11 @@
 {
-  "name": "@hyperframes/core",
+  "name": "@chalkframes/core",
   "version": "0.8.111",
   "description": "",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heygen-com/hyperframes",
+    "url": "https://github.com/vikramlingam/chalkframes",
     "directory": "packages/core"
   },
   "files": [
@@ -12,7 +13,7 @@
     "dist/**/*.d.ts",
     "dist/**/*.d.ts.map",
     "dist/**/*.js.map",
-    "!dist/hyperframe.runtime.mjs",
+    "!dist/chalkframe.runtime.mjs",
     "docs",
     "schemas",
     "README.md"
@@ -131,10 +132,10 @@
       "types": "./src/slideshow/index.ts"
     },
     "./generators": {
-      "bun": "./src/generators/hyperframes.ts",
-      "node": "./dist/generators/hyperframes.js",
-      "import": "./src/generators/hyperframes.ts",
-      "types": "./src/generators/hyperframes.ts"
+      "bun": "./src/generators/chalkframes.ts",
+      "node": "./dist/generators/chalkframes.js",
+      "import": "./src/generators/chalkframes.ts",
+      "types": "./src/generators/chalkframes.ts"
     },
     "./lint": {
       "bun": "./src/lint/index.ts",
@@ -286,7 +287,7 @@
       "import": "./src/storyboard/index.ts",
       "types": "./src/storyboard/index.ts"
     },
-    "./runtime": "./dist/hyperframe.runtime.iife.js",
+    "./runtime": "./dist/chalkframe.runtime.iife.js",
     "./runtime/clipTree": {
       "bun": "./src/runtime/clipTree.ts",
       "node": "./dist/runtime/clipTree.js",
@@ -559,8 +560,8 @@
         "types": "./dist/slideshow/index.d.ts"
       },
       "./generators": {
-        "import": "./dist/generators/hyperframes.js",
-        "types": "./dist/generators/hyperframes.d.ts"
+        "import": "./dist/generators/chalkframes.js",
+        "types": "./dist/generators/chalkframes.d.ts"
       },
       "./lint": {
         "import": "./dist/lint/index.js",
@@ -662,7 +663,7 @@
         "import": "./dist/storyboard/index.js",
         "types": "./dist/storyboard/index.d.ts"
       },
-      "./runtime": "./dist/hyperframe.runtime.iife.js",
+      "./runtime": "./dist/chalkframe.runtime.iife.js",
       "./runtime/clipTree": {
         "import": "./dist/runtime/clipTree.js",
         "types": "./dist/runtime/clipTree.d.ts"
@@ -798,7 +799,7 @@
     "types": "./dist/index.d.ts"
   },
   "scripts": {
-    "build": "bun run build:hyperframes-runtime && bun run build:position-edits-render && bun run build:audio-fx-runtime && tsc && tsx scripts/rewrite-esm-extensions.ts",
+    "build": "bun run build:chalkframes-runtime && bun run build:position-edits-render && bun run build:audio-fx-runtime && tsc && tsx scripts/rewrite-esm-extensions.ts",
     "test": "bun run check:position-edits-render && bun run build:audio-fx-runtime && vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -807,28 +808,28 @@
     "typecheck:runtime": "tsc --noEmit -p tsconfig.runtime.json",
     "lint:runtime-preview-guards": "bun scripts/lint-runtime-preview-guards.ts",
     "build:audio-fx-runtime": "tsx scripts/build-audio-fx-runtime.ts",
-    "build:hyperframes-runtime": "tsx scripts/build-hyperframes-runtime-artifact.ts",
+    "build:chalkframes-runtime": "tsx scripts/build-chalkframes-runtime-artifact.ts",
     "build:position-edits-render": "tsx scripts/build-position-edits-render.ts",
     "check:position-edits-render": "bun run build:position-edits-render && git diff --exit-code -- src/generated/position-edits-render-inline.ts",
-    "build:hyperframes-runtime:modular": "SANDBOX_RUNTIME_VARIANT=modular tsx scripts/build-hyperframes-runtime-artifact.ts",
-    "build:hyperframe-runtime": "tsx scripts/build-hyperframes-runtime-artifact.ts",
-    "test:hyperframe-runtime-contract": "tsx scripts/test-hyperframe-runtime-contract.ts",
-    "test:hyperframe-runtime-behavior": "tsx scripts/test-hyperframe-runtime-behavior.ts",
-    "test:hyperframe-runtime-seek": "tsx scripts/test-hyperframe-runtime-seek.ts",
-    "test:hyperframe-runtime-duration-guards": "tsx scripts/test-hyperframe-runtime-duration-guards.ts",
-    "test:hyperframe-runtime-parity": "tsx scripts/test-hyperframe-runtime-parity.ts",
-    "test:hyperframe-runtime-security": "tsx scripts/test-hyperframe-runtime-security.ts",
-    "test:hyperframe-linter": "bun scripts/test-hyperframe-linter.ts",
-    "test:hyperframe-runtime-ci": "bun run typecheck:runtime && bun run lint:runtime-preview-guards && bun run build:hyperframes-runtime && bun run test:hyperframe-runtime-contract && bun run test:hyperframe-runtime-behavior && bun run test:hyperframe-runtime-seek && bun run test:hyperframe-runtime-duration-guards && bun run test:hyperframe-runtime-parity && bun run test:hyperframe-runtime-security && bun run test:runtime-coverage && bun run test:hyperframe-linter",
-    "check:hyperframe-html": "bun scripts/check-hyperframe-static.ts",
+    "build:chalkframes-runtime:modular": "SANDBOX_RUNTIME_VARIANT=modular tsx scripts/build-chalkframes-runtime-artifact.ts",
+    "build:chalkframe-runtime": "tsx scripts/build-chalkframes-runtime-artifact.ts",
+    "test:chalkframe-runtime-contract": "tsx scripts/test-chalkframe-runtime-contract.ts",
+    "test:chalkframe-runtime-behavior": "tsx scripts/test-chalkframe-runtime-behavior.ts",
+    "test:chalkframe-runtime-seek": "tsx scripts/test-chalkframe-runtime-seek.ts",
+    "test:chalkframe-runtime-duration-guards": "tsx scripts/test-chalkframe-runtime-duration-guards.ts",
+    "test:chalkframe-runtime-parity": "tsx scripts/test-chalkframe-runtime-parity.ts",
+    "test:chalkframe-runtime-security": "tsx scripts/test-chalkframe-runtime-security.ts",
+    "test:chalkframe-linter": "bun scripts/test-chalkframe-linter.ts",
+    "test:chalkframe-runtime-ci": "bun run typecheck:runtime && bun run lint:runtime-preview-guards && bun run build:chalkframes-runtime && bun run test:chalkframe-runtime-contract && bun run test:chalkframe-runtime-behavior && bun run test:chalkframe-runtime-seek && bun run test:chalkframe-runtime-duration-guards && bun run test:chalkframe-runtime-parity && bun run test:chalkframe-runtime-security && bun run test:runtime-coverage && bun run test:chalkframe-linter",
+    "check:chalkframe-html": "bun scripts/check-chalkframe-static.ts",
     "debug:timeline": "tsx scripts/debug-timeline.ts",
     "prepublishOnly": "echo skip"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.5",
-    "@hyperframes/lint": "workspace:*",
-    "@hyperframes/parsers": "workspace:*",
-    "@hyperframes/studio-server": "workspace:*",
+    "@chalkframes/lint": "workspace:*",
+    "@chalkframes/parsers": "workspace:*",
+    "@chalkframes/studio-server": "workspace:*",
     "bpm-detective": "^2.0.5",
     "linkedom": "^0.18.12",
     "postcss": "^8.5.8"

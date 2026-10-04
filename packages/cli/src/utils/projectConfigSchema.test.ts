@@ -1,7 +1,7 @@
 /**
- * `docs/schema/hyperframes.json` is authored by hand (sync-schemas.ts mirrors
+ * `docs/schema/chalkframes.json` is authored by hand (sync-schemas.ts mirrors
  * only the registry schemas and skips this one), sets `additionalProperties:
- * false` at both levels, and is the schema every generated `hyperframes.json`
+ * false` at both levels, and is the schema every generated `chalkframes.json`
  * points at. So a new config key that lands in code but not in the schema turns
  * a valid, committed config into one that fails validation in any schema-aware
  * editor, with nothing in CI to notice.
@@ -24,7 +24,7 @@ import {
 } from "./projectConfig.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const SCHEMA_PATH = resolve(REPO_ROOT, "docs/schema/hyperframes.json");
+const SCHEMA_PATH = resolve(REPO_ROOT, "docs/schema/chalkframes.json");
 
 /**
  * One record carrying every field the CLI writes. Typed, so a new field on
@@ -33,13 +33,13 @@ const SCHEMA_PATH = resolve(REPO_ROOT, "docs/schema/hyperframes.json");
  */
 const EVERY_RECORD_FIELD: Required<RegistryItemRecord> = {
   name: "data-chart",
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   target: "compositions/data-chart.html",
 };
 
 /** A config exercising every key the CLI can write, at every level. */
 const EVERY_WRITTEN_KEY: Required<ProjectConfig> = {
-  $schema: "https://hyperframes.heygen.com/schema/hyperframes.json",
+  $schema: "https://chalkframes.dev/schema/chalkframes.json",
   registry: "https://example.test/registry",
   paths: DEFAULT_PROJECT_CONFIG.paths,
   media: { autoProxy: true },
@@ -47,7 +47,7 @@ const EVERY_WRITTEN_KEY: Required<ProjectConfig> = {
   registryItems: [EVERY_RECORD_FIELD],
 };
 
-describe("hyperframes.json schema", () => {
+describe("chalkframes.json schema", () => {
   const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf-8")) as Record<string, unknown>;
   const validate = new Ajv2020({ strict: false, validateFormats: false }).compile(schema);
 

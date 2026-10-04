@@ -4,7 +4,7 @@
  *
  * Validates that:
  *   1. The bundled CLI accepts the new flag.
- *   2. The local `@hyperframes/shader-transitions` IIFE bundle carries the
+ *   2. The local `@chalkframes/shader-transitions` IIFE bundle carries the
  *      page-side compositor canary string (build is wired correctly).
  *   3. Rendering the fixture WITH and WITHOUT the flag both produce valid
  *      MP4s with the same duration. (Pixel-equality is NOT a correctness
@@ -75,7 +75,7 @@ function assertCanary() {
   if (count < 1) {
     fail(
       "shader-transitions bundle is missing the page-side compositor canary " +
-        `("${PAGE_COMPOSITOR_CANARY}"). Rebuild @hyperframes/shader-transitions and re-run.`,
+        `("${PAGE_COMPOSITOR_CANARY}"). Rebuild @chalkframes/shader-transitions and re-run.`,
     );
   }
   note(`canary present in ${SHADER_BUNDLE} (${count}× hit)`);
@@ -91,7 +91,7 @@ function assertCliCanary() {
     const buf = execFileSync("grep", ["-c", needle, CLI_PATH]);
     const count = Number(buf.toString().trim());
     if (count < 1) {
-      fail(`bundled CLI is missing canary "${needle}". Rebuild @hyperframes/cli and re-run.`);
+      fail(`bundled CLI is missing canary "${needle}". Rebuild @chalkframes/cli and re-run.`);
     }
     note(`CLI bundle carries "${needle}" (${count}× hit)`);
   }

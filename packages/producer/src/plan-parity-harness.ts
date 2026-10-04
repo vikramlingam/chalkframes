@@ -399,7 +399,7 @@ async function loadDriver(target: PlanParityTarget): Promise<PlanParityDriver> {
         "use the library API to inject that driver until it is installed",
     );
   }
-  // Indirect path keeps producer's build from pulling @hyperframes/aws-lambda
+  // Indirect path keeps producer's build from pulling @chalkframes/aws-lambda
   // into its declaration emit before that workspace package has built.
   const modulePath = "./plan-parity-lambda-local-driver.js";
   const loaded: unknown = await import(modulePath);

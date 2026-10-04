@@ -50,7 +50,7 @@ for (const name of blocks) {
 
   test(`${name}: its mount and render paths are the composition file the manifest installs`, () => {
     const { files, skill } = readBlock(name);
-    const target = files.find((file) => file.type === "hyperframes:composition")?.target;
+    const target = files.find((file) => file.type === "chalkframes:composition")?.target;
     assert.equal(firstMatch(skill, /data-composition-src="([^"]+)"/), target);
     assert.equal(firstMatch(skill, / render '([^']+)'/), target);
   });

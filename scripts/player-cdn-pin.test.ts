@@ -20,7 +20,7 @@ import { join, resolve } from "node:path";
  * would think to check.
  */
 const ROOT = resolve(import.meta.dirname, "..");
-const PLAYER_CDN = /cdn\.jsdelivr\.net\/npm\/@hyperframes\/player@([^/"'`\s]+)/g;
+const PLAYER_CDN = /cdn\.jsdelivr\.net\/npm\/@chalkframes\/player@([^/"'`\s]+)/g;
 const TEXT_FILE = /\.(mdx?|[jt]sx?|html|json)$/;
 
 /**

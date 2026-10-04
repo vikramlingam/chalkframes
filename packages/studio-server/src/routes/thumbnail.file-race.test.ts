@@ -50,7 +50,7 @@ describe("thumbnail reads that race a delete", () => {
 
   it("serves a thumbnail when a file sits where the manifests' folder would be", async () => {
     const { app, adapter, dir } = serveThumbnails();
-    writeFileSync(join(dir, ".hyperframes"), "not a folder");
+    writeFileSync(join(dir, ".chalkframes"), "not a folder");
 
     const res = await app.request("http://localhost/projects/demo/thumbnail/index.html");
 

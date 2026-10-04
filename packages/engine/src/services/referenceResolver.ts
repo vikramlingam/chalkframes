@@ -12,7 +12,7 @@
  * (Node) without pulling in lib.dom types.
  */
 
-import { parseNumeric, parseStartExpression } from "@hyperframes/core";
+import { parseNumeric, parseStartExpression } from "@chalkframes/core";
 
 /** Minimal structural DOM shape the reference resolver needs. */
 export interface RefResolverEl {

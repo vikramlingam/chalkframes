@@ -6,7 +6,7 @@ import {
   readPlaybackRate,
   resolveMediaDuration,
   resolveNaturalDurationSeconds,
-} from "@hyperframes/parsers/media-duration";
+} from "@chalkframes/parsers/media-duration";
 import { resolveRateSpec, timeAtSourceTime, type RateSpec } from "../speedRamp";
 import { isImageElement, isMediaElement } from "./domRealm";
 import { parseNumeric } from "./startExpression";

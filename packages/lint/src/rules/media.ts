@@ -1,4 +1,4 @@
-import type { LintContext, HyperframeLintFinding, OpenTag } from "../context";
+import type { LintContext, ChalkframeLintFinding, OpenTag } from "../context";
 import {
   readAttr,
   readDecodedAttr,
@@ -10,8 +10,8 @@ import {
   mediaTimeWindow,
   mediaWindowsOverlap,
 } from "../utils";
-import { validateColorGradingContract } from "@hyperframes/parsers/color-grading-contract";
-import { extractMediaSrcMutations } from "@hyperframes/parsers/composition";
+import { validateColorGradingContract } from "@chalkframes/parsers/color-grading-contract";
+import { extractMediaSrcMutations } from "@chalkframes/parsers/composition";
 import { parseHTML } from "linkedom";
 import { findLinkedClipFindings } from "./linkedClips";
 
@@ -117,8 +117,8 @@ function srcKind(src: string): SrcKind | null {
   return null;
 }
 
-function findMediaSrcKindMismatchFindings(ctx: LintContext): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function findMediaSrcKindMismatchFindings(ctx: LintContext): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     if (tag.name !== "video" && tag.name !== "img") continue;
     const src = readAttr(tag.raw, "src");
@@ -143,9 +143,9 @@ function findMediaSrcKindMismatchFindings(ctx: LintContext): HyperframeLintFindi
   return findings;
 }
 
-function findNestedMediaStartBasisFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findNestedMediaStartBasisFindings(ctx: LintContext): ChalkframeLintFinding[] {
   if (!ctx.options.isSubComposition) return [];
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     if (tag.name !== "video" && tag.name !== "audio") continue;
     const rawStart = readAttr(tag.raw, "data-start");
@@ -215,8 +215,8 @@ function selectorTargetsManagedMedia(selector: string, mediaIndex: MediaSelector
   return false;
 }
 
-function findImperativeMediaControlFindings(ctx: LintContext): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function findImperativeMediaControlFindings(ctx: LintContext): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   const mediaTags = ctx.tags.filter((tag) => tag.name === "video" || tag.name === "audio");
   const mediaIndex: MediaSelectorIndex = {
     ids: new Set(
@@ -323,7 +323,7 @@ function findImperativeMediaControlFindings(ctx: LintContext): HyperframeLintFin
         findings.push({
           code: "imperative_media_control",
           severity: "error",
-          message: `Inline <script> imperatively controls managed media via ${kind}. HyperFrames must own media play/pause/seek to keep preview, timeline, and renders deterministic.`,
+          message: `Inline <script> imperatively controls managed media via ${kind}. ChalkFrames must own media play/pause/seek to keep preview, timeline, and renders deterministic.`,
           elementId: elementId || undefined,
           fixHint:
             "Remove imperative media play/pause/currentTime/muted control. Express timing with data-start/data-duration and media offsets like data-media-start or data-playback-start instead.",
@@ -349,7 +349,7 @@ function findImperativeMediaControlFindings(ctx: LintContext): HyperframeLintFin
           findings.push({
             code: "imperative_media_control",
             severity: "error",
-            message: `Inline <script> imperatively controls managed media via ${kind}. HyperFrames must own media play/pause/seek to keep preview, timeline, and renders deterministic.`,
+            message: `Inline <script> imperatively controls managed media via ${kind}. ChalkFrames must own media play/pause/seek to keep preview, timeline, and renders deterministic.`,
             elementId,
             fixHint:
               "Remove imperative media play/pause/currentTime/muted control. Express timing with data-start/data-duration and media offsets like data-media-start or data-playback-start instead.",
@@ -363,9 +363,9 @@ function findImperativeMediaControlFindings(ctx: LintContext): HyperframeLintFin
   return findings;
 }
 
-function findRuntimeMediaSrcMutationFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findRuntimeMediaSrcMutationFindings(ctx: LintContext): ChalkframeLintFinding[] {
   const { document } = parseHTML(ctx.source);
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const script of ctx.scripts) {
     for (const mutation of extractMediaSrcMutations(script.content)) {
       let targets: Element[];
@@ -403,12 +403,12 @@ function findRuntimeMediaSrcMutationFindings(ctx: LintContext): HyperframeLintFi
   return findings;
 }
 
-export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = [
+export const mediaRules: Array<(ctx: LintContext) => ChalkframeLintFinding[]> = [
   findNestedMediaStartBasisFindings,
   findSpeedRampOnNonMediaFindings,
   // duplicate_media_id + duplicate_media_discovery_risk
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const mediaById = new Map<string, typeof tags>();
     const mediaFingerprintCounts = new Map<string, number>();
 
@@ -462,7 +462,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
   // keys are ignored by the runtime, so catch them before an agent can report
   // controls that never actually rendered.
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       const raw = readDecodedAttr(tag.raw, "data-color-grading");
       if (raw === null) continue;
@@ -513,7 +513,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // video_missing_muted
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       if (tag.name !== "video") continue;
       const hasMuted = hasAttrName(tag.raw, "muted");
@@ -549,7 +549,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // video_nested_in_timed_element
   ({ source, tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     // HTML5 void elements cannot contain children, so they can never be a
     // parent of a nested <video>. Skipping them avoids false positives where
     // the linter looks for `</img>` and never finds it.
@@ -609,7 +609,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // self_closing_media_tag
   ({ source }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const selfClosingMediaRe = /<(audio|video)\b[^>]*\/>/gi;
     let scMatch: RegExpExecArray | null;
     while ((scMatch = selfClosingMediaRe.exec(source)) !== null) {
@@ -632,7 +632,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // placeholder_media_url
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const PLACEHOLDER_DOMAINS =
       /\b(placehold\.co|placeholder\.com|placekitten\.com|picsum\.photos|example\.com|via\.placeholder\.com|dummyimage\.com)\b/i;
     for (const tag of tags) {
@@ -656,7 +656,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // base64_media_prohibited
   ({ source }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     const base64MediaRe =
       /src\s*=\s*["'](data:(?:audio|video)\/[^;]+;base64,([A-Za-z0-9+/=]{20,}))["']/gi;
     let b64Match: RegExpExecArray | null;
@@ -679,7 +679,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
 
   // media_missing_data_start + media_missing_id + media_missing_src + media_preload_none
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       if (tag.name !== "video" && tag.name !== "audio") continue;
       const hasDataStart = readAttr(tag.raw, "data-start");
@@ -689,7 +689,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
         findings.push({
           code: "media_missing_data_start",
           severity: "error",
-          message: `<${tag.name}${hasId ? ` id="${hasId}"` : ""}> has src but no data-start. HyperFrames cannot own playback for untimed media, so preview and render behavior can diverge.`,
+          message: `<${tag.name}${hasId ? ` id="${hasId}"` : ""}> has src but no data-start. ChalkFrames cannot own playback for untimed media, so preview and render behavior can diverge.`,
           elementId: hasId || undefined,
           fixHint: `Add data-start="0" (or the intended start time) and data-duration if the clip should stop before the source ends.`,
           snippet: truncateSnippet(tag.raw),
@@ -753,7 +753,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
   // back (canvas/WebGL texture, WebAudio createMediaElementSource) AND only when the
   // host is known CORS-enabled.
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     for (const tag of tags) {
       if (tag.name !== "video" && tag.name !== "audio") continue;
       if (!hasAttrName(tag.raw, "crossorigin")) continue;
@@ -774,7 +774,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
   // video_audio_double_source — catches audible <video> paired with a separate
   // <audio> pointing to the same file, which causes double playback at runtime
   ({ tags }) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
     type Source = { id?: string; raw: string };
     const videos: Array<[string, Source]> = [];
     const audios: Array<[string, Source]> = [];
@@ -845,7 +845,7 @@ export const mediaRules: Array<(ctx: LintContext) => HyperframeLintFinding[]> = 
  * Silent before this rule, and easier to hit since the fader gained +12 dB of
  * boost and `normalize-audio` writes into the very same attribute.
  */
-function findVolumeTweenOverridesGainFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findVolumeTweenOverridesGainFindings(ctx: LintContext): ChalkframeLintFinding[] {
   const boosted = ctx.tags
     .filter((tag) => isMediaTag(tag.name))
     // Absent means unity, as it does everywhere else. Reading it raw gave
@@ -862,7 +862,7 @@ function findVolumeTweenOverridesGainFindings(ctx: LintContext): HyperframeLintF
   if (boosted.length === 0) return [];
 
   const script = ctx.scripts.map((block) => stripJsComments(block.content)).join("\n");
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const { tag, id, volume } of boosted) {
     if (!tweensVolumeInSameCall(script, id)) continue;
     const db = volume > 0 ? `${(20 * Math.log10(volume)).toFixed(1)} dB` : "silence";
@@ -885,7 +885,7 @@ function findVolumeTweenOverridesGainFindings(ctx: LintContext): HyperframeLintF
  * never falls through to the probed tween. Both present means one of them is
  * silently doing nothing, which is invisible in the file and in preview.
  */
-function findVolumeDoubleAutomationFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findVolumeDoubleAutomationFindings(ctx: LintContext): ChalkframeLintFinding[] {
   const automated = ctx.tags
     .filter((tag) => isMediaTag(tag.name))
     .map((tag) => ({ tag, automation: readDecodedAttr(tag.raw, "data-automation") }))
@@ -895,7 +895,7 @@ function findVolumeDoubleAutomationFindings(ctx: LintContext): HyperframeLintFin
   if (automated.length === 0) return [];
 
   const script = ctx.scripts.map((block) => stripJsComments(block.content)).join("\n");
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const { tag, id } of automated) {
     // ponytail: a tween is recognised by a `volume` key appearing shortly after
     // the element's own selector, rather than by parsing the timeline. It reads
@@ -925,7 +925,7 @@ function findVolumeDoubleAutomationFindings(ctx: LintContext): HyperframeLintFin
 }
 
 /** A `rate` lane only retimes video and audio; anywhere else it is silently inert. */
-function findSpeedRampOnNonMediaFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findSpeedRampOnNonMediaFindings(ctx: LintContext): ChalkframeLintFinding[] {
   return ctx.tags
     .filter((tag) => tag.name !== "video" && tag.name !== "audio")
     .filter((tag) =>
@@ -949,12 +949,12 @@ function findSpeedRampOnNonMediaFindings(ctx: LintContext): HyperframeLintFindin
  * a group instead means membership resolves at analysis time. Silent when
  * `sources` already names a group, or names at most one clip.
  */
-function findCarveUngroupedSourcesFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findCarveUngroupedSourcesFindings(ctx: LintContext): ChalkframeLintFinding[] {
   const groupIds = new Set(
     ctx.tags.filter((tag) => tag.name === "hf-audio-group").map((tag) => readAttr(tag.raw, "id")),
   );
 
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     const raw = readDecodedAttr(tag.raw, "data-fx-carve");
     if (raw === null) continue;
@@ -1003,7 +1003,7 @@ const AUDIO_GROUP_TIMING_ATTRS = ["data-start", "data-duration", "data-track-ind
  * AND invents a phantom group at unity gain with no chain, which is what the
  * timeline then draws.
  */
-function findAudioGroupNoMembersFindings(ctx: LintContext): HyperframeLintFinding[] {
+function findAudioGroupNoMembersFindings(ctx: LintContext): ChalkframeLintFinding[] {
   const memberGroupIds = new Set(
     ctx.tags
       .filter((tag) => tag.name === "audio" || (tag.name === "video" && isAudibleVideoTag(tag.raw)))
@@ -1011,7 +1011,7 @@ function findAudioGroupNoMembersFindings(ctx: LintContext): HyperframeLintFindin
       .filter((id): id is string => Boolean(id)),
   );
 
-  // Only a file that declares SOME membership can be judged. `lintHyperframeHtml`
+  // Only a file that declares SOME membership can be judged. `lintChalkframeHtml`
   // sees one file, and the studio's own group creation writes the bus into the
   // active composition while patching `data-audio-group` into each member's own
   // file (`timelineAudioGroupCreate`) — so a file carrying a bus and no members
@@ -1030,7 +1030,7 @@ function findAudioGroupNoMembersFindings(ctx: LintContext): HyperframeLintFindin
   );
   const unmatchedMemberGroupIds = [...memberGroupIds].filter((id) => !declaredGroupIds.has(id));
 
-  const findings: HyperframeLintFinding[] = [];
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     if (tag.name !== "hf-audio-group") continue;
     // A bus with no id cannot be joined at all — a different mistake, and
@@ -1076,8 +1076,8 @@ function findAudioGroupNoMembersFindings(ctx: LintContext): HyperframeLintFindin
  * and `volume` only, so these attributes change nothing and mislead the next
  * reader into thinking the bus has a window.
  */
-function findAudioGroupTimingAttrFindings(ctx: LintContext): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function findAudioGroupTimingAttrFindings(ctx: LintContext): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     if (tag.name !== "hf-audio-group") continue;
     const present = AUDIO_GROUP_TIMING_ATTRS.filter((attr) => hasAttrName(tag.raw, attr));
@@ -1108,8 +1108,8 @@ function findAudioGroupTimingAttrFindings(ctx: LintContext): HyperframeLintFindi
  * what happened when a bus labelled "Music bed" classified as one and carved
  * itself (fixed in Studio; this catches what was already written down).
  */
-function findAudioGroupCarveAttrFindings(ctx: LintContext): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+function findAudioGroupCarveAttrFindings(ctx: LintContext): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   for (const tag of ctx.tags) {
     if (tag.name !== "hf-audio-group") continue;
     if (!hasAttrName(tag.raw, "data-fx-carve")) continue;

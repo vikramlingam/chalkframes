@@ -30,7 +30,7 @@ it("accepts only current-player sound names while preserving unlock and mute beh
   });
   try {
     const w = dom.window;
-    const player = w.document.querySelector("hyperframes-player")!;
+    const player = w.document.querySelector("chalkframes-player")!;
     const frame = w.document.createElement("iframe");
     player.append(frame);
     Object.defineProperty(player, "iframeElement", { get: () => player.querySelector("iframe") });
@@ -57,7 +57,7 @@ it("accepts only current-player sound names while preserving unlock and mute beh
     expect(clips[0]!.play).toHaveBeenCalledTimes(1);
     send(replacement.contentWindow, "advance");
     expect(clips[0]!.play).toHaveBeenCalledTimes(2);
-    const slideshow = w.document.querySelector("hyperframes-slideshow")!;
+    const slideshow = w.document.querySelector("chalkframes-slideshow")!;
     slideshow.dispatchEvent(new w.CustomEvent("hf-sound", { detail: { muted: true } }));
     send(replacement.contentWindow, "advance");
     expect(clips[0]!.play).toHaveBeenCalledTimes(2);

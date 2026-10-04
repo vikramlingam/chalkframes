@@ -97,7 +97,7 @@ describe("capture command — vision control", () => {
   it("plumbs the optional whole-capture deadline from the environment", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
-    process.env.HYPERFRAMES_CAPTURE_DEADLINE_MS = "240000";
+    process.env.CHALKFRAMES_CAPTURE_DEADLINE_MS = "240000";
 
     try {
       await captureCommand.run!({
@@ -115,7 +115,7 @@ describe("capture command — vision control", () => {
         undefined,
       );
     } finally {
-      delete process.env.HYPERFRAMES_CAPTURE_DEADLINE_MS;
+      delete process.env.CHALKFRAMES_CAPTURE_DEADLINE_MS;
     }
   });
 
@@ -184,11 +184,11 @@ describe("capture command — vision control", () => {
     } as never);
 
     const line = error.mock.calls.find(
-      ([value]) => typeof value === "string" && value.startsWith("HYPERFRAMES_CAPTURE_PHASE "),
+      ([value]) => typeof value === "string" && value.startsWith("CHALKFRAMES_CAPTURE_PHASE "),
     )?.[0];
     expect(typeof line).toBe("string");
     if (typeof line !== "string") throw new Error("Expected capture phase diagnostic");
-    const event = JSON.parse(line.slice("HYPERFRAMES_CAPTURE_PHASE ".length));
+    const event = JSON.parse(line.slice("CHALKFRAMES_CAPTURE_PHASE ".length));
     expect(event).toEqual({
       schema: CAPTURE_PHASE_SCHEMA,
       phase: "vision",

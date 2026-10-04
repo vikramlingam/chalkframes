@@ -14,7 +14,7 @@ const envWithNpxCli = {
 const npxCliPath = "C:/Program Files/nodejs/node_modules/npm/bin/npx-cli.js";
 const pathExists = (path) => path === npxCliPath;
 
-const WHISPER_ARGV = ["hyperframes", "transcribe", "C:\\media\\input.wav", "--dir", "C:\\work"];
+const WHISPER_ARGV = ["chalkframes", "transcribe", "C:\\media\\input.wav", "--dir", "C:\\work"];
 const WHISPER_OPTS = { stdio: ["ignore", "pipe", "pipe"], timeout: 1_800_000 };
 
 test("win32: routes the whisper fallback through node + npx-cli, never bare npx", () => {
@@ -28,7 +28,7 @@ test("win32: routes the whisper fallback through node + npx-cli, never bare npx"
 
   assert.equal(resolved.cmd, envWithNpxCli.npm_node_execpath);
   assert.equal(resolved.args[0], npxCliPath);
-  assert.deepEqual(resolved.args.slice(1, 3), ["hyperframes", "transcribe"]);
+  assert.deepEqual(resolved.args.slice(1, 3), ["chalkframes", "transcribe"]);
   // execFileSync options survive the rerouting (the timeout bounds the
   // whisper build/model download; the pipes surface its errors).
   assert.deepEqual(resolved.opts.stdio, ["ignore", "pipe", "pipe"]);

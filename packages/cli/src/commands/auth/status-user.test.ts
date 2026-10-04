@@ -98,7 +98,7 @@ describe("auth status — persisted user block surface", () => {
     // Seed a file-side user block, then resolve via the env key — the
     // active credential is env, so the file block must NOT be surfaced.
     await writeStore({ api_key: "hg_file", user: { email: "file-user@example.com" } });
-    process.env["HEYGEN_API_KEY"] = "hg_env_key";
+    process.env["CHALKFRAMES_API_KEY"] = "hg_env_key";
 
     const code = await runStatus(true);
     expect(code).toBe(0);

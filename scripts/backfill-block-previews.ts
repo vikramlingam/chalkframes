@@ -18,7 +18,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
 const registryDir = resolve(repoRoot, "registry");
 
-const CDN_BASE = "https://static.heygen.ai/hyperframes-oss/docs/images/catalog";
+const CDN_BASE = "https://static.chalkframes.dev/chalkframes-oss/docs/images/catalog";
 
 const dryRun = process.argv.includes("--dry-run");
 

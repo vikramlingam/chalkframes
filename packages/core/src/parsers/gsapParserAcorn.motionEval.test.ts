@@ -1,5 +1,5 @@
 /**
- * Motion-introspection eval regressions (the `hyperframes motion` read path).
+ * Motion-introspection eval regressions (the `chalkframes motion` read path).
  *
  * Each block targets one bug the tooling eval surfaced where the parser was
  * blind to authored motion. Minimal inline scripts reproduce the wrong output,

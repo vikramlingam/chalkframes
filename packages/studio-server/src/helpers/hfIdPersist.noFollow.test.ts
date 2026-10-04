@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 
 const swap = vi.hoisted(() => ({ to: "" }));
-vi.mock("@hyperframes/core/atomic-file", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@hyperframes/core/atomic-file")>();
+vi.mock("@chalkframes/core/atomic-file", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@chalkframes/core/atomic-file")>();
   const fs = await import("node:fs");
   return {
     ...actual,

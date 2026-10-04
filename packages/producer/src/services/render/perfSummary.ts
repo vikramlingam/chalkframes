@@ -4,13 +4,13 @@
  */
 
 import { arch, cpus, platform, totalmem } from "node:os";
-import { fpsToNumber, type HfVfxCapture } from "@hyperframes/core";
+import { fpsToNumber, type HfVfxCapture } from "@chalkframes/core";
 import type {
   CapturePerfSummary,
   StaticVerificationOutcome,
   SubTimelineWaitOutcome,
   WorkerSizing,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { CaptureCalibrationSample, CaptureCostEstimate } from "./captureCost.js";
 import type {
   CaptureAttemptSummary,
@@ -94,8 +94,8 @@ export interface DrawElementPerfInput {
   compositionElementTags?: Readonly<Record<string, number>>;
   /** `<video data-aroll="true">` count from the same static scan; only set when compositionElementCountSource is "static". */
   arollVideoCount?: number;
-  /** `<video data-media-source="heygen">` count from the same static scan; only set when compositionElementCountSource is "static". */
-  heygenVideoCount?: number;
+  /** `<video data-media-source="chalkframes">` count from the same static scan; only set when compositionElementCountSource is "static". */
+  chalkframesVideoCount?: number;
   /** Runtime adapters exercised (live+static union); always set (possibly empty). */
   adaptersUsed?: readonly string[];
   /** Audio/image/sub-comp/color-grading counts, same static scan; only set when the source above is "static". */
@@ -161,7 +161,7 @@ function aggregateDrawElement(
     compositionElementCountSource: de.compositionElementCountSource,
     compositionElementTags: de.compositionElementTags,
     arollVideoCount: de.arollVideoCount,
-    heygenVideoCount: de.heygenVideoCount,
+    chalkframesVideoCount: de.chalkframesVideoCount,
     adaptersUsed: de.adaptersUsed,
     audioCount: de.audioCount,
     imageCount: de.imageCount,

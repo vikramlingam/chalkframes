@@ -68,7 +68,7 @@ import {
   initializeSession,
   prepareCaptureSessionForReuse,
   spawnStreamingEncoder,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { FileServerHandle } from "../../fileServer.js";
 import type { ProducerLogger } from "../../../logger.js";
 import type { ProgressCallback, RenderJob } from "../../renderOrchestrator.js";
@@ -299,7 +299,7 @@ export type CaptureStreamingStageResult =
       success: false;
     };
 
-// psnrDb moved to @hyperframes/engine (utils/psnr.ts) so the parallel
+// psnrDb moved to @chalkframes/engine (utils/psnr.ts) so the parallel
 // disk-path verify (parallelCoordinator) and this drain guard share one
 // comparison implementation.
 

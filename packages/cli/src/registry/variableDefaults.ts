@@ -5,7 +5,7 @@
  * the values on that mount as `data-variable-values` and two mounts of the same
  * block can differ. A component has no mount element: it is markup you paste
  * into a host composition, and it reads its values through
- * `__hyperframes.getVariables()`, which merges the declared defaults of every
+ * `__chalkframes.getVariables()`, which merges the declared defaults of every
  * `[data-composition-variables]` element in the document with render-time
  * overrides.
  *
@@ -20,7 +20,7 @@ import {
   isCompositionVariable,
   validateVariables,
   type CompositionVariable,
-} from "@hyperframes/core/variables";
+} from "@chalkframes/core/variables";
 
 export interface ApplyResult {
   /** The source with defaults rewritten. Unchanged when nothing applied. */

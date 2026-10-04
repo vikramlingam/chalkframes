@@ -7,7 +7,7 @@ import { diag } from "../ui/diagnostics.js";
 import type { CapturePhaseProgress } from "../capture/types.js";
 import { parseCaptureDeadline } from "../capture/captureWatchdog.js";
 
-const CAPTURE_PHASE_PREFIX = "HYPERFRAMES_CAPTURE_PHASE ";
+const CAPTURE_PHASE_PREFIX = "CHALKFRAMES_CAPTURE_PHASE ";
 
 function emitCapturePhase(event: CapturePhaseProgress): void {
   diag.notice(`${CAPTURE_PHASE_PREFIX}${JSON.stringify(event)}`);
@@ -24,23 +24,23 @@ function parseCaptureBudget(raw: string | undefined): number | undefined {
 }
 
 export const examples: Example[] = [
-  ["Capture a website into ./capture/", "hyperframes capture https://stripe.com"],
-  ["Capture to a different directory", "hyperframes capture https://linear.app -o linear-video"],
-  ["JSON output for AI agents", "hyperframes capture https://example.com --json"],
+  ["Capture a website into ./capture/", "chalkframes capture https://stripe.com"],
+  ["Capture to a different directory", "chalkframes capture https://linear.app -o linear-video"],
+  ["JSON output for AI agents", "chalkframes capture https://example.com --json"],
   [
     "Pull a video from the captured manifest by index",
-    "hyperframes capture --video ./linear-video --index 0",
+    "chalkframes capture --video ./linear-video --index 0",
   ],
   [
     "List videos referenced in the captured manifest",
-    "hyperframes capture --video ./linear-video --list",
+    "chalkframes capture --video ./linear-video --list",
   ],
 ];
 
 export default defineCommand({
   meta: {
     name: "capture",
-    description: "Capture a website as editable HyperFrames components",
+    description: "Capture a website as editable ChalkFrames components",
   },
   args: {
     url: {
@@ -176,7 +176,7 @@ export default defineCommand({
             : undefined,
           timeout: args.timeout ? parseInt(args.timeout as string) : undefined,
           postNavigationBudgetMs: captureBudgetMs,
-          captureDeadlineMs: parseCaptureDeadline(process.env.HYPERFRAMES_CAPTURE_DEADLINE_MS),
+          captureDeadlineMs: parseCaptureDeadline(process.env.CHALKFRAMES_CAPTURE_DEADLINE_MS),
           json: isJson,
           onPhase: emitCapturePhase,
         },

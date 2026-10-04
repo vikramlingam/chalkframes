@@ -47,16 +47,16 @@ describe("affectsProjectSignature", () => {
     expect(affects(".thumbnails")).toBe(false);
   });
 
-  it("accepts the two manifest files the signature reads back out of .hyperframes", () => {
+  it("accepts the two manifest files the signature reads back out of .chalkframes", () => {
     // The reload watcher's exclusion set is character-identical to the walk's but
-    // drops all of .hyperframes/. Filtering with it would stop a motion-state save
+    // drops all of .chalkframes/. Filtering with it would stop a motion-state save
     // from ever invalidating — the same stale-ETag bug in a new place.
-    expect(affects(".hyperframes/studio-motion.json")).toBe(true);
-    expect(affects(".hyperframes/studio-manual-edits.json")).toBe(true);
+    expect(affects(".chalkframes/studio-motion.json")).toBe(true);
+    expect(affects(".chalkframes/studio-manual-edits.json")).toBe(true);
   });
 
-  it("rejects everything else inside .hyperframes", () => {
-    expect(affects(".hyperframes/cache/blob.bin")).toBe(false);
+  it("rejects everything else inside .chalkframes", () => {
+    expect(affects(".chalkframes/cache/blob.bin")).toBe(false);
   });
 
   it("rejects the temp file of a save in flight, but not a user's own .tmp file", () => {

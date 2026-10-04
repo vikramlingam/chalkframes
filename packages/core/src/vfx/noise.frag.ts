@@ -44,7 +44,7 @@
  * **Pixel space.** `x` and `y` are integer pixel coordinates with y measured
  * from the TOP, which is how After Effects indexes the buffer — the shader's
  * `v_uv` is y-up, so the row is flipped back here. `inNoiseOffsetX/Y` (the
- * layer's origin inside the source buffer) are not modelled: a HyperFrames host
+ * layer's origin inside the source buffer) are not modelled: a ChalkFrames host
  * always captures its own box, so its origin is (0, 0).
  *
  * **Premultiplication.** The noise is added to the captured texel as it is,

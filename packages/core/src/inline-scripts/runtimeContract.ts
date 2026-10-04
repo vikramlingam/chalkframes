@@ -1,4 +1,4 @@
-export const HYPERFRAME_RUNTIME_GLOBALS = {
+export const CHALKFRAME_RUNTIME_GLOBALS = {
   player: "__player",
   playerReady: "__playerReady",
   renderReady: "__renderReady",
@@ -6,12 +6,12 @@ export const HYPERFRAME_RUNTIME_GLOBALS = {
   clipManifest: "__clipManifest",
 } as const;
 
-export const HYPERFRAME_BRIDGE_SOURCES = {
+export const CHALKFRAME_BRIDGE_SOURCES = {
   parent: "hf-parent",
   preview: "hf-preview",
 } as const;
 
-export const HYPERFRAME_CONTROL_ACTIONS = [
+export const CHALKFRAME_CONTROL_ACTIONS = [
   "play",
   "pause",
   "seek",
@@ -23,4 +23,4 @@ export const HYPERFRAME_CONTROL_ACTIONS = [
   "disable-pick-mode",
 ] as const;
 
-export type HyperframeControlAction = (typeof HYPERFRAME_CONTROL_ACTIONS)[number];
+export type ChalkframeControlAction = (typeof CHALKFRAME_CONTROL_ACTIONS)[number];

@@ -25,7 +25,7 @@ const text = (value: unknown) => (typeof value === "string" && value ? value : n
 
 /** Studio's write token, so the watcher's echo of an undo reads as Studio's own write. */
 function writing(c: Context): { writeToken?: string } {
-  const header = c.req.header("X-Hyperframes-Write-Token");
+  const header = c.req.header("X-Chalkframes-Write-Token");
   return header ? { writeToken: createWriteToken(header) } : {};
 }
 

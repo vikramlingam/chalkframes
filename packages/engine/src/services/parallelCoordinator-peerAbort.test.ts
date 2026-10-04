@@ -100,7 +100,7 @@ describe("executeParallelCapture peer abort", () => {
     }
   });
 
-  // heygen-com/hyperframes#3441: a worker wedged INSIDE a native capture call
+  // vikramlingam/chalkframes#3441: a worker wedged INSIDE a native capture call
   // (WSL2 hangs the very first drawElement/BeginFrame call at frame 0 with no
   // error) must actually be unstuck once the caller's `signal` aborts — e.g.
   // the DE parallel-router stall watchdog in `captureStreamingStage.ts` firing

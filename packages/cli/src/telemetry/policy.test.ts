@@ -18,34 +18,34 @@ describe("telemetry policy", () => {
     vi.doUnmock("../utils/env.js");
     vi.doUnmock("./transport.js");
     vi.resetModules();
-    delete process.env["HYPERFRAMES_NO_TELEMETRY"];
+    delete process.env["CHALKFRAMES_NO_TELEMETRY"];
     delete process.env["DO_NOT_TRACK"];
   });
 
   it.each(["1", "true", "TRUE", " yes ", "on"])(
     "treats %j as an explicit environment opt-out",
     async (value) => {
-      process.env["HYPERFRAMES_NO_TELEMETRY"] = value;
+      process.env["CHALKFRAMES_NO_TELEMETRY"] = value;
       const { effectiveTelemetryStatus } = await loadPolicy();
-      expect(effectiveTelemetryStatus(true).source).toBe("HYPERFRAMES_NO_TELEMETRY");
+      expect(effectiveTelemetryStatus(true).source).toBe("CHALKFRAMES_NO_TELEMETRY");
     },
   );
 
   it.each(["", "0", "false", "no", "off", "anything"])(
     "does not treat %j as an affirmative opt-out value",
     async (value) => {
-      process.env["HYPERFRAMES_NO_TELEMETRY"] = value;
+      process.env["CHALKFRAMES_NO_TELEMETRY"] = value;
       const { effectiveTelemetryStatus } = await loadPolicy();
       expect(effectiveTelemetryStatus(true)).toEqual({ enabled: true, source: "config" });
     },
   );
 
-  it("reports HYPERFRAMES_NO_TELEMETRY as the effective source", async () => {
-    process.env["HYPERFRAMES_NO_TELEMETRY"] = "true";
+  it("reports CHALKFRAMES_NO_TELEMETRY as the effective source", async () => {
+    process.env["CHALKFRAMES_NO_TELEMETRY"] = "true";
     const { effectiveTelemetryStatus } = await loadPolicy();
     expect(effectiveTelemetryStatus(true)).toEqual({
       enabled: false,
-      source: "HYPERFRAMES_NO_TELEMETRY",
+      source: "CHALKFRAMES_NO_TELEMETRY",
     });
   });
 

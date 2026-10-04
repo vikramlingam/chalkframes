@@ -3,7 +3,7 @@ import { ChildProcess, execFile } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { HyperframeLintFinding } from "./types.js";
+import type { ChalkframeLintFinding } from "./types.js";
 import { lintProject } from "./project.js";
 
 // Keep project lint tests independent of the host's ffprobe installation.
@@ -220,7 +220,7 @@ describe("missing_or_empty_sub_composition", () => {
   async function lintSubComp(
     srcPath: string,
     subCompFiles?: Record<string, string>,
-  ): Promise<{ finding: HyperframeLintFinding | undefined; totalErrors: number }> {
+  ): Promise<{ finding: ChalkframeLintFinding | undefined; totalErrors: number }> {
     const project = makeProject(htmlWithSubComp(srcPath), subCompFiles);
     const { totalErrors, results } = await lintProject(project);
     const finding = results
@@ -464,18 +464,18 @@ describe("hevc_preview_codec", () => {
     return { project, videoAbsPath };
   }
 
-  async function hevcFindings(project: string): Promise<HyperframeLintFinding[]> {
+  async function hevcFindings(project: string): Promise<ChalkframeLintFinding[]> {
     const { results } = await lintProject(project);
     return results.flatMap((r) => r.result.findings).filter((f) => f.code === "hevc_preview_codec");
   }
 
   beforeEach(() => {
-    process.env.HYPERFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
+    process.env.CHALKFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
     mockExecFile.mockReset();
   });
 
   afterEach(() => {
-    delete process.env.HYPERFRAMES_FFPROBE_PATH;
+    delete process.env.CHALKFRAMES_FFPROBE_PATH;
     mockExecFile.mockReset();
   });
 
@@ -524,7 +524,7 @@ describe("hevc_preview_codec", () => {
 
   it("does not flag anything, and lint completes normally, when ffprobe cannot be resolved", async () => {
     const { project } = makeVideoProject("clip.mp4");
-    process.env.HYPERFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
+    process.env.CHALKFRAMES_FFPROBE_PATH = join(project, "missing-ffprobe");
 
     const { results, totalErrors } = await lintProject(project);
 
@@ -607,7 +607,7 @@ describe("video_media_start_at_or_past_eof", () => {
     });
   }
 
-  async function mediaStartFindings(project: string): Promise<HyperframeLintFinding[]> {
+  async function mediaStartFindings(project: string): Promise<ChalkframeLintFinding[]> {
     const { results } = await lintProject(project);
     return results
       .flatMap((entry) => entry.result.findings)
@@ -615,12 +615,12 @@ describe("video_media_start_at_or_past_eof", () => {
   }
 
   beforeEach(() => {
-    process.env.HYPERFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
+    process.env.CHALKFRAMES_FFPROBE_PATH = FAKE_FFPROBE_PATH;
     mockExecFile.mockReset();
   });
 
   afterEach(() => {
-    delete process.env.HYPERFRAMES_FFPROBE_PATH;
+    delete process.env.CHALKFRAMES_FFPROBE_PATH;
     mockExecFile.mockReset();
   });
 
@@ -731,7 +731,7 @@ describe("audio_src_not_found with templating tokens", () => {
 
   async function hasAudioSrcNotFound(project: string): Promise<boolean> {
     const { results } = await lintProject(project);
-    const findings: HyperframeLintFinding[] = results.flatMap((entry) => entry.result.findings);
+    const findings: ChalkframeLintFinding[] = results.flatMap((entry) => entry.result.findings);
     return findings.some((finding) => finding.code === "audio_src_not_found");
   }
 

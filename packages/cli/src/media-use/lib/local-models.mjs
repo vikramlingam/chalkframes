@@ -80,7 +80,7 @@ const MODELS = {
       install: "pip install whisperx",
       invoke: "whisperx {audio} --output_format json --out {out}",
       notes:
-        "CPU-only fallback (no GPU): faster-whisper + wav2vec2 forced alignment, native word timestamps. The packaged `hyperframes transcribe` (whisper.cpp) is the zero-setup baseline below this.",
+        "CPU-only fallback (no GPU): faster-whisper + wav2vec2 forced alignment, native word timestamps. The packaged `chalkframes transcribe` (whisper.cpp) is the zero-setup baseline below this.",
     },
   ],
   upscale: [

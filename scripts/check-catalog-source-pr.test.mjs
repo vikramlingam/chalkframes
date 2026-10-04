@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const guard = fileURLToPath(new URL("./check-catalog-source-pr.mjs", import.meta.url));
-const old = { name: "old", type: "hyperframes:component" };
-const kept = { name: "kept", type: "hyperframes:block" };
+const old = { name: "old", type: "chalkframes:component" };
+const kept = { name: "kept", type: "chalkframes:block" };
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "catalog-source-pr-"));
@@ -82,7 +82,7 @@ test("a rename unpublishes the old name and leaves the new name for automation",
 test("an add-plus-delete PR carries only the old entry removal", (t) => {
   const repo = fixture(t);
   repo.removeOld();
-  repo.item("blocks", { name: "new", type: "hyperframes:block" });
+  repo.item("blocks", { name: "new", type: "chalkframes:block" });
   repo.index([kept]);
   const result = repo.check();
   assert.equal(result.status, 0, result.stderr);
@@ -99,7 +99,7 @@ test("a deletion cannot leave a dangling index entry", (t) => {
 test("the removal exception cannot publish an added entry", (t) => {
   const repo = fixture(t);
   repo.removeOld();
-  const added = { name: "new", type: "hyperframes:block" };
+  const added = { name: "new", type: "chalkframes:block" };
   repo.item("blocks", added);
   repo.index([kept, added]);
   const result = repo.check();
@@ -109,7 +109,7 @@ test("the removal exception cannot publish an added entry", (t) => {
 
 test("the removal exception cannot unpublish a directory that still exists", (t) => {
   const repo = fixture(t);
-  repo.item("blocks", { name: "new", type: "hyperframes:block" });
+  repo.item("blocks", { name: "new", type: "chalkframes:block" });
   repo.index([kept]);
   const result = repo.check();
   assert.equal(result.status, 1);

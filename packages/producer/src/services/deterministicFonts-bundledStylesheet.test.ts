@@ -7,20 +7,20 @@ import {
   injectDeterministicFontFaces,
 } from "./deterministicFonts.js";
 
-const previousCacheDir = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+const previousCacheDir = process.env.CHALKFRAMES_FONT_CACHE_DIR;
 const cacheDir = mkdtempSync(join(tmpdir(), "hf-bundled-stylesheet-"));
 const fetchMock = spyOn(globalThis, "fetch");
 
 afterEach(() => {
   fetchMock.mockRestore();
   _clearGoogleFontCssCacheForTests();
-  if (previousCacheDir === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = previousCacheDir;
+  if (previousCacheDir === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = previousCacheDir;
   rmSync(cacheDir, { recursive: true, force: true });
 });
 
 it("supplements bundled fonts with real italics even when the page imports only normal", async () => {
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
   _clearGoogleFontCssCacheForTests();
   const italicUrl = "https://fonts.gstatic.com/s/ebgaramond/italic.woff2";
   const normalUrl = "https://fonts.gstatic.com/s/ebgaramond/normal.woff2";

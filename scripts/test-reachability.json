@@ -4,7 +4,7 @@
       "skills/media-use/scripts/lib/**",
       "packages/cli/src/media-use/lib/**",
       "scripts/generate-skill-module-copies.mjs",
-      "skills/hyperframes/scripts/lib/frame-packets-core.mjs",
+      "skills/chalkframes/scripts/lib/frame-packets-core.mjs",
       "skills/media-use/audio/scripts/lib/bgm-volume.mjs"
     ],
     "scripts/check-test-reachability.test.mjs": [

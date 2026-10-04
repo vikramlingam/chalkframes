@@ -1,4 +1,4 @@
-import type { LintContext, HyperframeLintFinding, OpenTag } from "../context";
+import type { LintContext, ChalkframeLintFinding, OpenTag } from "../context";
 import { readAttr, truncateSnippet } from "../utils";
 
 const SYNC_TOLERANCE_S = 1e-3;
@@ -61,8 +61,8 @@ const memberLabel = (tag: OpenTag) => {
   return id ? `#${id}` : `<${tag.name}>`;
 };
 
-export function findLinkedClipFindings(ctx: LintContext): HyperframeLintFinding[] {
-  const findings: HyperframeLintFinding[] = [];
+export function findLinkedClipFindings(ctx: LintContext): ChalkframeLintFinding[] {
+  const findings: ChalkframeLintFinding[] = [];
   for (const { link, members } of groupByLink(ctx.tags).values()) {
     const first = members[0];
     if (!first) continue;

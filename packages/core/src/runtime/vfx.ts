@@ -11,7 +11,7 @@
  * randomness, no state carried between paints. That is the determinism
  * contract the exporter's gate depends on.
  *
- * Every failure is loud: the `[HyperFrames] composition script error:` prefix
+ * Every failure is loud: the `[ChalkFrames] composition script error:` prefix
  * is what the engine turns into `runtime-error:<compId>` and fails fast on, so
  * a broken chain stops a render instead of silently rendering the wrong frame.
  */
@@ -45,7 +45,7 @@ import { isCanvasElement, isHtmlElement } from "./domRealm";
 const VFX_REF_VISIBLE_ATTR = "data-vfx-ref-visible";
 
 /** The prefix `frameCapture.ts` matches to fail a render fast. */
-const VFX_ERROR_LABEL = "[HyperFrames] composition script error:";
+const VFX_ERROR_LABEL = "[ChalkFrames] composition script error:";
 
 /**
  * `preserveDrawingBuffer` is what the engine's accelerated-canvas composite
@@ -1360,7 +1360,7 @@ export function paintVfx(t: number, options?: { engineMode?: boolean }): void {
   if (capturing.length === 0) return;
   // Engine mode arms the page-composite protocol AND the preview-side capture,
   // then paints on whichever completes first. Arming alone was a bet that every
-  // capture host runs under `frameCapture.ts`, and it does not: `hyperframes
+  // capture host runs under `frameCapture.ts`, and it does not: `chalkframes
   // snapshot` (and `check`/`compare`/`validate`/`layout`, and Studio's
   // thumbnail capture) seek through the same `seekCompositionTimeline` →
   // `renderSeek`, never read `__hf_page_composite_pending`, and never call

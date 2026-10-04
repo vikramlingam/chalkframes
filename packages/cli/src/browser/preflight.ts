@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { platform } from "node:os";
-import { findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { findFfBinary } from "@chalkframes/parsers/ff-binaries";
 import { ensureBrowser, findBrowser, type BrowserResult } from "./manager.js";
 import { describeBrowserInstall, type BrowserInstallFacts } from "./installFacts.js";
 import { FFMPEG_PATH_ENV, FFPROBE_PATH_ENV, getFFmpegInstallHint } from "./ffmpeg.js";
@@ -274,7 +274,7 @@ async function chromeLaunchOutcome(
       detail: `Failed to run "${executablePath}" --version${details ? ` (${details})` : ""}.`,
       hint:
         "Select a working Chrome/Chromium binary for this OS and architecture with " +
-        "HYPERFRAMES_BROWSER_PATH, or reinstall with: npx hyperframes browser ensure --force",
+        "CHALKFRAMES_BROWSER_PATH, or reinstall with: npx chalkframes browser ensure --force",
       path: executablePath,
     };
   }
@@ -304,7 +304,7 @@ async function checkChrome(
       level: "error",
       title: "Chrome not found",
       detail: `Chrome binary not found at "${browserPath}".`,
-      hint: "Run: npx hyperframes browser ensure",
+      hint: "Run: npx chalkframes browser ensure",
     };
   }
 
@@ -342,11 +342,11 @@ async function checkChrome(
     level: "error",
     title: "Chrome not found",
     detail: "Chrome Headless Shell is required for local rendering.",
-    hint: "Run: npx hyperframes browser ensure",
+    hint: "Run: npx chalkframes browser ensure",
   };
 }
 
-/** Resolves the render browser the way `hyperframes render` does; a refusal carries the check's own message. */
+/** Resolves the render browser the way `chalkframes render` does; a refusal carries the check's own message. */
 export async function resolveRenderBrowser(signal?: AbortSignal): Promise<BrowserResult> {
   const { outcomes, browser } = await runEnvironmentChecks({ includeBrowser: true, signal });
   if (browser) return browser;

@@ -146,7 +146,7 @@ function runBootstrap(search: string): {
 }
 
 /** A player build that form-encodes the whole query, which is what every
- *  already-published @hyperframes/player on the CDN does. The reader has to
+ *  already-published @chalkframes/player on the CDN does. The reader has to
  *  survive it, because the docs load the player from a CDN and cannot wait for
  *  a release. */
 function formEncodingPlayer(src: string): string {

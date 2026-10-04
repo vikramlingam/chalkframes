@@ -28,8 +28,8 @@ import {
   decideMediaProxyEligibility,
   proxyVariantFor,
   scanProjectMediaCodecMap,
-} from "@hyperframes/studio-server/media-codec-map";
-import { resolveProxy } from "@hyperframes/studio-server/proxy-transcoder";
+} from "@chalkframes/studio-server/media-codec-map";
+import { resolveProxy } from "@chalkframes/studio-server/proxy-transcoder";
 import { rectToBbox } from "./checkTypes.js";
 import type {
   AnchoredLayoutIssue,
@@ -122,7 +122,7 @@ export async function preResolveHostileMediaProxies(
     codecMap = await scanProjectMediaCodecMap(projectDir, [{ html }]);
   } catch (err) {
     console.info(
-      `[hyperframes] media proxy pre-resolve: scan failed (${normalizeErrorMessage(err)})`,
+      `[chalkframes] media proxy pre-resolve: scan failed (${normalizeErrorMessage(err)})`,
     );
     return;
   }
@@ -143,7 +143,7 @@ export async function preResolveHostileMediaProxies(
   );
   const failed = results.filter((result) => result.status === "rejected").length;
   console.info(
-    `[hyperframes] media proxy pre-resolve: ${results.length - failed}/${results.length} ready, ${failed} failed (${Date.now() - startedAt}ms)`,
+    `[chalkframes] media proxy pre-resolve: ${results.length - failed}/${results.length} ready, ${failed} failed (${Date.now() - startedAt}ms)`,
   );
 }
 
@@ -187,7 +187,7 @@ export async function runBrowserCheck(
     // slot silently shortens the slot at render time — invisible to lint (no
     // intrinsic durations statically) and to the runtime listeners (nothing
     // errors). The session is already open, so this is one extra evaluate.
-    const { analyzeClipMediaFit } = await import("@hyperframes/engine");
+    const { analyzeClipMediaFit } = await import("@chalkframes/engine");
     for (const entry of await auditClipDurations(page, analyzeClipMediaFit, options.timeout)) {
       drafts.push({ code: "clip_media_fit", severity: entry.level, message: entry.text, time: 0 });
     }
@@ -266,13 +266,13 @@ export async function captureFindingCrops(
 // shared "runtime_media_proxy_" prefix surfaces both codes; only those
 // runtime-emitted info lines should ever become findings here — an ordinary
 // `console.info` from a composition author's own script must not.
-const MEDIA_PROXY_MARKER_PREFIX = "[hyperframes] runtime_media_proxy_";
-const MEDIA_PROXY_UNAVAILABLE_MARKER = "[hyperframes] runtime_media_proxy_unavailable";
+const MEDIA_PROXY_MARKER_PREFIX = "[chalkframes] runtime_media_proxy_";
+const MEDIA_PROXY_UNAVAILABLE_MARKER = "[chalkframes] runtime_media_proxy_unavailable";
 // `reportWebAudioMediaRoute` (packages/core/src/runtime/webAudioRoute.ts) uses
 // the same code-in-the-console-line contract. It is emitted from the media
 // DISCOVERY phase rather than from playback scheduling, precisely so this
 // scraper can see it — `check` seeks, it never plays.
-const WEB_AUDIO_BYPASS_MARKER = "[hyperframes] runtime_web_audio_bypass";
+const WEB_AUDIO_BYPASS_MARKER = "[chalkframes] runtime_web_audio_bypass";
 const WEBGPU_RUNTIME_FAILURE =
   /\b(?:GPUValidationError|GPUOutOfMemoryError|GPUInternalError)\b|WebGPU uncaptured error|(?:destroyed\b.*\b(?:GPU )?(?:resource|buffer|texture)\b.*\bsubmit)|(?:(?:GPU )?(?:resource|buffer|texture)\b.*\bdestroyed\b.*\bsubmit)/i;
 
@@ -528,7 +528,7 @@ async function collectLayout(
 ): Promise<AnchoredLayoutIssue[]> {
   const raw = await page.evaluate(
     (options: { time: number; tolerance: number; proseCoverageFloor?: number }) => {
-      const audit = Reflect.get(window, "__hyperframesLayoutAudit");
+      const audit = Reflect.get(window, "__chalkframesLayoutAudit");
       if (typeof audit !== "function") return [];
       const result = Reflect.apply(audit, window, [options]);
       return Array.isArray(result) ? result : [];
@@ -547,7 +547,7 @@ async function collectLayout(
 async function collectOverlap(page: Page, time: number): Promise<AnchoredLayoutIssue[]> {
   const raw = await page.evaluate(
     (options: { time: number }) => {
-      const audit = Reflect.get(window, "__hyperframesOverlapAudit");
+      const audit = Reflect.get(window, "__chalkframesOverlapAudit");
       if (typeof audit !== "function") return [];
       const result = Reflect.apply(audit, window, [options]);
       return Array.isArray(result) ? result : [];
@@ -559,14 +559,14 @@ async function collectOverlap(page: Page, time: number): Promise<AnchoredLayoutI
 
 async function collectLayoutGeometry(page: Page): Promise<string> {
   return page.evaluate(() => {
-    const geometry = Reflect.get(window, "__hyperframesLayoutGeometry");
+    const geometry = Reflect.get(window, "__chalkframesLayoutGeometry");
     if (typeof geometry !== "function") return "";
     const result = Reflect.apply(geometry, window, []);
     return typeof result === "string" ? result : "";
   });
 }
 
-/** Invoke a `window.__hyperframes*` sampler injected by layout-audit.browser.js
+/** Invoke a `window.__chalkframes*` sampler injected by layout-audit.browser.js
  * and return its array result (or [] when absent / non-array). Shared by the
  * per-frame sample collectors so the page.evaluate boilerplate lives once. */
 async function evaluateSampler(page: Page, globalName: string): Promise<unknown[]> {
@@ -579,7 +579,7 @@ async function evaluateSampler(page: Page, globalName: string): Promise<unknown[
 }
 
 async function collectRotationSample(page: Page, time: number): Promise<RotationSample[]> {
-  const raw = await evaluateSampler(page, "__hyperframesRotationSample");
+  const raw = await evaluateSampler(page, "__chalkframesRotationSample");
   return raw.flatMap((value) => parseRotationSample(value, time));
 }
 
@@ -598,7 +598,7 @@ function parseRotationSample(value: unknown, time: number): RotationSample[] {
 }
 
 async function collectOffPivotRotationSample(page: Page, time: number): Promise<OffPivotFrame> {
-  const raw = await evaluateSampler(page, "__hyperframesOffPivotRotationSample");
+  const raw = await evaluateSampler(page, "__chalkframesOffPivotRotationSample");
   return { time, samples: raw.flatMap(parseOffPivotRotationSample) };
 }
 
@@ -649,7 +649,7 @@ async function collectGeometryCandidates(
 ): Promise<CheckGeometryCandidate[]> {
   try {
     const raw = await page.evaluate((options: GeometryCandidateRequest) => {
-      const collect = Reflect.get(window, "__hyperframesGeometryCandidates");
+      const collect = Reflect.get(window, "__chalkframesGeometryCandidates");
       if (typeof collect !== "function") return [];
       const result = Reflect.apply(collect, window, [options]);
       return Array.isArray(result) ? result : [];
@@ -686,7 +686,7 @@ async function collectMotionFrame(
 ): Promise<MotionFrame> {
   const raw = await page.evaluate(
     (options: { selectors: string[]; livenessScopes: string[] }) => {
-      const sample = Reflect.get(window, "__hyperframesMotionSample");
+      const sample = Reflect.get(window, "__chalkframesMotionSample");
       if (typeof sample !== "function") return null;
       return Reflect.apply(sample, window, [options]);
     },
@@ -824,7 +824,7 @@ function contrastFailureAnnotations(
     }));
 }
 
-const ANNOTATION_OVERLAY_ID = "__hyperframesCheckAnnotations";
+const ANNOTATION_OVERLAY_ID = "__chalkframesCheckAnnotations";
 
 /**
  * `check --snapshots`'s overview-frame annotation: every audit for this

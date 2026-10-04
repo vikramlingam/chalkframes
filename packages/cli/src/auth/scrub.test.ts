@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import { scrubCredentials } from "./scrub.js";
 
 describe("auth/scrub", () => {
-  it("redacts HeyGen API keys", () => {
+  it("redacts Chalkframes API keys", () => {
     const out = scrubCredentials("rejected key hg_supersecret_abc123 from header");
     expect(out).not.toContain("hg_supersecret_abc123");
     expect(out).toContain("hg_<redacted>");
   });
 
   it("redacts sk_V2_ keys echoed inline (not just after Authorization:)", () => {
-    // Real HeyGen keys are `sk_V2_…`. A token echoed in a stack trace or
+    // Real Chalkframes keys are `sk_V2_…`. A token echoed in a stack trace or
     // JSON payload — without a header-name anchor — must still be
     // redacted, per the threat model the scrubber is written for.
     const out = scrubCredentials(

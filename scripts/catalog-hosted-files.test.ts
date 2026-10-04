@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fetchHostedFiles } from "./catalog-hosted-files.js";
 
-function fixture(url = "https://static.heygen.ai/asset", path = "asset.bin") {
+function fixture(url = "https://static.chalkframes.dev/asset", path = "asset.bin") {
   const root = mkdtempSync(join(tmpdir(), "hf-hosted-test-"));
   writeFileSync(join(root, "registry-item.json"), JSON.stringify({ files: [{ url, path }] }));
   return root;
@@ -28,7 +28,7 @@ test("downloads exact bytes through a relative CDN redirect", async (t) => {
   );
   try {
     await fetchHostedFiles(root);
-    assert.deepEqual(calls, ["https://static.heygen.ai/asset", "https://static.heygen.ai/final"]);
+    assert.deepEqual(calls, ["https://static.chalkframes.dev/asset", "https://static.chalkframes.dev/final"]);
     assert.deepEqual(readFileSync(join(root, "asset.bin")), Buffer.from([0, 255, 42]));
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -38,8 +38,8 @@ test("downloads exact bytes through a relative CDN redirect", async (t) => {
 for (const location of [
   "http://169.254.169.254/meta",
   "https://localhost/x",
-  "https://static.heygen.ai.evil.test/x",
-  "http://static.heygen.ai/x",
+  "https://static.chalkframes.dev.evil.test/x",
+  "http://static.chalkframes.dev/x",
 ]) {
   test(`rejects redirect to ${location} before a second request`, async (t) => {
     const root = fixture();
@@ -60,8 +60,8 @@ for (const location of [
 
 for (const url of [
   "https://127.0.0.1/x",
-  "https://user:pw@static.heygen.ai/x",
-  "https://static.heygen.ai:8443/x",
+  "https://user:pw@static.chalkframes.dev/x",
+  "https://static.chalkframes.dev:8443/x",
 ]) {
   test(`rejects disallowed initial URL ${url} without a request`, async (t) => {
     const root = fixture(url);
@@ -143,7 +143,7 @@ for (const mode of ["declared oversize", "loop", "HTTP error", "stream error"]) 
 }
 
 test("skips manifest paths outside the copied project before fetching", async (t) => {
-  const root = fixture("https://static.heygen.ai/asset", "../escape.bin");
+  const root = fixture("https://static.chalkframes.dev/asset", "../escape.bin");
   const mock = t.mock.method(globalThis, "fetch", async () => assert.fail("unexpected request"));
   try {
     await fetchHostedFiles(root);

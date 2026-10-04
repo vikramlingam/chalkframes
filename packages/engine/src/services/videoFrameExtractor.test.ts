@@ -58,8 +58,8 @@ import {
 import { runFfmpeg } from "../utils/runFfmpeg.js";
 import { COMPLETE_SENTINEL, GC_MARKER, SCHEMA_PREFIX } from "./extractionCache.js";
 import { resolveRuntimeMediaClipDuration } from "../../../core/src/runtime/media.js";
-import { compileTimingAttrs, sourceTimeAt } from "@hyperframes/core";
-import { RATE_RANGE } from "@hyperframes/core/audio-automation";
+import { compileTimingAttrs, sourceTimeAt } from "@chalkframes/core";
+import { RATE_RANGE } from "@chalkframes/core/audio-automation";
 
 // ffmpeg is not preinstalled on GitHub's ubuntu-24.04 runners. The producer
 // regression test at packages/producer/tests/vfr-screen-recording/ runs inside

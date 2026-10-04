@@ -12,7 +12,7 @@
  * served for the authored name was injected — `Noto Sans` came out as Inter
  * upright plus real Noto Sans italic, two typefaces under one `font-family`.
  *
- * These tests inject `fetchImpl` (no network) and a temp `HYPERFRAMES_FONT_CACHE_DIR`
+ * These tests inject `fetchImpl` (no network) and a temp `CHALKFRAMES_FONT_CACHE_DIR`
  * so they are hermetic.
  */
 
@@ -32,14 +32,14 @@ let cacheDir: string;
 let prevCacheEnv: string | undefined;
 
 beforeAll(() => {
-  prevCacheEnv = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  prevCacheEnv = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   cacheDir = mkdtempSync(join(tmpdir(), "hf-font-alias-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
 });
 
 afterAll(() => {
-  if (prevCacheEnv === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = prevCacheEnv;
+  if (prevCacheEnv === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = prevCacheEnv;
   rmSync(cacheDir, { recursive: true, force: true });
 });
 
@@ -290,7 +290,7 @@ describe("aliased font-family supplementation", () => {
 
   it("has a canonical display name for every alias target", async () => {
     const { FONT_ALIAS_MAP, resolveAliasDisplayName } =
-      await import("@hyperframes/core/fonts/aliases");
+      await import("@chalkframes/core/fonts/aliases");
     // The supplementary fetch is skipped outright when this lookup fails, so
     // every alias must resolve or its family silently loses Google's weights.
     for (const alias of Object.keys(FONT_ALIAS_MAP)) {

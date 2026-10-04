@@ -220,7 +220,7 @@ function derivedEndsAreConsistent(parsedEnd: number, canonicalEnd: number): bool
 
 // Reconcile a `data-end` attribute paired with canonical `data-duration`.
 //
-// The compiler (`compileTimingAttrs` in @hyperframes/core) writes
+// The compiler (`compileTimingAttrs` in @chalkframes/core) writes
 // `data-end = data-start + data-duration` into the bundled HTML so the runtime
 // can key off a single attribute. That derived attribute is legitimate — it is
 // not a legacy authoring shape. Treating it as `deprecated-end` here made the

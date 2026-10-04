@@ -2,7 +2,7 @@
  * Public-facing types for `./regression-harness-lambda-local.ts`.
  *
  * Kept in its own file because the implementation imports
- * `@hyperframes/aws-lambda`, which can't be resolved by producer's
+ * `@chalkframes/aws-lambda`, which can't be resolved by producer's
  * tsc emit pass until aws-lambda's own dist/ is built. Splitting the
  * types out lets producer's regression harness reference the lambda
  * adapter's shape without pulling the aws-lambda graph into producer's

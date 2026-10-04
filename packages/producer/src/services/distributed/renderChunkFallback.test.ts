@@ -4,7 +4,7 @@ import {
   createFrameLookupTable,
   readWebGlVendorInfoFromCanvas,
   resolveConfig,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import {
   beginFrameSessionNeedsScreenshotFallback,
   createChunkVideoFrameInjectorFactory,

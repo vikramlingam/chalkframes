@@ -4,7 +4,7 @@
  * output or leaks Worker handles. Tests pin three properties:
  *
  *   1. Byte-equivalence with the inline path. The shader code in the
- *      worker is the exact same `TRANSITIONS` table from `@hyperframes/engine`
+ *      worker is the exact same `TRANSITIONS` table from `@chalkframes/engine`
  *      that the legacy path uses on the main thread; the pool round-trip
  *      must not perturb the result.
  *   2. Buffer transfer semantics. After `run` resolves, the original input
@@ -22,7 +22,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { TRANSITIONS, crossfade } from "@hyperframes/engine";
+import { TRANSITIONS, crossfade } from "@chalkframes/engine";
 import {
   createShaderTransitionWorkerPool,
   type ShaderTransitionWorkerPool,

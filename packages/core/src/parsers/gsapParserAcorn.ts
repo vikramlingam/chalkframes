@@ -1,2 +1,2 @@
-/** @deprecated Import from @hyperframes/parsers/gsap-parser-acorn */
-export * from "@hyperframes/parsers/gsap-parser-acorn";
+/** @deprecated Import from @chalkframes/parsers/gsap-parser-acorn */
+export * from "@chalkframes/parsers/gsap-parser-acorn";

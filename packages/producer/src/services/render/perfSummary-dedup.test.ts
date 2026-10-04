@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CapturePerfSummary } from "@hyperframes/engine";
+import type { CapturePerfSummary } from "@chalkframes/engine";
 import { buildRenderPerfSummary } from "./perfSummary.js";
 import { createRenderJob } from "../renderOrchestrator.js";
 

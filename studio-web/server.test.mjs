@@ -181,3 +181,46 @@ test("prepare-script endpoint validates input synchronously", async (t) => {
   });
   assert.equal(bad3.status, 400);
 });
+
+test("parseStoryboardJson recovers from common LLM JSON anomalies", async () => {
+  const { parseStoryboardJson } = await import("./server.mjs");
+
+  // Code fence + trailing commas + escaped math + prose around the payload.
+  const fenced = [
+    "Here you go:",
+    "```json",
+    "{",
+    '  "title": "Slope",',
+    '  "scenes": [',
+    '    {"voiceover": "Compute \\\\frac{dy}{dx} for f(x)=x^2", "pills": ["a", "b",],},',
+    "  ],",
+    "}",
+    "```",
+    "Hope this helps!",
+  ].join("\n");
+  const a = parseStoryboardJson(fenced);
+  assert.equal(a.scenes.length, 1);
+  assert.equal(a.scenes[0].voiceover, "Compute \\frac{dy}{dx} for f(x)=x^2");
+  assert.deepEqual(a.scenes[0].pills, ["a", "b"]);
+
+  // Raw newline and tab inside a string literal, plus an invalid escape such as \( .
+  const b = parseStoryboardJson('{"scenes":[{"voiceover":"line one\nline\ttwo \\(x\\)"}]}');
+  assert.match(b.scenes[0].voiceover, /line one\nline\ttwo/);
+
+  // Smart quotes used as string delimiters.
+  const c = parseStoryboardJson('{\u201ctitle\u201d: \u201cSmart\u201d, "scenes": []}');
+  assert.equal(c.title, "Smart");
+
+  // Unescaped inner quotes.
+  const d = parseStoryboardJson('{"scenes":[{"voiceover":"He said "hello" to me"}]}');
+  assert.equal(d.scenes[0].voiceover, 'He said "hello" to me');
+
+  // Token-limit truncation mid-array and mid-string.
+  const truncated =
+    '{"title":"T","scenes":[{"voiceover":"one","pills":["x"]},{"voiceover":"two","pills":["y","z';
+  const e = parseStoryboardJson(truncated);
+  assert.equal(e.scenes.length, 2);
+  assert.equal(e.scenes[0].voiceover, "one");
+
+  assert.throws(() => parseStoryboardJson("no json here"), /invalid JSON/);
+});

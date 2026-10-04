@@ -1,4 +1,4 @@
-import type { CapturePerfSummary } from "@hyperframes/engine";
+import type { CapturePerfSummary } from "@chalkframes/engine";
 import type { RenderObservabilityRecorder } from "./observability.js";
 
 /**
@@ -7,7 +7,7 @@ import type { RenderObservabilityRecorder } from "./observability.js";
  * (drawElement gated off → screenshot capture engaged).
  *
  * ── Why this exists ────────────────────────────────────────────────────────
- * Field-signal baseline from `#hyperframes-cli-feedback` cron sweeps: on
+ * Field-signal baseline from `#chalkframes-cli-feedback` cron sweeps: on
  * darwin/arm64 alone we see ≥2 fast-capture fallbacks/hr triggered by
  * `filter:blur` / `filter:drop-shadow`. That is documented and correct
  * behavior — drawElement can't reproduce those CSS effects and bails to

@@ -101,7 +101,7 @@ describe("captionImagesWithGemini — OpenRouter provider", () => {
     const dir = makeProjectWithImages();
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "or-test-key");
-    vi.stubEnv("HYPERFRAMES_OPENROUTER_MODEL", "google/gemini-3.1-flash-lite");
+    vi.stubEnv("CHALKFRAMES_OPENROUTER_MODEL", "google/gemini-3.1-flash-lite");
 
     // Capture the request inside the mock, where the args are well-typed —
     // avoids casting `mock.calls` (and the repo's ban on `as` assertions).
@@ -175,7 +175,7 @@ describe("captionImagesWithGemini — OpenRouter provider", () => {
     const dir = makeProjectWithImages();
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "or-hanging-key");
-    vi.stubEnv("HYPERFRAMES_VISION_TIMEOUT_MS", "20");
+    vi.stubEnv("CHALKFRAMES_VISION_TIMEOUT_MS", "20");
 
     vi.stubGlobal(
       "fetch",
@@ -206,7 +206,7 @@ describe("captionImagesWithGemini — OpenRouter provider", () => {
       const dir = makeProjectWithImages();
       dirs.push(dir);
       vi.stubEnv("OPENROUTER_API_KEY", "or-stalled-body-key");
-      vi.stubEnv("HYPERFRAMES_VISION_TIMEOUT_MS", "20");
+      vi.stubEnv("CHALKFRAMES_VISION_TIMEOUT_MS", "20");
 
       vi.stubGlobal(
         "fetch",
@@ -289,7 +289,7 @@ describe("captionImagesWithGemini — OpenRouter provider", () => {
     const dir = makeProjectWithImages(["hang.png", "success.png"]);
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "or-mixed-key");
-    vi.stubEnv("HYPERFRAMES_VISION_TIMEOUT_MS", "20");
+    vi.stubEnv("CHALKFRAMES_VISION_TIMEOUT_MS", "20");
 
     vi.stubGlobal(
       "fetch",
@@ -425,7 +425,7 @@ describe("captionImagesWithGemini — Gemini provider", () => {
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "gemini-hanging-key");
-    vi.stubEnv("HYPERFRAMES_VISION_TIMEOUT_MS", "20");
+    vi.stubEnv("CHALKFRAMES_VISION_TIMEOUT_MS", "20");
     generateContentMock.mockImplementation(() => new Promise(() => {}));
 
     const result = await Promise.race([
@@ -494,8 +494,8 @@ describe("captionImagesWithGemini — Vertex AI provider", () => {
 
   function vertexEnv(): void {
     vi.stubEnv("OPENROUTER_API_KEY", "");
-    vi.stubEnv("HYPERFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
-    vi.stubEnv("HYPERFRAMES_VERTEX_SERVICE_ACCOUNT", SERVICE_ACCOUNT);
+    vi.stubEnv("CHALKFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
+    vi.stubEnv("CHALKFRAMES_VERTEX_SERVICE_ACCOUNT", SERVICE_ACCOUNT);
   }
 
   it("prefers a service account over a bare API key, and authenticates against the project", async () => {
@@ -547,7 +547,7 @@ describe("captionImagesWithGemini — Vertex AI provider", () => {
     const dir = makeProjectWithImages();
     dirs.push(dir);
     vertexEnv();
-    vi.stubEnv("HYPERFRAMES_VERTEX_LOCATION", "europe-west4");
+    vi.stubEnv("CHALKFRAMES_VERTEX_LOCATION", "europe-west4");
     generateContentMock.mockResolvedValue({ text: "A caption." });
 
     await captionImagesWithGemini(dir, () => {}, []);
@@ -586,8 +586,8 @@ describe("captionImagesWithGemini — Vertex AI provider", () => {
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "");
-    vi.stubEnv("HYPERFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
-    vi.stubEnv("HYPERFRAMES_VERTEX_SERVICE_ACCOUNT", "{not-json super-secret-material");
+    vi.stubEnv("CHALKFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
+    vi.stubEnv("CHALKFRAMES_VERTEX_SERVICE_ACCOUNT", "{not-json super-secret-material");
 
     const warnings: string[] = [];
     let outcome: VisionCaptionOutcome | undefined;
@@ -632,8 +632,8 @@ describe("captionImagesWithGemini — Vertex AI provider", () => {
     dirs.push(dir);
     vi.stubEnv("OPENROUTER_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "");
-    vi.stubEnv("HYPERFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
-    vi.stubEnv("HYPERFRAMES_VERTEX_SERVICE_ACCOUNT", "");
+    vi.stubEnv("CHALKFRAMES_VERTEX_PROJECT_ID", "prefab-kit-000000");
+    vi.stubEnv("CHALKFRAMES_VERTEX_SERVICE_ACCOUNT", "");
 
     const captions = await captionImagesWithGemini(dir, () => {}, []);
 

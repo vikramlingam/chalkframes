@@ -6,7 +6,7 @@
  * authored as a single canonical markdown file (`STORYBOARD.md`) and parsed
  * into this normalized shape for agents.
  *
- * See PRD: "Storyboarding in HyperFrames". The markdown stays canonical; this
+ * See PRD: "Storyboarding in ChalkFrames". The markdown stays canonical; this
  * is the derived structure the parser produces.
  */
 

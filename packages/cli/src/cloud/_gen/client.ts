@@ -1,7 +1,7 @@
 /**
  * AUTO-GENERATED from experiment-framework/openapi/external-api.json.
  * DO NOT EDIT MANUALLY. Re-run
- * `python scripts/generate_hyperframes_cli_client.py` in
+ * `python scripts/generate_chalkframes_cli_client.py` in
  * experiment-framework to regenerate.
  */
 import type {
@@ -9,10 +9,10 @@ import type {
   CompleteAssetUploadResponse,
   CreateAssetUploadRequest,
   CreateAssetUploadResponse,
-  CreateHyperframesRenderRequest,
-  CreateHyperframesRenderResponse,
-  DeleteHyperframesRenderResponse,
-  HyperframesRenderDetail,
+  CreateChalkframesRenderRequest,
+  CreateChalkframesRenderResponse,
+  DeleteChalkframesRenderResponse,
+  ChalkframesRenderDetail,
   UploadAssetV3Response,
 } from "./types.js";
 
@@ -22,8 +22,8 @@ export type AuthHeaders = Record<string, string>;
  * Caller-provided context. Keep the shape narrow so the cli/src/auth/
  * module stays the single owner of credential resolution.
  */
-export interface HyperframesCloudClientOptions {
-  /** Base URL like "https://api.heygen.com" (no trailing slash). */
+export interface ChalkframesCloudClientOptions {
+  /** Base URL like "https://api.chalkframes.com" (no trailing slash). */
   baseUrl: string;
   /**
    * Return the auth headers to attach to every request. Called once per
@@ -38,7 +38,7 @@ export interface HyperframesCloudClientOptions {
  * Standard error envelope used by /v3 endpoints. See StandardAPIError in
  * types.ts for the field shape.
  */
-export class HyperframesApiError extends Error {
+export class ChalkframesApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly param?: string | null;
@@ -54,7 +54,7 @@ export class HyperframesApiError extends Error {
     raw?: unknown;
   }) {
     super(opts.message);
-    this.name = "HyperframesApiError";
+    this.name = "ChalkframesApiError";
     this.status = opts.status;
     this.code = opts.code;
     this.param = opts.param;
@@ -80,16 +80,16 @@ interface RequestOptions {
 }
 
 /**
- * Typed client for the HyperFrames cloud-render API. Auto-generated; do
+ * Typed client for the ChalkFrames cloud-render API. Auto-generated; do
  * not hand-edit. Submit new endpoints by adding them to
- * scripts/generate_hyperframes_cli_client.py in experiment-framework.
+ * scripts/generate_chalkframes_cli_client.py in experiment-framework.
  */
-export class HyperframesCloudClient {
+export class ChalkframesCloudClient {
   private readonly baseUrl: string;
   private readonly getAuthHeaders: () => Promise<AuthHeaders> | AuthHeaders;
   private readonly fetchImpl: typeof fetch;
 
-  constructor(opts: HyperframesCloudClientOptions) {
+  constructor(opts: ChalkframesCloudClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/+$/, "");
     this.getAuthHeaders = opts.getAuthHeaders;
     this.fetchImpl = opts.fetchImpl ?? fetch;
@@ -138,7 +138,7 @@ export class HyperframesCloudClient {
     try {
       parsed = JSON.parse(text);
     } catch (err) {
-      throw new HyperframesApiError({
+      throw new ChalkframesApiError({
         status: res.status,
         message: `Invalid JSON response: ${(err as Error).message}`,
         raw: text.slice(0, 500),
@@ -172,7 +172,7 @@ export class HyperframesCloudClient {
     return url.toString();
   }
 
-  private async toApiError(res: Response): Promise<HyperframesApiError> {
+  private async toApiError(res: Response): Promise<ChalkframesApiError> {
     let parsed: unknown;
     try {
       parsed = await res.json();
@@ -183,7 +183,7 @@ export class HyperframesCloudClient {
       parsed && typeof parsed === "object" && "error" in (parsed as Record<string, unknown>)
         ? ((parsed as Record<string, unknown>).error as Record<string, unknown> | undefined)
         : undefined;
-    return new HyperframesApiError({
+    return new ChalkframesApiError({
       status: res.status,
       message:
         (err && typeof err.message === "string" && err.message) ||
@@ -267,18 +267,18 @@ export class HyperframesCloudClient {
   }
 
   /**
-   * Create HyperFrames Render
+   * Create ChalkFrames Render
    *
-   * Renders a HyperFrames composition (an HTML+JS+assets project bundled as a .zip) into a video. Submit the project via `url`, `asset_id` (pre-uploaded via POST /v3/assets), or inline `base64`. Returns a `render_id` to poll via GET /v3/hyperframes/renders/{render_id}.
+   * Renders a ChalkFrames composition (an HTML+JS+assets project bundled as a .zip) into a video. Submit the project via `url`, `asset_id` (pre-uploaded via POST /v3/assets), or inline `base64`. Returns a `render_id` to poll via GET /v3/chalkframes/renders/{render_id}.
    */
   async createRender(args: {
-    body: CreateHyperframesRenderRequest;
+    body: CreateChalkframesRenderRequest;
     idempotencyKey?: string;
     signal?: AbortSignal;
-  }): Promise<CreateHyperframesRenderResponse> {
-    return await this.request<CreateHyperframesRenderResponse>({
+  }): Promise<CreateChalkframesRenderResponse> {
+    return await this.request<CreateChalkframesRenderResponse>({
       method: "POST",
-      path: "/v3/hyperframes/renders",
+      path: "/v3/chalkframes/renders",
       body: args.body,
       idempotencyKey: args.idempotencyKey,
       signal: args.signal,
@@ -286,12 +286,12 @@ export class HyperframesCloudClient {
   }
 
   /**
-   * List HyperFrames Renders
+   * List ChalkFrames Renders
    *
-   * Returns a cursor-paginated list of HyperFrames renders in the account, newest first.
+   * Returns a cursor-paginated list of ChalkFrames renders in the account, newest first.
    */
   async listRenders(args: { limit?: number; token?: string; signal?: AbortSignal }): Promise<{
-    data?: Array<HyperframesRenderDetail>;
+    data?: Array<ChalkframesRenderDetail>;
     has_more?: boolean;
     next_token?: string | null;
   }> {
@@ -300,12 +300,12 @@ export class HyperframesCloudClient {
       token: args.token,
     };
     return await this.request<{
-      data?: Array<HyperframesRenderDetail>;
+      data?: Array<ChalkframesRenderDetail>;
       has_more?: boolean;
       next_token?: string | null;
     }>({
       method: "GET",
-      path: "/v3/hyperframes/renders",
+      path: "/v3/chalkframes/renders",
       query,
       unwrapData: false,
       signal: args.signal,
@@ -313,33 +313,33 @@ export class HyperframesCloudClient {
   }
 
   /**
-   * Get HyperFrames Render
+   * Get ChalkFrames Render
    *
-   * Returns full details for a single HyperFrames render, including status and signed video_url when complete.
+   * Returns full details for a single ChalkFrames render, including status and signed video_url when complete.
    */
   async getRender(args: {
     render_id: string;
     signal?: AbortSignal;
-  }): Promise<HyperframesRenderDetail> {
-    return await this.request<HyperframesRenderDetail>({
+  }): Promise<ChalkframesRenderDetail> {
+    return await this.request<ChalkframesRenderDetail>({
       method: "GET",
-      path: `/v3/hyperframes/renders/${encodeURIComponent(args.render_id)}`,
+      path: `/v3/chalkframes/renders/${encodeURIComponent(args.render_id)}`,
       signal: args.signal,
     });
   }
 
   /**
-   * Delete HyperFrames Render
+   * Delete ChalkFrames Render
    *
-   * Soft-deletes a HyperFrames render. Subsequent GETs return 404.
+   * Soft-deletes a ChalkFrames render. Subsequent GETs return 404.
    */
   async deleteRender(args: {
     render_id: string;
     signal?: AbortSignal;
-  }): Promise<DeleteHyperframesRenderResponse> {
-    return await this.request<DeleteHyperframesRenderResponse>({
+  }): Promise<DeleteChalkframesRenderResponse> {
+    return await this.request<DeleteChalkframesRenderResponse>({
       method: "DELETE",
-      path: `/v3/hyperframes/renders/${encodeURIComponent(args.render_id)}`,
+      path: `/v3/chalkframes/renders/${encodeURIComponent(args.render_id)}`,
       signal: args.signal,
     });
   }

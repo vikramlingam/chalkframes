@@ -19,7 +19,7 @@
  * Node ORDER is load-bearing — the chain is serial, so a limiter first and a
  * limiter last are different sounds. Every preset below runs
  * subtractive filtering → dynamics → tone → character → limiter, the order
- * `skills/hyperframes-audio` already teaches.
+ * `skills/chalkframes-audio` already teaches.
  */
 
 import {

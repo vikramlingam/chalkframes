@@ -8,7 +8,7 @@ import {
 
 /**
  * The text measurement surface exposed to compositions as
- * `window.__hyperframes.pretext`.
+ * `window.__chalkframes.pretext`.
  *
  * Measuring text by writing it into the DOM and reading it back forces a
  * reflow, which is both slow per frame and a determinism risk (the value

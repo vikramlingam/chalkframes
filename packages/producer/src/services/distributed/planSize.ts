@@ -68,7 +68,7 @@ function hashComponent(value: string): string {
 
 function classifyFile(segments: string[], rootKind: PlanSizeRootKind): ClassifiedFile {
   const rootName = segments[0] ?? "";
-  const extractedRootName = rootKind === "compiled" ? "__hyperframes_video_frames" : "video-frames";
+  const extractedRootName = rootKind === "compiled" ? "__chalkframes_video_frames" : "video-frames";
   if (rootName === extractedRootName) {
     const videoKey = segments[1] ?? "unknown";
     return {

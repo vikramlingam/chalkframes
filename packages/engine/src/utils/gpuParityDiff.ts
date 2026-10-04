@@ -22,7 +22,7 @@
  * that is the diagnostic fingerprint of the bug.
  *
  * This module is the reduced-scope first pass: a pure helper + unit
- * tests. Wiring a `hyperframes verify-gpu-parity` CLI surface, capture
+ * tests. Wiring a `chalkframes verify-gpu-parity` CLI surface, capture
  * orchestration, and integration coverage is intentionally deferred to
  * a follow-up so the diagnostic primitive can land and be exercised
  * against real captured frames in isolation.

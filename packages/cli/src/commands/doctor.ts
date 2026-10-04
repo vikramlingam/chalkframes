@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 import { existsSync } from "node:fs";
 import { platform } from "node:os";
 import { dirname } from "node:path";
-import { resolveExtractCacheDir } from "@hyperframes/engine";
+import { resolveExtractCacheDir } from "@chalkframes/engine";
 import type { Example } from "./_examples.js";
 import { CONFIG_PATH } from "../telemetry/config.js";
 import { withFileLock } from "../media-use/lib/config-lock.mjs";
@@ -29,8 +29,8 @@ import {
 } from "../telemetry/system.js";
 
 export const examples: Example[] = [
-  ["Check system dependencies", "hyperframes doctor"],
-  ["Output as JSON for CI / agents", "hyperframes doctor --json"],
+  ["Check system dependencies", "chalkframes doctor"],
+  ["Output as JSON for CI / agents", "chalkframes doctor --json"],
 ];
 
 interface Check {
@@ -78,7 +78,7 @@ function checkVersion(): CheckResult {
     return {
       ok: false,
       detail: `${VERSION} \u2192 ${meta.latestVersion} available`,
-      hint: "Run: hyperframes upgrade",
+      hint: "Run: chalkframes upgrade",
     };
   }
   return { ok: true, detail: `${VERSION} (latest)` };
@@ -151,7 +151,7 @@ function checkDisk(): CheckResult {
  * `%TEMP%` default lives on C:, so users with output on a data drive but the
  * OS on a small SSD have hit disk-exhaustion mid-render (field signal
  * `ts=1784219488` · CLI 0.7.58 · 15GB/8-core). Surfacing the effective path
- * + free space at that path lets `hyperframes doctor` catch the mismatch
+ * + free space at that path lets `chalkframes doctor` catch the mismatch
  * before the render, and reminds users the relocation knob exists.
  *
  * `statfsSync` requires the path to exist. When the configured cache dir has
@@ -188,7 +188,7 @@ export function checkFramesCache(
       detail: `${dir} · ${suffix}`,
       hint:
         "Low free space at the extract cache location — long renders can exhaust the drive. " +
-        "Relocate via HYPERFRAMES_EXTRACT_CACHE_DIR=<path> or `hyperframes render --frames-cache-dir <path>`.",
+        "Relocate via CHALKFRAMES_EXTRACT_CACHE_DIR=<path> or `chalkframes render --frames-cache-dir <path>`.",
     };
   }
   return { ok: true, detail: `${dir} · ${suffix}` };
@@ -206,7 +206,7 @@ function firstExistingAncestor(path: string, fileExists: (p: string) => boolean)
 }
 
 function sourceLabel(source: "env" | "default"): string {
-  return source === "env" ? "HYPERFRAMES_EXTRACT_CACHE_DIR" : "default";
+  return source === "env" ? "CHALKFRAMES_EXTRACT_CACHE_DIR" : "default";
 }
 
 function commandExists(command: string): boolean {
@@ -236,11 +236,11 @@ export function checkArchiveExtractor(
   return {
     ok: false,
     detail: "Not found",
-    hint: "Install unzip so HyperFrames can extract its managed Chrome download.",
+    hint: "Install unzip so ChalkFrames can extract its managed Chrome download.",
   };
 }
 
-/** A lock left by a hyperframes process that stopped mid-write blocks settings writes until a person removes it. */
+/** A lock left by a chalkframes process that stopped mid-write blocks settings writes until a person removes it. */
 export function checkSettingsLock(lockPath = `${CONFIG_PATH}.lock`): CheckResult {
   if (!existsSync(lockPath)) return { ok: true, detail: "Not locked" };
   try {
@@ -428,15 +428,15 @@ export default defineCommand({
       // Exit code intentionally reflects command success, not environment
       // health — `checkVersion` returns ok:false when an npm update is
       // available, which would poison any CI pipeline doing
-      // `hyperframes doctor --json || fail` the next time a new version is
+      // `chalkframes doctor --json || fail` the next time a new version is
       // published. Consumers who want a gate can do:
-      //   hyperframes doctor --json | jq -e '.ok' > /dev/null || handle_failure
+      //   chalkframes doctor --json | jq -e '.ok' > /dev/null || handle_failure
       console.log(JSON.stringify(buildDoctorReport(outcomes, { redact: true }), null, 2));
       return;
     }
 
     console.log();
-    console.log(c.bold("hyperframes doctor"));
+    console.log(c.bold("chalkframes doctor"));
     console.log();
 
     for (const outcome of outcomes) {

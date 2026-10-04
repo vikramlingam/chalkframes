@@ -16,9 +16,9 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { getAudioFxRuntimeScript } from "@hyperframes/core/audio-fx-runtime";
-import { enabledAudioFxNodes, type HfAudioFxChain } from "@hyperframes/core/audio-fx";
-import { serializeAutomation, type HfAutomation } from "@hyperframes/core/audio-automation";
+import { getAudioFxRuntimeScript } from "@chalkframes/core/audio-fx-runtime";
+import { enabledAudioFxNodes, type HfAudioFxChain } from "@chalkframes/core/audio-fx";
+import { serializeAutomation, type HfAutomation } from "@chalkframes/core/audio-automation";
 import { acquireBrowser } from "./browserManager.js";
 import { createEnvelopeWalker } from "./audioVolumeEnvelope.js";
 import { riffChunks, wavFormatTag } from "./wavChunks.js";

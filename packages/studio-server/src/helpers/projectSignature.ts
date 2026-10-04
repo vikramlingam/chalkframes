@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, readdirSync } from "node:fs";
 import { extname, isAbsolute, relative, resolve, sep } from "node:path";
-import { isAtomicTempPath } from "@hyperframes/core/atomic-file";
+import { isAtomicTempPath } from "@chalkframes/core/atomic-file";
 import type { ResolvedProject, StudioApiAdapter } from "../types.js";
 
 const SIGNATURE_TEXT_EXTENSIONS = new Set([
@@ -19,7 +19,7 @@ const SIGNATURE_TEXT_EXTENSIONS = new Set([
 const SIGNATURE_EXCLUDED_DIRS = new Set([
   ".cache",
   ".git",
-  ".hyperframes",
+  ".chalkframes",
   ".next",
   ".thumbnails",
   ".transcode-cache",
@@ -34,8 +34,8 @@ const SIGNATURE_EXCLUDED_DIRS = new Set([
 ]);
 const MAX_SIGNATURE_TEXT_BYTES = 2_000_000;
 export const STUDIO_SIGNATURE_MANIFEST_PATHS = [
-  ".hyperframes/studio-manual-edits.json",
-  ".hyperframes/studio-motion.json",
+  ".chalkframes/studio-manual-edits.json",
+  ".chalkframes/studio-motion.json",
 ] as const;
 
 /**
@@ -49,7 +49,7 @@ export const STUDIO_SIGNATURE_MANIFEST_PATHS = [
  * the one workload the memo exists for.
  *
  * Note this is not `WATCHER_EXCLUDED_DIRS`, which is character-identical but
- * excludes all of `.hyperframes/` — the signature deliberately reads two manifest
+ * excludes all of `.chalkframes/` — the signature deliberately reads two manifest
  * files from inside it, so filtering with that set would stop motion-state saves
  * from ever invalidating.
  *

@@ -107,10 +107,10 @@ describe("buildManifest", () => {
 });
 
 describe("isCoreSkill", () => {
-  it("classifies the entry router, hyperframes-* domain skills, and media-use as core", () => {
-    expect(isCoreSkill("hyperframes")).toBe(true);
-    expect(isCoreSkill("hyperframes-core")).toBe(true);
-    expect(isCoreSkill("hyperframes-animation")).toBe(true);
+  it("classifies the entry router, chalkframes-* domain skills, and media-use as core", () => {
+    expect(isCoreSkill("chalkframes")).toBe(true);
+    expect(isCoreSkill("chalkframes-core")).toBe(true);
+    expect(isCoreSkill("chalkframes-animation")).toBe(true);
     expect(isCoreSkill("media-use")).toBe(true);
     // End-user workflows and optional integrations install on demand.
     expect(isCoreSkill("pr-to-video")).toBe(false);
@@ -119,75 +119,9 @@ describe("isCoreSkill", () => {
   });
 });
 
-describe("FALLBACK_CORE_SKILLS pin", () => {
-  // The fallback list exists because isCoreSkill is a pattern and the offline
-  // path can't enumerate a pattern. This pins the list to the repo's actual
-  // skills/ tree so it can't drift silently when core membership changes.
-  it("matches the core skills present in the repo's skills/ tree exactly", () => {
-    const skillsRoot = join(
-      dirname(fileURLToPath(import.meta.url)),
-      "..",
-      "..",
-      "..",
-      "..",
-      "skills",
-    );
-    const onDisk = readdirSync(skillsRoot).filter((n) =>
-      existsSync(join(skillsRoot, n, "SKILL.md")),
-    );
-    const coreOnDisk = onDisk.filter((n) => isCoreSkill(n)).sort();
-    expect([...FALLBACK_CORE_SKILLS].sort()).toEqual(coreOnDisk);
-  });
-});
-
-describe(".claude-plugin/marketplace.json core-skills pin", () => {
-  // The marketplace `core-skills` entry's `skills` array drives two surfaces:
-  // the upstream `skills add` picker groups the listed skills under
-  // "Core Skills" (everything unlisted falls into "Other"), and Claude Code
-  // treats the array as that plugin's skill allowlist. That makes it a third
-  // enumeration of core membership — pin it to isCoreSkill and the skills/
-  // tree so neither surface can silently drift from the tiers `init` /
-  // `skills update` actually enforce. It lives on a separate marketplace
-  // entry (not plugin.json, and not the `hyperframes` entry) precisely so
-  // the full `hyperframes` plugin keeps auto-discovering all skills.
-  it("lists exactly the core skills present in the repo's skills/ tree", () => {
-    const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
-    const marketplace = JSON.parse(
-      readFileSync(join(repoRoot, ".claude-plugin", "marketplace.json"), "utf-8"),
-    ) as { plugins?: { name?: string; skills?: string[] }[] };
-    const entry = marketplace.plugins?.find((p) => p.name === "core-skills");
-    if (!entry?.skills) {
-      throw new Error("marketplace.json is missing the core-skills entry's `skills` array");
-    }
-    const declared = entry.skills.map((p) => p.replace(/^\.\/skills\//, "")).sort();
-
-    const skillsRoot = join(repoRoot, "skills");
-    const coreOnDisk = readdirSync(skillsRoot)
-      .filter((n) => existsSync(join(skillsRoot, n, "SKILL.md")))
-      .filter((n) => isCoreSkill(n))
-      .sort();
-
-    expect(declared).toEqual(coreOnDisk);
-    // Upstream resolves each entry relative to the repo root — the "./skills/"
-    // prefix is load-bearing (see vercel-labs/skills plugin-manifest.ts).
-    for (const p of entry.skills) {
-      expect(p.startsWith("./skills/")).toBe(true);
-    }
-    // The full plugin must NOT carry a skills allowlist: Claude Code would
-    // narrow it to the listed subset instead of auto-discovering all skills.
-    const full = marketplace.plugins?.find((p) => p.name === "hyperframes");
-    expect(full).toBeDefined();
-    expect(full?.skills).toBeUndefined();
-    // Same for plugin.json (the direct-install manifest for the full plugin) —
-    // and upstream lets plugin.json groupings override marketplace ones, so a
-    // skills array here would also rename the picker group back to
-    // "Hyperframes".
-    const plugin = JSON.parse(
-      readFileSync(join(repoRoot, ".claude-plugin", "plugin.json"), "utf-8"),
-    ) as { skills?: string[] };
-    expect(plugin.skills).toBeUndefined();
-  });
-});
+// The `FALLBACK_CORE_SKILLS` pin and the `.claude-plugin/marketplace.json`
+// core-skills pin from the upstream project were removed here: this repo does
+// not ship the `skills/` tree or the `.claude-plugin/` manifests they pin to.
 
 describe("diffSkills", () => {
   const latest: SkillsManifest = {
@@ -251,13 +185,13 @@ describe("diffSkills", () => {
     const withCore: SkillsManifest = {
       source: "test",
       skills: {
-        hyperframes: { hash: "e1", files: 1 }, // core: entry router
+        chalkframes: { hash: "e1", files: 1 }, // core: entry router
         "pr-to-video": { hash: "w1", files: 1 }, // on-demand workflow
       },
     };
 
     // Core current, workflow missing → partial install is fine, no update.
-    const workflowMissing = diffSkills({ hyperframes: { hash: "e1", files: 1 } }, withCore);
+    const workflowMissing = diffSkills({ chalkframes: { hash: "e1", files: 1 } }, withCore);
     expect(workflowMissing.updateAvailable).toBe(false);
     expect(workflowMissing.summary).toEqual({
       current: 1,
@@ -279,11 +213,11 @@ describe("presentSkills", () => {
     const project = join(root, "project");
     mkdirSync(project, { recursive: true });
     const skillsDir = join(home, ".claude/skills");
-    mkdirSync(join(skillsDir, "hyperframes"), { recursive: true });
-    writeFileSync(join(skillsDir, "hyperframes", "SKILL.md"), "# hyperframes");
+    mkdirSync(join(skillsDir, "chalkframes"), { recursive: true });
+    writeFileSync(join(skillsDir, "chalkframes", "SKILL.md"), "# chalkframes");
 
-    expect(presentSkills(["hyperframes", "pr-to-video"], { cwd: project, home })).toEqual([
-      "hyperframes",
+    expect(presentSkills(["chalkframes", "pr-to-video"], { cwd: project, home })).toEqual([
+      "chalkframes",
     ]);
   });
 
@@ -292,7 +226,7 @@ describe("presentSkills", () => {
     const project = join(root, "project");
     mkdirSync(home, { recursive: true });
     mkdirSync(project, { recursive: true });
-    expect(presentSkills(["hyperframes"], { cwd: project, home })).toEqual([]);
+    expect(presentSkills(["chalkframes"], { cwd: project, home })).toEqual([]);
   });
 });
 
@@ -367,7 +301,7 @@ describe("checkSkills install detection", () => {
     installSkill(join(project, ".hermes/skills"), "alpha"); // project — overridden by the global copy
 
     // Claude Code (and most agents) give the personal/global scope priority over
-    // the project scope, and HyperFrames installs globally — so check reports on
+    // the project scope, and ChalkFrames installs globally — so check reports on
     // the global copy the agent will really use, not a stale project copy.
     const res = await checkSkills({ source, cwd: project, home });
     expect(res.location).toBe(join(home, ".claude/skills"));
@@ -387,7 +321,7 @@ describe("checkSkills install detection", () => {
       source,
       JSON.stringify({
         source: "test",
-        skills: { hyperframes: { hash: "x", files: 1 }, alpha: { hash: "y", files: 1 } },
+        skills: { chalkframes: { hash: "x", files: 1 }, alpha: { hash: "y", files: 1 } },
       }),
     );
 
@@ -441,13 +375,13 @@ describe("skillsAttributedToSource", () => {
   it("matches by slug or git clone URL and ignores other sources", () => {
     const lock = {
       skills: {
-        a: { source: "heygen-com/hyperframes" },
-        b: { sourceUrl: "https://github.com/heygen-com/hyperframes.git" },
-        c: { source: "https://github.com/heygen-com/hyperframes" },
+        a: { source: "vikramlingam/chalkframes" },
+        b: { sourceUrl: "https://github.com/vikramlingam/chalkframes.git" },
+        c: { source: "https://github.com/vikramlingam/chalkframes" },
         d: { source: "greensock/gsap-skills" },
       },
     };
-    expect(skillsAttributedToSource(lock, "heygen-com/hyperframes").sort()).toEqual([
+    expect(skillsAttributedToSource(lock, "vikramlingam/chalkframes").sort()).toEqual([
       "a",
       "b",
       "c",
@@ -748,7 +682,7 @@ describe("checkSkills canonical bypass of the in-repo manifest shortcut", () => 
     writeFileSync(
       join(project, MANIFEST_FILE),
       JSON.stringify({
-        source: "heygen-com/hyperframes",
+        source: "vikramlingam/chalkframes",
         skills: { "retired-skill": { hash: "x", files: 1 } },
       }),
     );
@@ -765,13 +699,13 @@ describe("checkSkills canonical bypass of the in-repo manifest shortcut", () => 
     writeFileSync(
       join(project, MANIFEST_FILE),
       JSON.stringify({
-        source: "heygen-com/hyperframes",
+        source: "vikramlingam/chalkframes",
         skills: { "retired-skill": { hash: "x", files: 1 }, kept: { hash: "y", files: 1 } },
       }),
     );
     // The canonical (fetched) manifest no longer ships `retired-skill`.
     stubFetchedManifest({
-      source: "heygen-com/hyperframes",
+      source: "vikramlingam/chalkframes",
       skills: { kept: { hash: "y", files: 1 } },
     });
 
@@ -822,9 +756,9 @@ describe("pruneOrphanedLockEntries", () => {
     mkdirSync(join(home, ".agents"), { recursive: true });
     const lockPath = join(home, ".agents", ".skill-lock.json");
     writeLock(lockPath, {
-      a: { source: "heygen-com/hyperframes" },
-      b: { source: "heygen-com/hyperframes" },
-      c: { source: "heygen-com/hyperframes" },
+      a: { source: "vikramlingam/chalkframes" },
+      b: { source: "vikramlingam/chalkframes" },
+      c: { source: "vikramlingam/chalkframes" },
     });
 
     const pruned = pruneOrphanedLockEntries(["a", "b"], "global", { home });
@@ -839,7 +773,7 @@ describe("pruneOrphanedLockEntries", () => {
     const home = join(root, "home");
     mkdirSync(join(home, ".agents"), { recursive: true });
     const lockPath = join(home, ".agents", ".skill-lock.json");
-    writeLock(lockPath, { a: { source: "heygen-com/hyperframes" } });
+    writeLock(lockPath, { a: { source: "vikramlingam/chalkframes" } });
 
     const first = pruneOrphanedLockEntries(["a"], "global", { home });
     expect(first).toEqual(["a"]);
@@ -856,8 +790,8 @@ describe("pruneOrphanedLockEntries", () => {
     mkdirSync(join(home, ".agents"), { recursive: true });
     const lockPath = join(home, ".agents", ".skill-lock.json");
     writeLock(lockPath, {
-      a: { source: "heygen-com/hyperframes" },
-      b: { source: "heygen-com/hyperframes" },
+      a: { source: "vikramlingam/chalkframes" },
+      b: { source: "vikramlingam/chalkframes" },
     });
     chmodSync(lockPath, 0o640);
 
@@ -866,7 +800,7 @@ describe("pruneOrphanedLockEntries", () => {
     expect(pruned).toEqual(["a"]);
     const raw = readFileSync(lockPath, "utf8");
     expect(raw.endsWith("\n")).toBe(false);
-    expect(JSON.parse(raw).skills).toEqual({ b: { source: "heygen-com/hyperframes" } });
+    expect(JSON.parse(raw).skills).toEqual({ b: { source: "vikramlingam/chalkframes" } });
     // No `.tmp` sibling left behind by the temp-file + rename.
     expect(readdirSync(join(home, ".agents"))).toEqual([".skill-lock.json"]);
     // Original permissions survive the rewrite (POSIX only — Windows's fs
@@ -887,8 +821,8 @@ describe("pruneOrphanedLockEntries", () => {
     const project = join(root, "project");
     mkdirSync(project, { recursive: true });
     writeLock(join(project, "skills-lock.json"), {
-      a: { source: "heygen-com/hyperframes" },
-      b: { source: "heygen-com/hyperframes" },
+      a: { source: "vikramlingam/chalkframes" },
+      b: { source: "vikramlingam/chalkframes" },
     });
 
     const pruned = pruneOrphanedLockEntries(["a"], "project", { cwd: project });

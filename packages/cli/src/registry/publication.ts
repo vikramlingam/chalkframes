@@ -1,8 +1,8 @@
 import { lstatSync, chmodSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { mkdirWithinProject, realpath } from "@hyperframes/core";
+import { mkdirWithinProject, realpath } from "@chalkframes/core";
 
-export { realProjectRoot as registryRoot } from "@hyperframes/core";
+export { realProjectRoot as registryRoot } from "@chalkframes/core";
 
 export function registryTargetPath(root: string, target: string): string {
   const parts = target.split(/[\\/]/);

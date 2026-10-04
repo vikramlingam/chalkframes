@@ -1,15 +1,15 @@
 export type {
-  HyperframeLintSeverity,
-  HyperframeLintFinding,
-  HyperframeLintResult,
-  HyperframeLinterOptions,
+  ChalkframeLintSeverity,
+  ChalkframeLintFinding,
+  ChalkframeLintResult,
+  ChalkframeLinterOptions,
   LintTimings,
 } from "./types.js";
 export {
-  lintHyperframeHtml,
+  lintChalkframeHtml,
   lintMediaUrls,
   LINT_RULE_COUNT,
   LINT_RULE_GROUP_COUNTS,
-} from "./hyperframeLinter.js";
+} from "./chalkframeLinter.js";
 export { lintProject, shouldBlockRender } from "./project.js";
 export type { ProjectLintResult } from "./project.js";

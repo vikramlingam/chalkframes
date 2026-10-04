@@ -20,7 +20,7 @@
  *      the new `deFallbackTrigger` engine field.
  */
 
-import type { CapturePerfSummary } from "@hyperframes/engine";
+import type { CapturePerfSummary } from "@chalkframes/engine";
 import { describe, expect, it, vi } from "vitest";
 import { FALLBACK_PROFILE_ENV_VAR, emitFallbackCaptureProfile } from "./fallbackCaptureProfile.js";
 import { RenderObservabilityRecorder } from "./observability.js";

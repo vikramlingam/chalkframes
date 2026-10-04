@@ -112,7 +112,7 @@ function resources(document: Document): HtmlParityResource[] {
     for (const attribute of ["src", "href", "poster"] as const) {
       const value = element.getAttribute(attribute)?.trim();
       if (!value) continue;
-      if (element.tagName.toLowerCase() === "script" && /hyperframes|runtime/i.test(value))
+      if (element.tagName.toLowerCase() === "script" && /chalkframes|runtime/i.test(value))
         continue;
       resources.push({
         identity:
@@ -162,7 +162,7 @@ export function extractCompiledHtmlParityContract(html: string): CompiledHtmlPar
     authoredStyleSignatures: styleSignatures(document),
     parityFontFamilies: parityFontFamilies(html),
     resources: resources(document),
-    runtimeBootstrap: /__hyperframes|data-hyperframes-(?:preview-)?runtime/i.test(html),
+    runtimeBootstrap: /__chalkframes|data-chalkframes-(?:preview-)?runtime/i.test(html),
     variableBootstrap: /__hfVariables(?:ByComp)?/.test(html),
   };
 }

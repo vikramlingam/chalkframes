@@ -10,7 +10,7 @@ const snippet = `
 </div>
 <style>.hf-ui-demo { font-size: var(--hf-demo-size, 52px); }</style>
 <script>
-  var vars = window.__hyperframes ? window.__hyperframes.getVariables() : {};
+  var vars = window.__chalkframes ? window.__chalkframes.getVariables() : {};
   document.querySelector("[data-hf-ui-root]").style.setProperty("--hf-demo-size", (vars.size || 52) + "px");
 </script>
 `;
@@ -113,7 +113,7 @@ describe("snippetOwnsItsMotion", () => {
           window.__timelines["x"] = gsap.timeline({ paused: true });
       -->
       <div class="x" data-composition-variables='[]'></div>
-      <script>var vars = window.__hyperframes.getVariables();</script>`;
+      <script>var vars = window.__chalkframes.getVariables();</script>`;
     expect(snippetOwnsItsMotion(recipeOnly)).toBe(false);
   });
 
@@ -121,7 +121,7 @@ describe("snippetOwnsItsMotion", () => {
     const recipeOnly = `
       <script>
         /* window.__timelines["x"] = gsap.timeline({ paused: true }); */
-        var vars = window.__hyperframes.getVariables();
+        var vars = window.__chalkframes.getVariables();
       </script>`;
     expect(snippetOwnsItsMotion(recipeOnly)).toBe(false);
   });

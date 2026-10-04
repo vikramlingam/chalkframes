@@ -32,7 +32,7 @@ describe("submitFeedback", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(getPublishApiBaseUrlMock).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.example.com/v1/hyperframes/feedback",
+      "https://api.example.com/v1/chalkframes/feedback",
       expect.objectContaining({
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -122,7 +122,7 @@ describe("submitCatalogSearchMiss", () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0]!;
-    expect(url).toBe("https://api.example.com/v1/hyperframes/catalog_search_miss");
+    expect(url).toBe("https://api.example.com/v1/chalkframes/catalog_search_miss");
     expect(JSON.parse(String(init?.body))).toEqual({
       query: "typewriter that deletes",
       wanted: "text that types then backspaces",

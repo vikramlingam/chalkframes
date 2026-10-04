@@ -13,7 +13,7 @@
  * installed package): `parseFromString("", ...)` and
  * `parseFromString("just some text", ...)` both return a document with
  * `documentElement === null`. That's the actual, live crash path in the CLI
- * (`hyperframes info`, `hyperframes inspect`, Studio's edit endpoints, etc.)
+ * (`chalkframes info`, `chalkframes inspect`, Studio's edit endpoints, etc.)
  * this test suite reproduces and guards.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

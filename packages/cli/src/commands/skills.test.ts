@@ -89,8 +89,8 @@ const DEFAULT_CHECK = {
   updateAvailable: true,
   summary: { current: 1, outdated: 1, missing: 2, coreMissing: 1, removed: 0 },
   skills: [
-    { name: "hyperframes", status: "outdated" },
-    { name: "hyperframes-core", status: "missing" },
+    { name: "chalkframes", status: "outdated" },
+    { name: "chalkframes-core", status: "missing" },
     { name: "embedded-captions", status: "current" },
     { name: "pr-to-video", status: "missing" },
   ],
@@ -105,7 +105,7 @@ vi.mock("../utils/skillsManifest.js", async (importOriginal) => {
   return {
     ...actual,
     checkSkills: vi.fn(async () => DEFAULT_CHECK),
-    hyperframesSkillNames: vi.fn(() => ["hyperframes"]),
+    chalkframesSkillNames: vi.fn(() => ["chalkframes"]),
     presentSkills: vi.fn((names: readonly string[]) => [...names]),
     // Default: nothing left to prune after `runSkillsRemove`. The real
     // (unmocked) fs-level behavior is covered in skillsManifest.test.ts;
@@ -124,7 +124,7 @@ vi.mock("../utils/skillsMirror.js", () => ({
 
 // The reconcile commands drop the background nudge's cached verdict on
 // success (the stale-24h-cache fix). Stub it so these tests never touch the
-// dev machine's real ~/.hyperframes config; the invalidation behavior itself
+// dev machine's real ~/.chalkframes config; the invalidation behavior itself
 // is unit-tested in skillsUpdateCheck.test.ts.
 const invalidateSkillsCache = vi.fn();
 vi.mock("../utils/skillsUpdateCheck.js", () => ({
@@ -182,7 +182,7 @@ function skillFlagValues(args: ReadonlyArray<string>): string[] {
   return values;
 }
 
-describe("hyperframes skills", () => {
+describe("chalkframes skills", () => {
   beforeEach(async () => {
     state.execCalls = [];
     state.spawnCalls = [];
@@ -238,11 +238,11 @@ describe("hyperframes skills", () => {
       [
         "skills",
         "add",
-        "https://github.com/heygen-com/hyperframes",
+        "https://github.com/vikramlingam/chalkframes",
         "--skill",
-        "hyperframes",
+        "chalkframes",
         "--skill",
-        "hyperframes-core",
+        "chalkframes-core",
         "--skill",
         "pr-to-video",
         ...GLOBAL_ARGS_TAIL,
@@ -255,11 +255,11 @@ describe("hyperframes skills", () => {
       [
         "skills",
         "add",
-        "https://github.com/heygen-com/hyperframes",
+        "https://github.com/vikramlingam/chalkframes",
         "--skill",
-        "hyperframes",
+        "chalkframes",
         "--skill",
-        "hyperframes-core",
+        "chalkframes-core",
         "--skill",
         "pr-to-video",
         ...GLOBAL_ARGS_TAIL,
@@ -276,11 +276,11 @@ describe("hyperframes skills", () => {
         "npx.cmd",
         "skills",
         "add",
-        "https://github.com/heygen-com/hyperframes",
+        "https://github.com/vikramlingam/chalkframes",
         "--skill",
-        "hyperframes",
+        "chalkframes",
         "--skill",
-        "hyperframes-core",
+        "chalkframes-core",
         "--skill",
         "pr-to-video",
         ...GLOBAL_ARGS_TAIL,
@@ -317,12 +317,12 @@ describe("hyperframes skills", () => {
     expect(await commandExitCode()).toBe(0);
     const args = state.spawnCalls[0]?.args ?? [];
     // straight from GitHub, globally, as a faithful clone
-    expect(args).toContain("https://github.com/heygen-com/hyperframes");
+    expect(args).toContain("https://github.com/vikramlingam/chalkframes");
     expect(args).toContain("--global");
     expect(args).toContain("--copy");
     expect(args).toContain("--full-depth");
     // targeted per-name selection: the stale core skills only
-    expect(skillFlagValues(args).sort()).toEqual(["hyperframes", "hyperframes-core"]);
+    expect(skillFlagValues(args).sort()).toEqual(["chalkframes", "chalkframes-core"]);
     // never the full-set wildcard, and never a missing on-demand workflow
     expect(skillFlagValues(args)).not.toContain("*");
     expect(skillFlagValues(args)).not.toContain("pr-to-video");
@@ -341,7 +341,7 @@ describe("hyperframes skills", () => {
     vi.mocked(checkSkills).mockResolvedValueOnce({
       ...DEFAULT_CHECK,
       skills: [
-        { name: "hyperframes", status: "current" },
+        { name: "chalkframes", status: "current" },
         { name: "embedded-captions", status: "outdated" }, // installed workflow → refresh
         { name: "pr-to-video", status: "missing" }, // not installed → leave for on-demand
       ],
@@ -360,7 +360,7 @@ describe("hyperframes skills", () => {
       ...DEFAULT_CHECK,
       updateAvailable: false,
       skills: [
-        { name: "hyperframes", status: "current" },
+        { name: "chalkframes", status: "current" },
         { name: "pr-to-video", status: "missing" }, // on demand — not an update
       ],
     } as never);
@@ -428,7 +428,7 @@ describe("hyperframes skills", () => {
   // stale local `skills-manifest.json` a checkout might still have lying
   // around — see resolveLatestManifest's in-repo shortcut. Without this, a
   // skill retired upstream but still listed locally gets forced into
-  // `targets` (isCoreSkill pattern-matches `hyperframes-*`), `skills add`
+  // `targets` (isCoreSkill pattern-matches `chalkframes-*`), `skills add`
   // silently declines to install something that doesn't exist canonically,
   // and the old code strict-threw on a "failure" that was never real.
   it("checks freshness against the canonical manifest, never a possibly-stale local one", async () => {
@@ -446,12 +446,12 @@ describe("hyperframes skills", () => {
   // GH #3111 — silent, permanent data loss. The prune deletes; its notion of
   // "no longer published" must therefore come from the canonical repo, never
   // from resolveLatestManifest's findRepoManifest shortcut, which accepts any
-  // `skills-manifest.json` within 16 parent directories of cwd. HyperFrames'
-  // own manifest declares `source: heygen-com/hyperframes`, so such a file
+  // `skills-manifest.json` within 16 parent directories of cwd. ChalkFrames'
+  // own manifest declares `source: vikramlingam/chalkframes`, so such a file
   // matches lock attribution, and every published skill missing from it is
   // removed from every agent dir on the machine.
   //
-  // Reproduced on the pre-fix build: running `skills update` from a hyperframes
+  // Reproduced on the pre-fix build: running `skills update` from a chalkframes
   // checkout whose manifest listed 19 of the 25 published skills printed
   // "Removing 6 skill(s) no longer published: captions-overlay, changelog-video,
   // cut-the-curve, motion-doctrine, oversized-cursor, seam-craft" and deleted
@@ -483,13 +483,13 @@ describe("hyperframes skills", () => {
       .mockResolvedValueOnce(DEFAULT_CHECK as never)
       .mockResolvedValueOnce({
         scope: "global",
-        skills: [{ name: "hyperframes-captions", status: "removed" }],
+        skills: [{ name: "chalkframes-captions", status: "removed" }],
       } as never);
-    vi.mocked(pruneOrphanedLockEntries).mockReturnValueOnce(["hyperframes-captions"]);
+    vi.mocked(pruneOrphanedLockEntries).mockReturnValueOnce(["chalkframes-captions"]);
 
     await runSkillsUpdate();
 
-    expect(pruneOrphanedLockEntries).toHaveBeenCalledWith(["hyperframes-captions"], "global");
+    expect(pruneOrphanedLockEntries).toHaveBeenCalledWith(["chalkframes-captions"], "global");
     expect(await commandExitCode()).toBe(0);
   });
 
@@ -505,9 +505,9 @@ describe("hyperframes skills", () => {
       .mockResolvedValueOnce(DEFAULT_CHECK as never)
       .mockResolvedValueOnce({
         scope: "global",
-        skills: [{ name: "hyperframes-captions", status: "removed" }],
+        skills: [{ name: "chalkframes-captions", status: "removed" }],
       } as never);
-    vi.mocked(pruneOrphanedLockEntries).mockReturnValueOnce(["hyperframes-captions"]);
+    vi.mocked(pruneOrphanedLockEntries).mockReturnValueOnce(["chalkframes-captions"]);
 
     await runSkillsUpdate();
     expect(await commandExitCode()).toBe(0);
@@ -700,11 +700,11 @@ describe("hyperframes skills", () => {
   });
 });
 
-// The router contract: `/hyperframes` picks a workflow, then runs
-// `hyperframes skills update <workflow>` so the workflow's skill (and the core
+// The router contract: `/chalkframes` picks a workflow, then runs
+// `chalkframes skills update <workflow>` so the workflow's skill (and the core
 // set it depends on) is guaranteed present and current before the agent reads
 // it. Positional names are the ONLY way update expands an install.
-describe("hyperframes skills update <names>", () => {
+describe("chalkframes skills update <names>", () => {
   beforeEach(async () => {
     state.execCalls = [];
     state.spawnCalls = [];
@@ -740,8 +740,8 @@ describe("hyperframes skills update <names>", () => {
     // requested workflow (missing) + the stale core skills; embedded-captions
     // (installed + current) and the full-set wildcard must not appear.
     expect(skillFlagValues(args).sort()).toEqual([
-      "hyperframes",
-      "hyperframes-core",
+      "chalkframes",
+      "chalkframes-core",
       "pr-to-video",
     ]);
   });
@@ -753,8 +753,8 @@ describe("hyperframes skills update <names>", () => {
       ...DEFAULT_CHECK,
       updateAvailable: false,
       skills: [
-        { name: "hyperframes", status: "current" },
-        { name: "hyperframes-core", status: "current" },
+        { name: "chalkframes", status: "current" },
+        { name: "chalkframes-core", status: "current" },
         { name: "pr-to-video", status: "current" },
       ],
     } as never);

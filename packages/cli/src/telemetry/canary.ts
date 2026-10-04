@@ -1,7 +1,7 @@
 /**
  * CLI binding for the canary registry.
  *
- * `@hyperframes/core` owns the decision (pure, browser-safe, caller supplies
+ * `@chalkframes/core` owns the decision (pure, browser-safe, caller supplies
  * everything). This file supplies the three things only the CLI knows: the
  * install's stable id, the env override, and whether we're on CI.
  *
@@ -17,7 +17,7 @@
  * the feature's own code.
  */
 
-// Leaf subpath imports, not the "@hyperframes/core" barrel: this resolves on
+// Leaf subpath imports, not the "@chalkframes/core" barrel: this resolves on
 // the CLI startup path, and the barrel pulls the whole core surface. Same
 // reason the producer is lazily loaded.
 import {
@@ -25,8 +25,8 @@ import {
   evaluateCanary,
   parseCanaryOverride,
   type CanaryDecision,
-} from "@hyperframes/core/canary";
-import { CANARIES, canaryEnvVar, findCanary } from "@hyperframes/core/canary-registry";
+} from "@chalkframes/core/canary";
+import { CANARIES, canaryEnvVar, findCanary } from "@chalkframes/core/canary-registry";
 import { readConfig } from "./config.js";
 import { telemetryRuntimeOverride } from "./policy.js";
 import { getSystemMeta } from "./system.js";
@@ -60,9 +60,9 @@ const decisions = new Map<string, CanaryDecision>();
 
 // The memo is scoped to a telemetry posture, not to the process. Within one
 // render nothing may change (a render that starts enrolled must finish
-// enrolled), but `hyperframes preview` is a long-lived server that re-serves
+// enrolled), but `chalkframes preview` is a long-lived server that re-serves
 // decisions on every page load — and it used to keep serving pre-opt-out
-// decisions for hours after `hyperframes telemetry disable`, which is exactly
+// decisions for hours after `chalkframes telemetry disable`, which is exactly
 // what the docs promise cannot happen.
 let decisionsTelemetryPosture: boolean | undefined;
 
@@ -92,7 +92,7 @@ function decideCanary(name: string): CanaryDecision {
     feature: definition.name,
     // The bucket seed, NOT the anonymousId: the seed is inherited across
     // config.json re-mints via the install-state file, so cohorts hold when
-    // the telemetry id re-rolls. Both files live in ~/.hyperframes, so
+    // the telemetry id re-rolls. Both files live in ~/.chalkframes, so
     // deleting that directory clears the cohort too — intentional. Fallback
     // covers only a failed backfill write on a legacy config.
     unitId: config.bucketSeed ?? config.anonymousId,

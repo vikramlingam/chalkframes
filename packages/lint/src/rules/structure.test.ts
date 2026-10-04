@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter";
-import type { HyperframeLinterOptions } from "../types";
+import { lintChalkframeHtml } from "../chalkframeLinter";
+import type { ChalkframeLinterOptions } from "../types";
 
 const page = (body: string) =>
   `<html><body><div id="root" data-composition-id="main" data-width="1920" data-height="1080" data-start="0" data-duration="10">${body}</div><script>window.__timelines={main:gsap.timeline({paused:true})};</script></body></html>`;
 
-async function codes(body: string, options: HyperframeLinterOptions = {}) {
-  const { findings } = await lintHyperframeHtml(page(body), options);
+async function codes(body: string, options: ChalkframeLinterOptions = {}) {
+  const { findings } = await lintChalkframeHtml(page(body), options);
   return findings.filter((f) => STRUCTURE.has(f.code));
 }
 const STRUCTURE = new Set([
@@ -192,7 +192,7 @@ describe("clip_ends_past_root_duration", () => {
       ' data-duration="10"',
       "",
     );
-    const { findings } = await lintHyperframeHtml(html);
+    const { findings } = await lintChalkframeHtml(html);
     expect(findings.filter((f) => f.code === PAST)).toEqual([]);
   });
 });

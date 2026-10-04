@@ -4,29 +4,29 @@ import { join } from "node:path";
 import { CREDENTIAL_FILENAME, configDir, credentialPath } from "./paths.js";
 
 describe("auth/paths", () => {
-  const original = process.env["HEYGEN_CONFIG_DIR"];
+  const original = process.env["CHALKFRAMES_CONFIG_DIR"];
 
   beforeEach(() => {
-    delete process.env["HEYGEN_CONFIG_DIR"];
+    delete process.env["CHALKFRAMES_CONFIG_DIR"];
   });
 
   afterEach(() => {
-    if (original !== undefined) process.env["HEYGEN_CONFIG_DIR"] = original;
-    else delete process.env["HEYGEN_CONFIG_DIR"];
+    if (original !== undefined) process.env["CHALKFRAMES_CONFIG_DIR"] = original;
+    else delete process.env["CHALKFRAMES_CONFIG_DIR"];
   });
 
-  it("defaults to ~/.heygen", () => {
-    expect(configDir()).toBe(join(homedir(), ".heygen"));
+  it("defaults to ~/.chalkframes", () => {
+    expect(configDir()).toBe(join(homedir(), ".chalkframes"));
   });
 
-  it("honors HEYGEN_CONFIG_DIR override", () => {
-    process.env["HEYGEN_CONFIG_DIR"] = "/tmp/some-test-dir";
+  it("honors CHALKFRAMES_CONFIG_DIR override", () => {
+    process.env["CHALKFRAMES_CONFIG_DIR"] = "/tmp/some-test-dir";
     expect(configDir()).toBe("/tmp/some-test-dir");
     expect(credentialPath()).toBe(join("/tmp/some-test-dir", CREDENTIAL_FILENAME));
   });
 
-  it("treats empty HEYGEN_CONFIG_DIR as unset", () => {
-    process.env["HEYGEN_CONFIG_DIR"] = "";
-    expect(configDir()).toBe(join(homedir(), ".heygen"));
+  it("treats empty CHALKFRAMES_CONFIG_DIR as unset", () => {
+    process.env["CHALKFRAMES_CONFIG_DIR"] = "";
+    expect(configDir()).toBe(join(homedir(), ".chalkframes"));
   });
 });

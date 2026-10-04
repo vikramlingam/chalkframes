@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const REPO_ROOT = join(import.meta.dirname, "..");
-const OUTPUT = join(REPO_ROOT, "dist", "hyperframes-plugin.zip");
+const OUTPUT = join(REPO_ROOT, "dist", "chalkframes-plugin.zip");
 // Codex reports its upload limit in decimal MB.
 const MAX_UPLOAD_BYTES = 100 * 1_000_000;
 const pluginManifest = JSON.parse(readFileSync(join(REPO_ROOT, ".codex-plugin", "plugin.json")));
@@ -46,7 +46,7 @@ execFileSync(
   [
     "archive",
     "--format=zip",
-    "--prefix=hyperframes/",
+    "--prefix=chalkframes/",
     "--output",
     OUTPUT,
     "HEAD",

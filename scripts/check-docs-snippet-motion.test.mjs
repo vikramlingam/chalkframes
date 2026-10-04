@@ -199,7 +199,7 @@ test("example films use the catalog player without making its controls source li
   assert.equal((page.match(/<ExamplePlayer\s/g) ?? []).length, 23);
   assert.doesNotMatch(page, /<HoverVideo\s/);
   assert.doesNotMatch(page, /<a[^>]*>\s*<ExamplePlayer/);
-  assert.match(source, /createElement\("hyperframes-player"\)/);
+  assert.match(source, /createElement\("chalkframes-player"\)/);
   assert.match(source, /player\.setAttribute\("controls", ""\)/);
   assert.match(
     source,

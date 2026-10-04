@@ -13,7 +13,7 @@ describe("events", () => {
     telemetry.trackEvent.mockImplementation(() => order.push("track"));
     telemetry.flushSync.mockImplementation(() => order.push("flushSync"));
     const { default: events } = await import("./events.js");
-    await events.run?.({ args: { skill: "hyperframes", event: "skill_invoked" } } as never);
+    await events.run?.({ args: { skill: "chalkframes", event: "skill_invoked" } } as never);
     expect(order).toEqual(["track", "flushSync"]);
     expect(telemetry.flush).not.toHaveBeenCalled();
   });

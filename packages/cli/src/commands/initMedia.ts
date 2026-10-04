@@ -1,4 +1,4 @@
-// The one place `hyperframes init` (and the template-preview script) rewrites media placeholders.
+// The one place `chalkframes init` (and the template-preview script) rewrites media placeholders.
 // New templates: an audible <video data-has-audio="true"> on __VIDEO_SRC__ plus an audio-only slot on __AUDIO_SRC__.
 // Legacy templates (muted <video> + <audio> both on __VIDEO_SRC__) still come from older remote registry examples.
 

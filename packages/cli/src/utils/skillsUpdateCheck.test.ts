@@ -38,7 +38,7 @@ describe("skillsUpdateCheck", () => {
     mockCheckSkills.mockReset();
     gate.suppressed = false;
     gate.answers = true;
-    vi.stubEnv("HYPERFRAMES_SKIP_SKILLS", "");
+    vi.stubEnv("CHALKFRAMES_SKIP_SKILLS", "");
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -46,7 +46,7 @@ describe("skillsUpdateCheck", () => {
   });
 
   it.each([
-    ["HYPERFRAMES_SKIP_SKILLS is set", () => vi.stubEnv("HYPERFRAMES_SKIP_SKILLS", "1")],
+    ["CHALKFRAMES_SKIP_SKILLS is set", () => vi.stubEnv("CHALKFRAMES_SKIP_SKILLS", "1")],
     ["the run shows no notices", () => (gate.suppressed = true)],
   ])("no background check is due when %s", async (_, arrange) => {
     const { skillsCheckDue } = await import("./skillsUpdateCheck.js");
@@ -125,7 +125,7 @@ describe("skillsUpdateCheck", () => {
   }
 
   it("suppresses a cached stale-skills notice in an attended plugin run", async () => {
-    vi.stubEnv("HYPERFRAMES_SKIP_SKILLS", "1");
+    vi.stubEnv("CHALKFRAMES_SKIP_SKILLS", "1");
     // The normal notice gate permits output (the attended TTY case).
     expect(await noticeTextFor({ skillsOutdatedCount: 2, skillsMissingCount: 1 })).toBeNull();
   });
@@ -139,7 +139,7 @@ describe("skillsUpdateCheck", () => {
       skillsRemovedCount: 2,
     });
     // 1 outdated + 1 missing + 2 removed = 4, not the pre-fix "2".
-    expect(text).toContain("4 HyperFrames skills out of date or missing");
+    expect(text).toContain("4 ChalkFrames skills out of date or missing");
   });
 
   it("prints nothing when outdated, missing, and removed are all zero", async () => {
@@ -157,7 +157,7 @@ describe("skillsUpdateCheck", () => {
       skillsMissingCount: 0,
       skillsRemovedCount: 1,
     });
-    expect(text).toContain("1 HyperFrames skill out of date or missing");
+    expect(text).toContain("1 ChalkFrames skill out of date or missing");
   });
 
   // Regression: the stale-24h-cache bug. A successful `skills update`/install

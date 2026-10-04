@@ -2,7 +2,7 @@ import type { RuntimeDeterministicAdapter } from "../types";
 import { swallow } from "../diagnostics";
 
 /**
- * anime.js adapter for HyperFrames
+ * anime.js adapter for ChalkFrames
  *
  * Supports anime.js v4+ (the `.seek(timeMs)` API).
  *

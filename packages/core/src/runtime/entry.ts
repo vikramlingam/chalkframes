@@ -8,9 +8,9 @@ import { assetUrl } from "./assetUrl";
 import { getVariables } from "./getVariables";
 import { clearRuntimeData, registerRuntimeDataHandler, setRuntimeData } from "./runtimeData";
 
-type HyperframeWindow = Window & {
-  __hyperframeRuntimeBootstrapped?: boolean;
-  __hyperframes?: {
+type ChalkframeWindow = Window & {
+  __chalkframeRuntimeBootstrapped?: boolean;
+  __chalkframes?: {
     assetUrl: typeof assetUrl;
     fitTextFontSize: typeof fitTextFontSize;
     getVariables: typeof getVariables;
@@ -23,7 +23,7 @@ type HyperframeWindow = Window & {
 
 // Inline composition scripts can run before DOMContentLoaded.
 // Ensure timeline registry exists at script evaluation time.
-(window as HyperframeWindow).__timelines = (window as HyperframeWindow).__timelines || {};
+(window as ChalkframeWindow).__timelines = (window as ChalkframeWindow).__timelines || {};
 
 // Stamp color-graded elements with their authored inline opacity BEFORE the
 // composition's animation scripts (and the grading hide) mutate it — must run
@@ -37,7 +37,7 @@ deferMediaUntilDue();
 // Expose runtime helpers immediately so composition scripts can use them
 // before DOMContentLoaded (font sizing runs during script evaluation, and
 // getVariables is read by composition setup before the timeline is built).
-(window as HyperframeWindow).__hyperframes = {
+(window as ChalkframeWindow).__chalkframes = {
   assetUrl,
   fitTextFontSize,
   getVariables,
@@ -47,17 +47,17 @@ deferMediaUntilDue();
   clearRuntimeData,
 };
 
-function bootstrapHyperframeRuntime(): void {
-  const win = window as HyperframeWindow;
-  if (win.__hyperframeRuntimeBootstrapped) {
+function bootstrapChalkframeRuntime(): void {
+  const win = window as ChalkframeWindow;
+  if (win.__chalkframeRuntimeBootstrapped) {
     return;
   }
-  win.__hyperframeRuntimeBootstrapped = true;
+  win.__chalkframeRuntimeBootstrapped = true;
   initSandboxRuntimeModular();
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootstrapHyperframeRuntime, { once: true });
+  document.addEventListener("DOMContentLoaded", bootstrapChalkframeRuntime, { once: true });
 } else {
-  bootstrapHyperframeRuntime();
+  bootstrapChalkframeRuntime();
 }

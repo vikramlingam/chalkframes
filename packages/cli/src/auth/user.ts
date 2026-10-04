@@ -1,6 +1,6 @@
 /**
  * Persistence + display helpers for the friendly-display `user` block in
- * the shared `~/.heygen/credentials` file.
+ * the shared `~/.chalkframes/credentials` file.
  *
  * The `user` block is additive METADATA captured at login time from
  * `GET /v3/users/me` — NOT a credential. It lets `auth status` (and the
@@ -8,8 +8,8 @@
  * without re-hitting the API on every invocation, and keeps working when
  * the API is unreachable.
  *
- * This file is SHARED with the Go `heygen` CLI, which writes the same
- * `user` block (see `heygen-cli/internal/auth/user_store.go`). Persisting
+ * This file is SHARED with the Go `chalkframes` CLI, which writes the same
+ * `user` block (see `chalkframes-cli/internal/auth/user_store.go`). Persisting
  * here goes through `readStore` / `writeStore`, which round-trip every
  * unrecognized key — so saving our user block never clobbers a key the
  * other CLI wrote.
@@ -39,7 +39,7 @@ export function isUserInfoEmpty(u: StoredUserInfo): boolean {
  * (so a user with just a first name still resolves to that first name,
  * not straight to username). The caller falls back to its own marker
  * (e.g. "(unknown user)") on `undefined`. Mirrors `UserInfo.DisplayName()`
- * in heygen-cli.
+ * in chalkframes-cli.
  */
 export function userDisplayName(u: StoredUserInfo): string | undefined {
   if (u.email) return u.email;

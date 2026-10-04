@@ -1,4 +1,4 @@
-import { parseHTMLContent } from "@hyperframes/core/compiler";
+import { parseHTMLContent } from "@chalkframes/core/compiler";
 
 function getSingleMeaningfulChild(container: Element): Element | null {
   let child: Element | null = null;

@@ -50,8 +50,8 @@ import {
   initTransparentBackground,
   initializeSession,
   spawnStreamingEncoder,
-} from "@hyperframes/engine";
-import { fpsToNumber } from "@hyperframes/core";
+} from "@chalkframes/engine";
+import { fpsToNumber } from "@chalkframes/core";
 import type { FileServerHandle } from "../../fileServer.js";
 import type { ProducerLogger } from "../../../logger.js";
 import { createHdrImageTransferCache } from "../../hdrImageTransferCache.js";

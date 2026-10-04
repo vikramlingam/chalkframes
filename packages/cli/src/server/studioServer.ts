@@ -1,15 +1,15 @@
 /**
- * Embedded studio server for `hyperframes preview` outside the monorepo.
+ * Embedded studio server for `chalkframes preview` outside the monorepo.
  *
- * Uses the shared studio API module from @hyperframes/core/studio-api,
+ * Uses the shared studio API module from @chalkframes/core/studio-api,
  * providing a CLI-specific adapter for single-project, in-process rendering.
  */
 
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
-import { realpath } from "@hyperframes/core";
+import { realpath } from "@chalkframes/core";
 import { existsSync, readFileSync, statSync, writeFileSync, unlinkSync } from "node:fs";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { resolve, join, basename, relative, sep } from "node:path";
@@ -34,7 +34,7 @@ import {
 import { emitStudioRenderComplete, emitStudioRenderError } from "./studioRenderTelemetry.js";
 import { isDevMode } from "../utils/env.js";
 import { runRenderSetupWorker } from "../utils/cancellableProcess.js";
-import type { ProjectLintResult } from "@hyperframes/lint";
+import type { ProjectLintResult } from "@chalkframes/lint";
 import { resolveRenderBrowser } from "../browser/preflight.js";
 import {
   createStudioManualEditsRenderBodyScript,
@@ -61,12 +61,12 @@ import {
   HistoryBusyError,
   HistoryClosedError,
   historyCache,
-} from "@hyperframes/studio-server";
+} from "@chalkframes/studio-server";
 import { resolveAutoProxy } from "../utils/projectConfig.js";
-import { getElementScreenshotClip } from "@hyperframes/studio-server/screenshot-clip";
-import type { ScreenshotClip } from "@hyperframes/studio-server/screenshot-clip";
-import type { RenderJob } from "@hyperframes/producer";
-import { isWithinProjectRoot } from "@hyperframes/parsers/asset-resolution";
+import { getElementScreenshotClip } from "@chalkframes/studio-server/screenshot-clip";
+import type { ScreenshotClip } from "@chalkframes/studio-server/screenshot-clip";
+import type { RenderJob } from "@chalkframes/producer";
+import { isWithinProjectRoot } from "@chalkframes/parsers/asset-resolution";
 import { seekCompositionTimeline } from "../capture/captureCompositionFrame.js";
 import { createThumbnailPages } from "./thumbnailPages.js";
 import {
@@ -78,7 +78,7 @@ import {
   type ResolvedBrowserGpuMode,
 } from "../browser/gpuPolicy.js";
 
-const STUDIO_MANUAL_EDITS_PATH = ".hyperframes/studio-manual-edits.json";
+const STUDIO_MANUAL_EDITS_PATH = ".chalkframes/studio-manual-edits.json";
 
 // Under preview.ts's 3s process-exit watchdog, so shutdown() always returns
 // before that watchdog can fire and skip this file's browser cleanup.
@@ -93,7 +93,7 @@ const REMOTE_GIF_IMG_SRC_RE =
   /<img\b[^>]*?\bsrc\s*=\s*["'](https?:\/\/[^"']+\.gif(?:[?#][^"']*)?)["'][^>]*>/gi;
 
 async function loadStudioProducer() {
-  if (!isDevMode()) return await import("@hyperframes/producer");
+  if (!isDevMode()) return await import("@chalkframes/producer");
   // The producer's SOURCE uses the TS convention of `.js` specifiers naming
   // `.ts` files, which bun resolves and Node does not. Node 22 strips TS types
   // natively, so a Node-hosted dev server boots fine and only dies here, as
@@ -147,9 +147,9 @@ export function resolveStudioBundle(): StudioBundleResolution {
 }
 
 function resolveRuntimePath(): string {
-  const builtPath = resolve(__dirname, "hyperframe-runtime.js");
+  const builtPath = resolve(__dirname, "chalkframe-runtime.js");
   if (existsSync(builtPath)) return builtPath;
-  const iifePath = resolve(__dirname, "hyperframe.runtime.iife.js");
+  const iifePath = resolve(__dirname, "chalkframe.runtime.iife.js");
   if (existsSync(iifePath)) return iifePath;
   const devPath = resolve(
     __dirname,
@@ -158,7 +158,7 @@ function resolveRuntimePath(): string {
     "..",
     "core",
     "dist",
-    "hyperframe.runtime.iife.js",
+    "chalkframe.runtime.iife.js",
   );
   if (existsSync(devPath)) return devPath;
   return builtPath;
@@ -231,7 +231,7 @@ async function downloadRemoteGifImageSources(
 // Uses the engine's browser pool so the thumbnail browser and render workers
 // share a single Chrome process instead of running two independent ones.
 
-let _thumbnailBrowserLease: import("@hyperframes/engine").BrowserLease | null = null;
+let _thumbnailBrowserLease: import("@chalkframes/engine").BrowserLease | null = null;
 const thumbnailPages = createThumbnailPages();
 let _thumbnailBrowserInitializing: Promise<ThumbnailBrowserSession | null> | null = null;
 let _thumbnailBrowserModes: {
@@ -270,7 +270,7 @@ async function getThumbnailBrowser(
     try {
       if (isShuttingDown()) return null;
       const { ensureBrowser } = await import("../browser/manager.js");
-      const { acquireBrowser, buildChromeArgs } = await import("@hyperframes/engine");
+      const { acquireBrowser, buildChromeArgs } = await import("@chalkframes/engine");
       let executablePath: string | undefined;
 
       try {
@@ -336,13 +336,13 @@ export interface StudioServerOptions {
   /**
    * Auto-transcode browser-hostile video codecs to a cached H.264 preview
    * proxy. The preview command passes its resolved `--proxy`/`--no-proxy` +
-   * `hyperframes.json` value; when omitted, the project's `media.autoProxy`
+   * `chalkframes.json` value; when omitted, the project's `media.autoProxy`
    * config (default true) applies.
    */
   autoProxy?: boolean | undefined;
   /** GPU policy used by Studio thumbnails and frame capture. */
   browserGpuMode?: BrowserGpuMode;
-  /** Where project histories are kept; defaults to ~/.cache/hyperframes/history. */
+  /** Where project histories are kept; defaults to ~/.cache/chalkframes/history. */
   historyRoot?: string;
 }
 
@@ -458,7 +458,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
   const adapter: PreviewApiAdapter = {
     history: () => projectHistory(),
     // Explicit option wins (preview's resolved --proxy/--no-proxy + config);
-    // otherwise honor the project's hyperframes.json media.autoProxy so every
+    // otherwise honor the project's chalkframes.json media.autoProxy so every
     // createStudioServer caller (e.g. the background preview child) gets the
     // configured behavior without its own plumbing.
     autoProxy: options.autoProxy ?? resolveAutoProxy(projectDir, undefined),
@@ -477,15 +477,15 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
 
     async bundle(dir, options): Promise<string | null> {
       try {
-        const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+        const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
         // Studio dev server: ask the bundler for an empty `src=""` placeholder so
         // we can point it at our hot-reloadable local runtime endpoint. Inlining
         // ~150 KB of runtime body on every preview render would defeat browser
         // caching across composition edits.
         let html = await bundleToSingleHtml(dir, { ...PREVIEW_BUNDLE_OPTIONS, ...options });
         html = html.replace(
-          'data-hyperframes-preview-runtime="1" src=""',
-          'data-hyperframes-preview-runtime="1" src="/api/runtime.js"',
+          'data-chalkframes-preview-runtime="1" src=""',
+          'data-chalkframes-preview-runtime="1" src="/api/runtime.js"',
         );
         return html;
       } catch (err) {
@@ -501,13 +501,13 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
         await import("../../../producer/src/services/animatedGifPrep.js");
       const { downloadToTemp, writeUrlDownloadTelemetry } =
         await import("../../../producer/src/utils/urlDownloader.js");
-      const gifOutputDir = join(project.dir, ".hyperframes", "prepared-assets", "gif");
-      const gifDownloadDir = join(project.dir, ".hyperframes", "prepared-assets", "downloads");
+      const gifOutputDir = join(project.dir, ".chalkframes", "prepared-assets", "gif");
+      const gifDownloadDir = join(project.dir, ".chalkframes", "prepared-assets", "downloads");
       const prepared = await prepareAnimatedGifInputs(html, {
         projectDir: project.dir,
         downloadDir: gifDownloadDir,
         outputDir: gifOutputDir,
-        outputSrcPrefix: ".hyperframes/prepared-assets/gif",
+        outputSrcPrefix: ".chalkframes/prepared-assets/gif",
         cacheDir: gifOutputDir,
         sourceAssets: await downloadRemoteGifImageSources(html, gifDownloadDir, (url, destDir) =>
           downloadToTemp(url, destDir, undefined, undefined, undefined, {
@@ -524,8 +524,8 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
     },
 
     async lint(html: string, opts?: { filePath?: string; isSubComposition?: boolean }) {
-      const { lintHyperframeHtml } = await import("@hyperframes/lint");
-      return await lintHyperframeHtml(html, { ...opts, host: "studio" });
+      const { lintChalkframeHtml } = await import("@chalkframes/lint");
+      return await lintChalkframeHtml(html, { ...opts, host: "studio" });
     },
 
     // Out of process: linting a large composition is seconds of synchronous parsing, and on
@@ -634,7 +634,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
             }),
           );
           // Refreshed HERE, not just at render start: a render can run for
-          // minutes, and `hyperframes telemetry disable` during one must be
+          // minutes, and `chalkframes telemetry disable` during one must be
           // honoured by the event that reports it. Studio never polls
           // /api/telemetry-identity, so this process would otherwise keep its
           // startup-cached posture for the life of the preview server.
@@ -770,7 +770,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
       const registry = { baseUrl: loadProjectConfig(projectDir).registry };
       const entries = await listRegistryItems(undefined, registry);
       const blockAndComponentEntries = entries.filter(
-        (e) => e.type === "hyperframes:block" || e.type === "hyperframes:component",
+        (e) => e.type === "chalkframes:block" || e.type === "chalkframes:component",
       );
       return loadAllItems(blockAndComponentEntries, registry);
     },
@@ -786,7 +786,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
         source: "studio",
       });
       for (const warning of result.warnings) {
-        process.stderr.write(`hyperframes:registry ${warning}\n`);
+        process.stderr.write(`chalkframes:registry ${warning}\n`);
       }
       const written = result.written;
 
@@ -812,13 +812,13 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
   const app = new Hono();
 
   // Config probe endpoint — used by port detection to identify existing
-  // HyperFrames instances and reuse them instead of spawning duplicates.
-  // See portUtils.ts detectHyperframesServer() for the consumer.
-  app.get("/__hyperframes_config", (c) => {
+  // ChalkFrames instances and reuse them instead of spawning duplicates.
+  // See portUtils.ts detectChalkframesServer() for the consumer.
+  app.get("/__chalkframes_config", (c) => {
     const serve = async () => {
       const serverBuildSignature = await loadPreviewServerBuildSignature();
       return c.json({
-        isHyperframes: true,
+        isChalkframes: true,
         pid: process.pid,
         projectName: projectId,
         projectDir: projectDir,
@@ -888,7 +888,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
         const receipt = identifyFileWrite(absPath, version ?? DELETED_VERSION);
         const reloads = affectsPreview(projectDir, path);
         // `projectId` so a stale tab — one still pointed at a project this
-        // server no longer serves, because `hyperframes preview` reused this
+        // server no longer serves, because `chalkframes preview` reused this
         // port for a different folder (see ProjectUnreachableBanner's doc
         // comment) — can tell "my project changed" from "some OTHER project,
         // now served on this same connection, changed". Every subscriber on
@@ -1043,7 +1043,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HyperFrames Studio unavailable</title>
+    <title>ChalkFrames Studio unavailable</title>
     <style>
       body {
         margin: 0;
@@ -1104,7 +1104,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
     //
     // Only IDENTITY is withheld from an untrusted Host. The canary decisions
     // map still goes out — it is non-identifying, and a LAN/remote Studio
-    // (`HYPERFRAMES_PREVIEW_HOST=0.0.0.0`) needs it to stay in agreement with
+    // (`CHALKFRAMES_PREVIEW_HOST=0.0.0.0`) needs it to stay in agreement with
     // the CLI. See buildStudioHeadScriptsForHost.
     const headScript = buildStudioHeadScriptsForHost(buildRuntimeEnvScript(), c.req.header("host"));
     if (headScript) {
@@ -1122,7 +1122,7 @@ export function createStudioServer(options: StudioServerOptions): StudioServer {
     const closeHistory = histories.closeAll().catch(() => {});
     const renders = [...inFlightRenders];
     for (const [abortController] of renders) abortController.abort();
-    const { killTrackedProcesses, closeBrowserPool } = await import("@hyperframes/engine");
+    const { killTrackedProcesses, closeBrowserPool } = await import("@chalkframes/engine");
     killTrackedProcesses();
     // Browser close must not wait on renders: a render can outlast preview.ts's
     // 3s watchdog, which exits without running this cleanup. closeBrowserPool

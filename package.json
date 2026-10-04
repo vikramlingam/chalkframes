@@ -1,19 +1,25 @@
 {
   "name": "chalkframes",
   "private": true,
-  "description": "Chalk Frames — Autonomous AI video rendering and production suite",
+  "description": "Chalk Frames \u2014 Autonomous AI video rendering and production suite",
   "workspaces": [
     "packages/*"
   ],
   "type": "module",
   "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "setup:manim": "node scripts/setup.mjs --manim",
+    "doctor": "node scripts/setup.mjs --check",
+    "predev": "node scripts/setup.mjs --quiet",
     "dev": "node --watch studio-web/server.mjs",
+    "prestudio": "node scripts/setup.mjs --quiet",
     "studio": "node studio-web/server.mjs",
-    "build": "bun run --filter '@hyperframes/{parsers,lint,studio-server}' build && bun run --filter @hyperframes/core build && bun run --filter @hyperframes/engine build && bun run --filter @hyperframes/producer build && bun run --filter @hyperframes/cli build",
-    "build:hyperframes-runtime": "bun run --filter @hyperframes/core build:hyperframes-runtime",
-    "build:hyperframes-runtime:modular": "bun run --filter @hyperframes/core build:hyperframes-runtime:modular",
+    "start": "npm run studio",
+    "build": "bun run --filter '@chalkframes/{parsers,lint,studio-server}' build && bun run --filter @chalkframes/core build && bun run --filter @chalkframes/engine build && bun run --filter @chalkframes/producer build && bun run --filter @chalkframes/cli build",
+    "build:chalkframes-runtime": "bun run --filter @chalkframes/core build:chalkframes-runtime",
+    "build:chalkframes-runtime:modular": "bun run --filter @chalkframes/core build:chalkframes-runtime:modular",
     "test": "bun run test:studio",
-    "test:studio": "node --test studio-web/quality.test.mjs studio-web/server.test.mjs",
+    "test:studio": "node --test studio-web/quality.test.mjs studio-web/server.test.mjs studio-web/engine-upgrade.test.mjs studio-web/engines/manim/manim.test.mjs",
     "lint": "oxlint studio-web",
     "lint:fix": "oxlint --fix studio-web",
     "format": "oxfmt studio-web",
@@ -27,5 +33,24 @@
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
     "vitest": "^4.1.11"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vikramlingam/chalkframes"
+  },
+  "bugs": {
+    "url": "https://github.com/vikramlingam/chalkframes/issues"
+  },
+  "keywords": [
+    "video",
+    "explainer",
+    "gsap",
+    "manim",
+    "kokoro",
+    "ffmpeg"
+  ],
+  "engines": {
+    "node": ">=22"
   }
 }

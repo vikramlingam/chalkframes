@@ -1,6 +1,6 @@
 // Pure, browser-safe composition primitives (data types, font aliases, URL
 // helper). Recast/linkedom-free, so browser consumers (e.g. the lint rule
-// engine via @hyperframes/lint/browser) can import these without pulling the
+// engine via @chalkframes/lint/browser) can import these without pulling the
 // GSAP/HTML parser machinery from the main entry.
 export * from "./types.js";
 export {

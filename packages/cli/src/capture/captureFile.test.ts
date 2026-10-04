@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 function scratch(): { outputDir: string; victim: string } {
-  const root = mkdtempSync(join(tmpdir(), "hyperframes-capture-file-"));
+  const root = mkdtempSync(join(tmpdir(), "chalkframes-capture-file-"));
   temporaryDirectories.push(root);
   const outputDir = join(root, "capture");
   mkdirSync(outputDir);

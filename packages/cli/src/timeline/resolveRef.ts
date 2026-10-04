@@ -1,4 +1,4 @@
-import type { SourceMutationTarget } from "@hyperframes/studio-server";
+import type { SourceMutationTarget } from "@chalkframes/studio-server";
 import type { ProjectTimeline, TimelineRow } from "./describeProject.js";
 
 export type RefResolution =

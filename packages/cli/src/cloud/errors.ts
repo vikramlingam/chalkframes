@@ -2,31 +2,31 @@ import { failCommand } from "../utils/commandResult.js";
 /**
  * Shared API-error reporter for the cloud subverbs.
  *
- * Centralizes the three-branch `instanceof HyperframesApiError` → `Error`
+ * Centralizes the three-branch `instanceof ChalkframesApiError` → `Error`
  * → `String` cascade so the curated `ERROR_CODE_HINTS` table is applied
  * uniformly across `render`/`list`/`get`/`delete`. Without this, each
  * subverb had to remember to consult the hint table (and most didn't,
- * which is why review finding 10 was that `hyperframes_render_not_found`
+ * which is why review finding 10 was that `chalkframes_render_not_found`
  * was unreachable from get/delete).
  */
 
 import { errorBox } from "../ui/format.js";
-import { HyperframesApiError } from "./_gen/client.js";
+import { ChalkframesApiError } from "./_gen/client.js";
 
 /**
- * Hints surfaced when a HyperframesApiError carries a known machine-
+ * Hints surfaced when a ChalkframesApiError carries a known machine-
  * readable code. Keep entries actionable; if there's nothing useful to
  * say, leave the code out and let the message stand on its own.
  */
 const ERROR_CODE_HINTS: Record<string, string> = {
-  hyperframes_project_too_large:
-    "The zip exceeded the 200 MB limit. Run `hyperframes cloud render --dry-run`, then add only verified-unneeded paths to `.hyperframesignore` or pre-host required large media.",
-  hyperframes_render_not_found:
+  chalkframes_project_too_large:
+    "The zip exceeded the 200 MB limit. Run `chalkframes cloud render --dry-run`, then add only verified-unneeded paths to `.chalkframesignore` or pre-host required large media.",
+  chalkframes_render_not_found:
     "The render_id no longer exists — either soft-deleted or never created.",
   invalid_parameter:
-    "Check the listed parameter against `hyperframes cloud render --help` for the accepted values.",
+    "Check the listed parameter against `chalkframes cloud render --help` for the accepted values.",
   authentication_failed:
-    "Run `hyperframes auth status` to confirm your credential; `hyperframes auth login` to re-auth.",
+    "Run `chalkframes auth status` to confirm your credential; `chalkframes auth login` to re-auth.",
   rate_limit_exceeded: "Retry after the duration in the Retry-After header.",
 };
 
@@ -44,7 +44,7 @@ const ERROR_CODE_HINTS: Record<string, string> = {
  *     `ERROR_CODE_HINTS`.
  *   - `suggestion`: a fallback line shown when no code-specific hint
  *     matches. Use this for caller-context that's always actionable
- *     (e.g. "Resume with: hyperframes cloud get hfr_X" on poll
+ *     (e.g. "Resume with: chalkframes cloud get hfr_X" on poll
  *     errors) so the user can recover without having to remember the
  *     render_id.
  */
@@ -59,7 +59,7 @@ export function reportApiError(
   } = {},
 ): never {
   const hints = { ...ERROR_CODE_HINTS, ...options.extraHints };
-  if (err instanceof HyperframesApiError) {
+  if (err instanceof ChalkframesApiError) {
     if (err.status === 404 && options.notFound) {
       errorBox("Not found", options.notFound);
       failCommand();

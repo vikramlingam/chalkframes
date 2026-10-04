@@ -1,6 +1,6 @@
 import { failCommand } from "../../utils/commandResult.js";
 /**
- * Shared CLI error boundary for `hyperframes figma` subcommands: typed
+ * Shared CLI error boundary for `chalkframes figma` subcommands: typed
  * client errors (NO_TOKEN, BAD_TOKEN, …) and input errors (bad ref, bad
  * format) all carry actionable, user-facing messages — present them via
  * the CLI's standard errorBox, not a stack trace. Non-Error throws still
@@ -10,7 +10,7 @@ import { failCommand } from "../../utils/commandResult.js";
  * first-run funnel: NO_TOKEN → later success is onboarding conversion.
  */
 
-import { FigmaClientError } from "@hyperframes/core/figma";
+import { FigmaClientError } from "@chalkframes/core/figma";
 import { errorBox } from "../../ui/format.js";
 
 export async function withFigmaErrors(command: string, fn: () => Promise<void>): Promise<void> {

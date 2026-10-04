@@ -48,7 +48,7 @@ describe("system font capture — allowSystemFontCapture option", () => {
       allowSystemFontCapture: false,
     });
     // No @font-face injected — the font is unresolved.
-    expect(result.includes("data-hyperframes-deterministic-fonts")).toBe(false);
+    expect(result.includes("data-chalkframes-deterministic-fonts")).toBe(false);
   });
 
   it("defaults allowSystemFontCapture to true when omitted", async () => {
@@ -61,7 +61,7 @@ describe("system font capture — allowSystemFontCapture option", () => {
       fetchImpl: makeHttp400Fetch(),
       // allowSystemFontCapture intentionally omitted
     });
-    expect(result.includes("data-hyperframes-deterministic-fonts")).toBe(false);
+    expect(result.includes("data-chalkframes-deterministic-fonts")).toBe(false);
   }, 15_000); // The system font locator runs system_profiler on macOS which can take >5s.
 });
 
@@ -81,7 +81,7 @@ describe("system font capture — integration (macOS only)", () => {
     });
 
     // The system font was found and embedded as a data URI.
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(result).toContain(`font-family: "${SYSTEM_ONLY_FONT}"`);
     expect(result).toContain("data:font/woff2;base64,");
   });
@@ -99,7 +99,7 @@ describe("system font capture — integration (macOS only)", () => {
     });
 
     // System font capture disabled — font stays unresolved.
-    expect(result.includes("data-hyperframes-deterministic-fonts")).toBe(false);
+    expect(result.includes("data-chalkframes-deterministic-fonts")).toBe(false);
   });
 
   it("still resolves alias-mapped fonts via embedded bundle regardless of allowSystemFontCapture", async () => {
@@ -111,7 +111,7 @@ describe("system font capture — integration (macOS only)", () => {
     });
 
     // Even with system font capture disabled, Inter resolves via the alias map.
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(result).toContain('font-family: "Inter"');
   });
 });

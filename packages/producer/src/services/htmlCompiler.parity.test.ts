@@ -7,13 +7,13 @@ import {
   bundleToSingleHtml,
   extractCompiledHtmlParityContract,
   injectScriptsIntoHtml,
-} from "@hyperframes/core/compiler";
+} from "@chalkframes/core/compiler";
 // Deep import: the mount path is not part of core's published export map (it is
 // bundled into the runtime IIFE, not imported by consumers). Same shape as
 // engine/src/services/videoFrameExtractor.test.ts reaching into core's runtime.
 import { loadExternalCompositions } from "../../../core/src/runtime/compositionLoader.js";
 import { compileForRender } from "./htmlCompiler.js";
-import { getVerifiedHyperframeRuntimeSource } from "./hyperframeRuntimeLoader.js";
+import { getVerifiedChalkframeRuntimeSource } from "./chalkframeRuntimeLoader.js";
 
 const tempDirs: string[] = [];
 
@@ -88,7 +88,7 @@ async function contracts(files: Record<string, string>) {
   });
   const servedRender = injectScriptsIntoHtml(
     render.html,
-    [getVerifiedHyperframeRuntimeSource()],
+    [getVerifiedChalkframeRuntimeSource()],
     [],
     true,
   );
@@ -130,7 +130,7 @@ describe("preview/render semantic compilation parity", () => {
     });
     const headStyles = (html: string) =>
       [...new DOMParser().parseFromString(html, "text/html").head.querySelectorAll("style")]
-        .filter((el) => !el.hasAttribute("data-hyperframes-text-rendering"))
+        .filter((el) => !el.hasAttribute("data-chalkframes-text-rendering"))
         .map((el) => [
           el.getAttribute("media"),
           el.getAttribute("type"),

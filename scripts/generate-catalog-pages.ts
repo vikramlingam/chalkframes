@@ -31,8 +31,8 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
 const registryDir = resolve(repoRoot, "registry");
 const docsDir = resolve(repoRoot, "docs");
-const rawSourceBase = "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry";
-const catalogImageBase = "https://static.heygen.ai/hyperframes-oss/docs/images/catalog";
+const rawSourceBase = "https://raw.githubusercontent.com/vikramlingam/chalkframes/main/registry";
+const catalogImageBase = "https://static.chalkframes.dev/chalkframes-oss/docs/images/catalog";
 const payloadRoot = resolve(repoRoot, "docs/public/catalog");
 
 /**
@@ -120,9 +120,9 @@ function discoverItems(): { kind: ItemKind; manifest: RegistryItem }[] {
 
   for (const item of registryManifest.items ?? []) {
     const kind =
-      item.type === "hyperframes:block"
+      item.type === "chalkframes:block"
         ? "block"
-        : item.type === "hyperframes:component"
+        : item.type === "chalkframes:component"
           ? "component"
           : null;
 
@@ -271,7 +271,7 @@ export function carriedSectionsFrom(pagePath: string): CarriedContent {
 }
 
 function typeDir(kind: ItemKind): string {
-  return ITEM_TYPE_DIRS[kind === "block" ? "hyperframes:block" : "hyperframes:component"];
+  return ITEM_TYPE_DIRS[kind === "block" ? "chalkframes:block" : "chalkframes:component"];
 }
 
 function textureGroupsFor(manifest: RegistryItem): TextureGroup[] {
@@ -376,7 +376,7 @@ function generateTextureAgentUsage(
     `Use the ${manifest.title} catalog component.`,
     "",
     "1. From the project root, run:",
-    `   npx hyperframes add ${manifest.name}`,
+    `   npx chalkframes add ${manifest.name}`,
     "2. That command creates this installed snippet:",
     `   ${installedSnippet}`,
     "3. Open that file and paste the real <style> block",
@@ -542,7 +542,7 @@ export function variableBootstrap(ownFile: string): string {
  */
 export function variablePreviewWrapper(src: string): string[] {
   return [
-    '<hyperframes-player id="p" controls muted></hyperframes-player>',
+    '<chalkframes-player id="p" controls muted></chalkframes-player>',
     "<script>",
     "  const player = document.getElementById('p');",
     `  const BASE = ${JSON.stringify(src)};`,
@@ -615,8 +615,8 @@ function sentenceList(parts: string[]): string {
 /** The file a reader actually opens — by type, not array position. */
 function primaryFileFor(manifest: RegistryItem): FileTarget | undefined {
   return (
-    manifest.files.find((f) => f.type === "hyperframes:composition") ??
-    manifest.files.find((f) => f.type === "hyperframes:snippet") ??
+    manifest.files.find((f) => f.type === "chalkframes:composition") ??
+    manifest.files.find((f) => f.type === "chalkframes:snippet") ??
     manifest.files[0]
   );
 }
@@ -1063,7 +1063,7 @@ function generateItemMdx(
   carried: CarriedContent = { sections: [], hasCustomUsage: false },
 ): string {
   const tags = manifest.tags ?? [];
-  const installCmd = `npx hyperframes add ${manifest.name}`;
+  const installCmd = `npx chalkframes add ${manifest.name}`;
   const source = manifest as RegistryItem & SourceMetadata;
   const textureGroups = textureGroupsFor(manifest);
   const primaryTarget = primaryFileFor(manifest)?.target ?? `compositions/${manifest.name}.html`;

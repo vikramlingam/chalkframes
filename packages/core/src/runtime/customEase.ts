@@ -97,10 +97,10 @@ export function installStudioCustomEase(gsap: GsapEaseApi): boolean {
   const springEaseCache = new Map<number, RuntimeEase>();
   const wiggleEaseCache = new Map<string, RuntimeEase>();
 
-  // Single source of truth for "hyperframes ease string -> function". Both the
+  // Single source of truth for "chalkframes ease string -> function". Both the
   // public parseEase override and the internal registerEase configs below route
   // through this, so the resolution rules live in exactly one place.
-  const resolveHyperframesEase = (ease: string | RuntimeEase): RuntimeEase | null => {
+  const resolveChalkframesEase = (ease: string | RuntimeEase): RuntimeEase | null => {
     if (typeof ease !== "string") return null;
     if (ease === "hold") return HOLD_EASE;
     return (
@@ -115,7 +115,7 @@ export function installStudioCustomEase(gsap: GsapEaseApi): boolean {
     context: GsapEaseApi,
     args: unknown[] = [],
   ): RuntimeEase => {
-    const resolved = resolveHyperframesEase(ease);
+    const resolved = resolveChalkframesEase(ease);
     if (resolved) return resolved;
     if (typeof ease === "string" && /^(?:hold|spring|wiggle|custom)(?:\(|$)/.test(ease.trim())) {
       emitAnalyticsEvent("custom_ease_parse_failed", { ease });
@@ -125,7 +125,7 @@ export function installStudioCustomEase(gsap: GsapEaseApi): boolean {
 
   // Public parseEase: direct callers (studio ease UI, adapters) resolve
   // synchronously; anything else falls through to GSAP's own parser.
-  gsap.parseEase = function parseHyperframesEase(ease, ...args) {
+  gsap.parseEase = function parseChalkframesEase(ease, ...args) {
     return parseEaseWithFallback(ease, this, args);
   };
 

@@ -15,16 +15,16 @@ import {
 type CaptionExportFormat = "srt" | "vtt";
 
 export const examples: Example[] = [
-  ["Transcribe an audio file", "hyperframes transcribe audio.mp3"],
-  ["Transcribe a video file", "hyperframes transcribe video.mp4"],
-  ["Use a larger model for better accuracy", "hyperframes transcribe audio.mp3 --model medium.en"],
-  ["Set language to filter non-target speech", "hyperframes transcribe audio.mp3 --language en"],
-  ["Import an existing SRT file", "hyperframes transcribe subtitles.srt"],
-  ["Import an OpenAI Whisper JSON response", "hyperframes transcribe response.json"],
-  ["Export captions to SRT", "hyperframes transcribe transcript.json --to srt"],
+  ["Transcribe an audio file", "chalkframes transcribe audio.mp3"],
+  ["Transcribe a video file", "chalkframes transcribe video.mp4"],
+  ["Use a larger model for better accuracy", "chalkframes transcribe audio.mp3 --model medium.en"],
+  ["Set language to filter non-target speech", "chalkframes transcribe audio.mp3 --language en"],
+  ["Import an existing SRT file", "chalkframes transcribe subtitles.srt"],
+  ["Import an OpenAI Whisper JSON response", "chalkframes transcribe response.json"],
+  ["Export captions to SRT", "chalkframes transcribe transcript.json --to srt"],
   [
     "Export single-word/CJK captions without re-grouping",
-    "hyperframes transcribe transcript.json --to vtt --preserve-cues",
+    "chalkframes transcribe transcript.json --to vtt --preserve-cues",
   ],
 ];
 import { resolve, join, extname, dirname } from "node:path";
@@ -32,7 +32,7 @@ import * as clack from "@clack/prompts";
 import { c } from "../ui/colors.js";
 import { DEFAULT_MODEL, isWhisperUnavailable } from "../whisper/manager.js";
 
-// Minimum accepted value for `--timeout` / `HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS`.
+// Minimum accepted value for `--timeout` / `CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS`.
 // Kept out of `whisper/transcribe.ts` (avoids a top-level import into this
 // command module) so the CLI test file can hoist its
 // `vi.mock("../whisper/transcribe.js")` factory without the mocked module
@@ -62,7 +62,7 @@ export default defineCommand({
     engine: {
       type: "string",
       description:
-        "ASR engine: auto (Parakeet if installed and it covers --language, else whisper), parakeet, or whisper. Default: auto. Parakeet is more accurate and faster; install it with `hyperframes models install parakeet`.",
+        "ASR engine: auto (Parakeet if installed and it covers --language, else whisper), parakeet, or whisper. Default: auto. Parakeet is more accurate and faster; install it with `chalkframes models install parakeet`.",
       alias: "e",
     },
     model: {
@@ -109,7 +109,7 @@ export default defineCommand({
         "laptops) where whisper.cpp takes many seconds per audio second on " +
         "medium/large models. Applies to the whisper engine only; Parakeet has " +
         "a separate fixed timeout. Minimum 5000 (5 s). " +
-        "Env: HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS.",
+        "Env: CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS.",
     },
   },
   async run({ args }) {
@@ -160,19 +160,19 @@ export default defineCommand({
 
 /**
  * Resolve the whisper timeout override from `--timeout <ms>` or the
- * `HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS` env var. The flag wins over env; both
+ * `CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS` env var. The flag wins over env; both
  * paths share the same integer + minimum-5000ms validation so a bad value
  * fails loud instead of silently reverting to the auto-scaled default.
  * Returns `undefined` when neither source is set — the transcribe layer then
  * derives the timeout from audio duration and model factor.
  */
 function parseTimeoutMs(raw: string | undefined, json: boolean): number | undefined {
-  const source = raw ?? process.env["HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS"];
+  const source = raw ?? process.env["CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS"];
   if (source == null || source === "") return undefined;
 
   const parsed = Number.parseInt(source, 10);
   if (!Number.isFinite(parsed) || parsed < CLI_TIMEOUT_MIN_MS) {
-    const origin = raw != null ? "--timeout" : "HYPERFRAMES_TRANSCRIBE_TIMEOUT_MS";
+    const origin = raw != null ? "--timeout" : "CHALKFRAMES_TRANSCRIBE_TIMEOUT_MS";
     failWith(
       `Invalid ${origin}: "${source}". Must be an integer >= ${CLI_TIMEOUT_MIN_MS} (ms).`,
       json,
@@ -323,7 +323,7 @@ async function transcribeAudio(
       !parakeetSpeaks(opts.language)
         ? `Parakeet does not transcribe --language ${opts.language}; it covers ${PARAKEET_LANGUAGES.split(" ").join(", ")}. Use --engine whisper.`
         : (unsupported ??
-            "Parakeet is not installed. Install it with: hyperframes models install parakeet (or use --engine whisper)"),
+            "Parakeet is not installed. Install it with: chalkframes models install parakeet (or use --engine whisper)"),
       !!opts.json,
     );
   }
@@ -363,7 +363,7 @@ async function transcribeAudio(
     } catch (err) {
       if (runner !== "sherpa" || err instanceof DecodeCancelled) throw err;
       const reason = normalizeErrorMessage(err).replace(/\.+$/, "");
-      const parakeetError = `Parakeet failed: ${reason}. To repair it, run: hyperframes models install parakeet`;
+      const parakeetError = `Parakeet failed: ${reason}. To repair it, run: chalkframes models install parakeet`;
       if (!parakeetFallsBack(engine)) throw new Error(parakeetError);
       runner = pickRunner(engine, () => false, opts.language);
       spin?.clear();

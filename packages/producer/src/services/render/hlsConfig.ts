@@ -12,7 +12,7 @@
  * `lockGopForChunkConcat: true, gopSize`.
  */
 
-import { fpsToNumber, type Fps } from "@hyperframes/core";
+import { fpsToNumber, type Fps } from "@chalkframes/core";
 
 /** ffmpeg's own `-hls_time` default is 2 s; 4 s is the VOD consumer's ask. */
 export const DEFAULT_HLS_SEGMENT_SECONDS = 4;
@@ -52,7 +52,7 @@ export function validateHlsRenderConfig(config: HlsRenderConfig): void {
   }
 
   // The GOP lock is software-encoder only (see `appendLockedGopArgs` in
-  // @hyperframes/engine). A GPU encode ignores it and emits its own keyframe
+  // @chalkframes/engine). A GPU encode ignores it and emits its own keyframe
   // cadence — nvenc's ~250-frame default gives 8 s segments at 30 fps instead
   // of 4 s, while videotoolbox's much denser keyframes happen to segment
   // correctly. That asymmetry means a GPU HLS render passes on a Mac and ships

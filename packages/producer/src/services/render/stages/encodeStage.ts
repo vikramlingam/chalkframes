@@ -49,12 +49,12 @@ import {
   runFfmpeg,
   type EngineConfig,
   type EncodeResult,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import {
   clearGifFramesBeforeNext,
   gifClearsAfterLeavingFrameInPlace,
   type Fps,
-} from "@hyperframes/core";
+} from "@chalkframes/core";
 import type { ProducerLogger } from "../../../logger.js";
 import { formatExportFrameName } from "../../../utils/paths.js";
 import type { ProgressCallback, RenderJob } from "../../renderOrchestrator.js";
@@ -65,7 +65,7 @@ import {
 } from "./gifEncodeArgs.js";
 import { updateJobStatus } from "../shared.js";
 import { encoderFailureError } from "../encoderInterruption.js";
-import { frameFileExtension } from "@hyperframes/engine";
+import { frameFileExtension } from "@chalkframes/engine";
 
 export interface EncodeStageInput {
   job: RenderJob;

@@ -488,17 +488,17 @@ describe("render telemetry events", () => {
     expect(props.root_body_delta_px_bucket).toBe("0");
   });
 
-  it("carries the names of HF/HYPERFRAMES env overrides present at plan time", () => {
+  it("carries the names of HF/CHALKFRAMES env overrides present at plan time", () => {
     trackRenderComplete({
       durationMs: 1,
       fps: 30,
       quality: "draft",
       docker: false,
       gpu: false,
-      hfEnvOverrides: ["HF_DE_VERIFY", "HYPERFRAMES_FONT_CACHE_DIR"],
+      hfEnvOverrides: ["HF_DE_VERIFY", "CHALKFRAMES_FONT_CACHE_DIR"],
     });
     const props = trackEvent.mock.calls[0]?.[1] as Record<string, unknown>;
-    expect(props.hf_env_overrides).toEqual(["HF_DE_VERIFY", "HYPERFRAMES_FONT_CACHE_DIR"]);
+    expect(props.hf_env_overrides).toEqual(["HF_DE_VERIFY", "CHALKFRAMES_FONT_CACHE_DIR"]);
   });
 
   it("reports an empty array, not an absent field, when no override was resolved", () => {
@@ -1102,7 +1102,7 @@ describe("trackCliError", () => {
     trackCliError({
       error_name: "Error",
       error_message: "ENOENT: open '/Users/alice/project/index.html'",
-      stack_trace: "Error: boom\n    at /Users/alice/.cache/hyperframes/chrome/headless",
+      stack_trace: "Error: boom\n    at /Users/alice/.cache/chalkframes/chrome/headless",
       command: "info",
       kind: "command_error",
     });

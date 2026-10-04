@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 const VIDEO =
   'id="talk" src="talk.mp4" muted data-link="lk-1" data-start="2" data-duration="6" data-media-start="1" data-track-index="0"';
@@ -17,7 +17,7 @@ function composition(body: string): string {
 }
 
 async function linkFindings(body: string) {
-  const result = await lintHyperframeHtml(composition(body));
+  const result = await lintChalkframeHtml(composition(body));
   return result.findings.filter((f) => f.code.startsWith("linked_clip"));
 }
 

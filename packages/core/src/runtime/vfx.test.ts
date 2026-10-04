@@ -43,7 +43,7 @@ vi.mock("../vfx", async (importOriginal) => {
   };
 });
 
-const LABEL = "[HyperFrames] composition script error:";
+const LABEL = "[ChalkFrames] composition script error:";
 
 interface MockGl {
   calls: string[];

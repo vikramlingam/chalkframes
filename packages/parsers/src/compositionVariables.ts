@@ -1,7 +1,7 @@
 /**
  * Browser-safe parser for the `data-composition-variables` schema attribute.
  * Lives outside htmlParser.ts so browser consumers (SDK, Studio, lint) can
- * import it via `@hyperframes/parsers/composition` without pulling the
+ * import it via `@chalkframes/parsers/composition` without pulling the
  * linkedom/Node HTML-parser machinery from the main entry.
  */
 

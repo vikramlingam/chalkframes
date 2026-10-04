@@ -34,7 +34,7 @@ import { withEvenDimensionPad } from "../utils/evenDimensions.js";
 import { SDR_CAPTURE_TO_BT709_FILTER } from "../utils/sdrCaptureColor.js";
 import { formatFfmpegError, isExternalFfmpegInterruption, runFfmpeg } from "../utils/runFfmpeg.js";
 import { extractAudioMetadata } from "../utils/ffprobe.js";
-import { type Fps, fpsToFfmpegArg, fpsToNumber } from "@hyperframes/core";
+import { type Fps, fpsToFfmpegArg, fpsToNumber } from "@chalkframes/core";
 import type { EncoderOptions, EncodeResult, MuxResult } from "./chunkEncoder.types.js";
 import { appendVp9CpuUsedArg } from "./vp9Options.js";
 import { appendRenderProvenanceArgs } from "../utils/renderProvenance.js";
@@ -88,7 +88,7 @@ export interface MuxVideoWithAudioOptions extends Partial<
   Pick<EngineConfig, "ffmpegProcessTimeout">
 > {
   /**
-   * Codec of the sidecar audio when the caller already knows it. HyperFrames
+   * Codec of the sidecar audio when the caller already knows it. ChalkFrames
    * render paths pass the mixed AAC sidecar by contract, so muxing should not
    * depend on the file extension alone.
    */

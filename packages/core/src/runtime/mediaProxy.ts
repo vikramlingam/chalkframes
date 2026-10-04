@@ -207,7 +207,7 @@ function emitUnavailableDiagnostic(
   });
   // Mirrors swapToProxy's fallback line: the stable diagnostic code is in the
   // text so checkBrowser.ts's console scraper can match a token, not prose.
-  console.info(`[hyperframes] ${DIAGNOSTIC_UNAVAILABLE_CODE}: "${asset}" (${reason}): ${note}`);
+  console.info(`[chalkframes] ${DIAGNOSTIC_UNAVAILABLE_CODE}: "${asset}" (${reason}): ${note}`);
 }
 
 /**
@@ -271,7 +271,7 @@ export function swapToProxy(
   // The diagnostic code doubles as the stable token check's console scraper
   // matches on (packages/cli/src/utils/checkBrowser.ts); keep it in the text.
   console.info(
-    `[hyperframes] ${DIAGNOSTIC_FALLBACK_CODE}: "${originalSrc}" uses a codec (${codecName ?? "unknown"}) this browser can't decode; ` +
+    `[chalkframes] ${DIAGNOSTIC_FALLBACK_CODE}: "${originalSrc}" uses a codec (${codecName ?? "unknown"}) this browser can't decode; ` +
       "auto-swapped to an authoring proxy for this preview only. Render output is unaffected.",
   );
 }

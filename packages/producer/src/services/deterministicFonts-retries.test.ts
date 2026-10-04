@@ -15,14 +15,14 @@ let previousCacheDir: string | undefined;
 let testCacheDir: string;
 
 beforeAll(() => {
-  previousCacheDir = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+  previousCacheDir = process.env.CHALKFRAMES_FONT_CACHE_DIR;
   testCacheDir = mkdtempSync(join(tmpdir(), "hf-font-retries-"));
-  process.env.HYPERFRAMES_FONT_CACHE_DIR = testCacheDir;
+  process.env.CHALKFRAMES_FONT_CACHE_DIR = testCacheDir;
 });
 
 afterAll(() => {
-  if (previousCacheDir === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-  else process.env.HYPERFRAMES_FONT_CACHE_DIR = previousCacheDir;
+  if (previousCacheDir === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+  else process.env.CHALKFRAMES_FONT_CACHE_DIR = previousCacheDir;
   rmSync(testCacheDir, { recursive: true, force: true });
 });
 
@@ -113,7 +113,7 @@ describe("deterministic Google Fonts retries", () => {
 
     const result = await injectWithRetries(html, fetchImpl);
 
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(cssCalls).toBe(2);
     expect(woff2Calls).toBe(1);
   });
@@ -144,7 +144,7 @@ describe("deterministic Google Fonts retries", () => {
 
     const result = await injectWithRetries(html, fetchImpl);
 
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(cssCalls).toBe(2);
     expect(cancelledBodies).toBe(1);
   });
@@ -167,7 +167,7 @@ describe("deterministic Google Fonts retries", () => {
 
     const result = await injectWithRetries(html, fetchImpl);
 
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(cssCalls).toBe(1);
     expect(woff2Calls).toBe(2);
   });
@@ -242,7 +242,7 @@ describe("deterministic Google Fonts retries", () => {
 
     const result = await injectWithRetries(html, fetchImpl);
 
-    expect(result).toContain("data-hyperframes-deterministic-fonts");
+    expect(result).toContain("data-chalkframes-deterministic-fonts");
     expect(cssCalls).toBe(2);
   });
 
@@ -411,7 +411,7 @@ describe("deterministic Google Fonts retries", () => {
       fontFetchRetryPolicy: FAST_RETRY,
     });
 
-    expect(result).not.toContain("data-hyperframes-deterministic-fonts");
+    expect(result).not.toContain("data-chalkframes-deterministic-fonts");
     expect(calls).toBe(1);
   });
 });

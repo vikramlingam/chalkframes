@@ -9,7 +9,7 @@ import {
   type ImageElement,
   type MediaProbeProfile,
   type VideoElement,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import { withMediaProbeSlot } from "../utils/mediaProbeConcurrency.js";
 
 export const ASSET_MEDIA_TYPE_MISMATCH = "ASSET_MEDIA_TYPE_MISMATCH" as const;

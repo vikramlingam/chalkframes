@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
-import { FFPROBE_PATH_ENV, findFfBinary } from "@hyperframes/parsers/ff-binaries";
+import { FFPROBE_PATH_ENV, findFfBinary } from "@chalkframes/parsers/ff-binaries";
 
 const VIDEO_EXT = /\.(mp4|webm|mov|mkv|avi|m4v|mxf|mts|m2ts|ts)$/i;
 const AUDIO_EXT = /\.(mp3|wav|ogg|m4a|aac|flac)$/i;
@@ -22,7 +22,7 @@ type MediaCheck = { ok: true; unchecked?: string } | { ok: false; reason: string
 
 const defaultRunner = spawnSync as unknown as FfprobeRunner;
 const FFPROBE_MISSING =
-  "not checked: ffprobe was not found. Install FFmpeg or set HYPERFRAMES_FFPROBE_PATH.";
+  "not checked: ffprobe was not found. Install FFmpeg or set CHALKFRAMES_FFPROBE_PATH.";
 
 export function validateUploadedMedia(
   filePath: string,
@@ -82,7 +82,7 @@ export function validateUploadedMediaBuffer(
   buffer: Uint8Array,
   runner: FfprobeRunner = defaultRunner,
 ): MediaCheck {
-  const tempDir = mkdtempSync(join(tmpdir(), "hyperframes-upload-"));
+  const tempDir = mkdtempSync(join(tmpdir(), "chalkframes-upload-"));
   const tempPath = join(tempDir, basename(fileName));
 
   try {

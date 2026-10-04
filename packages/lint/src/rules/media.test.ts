@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 describe("media rules", () => {
   it.each([
@@ -13,7 +13,7 @@ describe("media rules", () => {
     <audio id="a1" src="a.mp4" data-start="0" data-duration="3"></audio>
   </div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const codes = result.findings.map((finding) => finding.code);
 
     expect(codes).toContain("video_missing_muted");
@@ -30,7 +30,7 @@ describe("media rules", () => {
     <video id="v1" ${mutedAttr} src="a.mp4" data-start="0" data-duration="3"></video>
   </div>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
 
       expect(result.findings.some((finding) => finding.code === "video_missing_muted")).toBe(false);
     },
@@ -45,7 +45,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "duplicate_media_id");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -60,7 +60,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_id");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -75,7 +75,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_id");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -95,7 +95,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const findings = result.findings.filter((f) => f.code === "media_missing_id");
     expect(findings).toHaveLength(2);
     expect(findings.every((f) => f.severity === "error")).toBe(true);
@@ -110,7 +110,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_id");
     expect(finding).toBeUndefined();
   });
@@ -123,7 +123,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "color_grading_invalid_structure");
     expect(finding?.severity).toBe("error");
     expect(finding?.message).toContain("highlights");
@@ -138,7 +138,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code.startsWith("color_grading_"))).toBeUndefined();
   });
 
@@ -150,7 +150,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code.startsWith("color_grading_"))).toBeUndefined();
   });
 
@@ -162,7 +162,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code.startsWith("color_grading_"))).toBeUndefined();
   });
 
@@ -174,7 +174,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "color_grading_invalid_structure");
     expect(finding?.severity).toBe("error");
     expect(finding?.fixHint).toContain("2 to 6");
@@ -189,7 +189,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "color_grading_invalid_json")?.severity).toBe(
       "error",
     );
@@ -203,7 +203,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(
       result.findings.find((f) => f.code === "color_grading_invalid_structure")?.severity,
     ).toBe("error");
@@ -217,7 +217,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "color_grading_non_media")?.severity).toBe(
       "error",
     );
@@ -231,7 +231,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_preload_none");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("warning");
@@ -245,7 +245,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_src");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -262,7 +262,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.some((f) => f.code === "media_missing_src")).toBe(false);
   });
 
@@ -276,7 +276,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_data_start");
     expect(finding).toBeDefined();
     expect(finding?.elementId).toBe("rec");
@@ -290,7 +290,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_missing_data_start");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -305,7 +305,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "video_missing_muted")).toBeUndefined();
     expect(
       result.findings.find((f) => f.code === "video_muted_with_declared_audio"),
@@ -320,7 +320,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "video_muted_with_declared_audio");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -335,7 +335,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "video_missing_muted");
     expect(finding?.severity).toBe("error");
     expect(finding?.message).toContain("declares neither muted nor data-has-audio");
@@ -354,7 +354,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "video_audio_double_source");
     expect(finding?.fixHint?.startsWith("Remove the <audio>")).toBe(true);
   });
@@ -367,7 +367,7 @@ describe("media rules", () => {
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
   const codes = async (html: string) =>
-    (await lintHyperframeHtml(html)).findings.map((f) => f.code);
+    (await lintChalkframeHtml(html)).findings.map((f) => f.code);
 
   it.each(['data-has-audio="false"', 'data-has-audio=""', "data-has-audio"])(
     "video_missing_muted stays quiet when the video declares its audio state (%s)",
@@ -426,7 +426,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "video_nested_in_timed_element");
     expect(finding).toBeUndefined();
   });
@@ -442,7 +442,7 @@ describe("media rules", () => {
     video.play();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "imperative_media_control");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -460,7 +460,7 @@ describe("media rules", () => {
     demo.currentTime = 1.5;
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "imperative_media_control");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -477,7 +477,7 @@ describe("media rules", () => {
     </script>
   </div>
 </template>`;
-    const result = await lintHyperframeHtml(html, { filePath: "compositions/scene.html" });
+    const result = await lintChalkframeHtml(html, { filePath: "compositions/scene.html" });
     const imperativeFindings = result.findings.filter((f) => f.code === "imperative_media_control");
     expect(imperativeFindings.length).toBe(2);
     expect(imperativeFindings.some((f) => f.snippet === "vid.muted =")).toBe(true);
@@ -495,7 +495,7 @@ describe("media rules", () => {
     panel.play?.();
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "imperative_media_control");
     expect(finding).toBeUndefined();
   });
@@ -514,7 +514,7 @@ describe("media rules", () => {
   </script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const findings = result.findings.filter(
       (finding) => finding.code === "media_runtime_src_mutation",
     );
@@ -535,7 +535,7 @@ describe("media rules", () => {
   </script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(
       result.findings.find((finding) => finding.code === "media_runtime_src_mutation"),
     ).toBeUndefined();
@@ -550,7 +550,7 @@ describe("media rules", () => {
   <script>document.getElementById("clip-source").src = "video-b.mp4";</script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(
       result.findings.find((finding) => finding.code === "media_runtime_src_mutation"),
     ).toMatchObject({ severity: "warning", elementId: "clip" });
@@ -569,7 +569,7 @@ describe("media rules", () => {
     <script>window.__timelines = window.__timelines || {}; window.__timelines["scene"] = gsap.timeline({ paused: true });</script>
   </div>
 </template>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
     const finding = result.findings.find((f) => f.code === "media_in_subcomposition");
     expect(finding).toBeUndefined();
   });
@@ -582,7 +582,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_in_subcomposition");
     expect(finding).toBeUndefined();
   });
@@ -593,7 +593,7 @@ describe("media rules", () => {
     <video id="clip" src="clip.mp4" data-start="2" data-duration="2" muted></video>
   </div>
 </template>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
     const finding = result.findings.find(
       (item) => item.code === "nested_media_start_basis_ambiguous",
     );
@@ -613,7 +613,7 @@ describe("media rules", () => {
     <audio id="clip" src="clip.wav" ${attrs} data-duration="2"></audio>
   </div>
 </template>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
 
     expect(result.findings.some((item) => item.code === "nested_media_start_basis_ambiguous")).toBe(
       false,
@@ -628,7 +628,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_crossorigin_breaks_preview");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -643,7 +643,7 @@ describe("media rules", () => {
   </div>
   <script>window.__timelines = window.__timelines || {}; window.__timelines["c1"] = gsap.timeline({ paused: true });</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_crossorigin_breaks_preview");
     expect(finding).toBeUndefined();
   });
@@ -654,7 +654,7 @@ describe("media_variable_src_no_fallback", () => {
     const html = `<html><body>
 <video id="clip" data-start="0" data-duration="2" data-var-src="media"></video>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.some((f) => f.code === "media_missing_src")).toBe(false);
     const finding = result.findings.find((f) => f.code === "media_variable_src_no_fallback");
     expect(finding).toBeDefined();
@@ -665,7 +665,7 @@ describe("media_variable_src_no_fallback", () => {
     const html = `<html><body>
 <video id="clip" data-start="0" data-duration="2"></video>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.some((f) => f.code === "media_missing_src")).toBe(true);
   });
 });
@@ -679,7 +679,7 @@ describe("audio_volume_tween_overrides_gain", () => {
   </body></html>`;
 
   it("warns that the tween's values win over an authored gain", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(`data-volume="1.949845"`, `tl.fromTo("#bgm", { volume: 0 }, { volume: 1 });`),
     );
     const finding = res.findings.find((f) => f.code === "audio_volume_tween_overrides_gain");
@@ -689,7 +689,7 @@ describe("audio_volume_tween_overrides_gain", () => {
   });
 
   it("warns about an attenuation the tween overrides, not just a boost", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(`data-volume="0.3"`, `tl.to("#bgm", { volume: 1 });`),
     );
     expect(res.findings.some((f) => f.code === "audio_volume_tween_overrides_gain")).toBe(true);
@@ -700,20 +700,20 @@ describe("audio_volume_tween_overrides_gain", () => {
     // was reported as authored at silence. Both halves were false, and this is
     // the shape the docs recommend for a tweened clip: the baseline attribute is
     // for elements no tween touches. The rule fired on exactly the common fade.
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript("", `tl.fromTo("#bgm", { volume: 0 }, { volume: 1 });`),
     );
     expect(res.findings.some((f) => f.code === "audio_volume_tween_overrides_gain")).toBe(false);
   });
 
   it("stays quiet at unity, without a tween, or when a lane already owns the level", async () => {
-    const unity = await lintHyperframeHtml(
+    const unity = await lintChalkframeHtml(
       withScript(`data-volume="1"`, `tl.to("#bgm", { volume: 0 });`),
     );
-    const noTween = await lintHyperframeHtml(
+    const noTween = await lintChalkframeHtml(
       withScript(`data-volume="2"`, `tl.to("#bgm", { x: 1 });`),
     );
-    const lane = await lintHyperframeHtml(
+    const lane = await lintChalkframeHtml(
       withScript(
         `data-volume="2" data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":1}]}]}'`,
         `tl.to("#bgm", { volume: 0 });`,
@@ -736,7 +736,7 @@ describe("audio_volume_double_automation", () => {
   const LANE = `data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":1}]}]}'`;
 
   it("warns when a lane and a GSAP volume tween both shape the same track", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(LANE, `tl.to("#bgm", { volume: 0, duration: 1 });`),
     );
     const finding = res.findings.find((f) => f.code === "audio_volume_double_automation");
@@ -745,9 +745,9 @@ describe("audio_volume_double_automation", () => {
   });
 
   it("stays quiet for a lane alone, a tween alone, or a tween on another track", async () => {
-    const laneOnly = await lintHyperframeHtml(withScript(LANE, `tl.to("#bgm", { x: 10 });`));
-    const tweenOnly = await lintHyperframeHtml(withScript("", `tl.to("#bgm", { volume: 0 });`));
-    const otherTrack = await lintHyperframeHtml(withScript(LANE, `tl.to("#vo", { volume: 0 });`));
+    const laneOnly = await lintChalkframeHtml(withScript(LANE, `tl.to("#bgm", { x: 10 });`));
+    const tweenOnly = await lintChalkframeHtml(withScript("", `tl.to("#bgm", { volume: 0 });`));
+    const otherTrack = await lintChalkframeHtml(withScript(LANE, `tl.to("#vo", { volume: 0 });`));
     for (const res of [laneOnly, tweenOnly, otherTrack]) {
       expect(res.findings.some((f) => f.code === "audio_volume_double_automation")).toBe(false);
     }
@@ -759,7 +759,7 @@ describe("audio_volume_double_automation", () => {
     // call — the paren closing `fadeTime(2)` ended the match before `volume`.
     // The lane and the tween still both drive volume, and the author still gets
     // no warning about it.
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(LANE, `tl.to("#bgm", { duration: fadeTime(2), volume: 0.2 });`),
     );
     expect(res.findings.some((f) => f.code === "audio_volume_double_automation")).toBe(true);
@@ -770,7 +770,7 @@ describe("audio_volume_double_automation", () => {
     // reached the `volume` in a LATER call and reported the element from an
     // earlier one. Acting on the fixHint would have deleted #bgm's only real
     // automation to fix a tween that is on #vo.
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(
         LANE,
         `gsap.timeline().to("#bgm", { duration: 0.6, x: 10 }).to("#vo", { volume: 1 });`,
@@ -780,14 +780,14 @@ describe("audio_volume_double_automation", () => {
   });
 
   it("still catches a real tween further down the same call", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(LANE, `gsap.timeline().to("#bgm", { duration: 0.6, ease: "none", volume: 0 });`),
     );
     expect(res.findings.some((f) => f.code === "audio_volume_double_automation")).toBe(true);
   });
 
   it("ignores a lane that automates something other than volume", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withScript(
         `data-automation='{"version":1,"lanes":[{"target":"fx.n1.frequency","points":[{"t":0,"v":200}]}]}'`,
         `tl.to("#bgm", { volume: 0 });`,
@@ -808,7 +808,7 @@ describe("audio_group_no_members", () => {
     data-fx-chain='{"version":1,"nodes":[{"type":"peaking","id":"n1","params":{"frequency":250,"gain":-3,"q":1.2}}]}'></hf-audio-group>`;
 
   it("errors on a bus no clip in the file belongs to", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(
         `${BUS}<audio id="s-1" src="s.wav" data-start="0" data-duration="2" data-audio-group="sfx"></audio>`,
       ),
@@ -821,7 +821,7 @@ describe("audio_group_no_members", () => {
   // The whole point: one typo drops the authored bus (fader AND chain) and
   // invents a phantom group at unity, with nothing said about either.
   it("catches the misspelled member — the case that motivated the rule", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(
         `${BUS}<audio id="vo-1" src="vo.wav" data-start="0" data-duration="5" data-audio-group="voiceovr"></audio>`,
       ),
@@ -832,7 +832,7 @@ describe("audio_group_no_members", () => {
   });
 
   it("suggests only unmatched member ids, not a healthy sibling group", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`${BUS}<hf-audio-group id="music"></hf-audio-group>
         <audio id="bgm" src="music.wav" data-start="0" data-duration="5" data-audio-group="music"></audio>
         <audio id="vo-1" src="vo.wav" data-start="0" data-duration="5" data-audio-group="voiceovr"></audio>`),
@@ -843,7 +843,7 @@ describe("audio_group_no_members", () => {
   });
 
   it("counts an audible video as group membership", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`${BUS}<video id="v" src="v.mp4" data-start="0" data-duration="5" data-has-audio="true" data-audio-group="voiceover"></video>
         <audio id="s-1" src="s.wav" data-start="0" data-duration="2" data-audio-group="sfx"></audio>`),
     );
@@ -855,7 +855,7 @@ describe("audio_group_no_members", () => {
   });
 
   it("does not count a muted video as group membership", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`${BUS}<video id="v" src="v.mp4" data-start="0" data-duration="5" muted data-audio-group="voiceover"></video>
         <audio id="s-1" src="s.wav" data-start="0" data-duration="2" data-audio-group="sfx"></audio>`),
     );
@@ -867,7 +867,7 @@ describe("audio_group_no_members", () => {
   });
 
   it("stays quiet when a clip belongs to it", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(
         `${BUS}<audio id="vo-1" src="vo.wav" data-start="0" data-duration="5" data-audio-group="voiceover"></audio>`,
       ),
@@ -877,18 +877,18 @@ describe("audio_group_no_members", () => {
 
   // A bus with no id cannot be joined at all, and `resolveAudioGroups` skips it
   // when building its element map — a different mistake, not this rule's.
-  // The rule can only speak about a file it can see all of. `lintHyperframeHtml`
+  // The rule can only speak about a file it can see all of. `lintChalkframeHtml`
   // takes ONE file, and the studio's own group creation writes the bus into the
   // active composition while patching `data-audio-group` into each member's own
   // file (timelineAudioGroupCreate) — so a file holding a bus and no members at
   // all is the normal cross-file shape, not a mistake.
   it("stays quiet in a file that declares no members at all", async () => {
-    const res = await lintHyperframeHtml(doc(BUS));
+    const res = await lintChalkframeHtml(doc(BUS));
     expect(res.findings.some((f) => f.code === "audio_group_no_members")).toBe(false);
   });
 
   it("stays quiet for an unmatched bus when another group has local members", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`<hf-audio-group id="local"></hf-audio-group>
         <audio id="local-1" src="local.wav" data-start="0" data-duration="5" data-audio-group="local"></audio>
         ${BUS}
@@ -898,7 +898,7 @@ describe("audio_group_no_members", () => {
   });
 
   it("stays quiet for a bus with no id", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`<hf-audio-group data-label="Nameless"></hf-audio-group>
         <audio id="s-1" src="s.wav" data-start="0" data-duration="2" data-audio-group="sfx"></audio>`),
     );
@@ -915,7 +915,7 @@ describe("audio_group_timing_attrs", () => {
   </body></html>`;
 
   it("warns on data-start", async () => {
-    const res = await lintHyperframeHtml(doc(`data-start="0" data-duration="40"`));
+    const res = await lintChalkframeHtml(doc(`data-start="0" data-duration="40"`));
     const finding = res.findings.find((f) => f.code === "audio_group_timing_attrs");
     expect(finding?.severity).toBe("warning");
     expect(finding?.elementId).toBe("voiceover");
@@ -924,12 +924,12 @@ describe("audio_group_timing_attrs", () => {
   });
 
   it("warns on data-track-index", async () => {
-    const res = await lintHyperframeHtml(doc(`data-track-index="7"`));
+    const res = await lintChalkframeHtml(doc(`data-track-index="7"`));
     expect(res.findings.some((f) => f.code === "audio_group_timing_attrs")).toBe(true);
   });
 
   it("stays quiet on a bus carrying only its own attributes", async () => {
-    const res = await lintHyperframeHtml(doc(`data-volume="0.4" data-hidden`));
+    const res = await lintChalkframeHtml(doc(`data-volume="0.4" data-hidden`));
     expect(res.findings.some((f) => f.code === "audio_group_timing_attrs")).toBe(false);
   });
 });
@@ -945,7 +945,7 @@ describe("audio_group_carve_attr", () => {
   // The observed bug: the bus and its one member each carried a carve against
   // the same voiceover, so the bed ran through both sets of filters.
   it("warns on a carve written onto a bus", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       doc(`data-fx-carve='{"enabled":true,"sources":["voiceover"],"strength":0.25}'`),
     );
     const finding = res.findings.find((f) => f.code === "audio_group_carve_attr");
@@ -955,12 +955,12 @@ describe("audio_group_carve_attr", () => {
   });
 
   it("stays quiet on a bus carrying only its own attributes", async () => {
-    const res = await lintHyperframeHtml(doc(`data-volume="0.4"`));
+    const res = await lintChalkframeHtml(doc(`data-volume="0.4"`));
     expect(res.findings.some((f) => f.code === "audio_group_carve_attr")).toBe(false);
   });
 
   it("leaves a carve on the clip alone", async () => {
-    const res = await lintHyperframeHtml(`<!DOCTYPE html><html><body>
+    const res = await lintChalkframeHtml(`<!DOCTYPE html><html><body>
       <div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="10">
         <hf-audio-group id="music" data-label="Music bed"></hf-audio-group>
         <audio id="bgm" src="bgm.mp3" data-start="0" data-duration="10" data-audio-group="music"
@@ -980,7 +980,7 @@ describe("audio_carve_ungrouped_sources", () => {
   </body></html>`;
 
   it("warns when sources names two or more plain clip ids", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withCarve(`{"enabled":true,"sources":["vo-1","vo-2"],"strength":0.35}`),
     );
     const finding = res.findings.find((f) => f.code === "audio_carve_ungrouped_sources");
@@ -989,7 +989,7 @@ describe("audio_carve_ungrouped_sources", () => {
   });
 
   it("stays quiet when sources names a group", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withCarve(
         `{"enabled":true,"sources":["voiceover"],"strength":0.35}`,
         `<hf-audio-group id="voiceover" data-label="Voiceover"></hf-audio-group>`,
@@ -999,7 +999,7 @@ describe("audio_carve_ungrouped_sources", () => {
   });
 
   it("stays quiet for a single-clip sources list", async () => {
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withCarve(`{"enabled":true,"sources":["narration"],"strength":0.35}`),
     );
     expect(res.findings.some((f) => f.code === "audio_carve_ungrouped_sources")).toBe(false);
@@ -1008,7 +1008,7 @@ describe("audio_carve_ungrouped_sources", () => {
   it("still warns when one entry is a group and the rest are plain clip ids", async () => {
     // Mixing a group with two more bare clip ids is still an ungrouped-source
     // rot risk for those two clips — only fully-grouped sources are silent.
-    const res = await lintHyperframeHtml(
+    const res = await lintChalkframeHtml(
       withCarve(
         `{"enabled":true,"sources":["voiceover","vo-3","vo-4"],"strength":0.35}`,
         `<hf-audio-group id="voiceover" data-label="Voiceover"></hf-audio-group>`,
@@ -1028,7 +1028,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_src_kind_mismatch");
     expect(finding?.severity).toBe("error");
     expect(finding?.elementId).toBe("bg");
@@ -1043,7 +1043,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_src_kind_mismatch");
     expect(finding?.severity).toBe("error");
     expect(finding?.elementId).toBe("still");
@@ -1058,7 +1058,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.some((f) => f.code === "media_src_kind_mismatch")).toBe(true);
   });
 
@@ -1071,7 +1071,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "media_src_kind_mismatch")).toBeUndefined();
   });
 
@@ -1083,7 +1083,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_src_kind_mismatch");
     expect(finding?.severity).toBe("error");
     expect(finding?.elementId).toBe("logo");
@@ -1098,7 +1098,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "media_src_kind_mismatch");
     expect(finding?.severity).toBe("error");
     expect(finding?.elementId).toBe("bg");
@@ -1112,7 +1112,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "media_src_kind_mismatch")).toBeUndefined();
   });
 
@@ -1127,7 +1127,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "media_src_kind_mismatch")).toBeUndefined();
   });
 
@@ -1140,7 +1140,7 @@ describe("media_src_kind_mismatch", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "media_src_kind_mismatch")).toBeUndefined();
   });
 });
@@ -1152,10 +1152,10 @@ describe("speed_ramp_on_non_media", () => {
   </body></html>`;
 
   it("warns on a rate lane outside video and audio, and stays quiet on a clip", async () => {
-    const bad = await lintHyperframeHtml(
+    const bad = await lintChalkframeHtml(
       page(`<img id="pic" src="a.png" data-start="0" data-duration="4" ${RATE}>`),
     );
-    const good = await lintHyperframeHtml(
+    const good = await lintChalkframeHtml(
       page(`<video id="v" src="a.mp4" data-start="0" data-duration="4" ${RATE}></video>`),
     );
     expect(bad.findings.find((f) => f.code === "speed_ramp_on_non_media")?.elementId).toBe("pic");

@@ -2,15 +2,15 @@ import { failCommand } from "../utils/commandResult.js";
 import { defineCommand } from "citty";
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
-import { findMusicAudioSrc, audioRelPathForSrc, serializeBeats } from "@hyperframes/core/beats";
+import { findMusicAudioSrc, audioRelPathForSrc, serializeBeats } from "@chalkframes/core/beats";
 import type { Example } from "./_examples.js";
 import { resolveProject, type ProjectDir } from "../utils/project.js";
 import { analyzeBeatsHeadless, type HeadlessBeatResult } from "../beats/headlessAnalyzer.js";
 import { c } from "../ui/colors.js";
 
 export const examples: Example[] = [
-  ["Generate the beat file for the current project", "hyperframes beats"],
-  ["Generate for a specific directory", "hyperframes beats ./my-video"],
+  ["Generate the beat file for the current project", "chalkframes beats"],
+  ["Generate for a specific directory", "chalkframes beats ./my-video"],
 ];
 
 function fail(message: string): never {
@@ -41,7 +41,7 @@ async function detect(audioPath: string): Promise<HeadlessBeatResult> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const hint = /chrome|executable|browser|ENOENT/i.test(msg)
-      ? "\nRun: npx hyperframes browser ensure"
+      ? "\nRun: npx chalkframes browser ensure"
       : "";
     fail(`Beat detection failed: ${msg}${hint}`);
   }

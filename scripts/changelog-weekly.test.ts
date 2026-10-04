@@ -44,7 +44,7 @@ describe("weekly changelog rendering", () => {
     );
 
     assert.match(draft.docsUpdate, /label="Week of June 1, 2026"/);
-    assert.match(draft.weeklyNotes, /HyperFrames weekly digest - June 1, 2026 - June 7, 2026/);
+    assert.match(draft.weeklyNotes, /ChalkFrames weekly digest - June 1, 2026 - June 7, 2026/);
     assert.match(draft.discordDraft, /This week's highlights:/);
     assert.match(draft.xDraft, /Full update: TODO add docs link/);
   });

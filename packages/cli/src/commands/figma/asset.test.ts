@@ -9,7 +9,7 @@ import {
   runAssetImportMany,
   type AssetImportDeps,
 } from "./asset.js";
-import { FigmaClientError, type FigmaClient } from "@hyperframes/core/figma";
+import { FigmaClientError, type FigmaClient } from "@chalkframes/core/figma";
 
 const dirs: string[] = [];
 function scratch(): string {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { sourceLocationFor } from "./sourceLocations";
-import { lintHyperframeHtml } from "./hyperframeLinter";
-import type { HyperframeLintFinding } from "./types";
-const finding = (fields: Partial<HyperframeLintFinding>): HyperframeLintFinding => ({
+import { lintChalkframeHtml } from "./chalkframeLinter";
+import type { ChalkframeLintFinding } from "./types";
+const finding = (fields: Partial<ChalkframeLintFinding>): ChalkframeLintFinding => ({
   code: "probe",
   severity: "error",
   message: "bad",
@@ -42,7 +42,7 @@ describe("original source locations", () => {
   it("attaches locations to real lint findings", async () => {
     const html =
       '<div data-composition-id="main" data-width="1920" data-height="1080" data-duration="3">\n  <div id="bad" class="clip" data-start="0">x</div>\n</div>';
-    const r = await lintHyperframeHtml(html, { filePath: "index.html" });
+    const r = await lintChalkframeHtml(html, { filePath: "index.html" });
     expect(r.findings.find((f) => f.code === "timeline_element_missing_timing")).toMatchObject({
       file: "index.html",
       line: 2,
@@ -81,7 +81,7 @@ describe("rule-owned source positions", () => {
         ) +
         "\n</template>"
       ).replaceAll("\n", nl);
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(result.findings.find((f) => f.code === "non_deterministic_code")).toMatchObject(
         at(html, "Math.random();"),
       );
@@ -89,7 +89,7 @@ describe("rule-owned source positions", () => {
   );
   it("locates an Acorn syntax error rather than the script prefix", async () => {
     const html = shell("<script>\nconst before = 1;\n\nconst broken = ;\n</script>");
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "invalid_inline_script_syntax")).toMatchObject(
       at(html, ";\n</script>"),
     );
@@ -99,13 +99,13 @@ describe("rule-owned source positions", () => {
       "<!-- header -->\n<template>\n" +
       shell("<style>\n.x {\n color red;\n}\n</style>") +
       "\n</template>";
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "css_parse_error")).toMatchObject(
       at(html, "color red"),
     );
   });
   it("keeps an external stylesheet's identity", async () => {
-    const result = await lintHyperframeHtml(shell(""), {
+    const result = await lintChalkframeHtml(shell(""), {
       filePath: "scenes/a.html",
       externalStyles: [{ href: "theme.css", content: ".x {\n color red;\n}" }],
     });
@@ -119,7 +119,7 @@ describe("rule-owned source positions", () => {
     const html = shell(
       '<style>\n.x { font-family: "NoSuchFont"; }\n</style>\n<script>\nconst a = 1;\nconst tl = gsap.timeline();\n</script>',
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "font_family_without_font_face")).toMatchObject(
       at(html, "font-family"),
     );
@@ -128,7 +128,7 @@ describe("rule-owned source positions", () => {
     );
   });
   it("does not arbitrarily locate a multi-declaration font finding", async () => {
-    const result = await lintHyperframeHtml(
+    const result = await lintChalkframeHtml(
       shell('<style>.a {font-family:"FooUnknown"} .b {font-family:"BarUnknown"}</style>'),
     );
     expect(
@@ -139,7 +139,7 @@ describe("rule-owned source positions", () => {
 
 it("locates repeated GSAP config errors at the triggering Acorn call", async () => {
   const html = '<script>\nconst unrelated = 1;\n\ngsap.to(".x", {repeat: -1});\n</script>';
-  const result = await lintHyperframeHtml(html);
+  const result = await lintChalkframeHtml(html);
   expect(result.findings.find((f) => f.code === "gsap_infinite_repeat")).toMatchObject({
     line: 4,
     column: 1,
@@ -147,12 +147,12 @@ it("locates repeated GSAP config errors at the triggering Acorn call", async () 
 });
 
 it("uses Acorn without executing source and preserves classic/module handling", async () => {
-  const classic = await lintHyperframeHtml(
+  const classic = await lintChalkframeHtml(
     "<script>return; globalThis.__lintMustNotRun = true;</script>",
   );
   expect(classic.findings.some((f) => f.code === "invalid_inline_script_syntax")).toBe(false);
   expect("__lintMustNotRun" in globalThis).toBe(false);
-  const module = await lintHyperframeHtml(
+  const module = await lintChalkframeHtml(
     '<script type="module">import x from "x"; await x;</script>',
   );
   expect(module.findings.some((f) => f.code === "invalid_inline_script_syntax")).toBe(false);
@@ -161,7 +161,7 @@ it("uses Acorn without executing source and preserves classic/module handling", 
 it("maps fixpoint comment deletion and repeated script text without guessing", async () => {
   const html =
     "<<!-- -->!-- removed -->\n<template>\n<script>const safe = 1;</script>\n<script>const safe = 1; Math.random();</script>\n</template>";
-  const result = await lintHyperframeHtml(html);
+  const result = await lintChalkframeHtml(html);
   expect(result.findings.find((f) => f.code === "non_deterministic_code")).toMatchObject({
     line: 4,
     column: 25,
@@ -170,7 +170,7 @@ it("maps fixpoint comment deletion and repeated script text without guessing", a
 
 it("counts same-line Unicode columns as UTF-16 units", async () => {
   const html = '<script>const text = "😀"; Math.random();</script>';
-  const result = await lintHyperframeHtml(html);
+  const result = await lintChalkframeHtml(html);
   expect(result.findings.find((f) => f.code === "non_deterministic_code")).toMatchObject({
     line: 1,
     column: html.indexOf("Math.random") + 1,
@@ -179,7 +179,7 @@ it("counts same-line Unicode columns as UTF-16 units", async () => {
 
 it("leaves the mapped EOF error at the end of its own script", async () => {
   const html = "<!-- header -->\n<script>const foo = (</script>\n<script>const ok = 1;</script>";
-  const result = await lintHyperframeHtml(html);
+  const result = await lintChalkframeHtml(html);
   expect(result.findings.find((f) => f.code === "invalid_inline_script_syntax")).toMatchObject({
     line: 2,
     column: 22,
@@ -188,7 +188,7 @@ it("leaves the mapped EOF error at the end of its own script", async () => {
 
 it("maps PostCSS offsets when bare CR and LF are mixed", async () => {
   const html = "<style>.x {\r}\r.y {\n color red;\n}</style>";
-  const result = await lintHyperframeHtml(html);
+  const result = await lintChalkframeHtml(html);
   expect(result.findings.find((f) => f.code === "css_parse_error")).toMatchObject({
     line: 4,
     column: 2,
@@ -196,9 +196,9 @@ it("maps PostCSS offsets when bare CR and LF are mixed", async () => {
 });
 
 it("uses classic-script Acorn semantics for new.target and hashbang", async () => {
-  const target = await lintHyperframeHtml("<script>new.target;</script>");
+  const target = await lintChalkframeHtml("<script>new.target;</script>");
   expect(target.findings.some((f) => f.code === "invalid_inline_script_syntax")).toBe(true);
-  const hashbang = await lintHyperframeHtml("<script>#!/usr/bin/env node\nconst a=1;</script>");
+  const hashbang = await lintChalkframeHtml("<script>#!/usr/bin/env node\nconst a=1;</script>");
   expect(hashbang.findings.some((f) => f.code === "invalid_inline_script_syntax")).toBe(false);
 });
 

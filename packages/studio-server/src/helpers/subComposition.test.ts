@@ -95,7 +95,7 @@ describe("buildSubCompositionHtml", () => {
     const dir = makeTempProject({
       "index.html": `<!doctype html>
 <html><head></head><body></body></html>`,
-      "compositions/blk.html": `<!-- hyperframes-registry-item: blk -->
+      "compositions/blk.html": `<!-- chalkframes-registry-item: blk -->
 <!doctype html>
 <html lang="en" data-composition-variables='[{"id":"image1","type":"image","default":"assets/blk/one.jpg"}]'>
   <body>

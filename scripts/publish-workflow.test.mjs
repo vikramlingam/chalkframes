@@ -100,15 +100,15 @@ test("stable release tag recovery is idempotent and immutable", () => {
 });
 
 test("stable release tag creation survives retries and rejects a mismatched commit", () => {
-  const root = mkdtempSync(join(tmpdir(), "hyperframes-release-tag-test-"));
+  const root = mkdtempSync(join(tmpdir(), "chalkframes-release-tag-test-"));
   const origin = join(root, "origin.git");
   const checkout = join(root, "checkout");
 
   try {
     execFileSync("git", ["init", "--bare", origin], { stdio: "pipe", timeout: 5_000 });
     execFileSync("git", ["init", checkout], { stdio: "pipe", timeout: 5_000 });
-    git(checkout, "config", "user.name", "HyperFrames Test");
-    git(checkout, "config", "user.email", "test@hyperframes.invalid");
+    git(checkout, "config", "user.name", "ChalkFrames Test");
+    git(checkout, "config", "user.email", "test@chalkframes.invalid");
     git(checkout, "commit", "--allow-empty", "-m", "release commit");
     git(checkout, "branch", "-M", "main");
     git(checkout, "remote", "add", "origin", origin);

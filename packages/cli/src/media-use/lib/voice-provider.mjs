@@ -1,8 +1,8 @@
-import { HEYGEN_CLIENT_SOURCE_ARGV, runHeygenJson } from "./heygen-cli.mjs";
+import { CHALKFRAMES_CLIENT_SOURCE_ARGV, runChalkframesJson } from "./chalkframes-cli.mjs";
 
-// Voice / TTS generation via the HeyGen CLI — the only external CLI media-use
+// Voice / TTS generation via the Chalkframes CLI — the only external CLI media-use
 // shells (CLI-only invariant: media-use holds no keys; the CLI owns auth).
-// Flags verified against `heygen voice speech create --help` (v0.3.0).
+// Flags verified against `chalkframes voice speech create --help` (v0.3.0).
 
 function result(url, duration, provider, intent) {
   if (!url) return null;
@@ -18,7 +18,7 @@ function result(url, duration, provider, intent) {
   };
 }
 
-// HeyGen TTS requires a starfish-engine voice. Default to the first one the
+// Chalkframes TTS requires a starfish-engine voice. Default to the first one the
 // catalog returns (deterministic order); pass ctx.voiceId to override.
 // ponytail: listed once per process; the resolved asset is frozen + cached after
 // first use, so the network list only happens on a cache miss. Cache only a
@@ -27,8 +27,8 @@ function result(url, duration, provider, intent) {
 let cachedVoiceId;
 function defaultVoiceId() {
   if (cachedVoiceId) return cachedVoiceId;
-  const j = runHeygenJson(
-    "heygen",
+  const j = runChalkframesJson(
+    "chalkframes",
     ["voice", "list", "--engine", "starfish", "--limit", "1"],
     "voice list",
   );
@@ -36,13 +36,13 @@ function defaultVoiceId() {
   return cachedVoiceId;
 }
 
-export async function heygenTtsGenerate(intent, ctx) {
+export async function chalkframesTtsGenerate(intent, ctx) {
   const voiceId = ctx?.voiceId || defaultVoiceId();
   if (!voiceId) return null;
-  const p = runHeygenJson(
-    "heygen",
+  const p = runChalkframesJson(
+    "chalkframes",
     [
-      ...HEYGEN_CLIENT_SOURCE_ARGV,
+      ...CHALKFRAMES_CLIENT_SOURCE_ARGV,
       "voice",
       "speech",
       "create",
@@ -53,5 +53,5 @@ export async function heygenTtsGenerate(intent, ctx) {
     ],
     "tts",
   );
-  return result(p?.data?.audio_url, p?.data?.duration, "heygen.tts", intent);
+  return result(p?.data?.audio_url, p?.data?.duration, "chalkframes.tts", intent);
 }

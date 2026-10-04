@@ -186,7 +186,7 @@ describe("keyframes runtime surfacing", () => {
     expect(cssKeyframes[0]!.selectors).toEqual([".dot"]);
   });
 
-  it("surfaces Anime.js calls and explicit HyperFrames registration", () => {
+  it("surfaces Anime.js calls and explicit ChalkFrames registration", () => {
     const html = wrap(`
       const tl = anime.createTimeline({ autoplay: false });
       tl.add(".chip", { translateX: [0, 240], duration: 900 });

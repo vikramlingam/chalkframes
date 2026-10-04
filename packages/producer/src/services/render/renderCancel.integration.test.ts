@@ -16,7 +16,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { resolveConfig } from "@hyperframes/engine";
+import { resolveConfig } from "@chalkframes/engine";
 import { createRenderJob, executeRenderJob } from "../renderOrchestrator.js";
 
 const FIXTURE = join(import.meta.dirname, "renderCancel.fixture.ts");

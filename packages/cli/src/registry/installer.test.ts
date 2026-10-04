@@ -11,7 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, onTestFinished, vi } from "vitest";
-import type { RegistryItem } from "@hyperframes/core";
+import type { RegistryItem } from "@chalkframes/core";
 
 // The installer fetches over the network; the point of these tests is what it
 // does to files on disk, so the fetch returns controlled bytes.
@@ -33,9 +33,9 @@ const item = {
   name: "data-chart",
   title: "Data chart",
   description: "Chart component",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   files: [
-    { path: "data-chart.html", target: "components/data-chart.html", type: "hyperframes:snippet" },
+    { path: "data-chart.html", target: "components/data-chart.html", type: "chalkframes:snippet" },
   ],
 } as unknown as RegistryItem;
 
@@ -105,7 +105,7 @@ describe("installItem", () => {
 
     expect(result.written).toHaveLength(1);
     expect(result.preserved).toEqual([]);
-    const record = JSON.parse(readFileSync(join(dir, "hyperframes.lock.json"), "utf-8"));
+    const record = JSON.parse(readFileSync(join(dir, "chalkframes.lock.json"), "utf-8"));
     expect(record[target]).toMatch(/^[0-9a-f]{64}$/);
   });
 
@@ -179,8 +179,8 @@ describe("installItem", () => {
       description: "Hero block",
       dimensions: { width: 100, height: 100 },
       duration: 1,
-      type: "hyperframes:block",
-      files: [{ path: "hero.html", target: "blocks/hero.html", type: "hyperframes:composition" }],
+      type: "chalkframes:block",
+      files: [{ path: "hero.html", target: "blocks/hero.html", type: "chalkframes:composition" }],
     } as unknown as RegistryItem;
 
     const dir = project();
@@ -197,12 +197,12 @@ describe("installing several items, as a dependency plan does", () => {
     name: "shared-caption",
     title: "Shared caption",
     description: "Shared component",
-    type: "hyperframes:component",
+    type: "chalkframes:component",
     files: [
       {
         path: "shared-caption.html",
         target: "components/shared-caption.html",
-        type: "hyperframes:snippet",
+        type: "chalkframes:snippet",
       },
     ],
   } as unknown as RegistryItem;
@@ -217,7 +217,7 @@ describe("installing several items, as a dependency plan does", () => {
     return installItem(item, { destDir: dir })
       .then(() => installItem(other, { destDir: dir }))
       .then(() => {
-        const record = JSON.parse(readFileSync(join(dir, "hyperframes.lock.json"), "utf-8"));
+        const record = JSON.parse(readFileSync(join(dir, "chalkframes.lock.json"), "utf-8"));
         expect(Object.keys(record).sort()).toEqual([otherTarget, target].sort());
       });
   });
@@ -245,12 +245,12 @@ describe("installing with --vars the item cannot take", () => {
     description: "Block",
     dimensions: { width: 100, height: 100 },
     duration: 1,
-    type: "hyperframes:block",
+    type: "chalkframes:block",
     files: [
       {
         path: "demo-block.html",
         target: "compositions/demo-block.html",
-        type: "hyperframes:composition",
+        type: "chalkframes:composition",
       },
     ],
   } as unknown as RegistryItem;

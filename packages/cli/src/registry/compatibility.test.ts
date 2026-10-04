@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { RegistryItem } from "@hyperframes/core";
+import type { RegistryItem } from "@chalkframes/core";
 import {
   checkRegistryItemCompatibility,
   gateRegistryItemsCompatibility,
@@ -8,7 +8,7 @@ import {
 
 const BASE_ITEM: RegistryItem = {
   name: "demo-block",
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   title: "Demo Block",
   description: "Block for tests",
   dimensions: { width: 1080, height: 1350 },
@@ -17,7 +17,7 @@ const BASE_ITEM: RegistryItem = {
     {
       path: "demo-block.html",
       target: "compositions/demo-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
@@ -42,7 +42,7 @@ describe("checkRegistryItemCompatibility", () => {
       { ...BASE_ITEM, minCliVersion: "0.6.80" },
       "0.6.79",
     );
-    expect(result.error).toContain('Registry item "demo-block" requires hyperframes >= 0.6.80');
+    expect(result.error).toContain('Registry item "demo-block" requires chalkframes >= 0.6.80');
   });
 
   it("allows source/dev CLI builds to install future-gated registry items", () => {
@@ -91,6 +91,6 @@ describe("gateRegistryItemsCompatibility", () => {
     ).toThrow(RegistryCompatibilityError);
     expect(() =>
       gateRegistryItemsCompatibility([dep("a"), dep("b", { minCliVersion: "999.0.0" })], "0.6.79"),
-    ).toThrow(/requires hyperframes >= 999\.0\.0/);
+    ).toThrow(/requires chalkframes >= 999\.0\.0/);
   });
 });

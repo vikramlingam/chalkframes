@@ -1,6 +1,6 @@
 import { cpus } from "node:os";
 import { readFileSync } from "node:fs";
-import { fpsToFfmpegArg } from "@hyperframes/core";
+import { fpsToFfmpegArg } from "@chalkframes/core";
 import { c } from "../../ui/colors.js";
 import type { RenderPlan } from "./plan.js";
 
@@ -16,7 +16,7 @@ export async function presentRenderPlan(plan: RenderPlan): Promise<void> {
 async function presentRenderWarnings(plan: RenderPlan): Promise<void> {
   if (plan.invalidAuthoringSkill) {
     process.stderr.write(
-      `hyperframes: ignoring --skill="${plan.invalidAuthoringSkill}" — not a valid slug ` +
+      `chalkframes: ignoring --skill="${plan.invalidAuthoringSkill}" — not a valid slug ` +
         "(lowercase letters/digits/hyphens, max 64); this render will be unattributed.\n",
     );
   }
@@ -61,13 +61,13 @@ function formatGpuModes(plan: RenderPlan): string | undefined {
 
 async function warnForSlideshow(plan: RenderPlan): Promise<void> {
   try {
-    const { slideshowIslandRegex } = await import("@hyperframes/core/slideshow");
+    const { slideshowIslandRegex } = await import("@chalkframes/core/slideshow");
     if (!slideshowIslandRegex("i").test(readFileSync(plan.renderTarget, "utf8"))) return;
     console.log(
       c.warn("⚠") +
         "  This composition carries a slideshow island — `render` captures only the first" +
         " scene, so the MP4 will be truncated to slide 1. Use " +
-        c.accent("hyperframes present") +
+        c.accent("chalkframes present") +
         " for the deck; a linear main-line MP4 export is not yet available.",
     );
     console.log("");

@@ -16,7 +16,7 @@ import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { appendRecord, findByPrompt, readManifest } from "./lib/manifest.mjs";
 import { regenerateIndex } from "./lib/index-gen.mjs";
 import { getProvider } from "./lib/providers.mjs";
-import { HEYGEN_NOT_FOUND_MESSAGE } from "./lib/heygen-cli.mjs";
+import { CHALKFRAMES_NOT_FOUND_MESSAGE } from "./lib/chalkframes-cli.mjs";
 import { freezeLocalFile } from "./lib/freeze.mjs";
 import { cachePut, cacheGet, importFromCache } from "./lib/cache.mjs";
 import { validateCubeFile } from "./lib/cube-validate.mjs";
@@ -33,14 +33,14 @@ const CAN_TSX =
   spawnSync(process.execPath, ["--import", "tsx", "--input-type=module", "-e", "0"], {
     stdio: "ignore",
   }).status === 0;
-process.env.HYPERFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-resolve-home-"));
+process.env.CHALKFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-resolve-home-"));
 
 let tmp;
 
 function setup() {
   tmp = mkdtempSync(join(tmpdir(), "mu-resolve-test-"));
   // A fresh global cache per test, apart from the project so the two manifests never coincide.
-  process.env.HYPERFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-resolve-home-"));
+  process.env.CHALKFRAMES_MEDIA_HOME = mkdtempSync(join(tmpdir(), "mu-resolve-home-"));
 }
 
 function cleanup() {
@@ -156,7 +156,7 @@ function test(name, fn) {
 
 // --- manifest cache hit ---
 
-test("bundled SFX resolve without HeyGen on PATH", () => {
+test("bundled SFX resolve without Chalkframes on PATH", () => {
   setup();
   const result = spawnResolve(["--type", "sfx", "--intent", "whoosh", "--project", tmp, "--json"], {
     env: { HOME: tmp, PATH: tmp },
@@ -165,7 +165,7 @@ test("bundled SFX resolve without HeyGen on PATH", () => {
   const parsed = JSON.parse(result.stdout);
   assert.equal(parsed.ok, true);
   assert.equal(parsed.provenance.provider, "bundled.sfx");
-  assert.equal(parsed.advisory?.message, HEYGEN_NOT_FOUND_MESSAGE);
+  assert.equal(parsed.advisory?.message, CHALKFRAMES_NOT_FOUND_MESSAGE);
   assert.equal(parsed.advisory.message.includes("| bash"), false);
   assert.ok(existsSync(join(tmp, parsed.path)));
   cleanup();
@@ -180,7 +180,7 @@ test("missing bundled SFX install returns a typed recovery command", () => {
       env: {
         HOME: tmp,
         PATH: tmp,
-        HYPERFRAMES_MEDIA_USE_SFX_DIR: missingLibrary,
+        CHALKFRAMES_MEDIA_USE_SFX_DIR: missingLibrary,
       },
     },
   );
@@ -188,37 +188,37 @@ test("missing bundled SFX install returns a typed recovery command", () => {
   const parsed = JSON.parse(result.stdout);
   assert.equal(parsed.ok, false);
   assert.equal(parsed.code, "bundled_sfx_assets_missing");
-  assert.equal(parsed.fix, "npx hyperframes skills update media-use");
+  assert.equal(parsed.fix, "npx chalkframes skills update media-use");
   assert.match(parsed.error, /bundled SFX assets are missing or incomplete/);
   assert.match(parsed.error, /manifest not found/);
   cleanup();
 });
 
-function writeFakeHeygen(body, exitCode = 0) {
+function writeFakeChalkframes(body, exitCode = 0) {
   const binDir = join(tmp, "bin");
   mkdirSync(binDir, { recursive: true });
-  const command = join(binDir, "heygen");
+  const command = join(binDir, "chalkframes");
   writeFileSync(command, `#!/bin/sh\n${body}\nexit ${exitCode}\n`);
   chmodSync(command, 0o755);
   return binDir;
 }
 
-test("bundled SFX advises update when the HeyGen CLI is outdated", () => {
+test("bundled SFX advises update when the Chalkframes CLI is outdated", () => {
   setup();
-  const binDir = writeFakeHeygen('echo "heygen v0.1.5 does not support --headers" >&2', 1);
+  const binDir = writeFakeChalkframes('echo "chalkframes v0.1.5 does not support --headers" >&2', 1);
   const result = spawnResolve(["--type", "sfx", "--intent", "whoosh", "--project", tmp, "--json"], {
     env: { HOME: tmp, PATH: binDir },
   });
   assert.equal(result.status, 0, result.stderr);
   const parsed = JSON.parse(result.stdout);
   assert.equal(parsed.provenance.provider, "bundled.sfx");
-  assert.match(parsed.advisory?.message ?? "", /heygen update/);
+  assert.match(parsed.advisory?.message ?? "", /chalkframes update/);
   cleanup();
 });
 
 test("bundled SFX does not advise installation after a healthy catalog miss", () => {
   setup();
-  const binDir = writeFakeHeygen(`echo '{"data":[]}'`);
+  const binDir = writeFakeChalkframes(`echo '{"data":[]}'`);
   const result = spawnResolve(["--type", "sfx", "--intent", "whoosh", "--project", tmp, "--json"], {
     env: { HOME: tmp, PATH: binDir },
   });
@@ -251,7 +251,7 @@ test("human bundled fallback prints the install hint once", () => {
   });
   assert.equal(result.status, 0, result.stderr);
   assert.equal(
-    result.stderr.match(/Install the CLI from https:\/\/developers\.heygen\.com\/cli/g)?.length,
+    result.stderr.match(/Install the CLI from https:\/\/developers\.chalkframes\.com\/cli/g)?.length,
     1,
   );
   assert.match(result.stdout, /resolved sfx_001/);
@@ -310,13 +310,13 @@ test("entity hit matches across icon/image (figma-imported brand marks)", () => 
 
 // --- auth_method provenance (U6) ---
 
-test("manifest hit for an OAuth-credentialed heygen resolve surfaces authMethod: oauth", () => {
+test("manifest hit for an OAuth-credentialed chalkframes resolve surfaces authMethod: oauth", () => {
   setup();
   const record = makeRecord({
     id: "voice_001",
     type: "voice",
     path: ".media/audio/voice/voice_001.wav",
-    provenance: { provider: "heygen.tts", authMethod: "oauth", prompt: "oauth voice" },
+    provenance: { provider: "chalkframes.tts", authMethod: "oauth", prompt: "oauth voice" },
   });
   appendRecord(tmp, record);
   const filePath = join(tmp, record.path);
@@ -338,13 +338,13 @@ test("manifest hit for an OAuth-credentialed heygen resolve surfaces authMethod:
   cleanup();
 });
 
-test("manifest hit for an API-key-credentialed heygen resolve surfaces authMethod: api_key", () => {
+test("manifest hit for an API-key-credentialed chalkframes resolve surfaces authMethod: api_key", () => {
   setup();
   const record = makeRecord({
     id: "voice_001",
     type: "voice",
     path: ".media/audio/voice/voice_001.wav",
-    provenance: { provider: "heygen.tts", authMethod: "api_key", prompt: "api key voice" },
+    provenance: { provider: "chalkframes.tts", authMethod: "api_key", prompt: "api key voice" },
   });
   appendRecord(tmp, record);
   const filePath = join(tmp, record.path);
@@ -366,7 +366,7 @@ test("manifest hit for an API-key-credentialed heygen resolve surfaces authMetho
   cleanup();
 });
 
-test("manifest hit for a non-heygen provider omits authMethod entirely", () => {
+test("manifest hit for a non-chalkframes provider omits authMethod entirely", () => {
   setup();
   const record = makeRecord({
     id: "logo_001",
@@ -446,7 +446,7 @@ test("failed remote freeze removes its reserved placeholder", async () => {
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const port = server.address().port;
-  const binDir = writeFakeHeygen(
+  const binDir = writeFakeChalkframes(
     `printf '%s\\n' '{"data":[{"id":"asset.jpg","url":"http://127.0.0.1:${port}/asset.jpg"}]}'`,
   );
 
@@ -458,7 +458,7 @@ test("failed remote freeze removes its reserved placeholder", async () => {
         "--intent",
         "download failure",
         "--provider",
-        "heygen",
+        "chalkframes",
         "--project",
         tmp,
         "--json",
@@ -514,18 +514,18 @@ test("--adopt registers existing assets/ files", () => {
   cleanup();
 });
 
-test("--adopt stops, adopting nothing, when HYPERFRAMES_FFPROBE_PATH cannot run", () => {
+test("--adopt stops, adopting nothing, when CHALKFRAMES_FFPROBE_PATH cannot run", () => {
   setup();
   mkdirSync(join(tmp, "assets/bgm"), { recursive: true });
   writeFileSync(join(tmp, "assets/bgm/track.mp3"), "fake mp3");
 
   const result = spawnResolve(["--adopt", "--project", tmp, "--json"], {
-    env: { HYPERFRAMES_FFPROBE_PATH: join(tmp, "no-ffprobe") },
+    env: { CHALKFRAMES_FFPROBE_PATH: join(tmp, "no-ffprobe") },
   });
   assert.equal(result.status, 1);
   const report = JSON.parse(result.stdout.trim());
   assert.equal(report.ok, false);
-  assert.match(report.error, /HYPERFRAMES_FFPROBE_PATH names .*no-ffprobe.*fix it or unset it/);
+  assert.match(report.error, /CHALKFRAMES_FFPROBE_PATH names .*no-ffprobe.*fix it or unset it/);
   assert.equal(readManifest(tmp).length, 0);
   cleanup();
 });
@@ -664,7 +664,7 @@ test("resolve does not relabel a recorded file in assets/ as the person's own", 
     path: "assets/bgm/ambient-track.mp3",
     source: "search",
     description: "calm underscore",
-    provenance: { provider: "heygen" },
+    provenance: { provider: "chalkframes" },
   });
 
   const out = runResolve([
@@ -826,9 +826,9 @@ test("--doctor --json reports dependency checks and top-level ok requires ffmpeg
 
   const expected = [
     "bundled SFX assets",
-    "heygen on PATH",
-    "heygen version",
-    "heygen authenticated",
+    "chalkframes on PATH",
+    "chalkframes version",
+    "chalkframes authenticated",
     "ffmpeg on PATH",
     "ffprobe on PATH",
     "node version",
@@ -851,7 +851,7 @@ test("--doctor --json reports dependency checks and top-level ok requires ffmpeg
   assert.equal(result.status, strictOk ? 0 : 1);
 });
 
-test("--doctor checks the ffmpeg and ffprobe that HYPERFRAMES_FFMPEG_PATH and HYPERFRAMES_FFPROBE_PATH name", () => {
+test("--doctor checks the ffmpeg and ffprobe that CHALKFRAMES_FFMPEG_PATH and CHALKFRAMES_FFPROBE_PATH name", () => {
   const dir = mkdtempSync(join(tmpdir(), "mu-doctor-ff-"));
   for (const tool of ["ffmpeg", "ffprobe"]) {
     writeFileSync(join(dir, tool), `#!/bin/sh\necho '${tool} version 9.9-fake'\n`);
@@ -860,8 +860,8 @@ test("--doctor checks the ffmpeg and ffprobe that HYPERFRAMES_FFMPEG_PATH and HY
   try {
     const result = spawnResolve(["--doctor", "--json"], {
       env: {
-        HYPERFRAMES_FFMPEG_PATH: join(dir, "ffmpeg"),
-        HYPERFRAMES_FFPROBE_PATH: join(dir, "ffprobe"),
+        CHALKFRAMES_FFMPEG_PATH: join(dir, "ffmpeg"),
+        CHALKFRAMES_FFPROBE_PATH: join(dir, "ffprobe"),
       },
     });
     const byName = new Map(JSON.parse(result.stdout.trim()).checks.map((c) => [c.name, c]));
@@ -875,10 +875,10 @@ test("--doctor checks the ffmpeg and ffprobe that HYPERFRAMES_FFMPEG_PATH and HY
   }
 });
 
-test("--doctor fails a HYPERFRAMES_FFPROBE_PATH that cannot run and says to fix or unset it", () => {
+test("--doctor fails a CHALKFRAMES_FFPROBE_PATH that cannot run and says to fix or unset it", () => {
   const missing = join(tmpdir(), "mu-doctor-no-ffprobe", "ffprobe");
   const result = spawnResolve(["--doctor", "--json"], {
-    env: { HYPERFRAMES_FFPROBE_PATH: missing },
+    env: { CHALKFRAMES_FFPROBE_PATH: missing },
   });
   const report = JSON.parse(result.stdout.trim());
   const check = report.checks.find((c) => c.name === "ffprobe on PATH");
@@ -887,23 +887,23 @@ test("--doctor fails a HYPERFRAMES_FFPROBE_PATH that cannot run and says to fix 
     [check.ok, check.detail, check.fix],
     [
       false,
-      `HYPERFRAMES_FFPROBE_PATH names "${missing}", which is not a working ffprobe: fix it or unset it.`,
+      `CHALKFRAMES_FFPROBE_PATH names "${missing}", which is not a working ffprobe: fix it or unset it.`,
       "fix or unset that variable",
     ],
   );
 });
 
-test("--analyze refuses a HYPERFRAMES_FFPROBE_PATH that cannot run instead of reporting unknown", () => {
+test("--analyze refuses a CHALKFRAMES_FFPROBE_PATH that cannot run instead of reporting unknown", () => {
   const missing = join(tmpdir(), "mu-analyze-no-ffprobe", "ffprobe");
   const result = spawnResolve(["--analyze", "--type", "grade", "--for", RESOLVE_CLI, "--json"], {
-    env: { HYPERFRAMES_FFPROBE_PATH: missing },
+    env: { CHALKFRAMES_FFPROBE_PATH: missing },
   });
   assert.equal(result.status, 1);
   const report = JSON.parse(result.stdout.trim());
   assert.equal(report.ok, false);
   assert.match(
     report.error,
-    /HYPERFRAMES_FFPROBE_PATH names ".*mu-analyze-no-ffprobe.*fix it or unset it/,
+    /CHALKFRAMES_FFPROBE_PATH names ".*mu-analyze-no-ffprobe.*fix it or unset it/,
   );
 });
 
@@ -914,14 +914,14 @@ test("--doctor fails a configured ffprobe that exists but exits with an error", 
   chmodSync(broken, 0o755);
   try {
     const result = spawnResolve(["--doctor", "--json"], {
-      env: { HYPERFRAMES_FFPROBE_PATH: broken },
+      env: { CHALKFRAMES_FFPROBE_PATH: broken },
     });
     const check = JSON.parse(result.stdout.trim()).checks.find((c) => c.name === "ffprobe on PATH");
     assert.deepEqual(
       [check.ok, check.detail, check.fix],
       [
         false,
-        `HYPERFRAMES_FFPROBE_PATH names "${broken}", which is not a working ffprobe: fix it or unset it.`,
+        `CHALKFRAMES_FFPROBE_PATH names "${broken}", which is not a working ffprobe: fix it or unset it.`,
         "fix or unset that variable",
       ],
     );
@@ -930,7 +930,7 @@ test("--doctor fails a configured ffprobe that exists but exits with an error", 
   }
 });
 
-test("a broken HYPERFRAMES_FFPROBE_PATH is named when local voice cannot run, not a generic miss", () => {
+test("a broken CHALKFRAMES_FFPROBE_PATH is named when local voice cannot run, not a generic miss", () => {
   setup();
   const missing = join(tmp, "no-ffprobe");
   const result = spawnResolve(
@@ -945,12 +945,12 @@ test("a broken HYPERFRAMES_FFPROBE_PATH is named when local voice cannot run, no
       tmp,
       "--json",
     ],
-    { env: { HYPERFRAMES_FFPROBE_PATH: missing } },
+    { env: { CHALKFRAMES_FFPROBE_PATH: missing } },
   );
   assert.equal(result.status, 1);
   assert.equal(
     JSON.parse(result.stdout.trim()).error,
-    `HYPERFRAMES_FFPROBE_PATH names "${missing}", which is not a working ffprobe: fix it or unset it.`,
+    `CHALKFRAMES_FFPROBE_PATH names "${missing}", which is not a working ffprobe: fix it or unset it.`,
   );
   cleanup();
 });
@@ -1274,20 +1274,20 @@ async function captureResolveEvent({ provider, type = "bgm", intent }) {
     // Override this one invocation's env only: allow tracking (DO_NOT_TRACK
     // default flipped off), sandbox HOME so anonymousId()/showTelemetryNotice()
     // never touch the real developer machine, and point the host at the local
-    // server. HEYGEN_CONFIG_DIR is sandboxed too -- runResolve's env is
+    // server. CHALKFRAMES_CONFIG_DIR is sandboxed too -- runResolve's env is
     // {...process.env, ...env}, so a developer with that var set to a real
-    // credentials dir would otherwise have heygenAccountDistinctId() read
+    // credentials dir would otherwise have chalkframesAccountDistinctId() read
     // their real email into this test's local-server payload despite HOME
-    // being sandboxed (HEYGEN_CONFIG_DIR, not HOME, resolves the credentials
+    // being sandboxed (CHALKFRAMES_CONFIG_DIR, not HOME, resolves the credentials
     // path). Every other test in this file keeps its untouched default env.
     runResolve(["--type", type, "--intent", intent, "--project", tmp, "--json"], {
       env: {
         DO_NOT_TRACK: "0",
-        HYPERFRAMES_NO_TELEMETRY: "0",
+        CHALKFRAMES_NO_TELEMETRY: "0",
         CI: "",
         NODE_ENV: "test",
         HOME: sandboxHome,
-        HEYGEN_CONFIG_DIR: join(sandboxHome, ".heygen"),
+        CHALKFRAMES_CONFIG_DIR: join(sandboxHome, ".chalkframes"),
         MEDIA_USE_TELEMETRY_HOST: `http://127.0.0.1:${port}`,
       },
     });
@@ -1334,8 +1334,8 @@ test("track() posts to MEDIA_USE_TELEMETRY_HOST when set, proving real intercept
 // case names a provider the registry declares at a different tier and asserts the
 // tier that actually reaches the wire.
 for (const [provider, type, expected] of [
-  ["heygen.tts", "voice", "network_paid"],
-  ["heygen.audio.sounds", "bgm", "network_free"],
+  ["chalkframes.tts", "voice", "network_paid"],
+  ["chalkframes.audio.sounds", "bgm", "network_free"],
   ["bundled.sfx", "sfx", "local"],
 ]) {
   test(`a resolve won by ${provider} sends provider_tier: ${expected}`, async () => {
@@ -1353,13 +1353,13 @@ for (const [provider, type, expected] of [
         `${provider} must reach the wire as ${expected}`,
       );
       // The tier is derived from the registry and the auth method from the
-      // credential state; they must not become entangled. A non-heygen provider
+      // credential state; they must not become entangled. A non-chalkframes provider
       // carries a tier and no auth method, whatever credentials exist locally.
-      if (!provider.startsWith("heygen."))
+      if (!provider.startsWith("chalkframes."))
         assert.equal(
           event.properties.auth_method,
           undefined,
-          "a non-heygen provider must carry a tier without an auth method",
+          "a non-chalkframes provider must carry a tier without an auth method",
         );
     } finally {
       cleanup();

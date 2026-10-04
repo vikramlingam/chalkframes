@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * End-to-end check that `hyperframes add` reports what it installed, and that
- * `hyperframes render` reports what it rendered.
+ * End-to-end check that `chalkframes add` reports what it installed, and that
+ * `chalkframes render` reports what it rendered.
  *
  * Unit tests can only assert the emit seam. `shouldTrack()` short-circuits
  * whenever `isDevMode()` is true, and that is true for any `.ts` entry — so
@@ -12,7 +12,7 @@
  *
  * Two fixtures, because neither case can be reached through the real registry:
  * a local registry (the origin is a first-class project setting,
- * `hyperframes.json#registry`) supplies an item with a `registryDependencies`
+ * `chalkframes.json#registry`) supplies an item with a `registryDependencies`
  * edge, which no shipped catalog item declares today; and `globalThis.fetch`
  * is wrapped so the batch is captured instead of sent. The exit handler's
  * detached `flushSync` child would bypass that wrapper, so the hook runs the
@@ -36,24 +36,24 @@ if (!existsSync(cliPath)) {
 }
 
 const BASE_COMPONENT = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "e2e-base-component",
-  type: "hyperframes:component",
+  type: "chalkframes:component",
   title: "E2E Base Component",
   description: "Dependency target",
   files: [
     {
       path: "e2e-base-component.html",
       target: "compositions/components/e2e-base-component/e2e-base-component.html",
-      type: "hyperframes:snippet",
+      type: "chalkframes:snippet",
     },
   ],
 };
 
 const DEP_BLOCK = {
-  $schema: "https://hyperframes.heygen.com/schema/registry-item.json",
+  $schema: "https://chalkframes.dev/schema/registry-item.json",
   name: "e2e-dep-block",
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   title: "E2E Dep Block",
   description: "Block that pulls a component in behind it",
   dimensions: { width: 1920, height: 1080 },
@@ -63,7 +63,7 @@ const DEP_BLOCK = {
     {
       path: "e2e-dep-block.html",
       target: "compositions/e2e-dep-block.html",
-      type: "hyperframes:composition",
+      type: "chalkframes:composition",
     },
   ],
 };
@@ -77,7 +77,7 @@ const json = (body) => ({ type: "application/json", body: JSON.stringify(body) }
 function routeManifest(url) {
   if (!url.endsWith("/registry.json")) return null;
   return json({
-    $schema: "https://hyperframes.heygen.com/schema/registry.json",
+    $schema: "https://chalkframes.dev/schema/registry.json",
     name: "e2e-fixture",
     homepage: "https://example.invalid",
     items: Object.values(ITEMS).map((i) => ({ name: i.name, type: i.type })),
@@ -172,9 +172,9 @@ function addedEvents(batches) {
 function runAdd(name, { optOut = "", doNotTrack = "" } = {}) {
   const projectDir = mkdtempSync(join(sandbox, "project-"));
   writeFileSync(
-    join(projectDir, "hyperframes.json"),
+    join(projectDir, "chalkframes.json"),
     JSON.stringify({
-      $schema: "https://hyperframes.heygen.com/schema/hyperframes.json",
+      $schema: "https://chalkframes.dev/schema/chalkframes.json",
       registry: registryUrl,
       paths: { blocks: "compositions", components: "compositions/components", assets: "assets" },
     }),
@@ -187,7 +187,7 @@ function runAdd(name, { optOut = "", doNotTrack = "" } = {}) {
       {
         env: {
           ...process.env,
-          HYPERFRAMES_NO_TELEMETRY: optOut,
+          CHALKFRAMES_NO_TELEMETRY: optOut,
           DO_NOT_TRACK: doNotTrack,
           TELEMETRY_CAPTURE_FILE: capture,
         },
@@ -229,7 +229,7 @@ check(
   JSON.stringify(tracked.added.find((a) => a.item === "e2e-base-component")) ===
     JSON.stringify({
       item: "e2e-base-component",
-      item_type: "hyperframes:component",
+      item_type: "chalkframes:component",
       requested: false,
     }),
   tracked.added.find((a) => a.item === "e2e-base-component"),
@@ -237,13 +237,13 @@ check(
 check(
   "requested item reported as a request",
   JSON.stringify(tracked.added.find((a) => a.item === "e2e-dep-block")) ===
-    JSON.stringify({ item: "e2e-dep-block", item_type: "hyperframes:block", requested: true }),
+    JSON.stringify({ item: "e2e-dep-block", item_type: "chalkframes:block", requested: true }),
   tracked.added.find((a) => a.item === "e2e-dep-block"),
 );
 
 console.log("opt out");
 for (const [label, env] of [
-  ["HYPERFRAMES_NO_TELEMETRY=1", { optOut: "1" }],
+  ["CHALKFRAMES_NO_TELEMETRY=1", { optOut: "1" }],
   ["DO_NOT_TRACK=1", { doNotTrack: "1" }],
 ]) {
   const optedOut = await runAdd("e2e-dep-block", env);
@@ -265,7 +265,7 @@ check("a refused install is not counted", unknown.added.length === 0, unknown.ad
 
 // This harness's own HF_ vars would read back as operator overrides in the rendered
 // event, so every render below starts from an environment carrying none of them.
-const HF_ENV_RE = /^(HF|HYPERFRAMES)_/;
+const HF_ENV_RE = /^(HF|CHALKFRAMES)_/;
 function withoutHfEnv(env) {
   return Object.fromEntries(Object.entries(env).filter(([k]) => !HF_ENV_RE.test(k)));
 }
@@ -377,7 +377,7 @@ console.log(
 const posDir = mkdtempSync(join(sandbox, "render-pos-"));
 writeRenderFixture(posDir, { mismatched: true, withMedia: true });
 const pos = await runRender(posDir, {
-  extraEnv: { HYPERFRAMES_E2E_MARKER: "1" },
+  extraEnv: { CHALKFRAMES_E2E_MARKER: "1" },
   skill: "e2e-smoke-test",
 });
 const posEvent = pos.completeEvents[0]?.properties ?? {};
@@ -408,7 +408,7 @@ check(
 check(
   "hf_env_overrides includes the injected var",
   Array.isArray(posEvent.hf_env_overrides) &&
-    posEvent.hf_env_overrides.includes("HYPERFRAMES_E2E_MARKER"),
+    posEvent.hf_env_overrides.includes("CHALKFRAMES_E2E_MARKER"),
   posEvent.hf_env_overrides,
 );
 check(

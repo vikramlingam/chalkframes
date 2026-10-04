@@ -10,9 +10,9 @@ import { runMutation } from "../timeline/a2MutationCommand.js";
 import type { MutationVerb } from "../timeline/a2Shared.js";
 
 export const examples: Example[] = [
-  ["Show every track and clip of the project in the current directory", "hyperframes timeline"],
-  ["Move a clip without writing", "hyperframes timeline move '#hero' +2 --plan"],
-  ["Delete a clip and return a receipt", "hyperframes timeline delete '#hero' --json"],
+  ["Show every track and clip of the project in the current directory", "chalkframes timeline"],
+  ["Move a clip without writing", "chalkframes timeline move '#hero' +2 --plan"],
+  ["Delete a clip and return a receipt", "chalkframes timeline delete '#hero' --json"],
 ];
 
 function mutationCommand(verb: MutationVerb) {

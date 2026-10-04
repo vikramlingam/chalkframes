@@ -3,11 +3,11 @@
  *
  * Two import paths must work for adopters:
  *
- *   1. `import { plan, renderChunk, assemble } from "@hyperframes/producer"`
+ *   1. `import { plan, renderChunk, assemble } from "@chalkframes/producer"`
  *      — the canonical package entry. Includes the three activity functions
  *      and their result types.
  *
- *   2. `import { plan, renderChunk, assemble } from "@hyperframes/producer/distributed"`
+ *   2. `import { plan, renderChunk, assemble } from "@chalkframes/producer/distributed"`
  *      — the focused subpath, suitable for Lambda chunk-runner images that
  *      don't pull in the in-process renderer's transitive deps.
  *
@@ -16,7 +16,7 @@
  * `renderChunk.test.ts` / `assemble.test.ts`.
  *
  * We import via the workspace-relative `../../distributed.js` /
- * `../../index.js` paths rather than `"@hyperframes/producer"` because the
+ * `../../index.js` paths rather than `"@chalkframes/producer"` because the
  * package resolver inside the workspace points back at `src/index.ts` —
  * either form exercises the same surface.
  */
@@ -25,7 +25,7 @@ import { describe, expect, it } from "bun:test";
 import * as distributedSubpath from "../../distributed.js";
 import * as producerIndex from "../../index.js";
 
-describe("@hyperframes/producer/distributed (subpath)", () => {
+describe("@chalkframes/producer/distributed (subpath)", () => {
   it("exports the three activity functions", () => {
     expect(typeof distributedSubpath.plan).toBe("function");
     expect(typeof distributedSubpath.renderChunk).toBe("function");
@@ -73,15 +73,15 @@ describe("@hyperframes/producer/distributed (subpath)", () => {
   it("exports the plan protocol contract", () => {
     expect(distributedSubpath.PLAN_SCHEMA_VERSION).toBe(1);
     expect(distributedSubpath.PLAN_ARTIFACT_LAYOUT).toBe("plan-dir-v1");
-    expect(distributedSubpath.PLAN_HASH_SCHEMA).toBe("hyperframes-plan-hash-v1");
+    expect(distributedSubpath.PLAN_HASH_SCHEMA).toBe("chalkframes-plan-hash-v1");
     expect(distributedSubpath.PLAN_V2_SCHEMA_VERSION).toBe(2);
     expect(distributedSubpath.PLAN_V2_ARTIFACT_LAYOUT).toBe("content-addressed-plan-v2");
-    expect(distributedSubpath.PLAN_V2_HASH_SCHEMA).toBe("hyperframes-plan-manifest-hash-v2");
+    expect(distributedSubpath.PLAN_V2_HASH_SCHEMA).toBe("chalkframes-plan-manifest-hash-v2");
     expect(distributedSubpath.PLAN_PROTOCOL_UNSUPPORTED).toBe("PLAN_PROTOCOL_UNSUPPORTED");
     expect(distributedSubpath.CURRENT_PLAN_PROTOCOL).toEqual({
       schemaVersion: 1,
       artifactLayout: "plan-dir-v1",
-      hashSchema: "hyperframes-plan-hash-v1",
+      hashSchema: "chalkframes-plan-hash-v1",
     });
     expect(distributedSubpath.PLAN_PROTOCOL_V1).toBe(distributedSubpath.CURRENT_PLAN_PROTOCOL);
     expect(distributedSubpath.DISTRIBUTED_RENDER_CAPABILITIES.roles).toEqual({
@@ -116,7 +116,7 @@ describe("@hyperframes/producer/distributed (subpath)", () => {
   });
 });
 
-describe("@hyperframes/producer (main entry)", () => {
+describe("@chalkframes/producer (main entry)", () => {
   it("re-exports the three activity functions", () => {
     expect(typeof producerIndex.plan).toBe("function");
     expect(typeof producerIndex.renderChunk).toBe("function");

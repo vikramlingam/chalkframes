@@ -11,7 +11,7 @@ import {
   type HistoryListItem,
   type HistoryResult,
   type HistoryWho,
-} from "@hyperframes/studio-server";
+} from "@chalkframes/studio-server";
 import type { Example } from "./_examples.js";
 import { trackHistoryAction } from "../telemetry/events.js";
 import { setCommandExitCode } from "../utils/commandResult.js";
@@ -31,13 +31,13 @@ import { withMeta } from "../utils/updateCheck.js";
 export const examples: Example[] = [
   [
     "What changed since your last turn, and who changed it",
-    "hyperframes history --since mine --who claude",
+    "chalkframes history --since mine --who claude",
   ],
   [
     "Label your writes as one entry",
-    "hyperframes history begin --who claude --label 'Bigger title'",
+    "chalkframes history begin --who claude --label 'Bigger title'",
   ],
-  ["Undo your newest entry after a failed check", "hyperframes history undo --who claude"],
+  ["Undo your newest entry after a failed check", "chalkframes history undo --who claude"],
 ];
 
 const YOU: HistoryWho = { kind: "person", name: "You" };
@@ -179,8 +179,8 @@ function conflictText(
     `${files.join(", ")} changed since "${entry.label}". Newer entries:`,
     ...newer.map((later) => `  ${line(later)}`),
     `Choose one:`,
-    `  hyperframes history ${again} --just-this       put back only its files, over the newer edits to them`,
-    `  hyperframes history ${again} --back-to-before  go back to before it, undoing the newer entries too`,
+    `  chalkframes history ${again} --just-this       put back only its files, over the newer edits to them`,
+    `  chalkframes history ${again} --back-to-before  go back to before it, undoing the newer entries too`,
   ].join("\n");
 }
 

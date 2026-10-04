@@ -4,18 +4,18 @@ import type { Example } from "./_examples.js";
 import { existsSync, readFileSync } from "node:fs";
 
 export const examples: Example[] = [
-  ["Present the current deck", "hyperframes present"],
-  ["Present a specific project directory", "hyperframes present ./my-deck"],
-  ["Use a custom port", "hyperframes present --port 8080"],
-  ["Start without opening the browser", "hyperframes present --no-open"],
-  ["Open with a specific browser", "hyperframes present --browser-path /usr/bin/chromium"],
+  ["Present the current deck", "chalkframes present"],
+  ["Present a specific project directory", "chalkframes present ./my-deck"],
+  ["Use a custom port", "chalkframes present --port 8080"],
+  ["Start without opening the browser", "chalkframes present --no-open"],
+  ["Open with a specific browser", "chalkframes present --browser-path /usr/bin/chromium"],
 ];
 import { resolve } from "node:path";
 import * as clack from "@clack/prompts";
 import { c } from "../ui/colors.js";
 import { resolveProject, type ProjectDir } from "../utils/project.js";
 import type { Hono } from "hono";
-import { requestSubPath } from "@hyperframes/studio-server";
+import { requestSubPath } from "@chalkframes/studio-server";
 import {
   openBrowser,
   parseRemoteDebuggingPort,
@@ -81,7 +81,7 @@ export default defineCommand({
     const slideshowPath = resolveSlideshowPath();
     if (!playerPath || !slideshowPath) {
       clack.log.error(
-        "@hyperframes/player not found. Run `bun run --cwd packages/player build` first.",
+        "@chalkframes/player not found. Run `bun run --cwd packages/player build` first.",
       );
       setCommandExitCode(1);
       return;
@@ -90,12 +90,12 @@ export default defineCommand({
     // The deck must carry a slideshow island; the presenter view is meaningless
     // without one. Extract it here so we can inline it into the wrapper page.
     const indexHtml = readFileSync(project.indexPath, "utf-8");
-    const { slideshowIslandRegex } = await import("@hyperframes/core/slideshow");
+    const { slideshowIslandRegex } = await import("@chalkframes/core/slideshow");
     const islandMatch = slideshowIslandRegex("i").exec(indexHtml);
     if (!islandMatch?.[1]) {
       clack.log.error(
         `No slideshow island found in ${project.indexPath}. ` +
-          `Add a <script type="application/hyperframes-slideshow+json"> block — see /hyperframes (slideshow).`,
+          `Add a <script type="application/chalkframes-slideshow+json"> block — see /chalkframes (slideshow).`,
       );
       setCommandExitCode(1);
       return;
@@ -140,7 +140,7 @@ export default defineCommand({
     // ?mode=audience) load this same page; the component reads the mode from the URL.
     app.get("/", (ctx) => ctx.html(buildPresentPage(project.name, islandJson)));
 
-    clack.intro(c.bold("hyperframes present"));
+    clack.intro(c.bold("chalkframes present"));
     const s = clack.spinner();
     s.start("Starting presenter server...");
 
@@ -197,19 +197,19 @@ function buildPresentPage(projectName: string, islandJson: string): string {
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { height: 100%; background: #0a0a0a; overflow: hidden; }
-      hyperframes-slideshow { display: block; position: relative; width: 100vw; height: 100vh; }
-      hyperframes-player { position: absolute; inset: 0; }
+      chalkframes-slideshow { display: block; position: relative; width: 100vw; height: 100vh; }
+      chalkframes-player { position: absolute; inset: 0; }
     </style>
     <script src="/player.js"></script>
     <script src="/slideshow.js"></script>
   </head>
   <body>
-    <hyperframes-slideshow tabindex="0" sound>
-      <hyperframes-player interactive src="/composition/index.html"></hyperframes-player>
-      <script type="application/hyperframes-slideshow+json">
+    <chalkframes-slideshow tabindex="0" sound>
+      <chalkframes-player interactive src="/composition/index.html"></chalkframes-player>
+      <script type="application/chalkframes-slideshow+json">
 ${islandJson}
       </script>
-    </hyperframes-slideshow>
+    </chalkframes-slideshow>
     <!-- Present CTA lives in the component's nav cluster (data-hf-present, plus
          the P key) — no page-level button, or we'd render two Present CTAs. -->
     <script>
@@ -231,14 +231,14 @@ ${islandJson}
         clips.back.volume = 0.4;
         for (var k in clips) clips[k].preload = "auto";
 
-        // Mute state is owned by <hyperframes-slideshow sound>; mirror it.
+        // Mute state is owned by <chalkframes-slideshow sound>; mirror it.
         var muted = false;
         function setClipsMuted(nextMuted) {
           Object.keys(clips).forEach(function (name) {
             clips[name].muted = nextMuted;
           });
         }
-        var ss = document.querySelector("hyperframes-slideshow");
+        var ss = document.querySelector("chalkframes-slideshow");
         if (ss) {
           ss.addEventListener("hf-sound", function (e) {
             muted = e.detail && e.detail.muted === true;
@@ -306,7 +306,7 @@ export async function registerPresentCompositionRoute(
   app: Hono,
   project: ProjectDir,
 ): Promise<void> {
-  const { isSafePath } = await import("@hyperframes/core/studio-api");
+  const { isSafePath } = await import("@chalkframes/core/studio-api");
   app.get("/composition/*", (ctx) => {
     const reqPath = requestSubPath(ctx.req.url, "composition");
     const filePath = resolve(project.dir, reqPath);

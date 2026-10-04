@@ -10,7 +10,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseHtml } from "./htmlParser.js";
 import { maxEndTime, serialize } from "./test-utils.js";
-import { generateHyperframesHtml } from "@hyperframes/core/generators";
+import { generateChalkframesHtml } from "@chalkframes/core/generators";
 
 describe("T1 — parse→serialize round-trip (DOM/timing)", () => {
   it("preserves element count and ids through one round-trip", () => {
@@ -116,7 +116,7 @@ describe("T1 — registry block round-trips (DOM/timing)", () => {
     const html = readFileSync(blockFile, "utf8");
     expect(html).toMatch(/<script/);
     const parsed = parseHtml(html);
-    const out = generateHyperframesHtml(parsed.elements, maxEndTime(parsed.elements), {
+    const out = generateChalkframesHtml(parsed.elements, maxEndTime(parsed.elements), {
       compositionId: "test-comp",
       resolution: parsed.resolution,
       styles: parsed.styles ?? undefined,

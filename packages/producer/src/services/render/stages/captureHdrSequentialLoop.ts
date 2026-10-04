@@ -18,7 +18,7 @@ import {
   type TransitionFn,
   TRANSITIONS,
   crossfade,
-} from "@hyperframes/engine";
+} from "@chalkframes/engine";
 import type { ProducerLogger } from "../../../logger.js";
 import {
   type HdrCompositeContext,

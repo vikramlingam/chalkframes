@@ -1,8 +1,8 @@
-export type HyperframeLintSeverity = "error" | "warning" | "info";
+export type ChalkframeLintSeverity = "error" | "warning" | "info";
 
-export type HyperframeLintFinding = {
+export type ChalkframeLintFinding = {
   code: string;
-  severity: HyperframeLintSeverity;
+  severity: ChalkframeLintSeverity;
   message: string;
   file?: string;
   /** One-based coordinates in the original source; absent when no unique location exists. */
@@ -28,16 +28,16 @@ export type LintTimings = {
   slowestRuleMs: number;
 };
 
-export type HyperframeLintResult = {
+export type ChalkframeLintResult = {
   ok: boolean;
   errorCount: number;
   warningCount: number;
   infoCount: number;
-  findings: HyperframeLintFinding[];
+  findings: ChalkframeLintFinding[];
   timings?: LintTimings;
 };
 
-export type HyperframeLinterOptions = {
+export type ChalkframeLinterOptions = {
   filePath?: string;
   isSubComposition?: boolean;
   externalStyles?: Array<{ href: string; content: string; file?: string }>;
@@ -57,4 +57,4 @@ export type HyperframeLinterOptions = {
 // Rules may be async (e.g. when lazy-loading heavy dependencies like recast).
 export type LintRule<TContext> = (
   ctx: TContext,
-) => HyperframeLintFinding[] | Promise<HyperframeLintFinding[]>;
+) => ChalkframeLintFinding[] | Promise<ChalkframeLintFinding[]>;

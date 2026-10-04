@@ -33,7 +33,7 @@ export async function resolveTemplateList(): Promise<TemplateOption[]> {
   const bundled = [...BUNDLED_TEMPLATES];
   const bundledIds = new Set(bundled.map((t) => t.id));
 
-  const entries = await listRegistryItems({ type: "hyperframes:example" });
+  const entries = await listRegistryItems({ type: "chalkframes:example" });
   const items = await loadAllItems(entries);
 
   const remoteOptions: TemplateOption[] = items

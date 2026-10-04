@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { insertBeforeCloseTag } from "@hyperframes/core/compiler/html-document";
+import { insertBeforeCloseTag } from "@chalkframes/core/compiler/html-document";
 import type { StudioApiAdapter } from "../types.js";
 import {
   createMediaCodecProbeCache,
@@ -24,7 +24,7 @@ import { resolveProxy, PROXY_PARAMS_VERSION } from "./proxyTranscoder.js";
  * fields are optional so any existing `StudioApiAdapter` value remains
  * structurally assignable without editing the shared interface:
  * `autoProxy` defaults to true (on) when omitted — a later unit wires the
- * CLI `--no-proxy` flag / `hyperframes.json` setting through it;
+ * CLI `--no-proxy` flag / `chalkframes.json` setting through it;
  * `mediaCodecProbeCache` lets a host share one probe cache across
  * preview/play/static-server surfaces instead of each constructing its own.
  */

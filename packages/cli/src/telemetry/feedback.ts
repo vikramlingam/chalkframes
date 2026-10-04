@@ -9,7 +9,7 @@ import { parseFeedbackRating } from "../utils/feedbackRating.js";
 const DEFAULT_FEEDBACK_INTERVAL = 15;
 
 function getFeedbackInterval(): number {
-  const env = process.env.HYPERFRAMES_FEEDBACK_INTERVAL;
+  const env = process.env.CHALKFRAMES_FEEDBACK_INTERVAL;
   if (env) {
     const n = parseInt(env, 10);
     if (Number.isFinite(n) && n > 0) return n;
@@ -49,9 +49,9 @@ export async function maybePromptRenderFeedback(opts: {
     config.lastFeedbackPromptAt = config.renderSuccessCount;
     writeConfig(config);
     console.log(
-      c.dim("  [hyperframes] ") +
+      c.dim("  [chalkframes] ") +
         c.dim("Agent feedback: ") +
-        c.accent('hyperframes feedback --rating <0-10> --comment "..."'),
+        c.accent('chalkframes feedback --rating <0-10> --comment "..."'),
     );
     return;
   }
@@ -67,7 +67,7 @@ export async function maybePromptRenderFeedback(opts: {
   writeConfig(config);
 
   const answer = await askQuestion(
-    `  ${c.dim("How likely are you to recommend HyperFrames?")} ${c.accent("[0=not likely 10=extremely likely, enter to skip]")} `,
+    `  ${c.dim("How likely are you to recommend ChalkFrames?")} ${c.accent("[0=not likely 10=extremely likely, enter to skip]")} `,
   );
 
   const rating = parseFeedbackRating(answer);

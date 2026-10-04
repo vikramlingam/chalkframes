@@ -6,12 +6,12 @@ import { VERSION } from "../version.js";
 import { isDevMode } from "./env.js";
 import { hostAnswers } from "./hostAnswers.js";
 import { detectInstaller } from "./installerDetection.js";
-import { readPinnedHyperframesVersions } from "./projectPin.js";
+import { readPinnedChalkframesVersions } from "./projectPin.js";
 import { isSafeVersion } from "./safeVersion.js";
 
 export { isSafeVersion } from "./safeVersion.js";
 
-const NPM_REGISTRY_URL = "https://registry.npmjs.org/hyperframes/latest";
+const NPM_REGISTRY_URL = "https://registry.npmjs.org/chalkframes/latest";
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const FETCH_TIMEOUT_MS = 3000;
 
@@ -154,15 +154,15 @@ export function withMeta<T extends object>(
  */
 export function printDeprecationNotice(command: string): void {
   process.stderr.write(
-    `'hyperframes ${command}' is deprecated and will be removed in a future release. Use 'hyperframes check' instead.\n`,
+    `'chalkframes ${command}' is deprecated and will be removed in a future release. Use 'chalkframes check' instead.\n`,
   );
 }
 
-/** True when the update check is off: dev mode, CI, or the HYPERFRAMES_NO_UPDATE_CHECK opt-out. */
+/** True when the update check is off: dev mode, CI, or the CHALKFRAMES_NO_UPDATE_CHECK opt-out. */
 export function updateCheckDisabled(): boolean {
   if (isDevMode()) return true;
   if (process.env["CI"] === "true" || process.env["CI"] === "1") return true;
-  return process.env["HYPERFRAMES_NO_UPDATE_CHECK"] === "1";
+  return process.env["CHALKFRAMES_NO_UPDATE_CHECK"] === "1";
 }
 
 /**
@@ -175,7 +175,7 @@ export function updateNoticesSuppressed(): boolean {
 
 /**
  * Print update notice to stderr if a newer version is available.
- * Skipped in CI, non-TTY, dev mode, or when HYPERFRAMES_NO_UPDATE_CHECK is set.
+ * Skipped in CI, non-TTY, dev mode, or when CHALKFRAMES_NO_UPDATE_CHECK is set.
  */
 export function printUpdateNotice(): void {
   if (updateNoticesSuppressed()) return;
@@ -185,12 +185,12 @@ export function printUpdateNotice(): void {
 
   // Show the command that updates *this* install: the detected package
   // manager's upgrade for owned global installs (npm/bun/pnpm/brew), and the
-  // universal `npx hyperframes@latest` for ephemeral/unknown installs (where a
+  // universal `npx chalkframes@latest` for ephemeral/unknown installs (where a
   // manager command wouldn't apply). detectInstaller() only runs here, after
   // the suppression + update-available gates, so it adds no cost to normal runs.
   const safeLatest = isSafeVersion(meta.latestVersion);
   const managerCommand = safeLatest ? detectInstaller().installCommand(meta.latestVersion) : null;
-  const command = managerCommand ?? "npx hyperframes@latest";
+  const command = managerCommand ?? "npx chalkframes@latest";
 
   process.stderr.write(
     `\n  Update available: ${meta.version} \u2192 ${meta.latestVersion}\n` +
@@ -218,13 +218,13 @@ export function printStalePinNotice(cwd: string = process.cwd()): void {
   } catch {
     return;
   }
-  const pins = readPinnedHyperframesVersions(scripts);
+  const pins = readPinnedChalkframesVersions(scripts);
   // A CLI older than the pin (e.g. a stale npx cache) misjudges every run, so this is never throttled.
   const newerPins = pins.filter((v) => isNewerSemver(v, VERSION)).sort(compareVersions);
   if (newerPins.length > 0) {
     process.stderr.write(
-      `\n  This is hyperframes ${VERSION}, but this project pins hyperframes@${newerPins.join(", ")}.\n` +
-        `  Run it through the project's npm scripts, or npx hyperframes@${newerPins.at(-1)}.\n\n`,
+      `\n  This is chalkframes ${VERSION}, but this project pins chalkframes@${newerPins.join(", ")}.\n` +
+        `  Run it through the project's npm scripts, or npx chalkframes@${newerPins.at(-1)}.\n\n`,
     );
     return;
   }
@@ -247,7 +247,7 @@ export function printStalePinNotice(cwd: string = process.cwd()): void {
   writeConfig(config);
 
   process.stderr.write(
-    `\n  This project pins hyperframes@${stale.join(", ")} (latest ${latest}).\n` +
-      `  Bump it: npx hyperframes@latest upgrade --project\n\n`,
+    `\n  This project pins chalkframes@${stale.join(", ")} (latest ${latest}).\n` +
+      `  Bump it: npx chalkframes@latest upgrade --project\n\n`,
   );
 }

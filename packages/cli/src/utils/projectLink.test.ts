@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Point the module's ~/.hyperframes config dir at a throwaway home so tests use real fs
+// Point the module's ~/.chalkframes config dir at a throwaway home so tests use real fs
 // without touching the developer's actual home directory.
 const osState = vi.hoisted(() => ({ home: "" }));
 vi.mock("node:os", async (importOriginal) => {
@@ -22,7 +22,7 @@ describe("projectLink", () => {
 
   beforeEach(async () => {
     osState.home = mkdtempSync(join(tmpdir(), "hf-home-"));
-    projectsPath = join(osState.home, ".hyperframes", "projects.json");
+    projectsPath = join(osState.home, ".chalkframes", "projects.json");
     projectDirs = [];
     vi.resetModules();
     ({ ensureProjectId, readProjectLink, writeProjectLink, readTeamProject, writeTeamProject } =
@@ -51,7 +51,7 @@ describe("projectLink", () => {
 
   it("round-trips a project link", () => {
     const dir = makeProjectDir();
-    const link = { projectId: "hfp_123", url: "https://hyperframes.dev/p/hfp_123" };
+    const link = { projectId: "hfp_123", url: "https://chalkframes.dev/p/hfp_123" };
 
     writeProjectLink(dir, link);
 
@@ -60,7 +60,7 @@ describe("projectLink", () => {
 
   it("persists only the project id and URL", () => {
     const dir = makeProjectDir();
-    const link = { projectId: "hfp_123", url: "https://hyperframes.dev/p/hfp_123", secret: "nope" };
+    const link = { projectId: "hfp_123", url: "https://chalkframes.dev/p/hfp_123", secret: "nope" };
 
     writeProjectLink(dir, link);
 

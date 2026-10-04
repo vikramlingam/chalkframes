@@ -1,11 +1,11 @@
-import type { LintContext, HyperframeLintFinding } from "../context";
+import type { LintContext, ChalkframeLintFinding } from "../context";
 import type { LintRule } from "../types";
 import { readAttr, readDecodedAttr } from "../utils";
 import {
   parseSlideshowManifest,
   resolveSlideshow,
   isSceneLikeCompositionId,
-} from "@hyperframes/parsers/slideshow";
+} from "@chalkframes/parsers/slideshow";
 
 type Scene = { id: string; start: number; duration: number };
 
@@ -49,7 +49,7 @@ function extractScenesFromClips(ctx: LintContext): Scene[] {
 
 export const slideshowRules: LintRule<LintContext>[] = [
   (ctx) => {
-    const findings: HyperframeLintFinding[] = [];
+    const findings: ChalkframeLintFinding[] = [];
 
     let manifest;
     try {
@@ -60,7 +60,7 @@ export const slideshowRules: LintRule<LintContext>[] = [
         severity: "error",
         message: `Slideshow island contains invalid JSON or structure: ${e instanceof Error ? e.message : String(e)}`,
         fixHint:
-          'Ensure the <script type="application/hyperframes-slideshow+json"> block contains valid JSON matching the SlideshowManifest schema.',
+          'Ensure the <script type="application/chalkframes-slideshow+json"> block contains valid JSON matching the SlideshowManifest schema.',
       });
       return findings;
     }

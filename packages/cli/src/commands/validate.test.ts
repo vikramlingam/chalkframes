@@ -23,7 +23,7 @@ import { waitForPreferredSeekTarget } from "../capture/captureCompositionFrame.j
 import type { ProjectLintResult } from "../utils/lintProject.js";
 
 // validateInBrowser lazy-loads the producer localize helpers via loadProducer;
-// mock it so these unit tests never resolve @hyperframes/producer's built dist.
+// mock it so these unit tests never resolve @chalkframes/producer's built dist.
 vi.mock("../utils/producer.js", () => ({
   loadProducer: vi.fn(async () => ({
     localizeRemoteMediaSources: vi.fn(async (html: string) => ({
@@ -174,7 +174,7 @@ describe("shouldIgnoreRequestFailure", () => {
     );
     expect(
       shouldIgnoreRequestFailure(
-        "https://www.heygenverse.com/s/50f13ccf-9002-4d80-b567-9d4c0eac30d8/raw",
+        "https://www.chalkframesverse.com/s/50f13ccf-9002-4d80-b567-9d4c0eac30d8/raw",
         "net::ERR_ABORTED",
         "media",
       ),
@@ -187,7 +187,7 @@ describe("shouldIgnoreRequestFailure", () => {
     ).toBe(false);
     expect(
       shouldIgnoreRequestFailure(
-        "https://www.heygenverse.com/s/50f13ccf-9002-4d80-b567-9d4c0eac30d8/raw",
+        "https://www.chalkframesverse.com/s/50f13ccf-9002-4d80-b567-9d4c0eac30d8/raw",
         "net::ERR_ABORTED",
         "xhr",
       ),
@@ -386,8 +386,8 @@ describe("validate command deprecation (U5)", () => {
   it("prints a one-line deprecation notice to stderr and never to stdout", async () => {
     const { default: validateCommand } = await import("./validate.js");
     const { stderrText, stdoutText } = await runAndCaptureStdio(validateCommand);
-    expect(stderrText).toContain("hyperframes validate");
-    expect(stderrText).toContain("hyperframes check");
+    expect(stderrText).toContain("chalkframes validate");
+    expect(stderrText).toContain("chalkframes check");
     expect(stdoutText).toBe("");
   });
 

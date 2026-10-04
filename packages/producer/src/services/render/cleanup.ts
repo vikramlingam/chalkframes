@@ -1,7 +1,7 @@
 /** Error-detail construction shared by render failure paths. */
 
 import { freemem } from "node:os";
-import { type SubTimelineWaitOutcome } from "@hyperframes/engine";
+import { type SubTimelineWaitOutcome } from "@chalkframes/engine";
 import type { HdrDiagnostics, RenderJob } from "../renderOrchestrator.js";
 import { normalizeErrorMessage } from "../../utils/errorMessage.js";
 import type { RenderObservabilitySummary } from "./observability.js";

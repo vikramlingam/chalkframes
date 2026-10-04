@@ -1,5 +1,5 @@
 /**
- * `@hyperframes/producer/distributed` — the distributed render primitives.
+ * `@chalkframes/producer/distributed` — the distributed render primitives.
  *
  * The distributed activities are pure functions over local file paths;
  * networking + orchestration live in adapters. New integrations should use
@@ -12,7 +12,7 @@
  *   planV2,
  *   renderChunkV2,
  *   assembleV2,
- * } from "@hyperframes/producer/distributed";
+ * } from "@chalkframes/producer/distributed";
  *
  * // Controller-side: publish a content-addressed Plan v2 manifest + CAS.
  * const planResult = await planV2(projectDir, config, planV2Dir);

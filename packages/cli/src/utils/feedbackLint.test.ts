@@ -46,7 +46,7 @@ describe("lintFeedbackComment", () => {
       rating: 4,
       comment: [
         "cloudrun submission kept timing out.",
-        "REPRO COMMAND: cd project && npx hyperframes cloudrun submit",
+        "REPRO COMMAND: cd project && npx chalkframes cloudrun submit",
         "EXPECTED / ACTUAL: uploads / hangs at seek",
       ].join("\n"),
     });
@@ -58,7 +58,7 @@ describe("lintFeedbackComment", () => {
       rating: 8,
       comment: [
         "Repro command:",
-        "  cd project && npx hyperframes render",
+        "  cd project && npx chalkframes render",
         "EXPECTED / ACTUAL: completes / hangs",
       ].join("\n"),
     });
@@ -70,7 +70,7 @@ describe("lintFeedbackComment", () => {
     const warnings = lintFeedbackComment({
       rating: 5,
       comment: [
-        "REPRO COMMAND: cd proj && npx hyperframes render",
+        "REPRO COMMAND: cd proj && npx chalkframes render",
         "EXPECTED / ACTUAL: output correct / black frame at 0.5s",
       ].join("\n"),
     });
@@ -84,7 +84,7 @@ describe("lintFeedbackComment", () => {
     const warnings = lintFeedbackComment({
       rating: COMPOSITION_STRUCTURE_RATING_CEILING + 1,
       comment: [
-        "REPRO COMMAND: cd proj && npx hyperframes render",
+        "REPRO COMMAND: cd proj && npx chalkframes render",
         "minor black bar on the right edge; workaround with --resolution landscape",
       ].join("\n"),
     });
@@ -97,7 +97,7 @@ describe("lintFeedbackComment", () => {
       rating: 4,
       comment: [
         "docker mode always fails on Alpine",
-        "REPRO COMMAND: docker run ... && npx hyperframes doctor --docker",
+        "REPRO COMMAND: docker run ... && npx chalkframes doctor --docker",
       ].join("\n"),
     });
     expect(warnings.filter((w) => w.code === "missing-composition-structure")).toEqual([]);
@@ -137,7 +137,7 @@ describe("mentionsVisualDefect", () => {
   });
 
   it("does not fire on `render` — CLI's primary command, too noisy", () => {
-    // `hyperframes render` is the CLI's core command; comments like
+    // `chalkframes render` is the CLI's core command; comments like
     // "render OOMed at 118s" are build/perf issues, not visual defects.
     expect(mentionsVisualDefect("render OOMed at 118s")).toBe(false);
     expect(mentionsVisualDefect("render hung on Alpine")).toBe(false);
@@ -160,7 +160,7 @@ describe("marker-check case-insensitivity", () => {
       rating: 5,
       comment: [
         "cloudrun submission kept timing out.",
-        "Repro command: cd project && npx hyperframes cloudrun submit",
+        "Repro command: cd project && npx chalkframes cloudrun submit",
       ].join("\n"),
     });
     expect(warnings.filter((w) => w.code === "missing-repro-command")).toEqual([]);
@@ -170,7 +170,7 @@ describe("marker-check case-insensitivity", () => {
     const warnings = lintFeedbackComment({
       rating: 4,
       comment: [
-        "REPRO COMMAND: cd proj && npx hyperframes render",
+        "REPRO COMMAND: cd proj && npx chalkframes render",
         "composition_structure:",
         "  elements: video=1 audio=0 img=0 svg=0 canvas=0 subComps=0",
         "black frame at 0.5s",

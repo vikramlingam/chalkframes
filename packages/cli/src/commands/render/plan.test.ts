@@ -92,12 +92,12 @@ describe("createRenderPlan", () => {
       );
     }
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({
         registry: "https://example.test",
         registryItems: [
-          { name: "kept", type: "hyperframes:block", target: "compositions/kept.html" },
-          { name: "dropped", type: "hyperframes:block", target: "compositions/dropped.html" },
+          { name: "kept", type: "chalkframes:block", target: "compositions/kept.html" },
+          { name: "dropped", type: "chalkframes:block", target: "compositions/dropped.html" },
         ],
       }),
     );
@@ -231,17 +231,17 @@ describe("createRenderPlan", () => {
 
   it("resolves a relative frame-cache directory into the execution environment", () => {
     const plan = createRenderPlan({ dir: projectDir, "frames-cache-dir": "./frame-cache" });
-    expect(plan.environment.HYPERFRAMES_EXTRACT_CACHE_DIR).toBe(resolve("./frame-cache"));
+    expect(plan.environment.CHALKFRAMES_EXTRACT_CACHE_DIR).toBe(resolve("./frame-cache"));
   });
 
   it("preserves frame-cache disable aliases for engine normalization", () => {
     const plan = createRenderPlan({ dir: projectDir, "frames-cache-dir": "OFF" });
-    expect(plan.environment.HYPERFRAMES_EXTRACT_CACHE_DIR).toBe("OFF");
+    expect(plan.environment.CHALKFRAMES_EXTRACT_CACHE_DIR).toBe("OFF");
   });
 
-  it("attributes a flag-less render to the skill persisted in hyperframes.json", () => {
+  it("attributes a flag-less render to the skill persisted in chalkframes.json", () => {
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ authoringSkill: "product-launch-video" }),
     );
     const plan = createRenderPlan({ dir: projectDir });
@@ -252,7 +252,7 @@ describe("createRenderPlan", () => {
 
   it("lets an explicit --skill flag override the persisted project owner", () => {
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ authoringSkill: "product-launch-video" }),
     );
     const plan = createRenderPlan({ dir: projectDir, skill: "motion-graphics" });
@@ -268,7 +268,7 @@ describe("createRenderPlan", () => {
 
   it("preserves a malformed --skill value for telemetry without adopting it as authoringSkill", () => {
     writeFileSync(
-      join(projectDir, "hyperframes.json"),
+      join(projectDir, "chalkframes.json"),
       JSON.stringify({ authoringSkill: "product-launch-video" }),
     );
     // Fails SKILL_SLUG (spaces, uppercase): normalizeSkillSlug rejects the shape,
@@ -285,8 +285,8 @@ describe("createRenderPlan", () => {
     const OVERRIDE_KEYS = [
       "HF_DE_VERIFY",
       "HF_TEST_ENV_INT",
-      "HYPERFRAMES_ZZZ_TEST_OVERRIDE",
-      "HYPERFRAMES_AAA_TEST_OVERRIDE",
+      "CHALKFRAMES_ZZZ_TEST_OVERRIDE",
+      "CHALKFRAMES_AAA_TEST_OVERRIDE",
       "HF_SHADER_WORKER_ENTRY",
     ];
 
@@ -308,22 +308,22 @@ describe("createRenderPlan", () => {
       for (const key of OVERRIDE_KEYS) expect(plan.hfEnvOverrides).not.toContain(key);
     });
 
-    it("reports the sorted names (never values) of set HF_/HYPERFRAMES_ env vars", () => {
+    it("reports the sorted names (never values) of set HF_/CHALKFRAMES_ env vars", () => {
       process.env.HF_TEST_ENV_INT = "some-path-that-must-not-leak";
-      process.env.HYPERFRAMES_ZZZ_TEST_OVERRIDE = "another-secret-looking-value";
+      process.env.CHALKFRAMES_ZZZ_TEST_OVERRIDE = "another-secret-looking-value";
       const plan = createRenderPlan({ dir: projectDir });
       expect(plan.hfEnvOverrides).toContain("HF_TEST_ENV_INT");
-      expect(plan.hfEnvOverrides).toContain("HYPERFRAMES_ZZZ_TEST_OVERRIDE");
+      expect(plan.hfEnvOverrides).toContain("CHALKFRAMES_ZZZ_TEST_OVERRIDE");
       expect(plan.hfEnvOverrides.join(" ")).not.toContain("some-path-that-must-not-leak");
       expect(plan.hfEnvOverrides.join(" ")).not.toContain("another-secret-looking-value");
     });
 
     it("sorts names rather than reporting them in process.env's insertion order", () => {
-      process.env.HYPERFRAMES_ZZZ_TEST_OVERRIDE = "1";
-      process.env.HYPERFRAMES_AAA_TEST_OVERRIDE = "1";
+      process.env.CHALKFRAMES_ZZZ_TEST_OVERRIDE = "1";
+      process.env.CHALKFRAMES_AAA_TEST_OVERRIDE = "1";
       const plan = createRenderPlan({ dir: projectDir });
-      const indexOfAaa = plan.hfEnvOverrides.indexOf("HYPERFRAMES_AAA_TEST_OVERRIDE");
-      const indexOfZzz = plan.hfEnvOverrides.indexOf("HYPERFRAMES_ZZZ_TEST_OVERRIDE");
+      const indexOfAaa = plan.hfEnvOverrides.indexOf("CHALKFRAMES_AAA_TEST_OVERRIDE");
+      const indexOfZzz = plan.hfEnvOverrides.indexOf("CHALKFRAMES_ZZZ_TEST_OVERRIDE");
       expect(indexOfAaa).toBeGreaterThanOrEqual(0);
       expect(indexOfAaa).toBeLessThan(indexOfZzz);
     });

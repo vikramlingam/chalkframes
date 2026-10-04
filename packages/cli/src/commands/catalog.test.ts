@@ -1,7 +1,7 @@
 // fallow-ignore-file code-duplication
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RegistryItem } from "@hyperframes/core";
+import type { RegistryItem } from "@chalkframes/core";
 import { catalogRow, countUnindexed, pickByName, searchMissCommand } from "./catalog.js";
 
 /** The whole registry, which is what "in this registry" has to be measured against. */
@@ -188,12 +188,12 @@ vi.mock("../registry/localSemantic.js", () => ({
 
 const block = (name: string, tags?: string[]): { name: string; type: string; tags?: string[] } => ({
   name,
-  type: "hyperframes:block",
+  type: "chalkframes:block",
   tags,
 });
 const component = (name: string): { name: string; type: string } => ({
   name,
-  type: "hyperframes:component",
+  type: "chalkframes:component",
 });
 
 interface Envelope {
@@ -459,7 +459,7 @@ describe("catalog --json meaning search", () => {
 
     expect(envelope.shown).toBeGreaterThan(0);
     expect(envelope.report_gap).toBe(
-      'npx hyperframes feedback --search-miss "make a number count up" ' +
+      'npx chalkframes feedback --search-miss "make a number count up" ' +
         '--wanted "<the move you needed>" --tier on-device',
     );
   });
@@ -743,7 +743,7 @@ describe("the on-device download offer", () => {
 
     const { err } = await asATerminal(() => runForExit({ query: "count up" }));
 
-    expect(err).toContain("Could not save the answer in settings; `hyperframes doctor` says why.");
+    expect(err).toContain("Could not save the answer in settings; `chalkframes doctor` says why.");
   });
 
   it.each([
@@ -889,7 +889,7 @@ describe("the on-device download offer", () => {
 describe("catalogRow", () => {
   const block = {
     name: "app-showcase",
-    type: "hyperframes:block",
+    type: "chalkframes:block",
     title: "App Showcase",
     description: "Three phones",
     tags: ["showcase"],

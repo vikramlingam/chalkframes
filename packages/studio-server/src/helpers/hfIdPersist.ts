@@ -1,19 +1,19 @@
-import { ensureHfIds } from "@hyperframes/parsers/hf-ids";
+import { ensureHfIds } from "@chalkframes/parsers/hf-ids";
 import { createHash } from "node:crypto";
 import { closeSync, constants, fstatSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { replaceFileAtomically } from "@hyperframes/core/atomic-file";
+import { replaceFileAtomically } from "@chalkframes/core/atomic-file";
 import { isInHiddenOrVendorDir, mkdirWithinProject, walkDir } from "./safePath.js";
 
 export const isCompositionSource = (html: string): boolean => /data-composition-id\s*=/.test(html);
 
-const STAMP_RECORD = join(".hyperframes", "hf-ids-stamped.json");
+const STAMP_RECORD = join(".chalkframes", "hf-ids-stamped.json");
 
 const contentHash = (text: string): string => createHash("sha1").update(text).digest("base64url");
 
 /** Pins hf-ids into every composition in the project. A host runs it once before it serves or
  * watches the project: an id write during a session reaches Studio as an outside edit and reloads it.
- * A file whose content hash matches the last run's (kept in `.hyperframes`) is not parsed again. */
+ * A file whose content hash matches the last run's (kept in `.chalkframes`) is not parsed again. */
 export function stampProjectHfIds(projectDir: string): void {
   const recordPath = join(projectDir, STAMP_RECORD);
   let last: Record<string, string> = {};
@@ -107,7 +107,7 @@ export function stampFileHfIds(filePath: string): string | null {
     }
     return normalized;
   } catch (err) {
-    console.warn("[hyperframes] stampFileHfIds: failed to stamp ids:", err);
+    console.warn("[chalkframes] stampFileHfIds: failed to stamp ids:", err);
     return null;
   } finally {
     if (fd !== null) closeSync(fd);

@@ -1,5 +1,5 @@
 {
-  "package": "@hyperframes/parsers",
+  "package": "@chalkframes/parsers",
   "localNodeRuntime": true,
   "subpaths": {
     ".": {

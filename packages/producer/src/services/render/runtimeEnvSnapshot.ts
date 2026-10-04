@@ -68,7 +68,7 @@ export function snapshotRuntimeEnv(
  *
  * Existing snapshot keys are overwritten. Keys NOT in the snapshot are
  * never touched — the worker's host may set additional runtime knobs
- * (`HYPERFRAMES_EXTRACT_CACHE_DIR`, etc.).
+ * (`CHALKFRAMES_EXTRACT_CACHE_DIR`, etc.).
  */
 export function applyRuntimeEnvSnapshot(
   snapshot: Record<string, string>,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { lintHyperframeHtml } from "../hyperframeLinter.js";
+import { lintChalkframeHtml } from "../chalkframeLinter.js";
 
 function compositionWithBodyPrefix(prefixContent: string, rootContent = ""): string {
   return `
@@ -51,7 +51,7 @@ describe("core rules", () => {
   </script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
 
     expect(
       result.findings.find((finding) => finding.code === "invalid_inline_script_syntax"),
@@ -69,7 +69,7 @@ describe("core rules", () => {
   <script>window.__timelines = {};</script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
 
     expect(
       result.findings.find(
@@ -87,7 +87,7 @@ describe("core rules", () => {
   <script>window.__timelines = {};</script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((item) => item.code === "id_requires_css_escape");
 
     expect(finding?.severity).toBe("warning");
@@ -104,7 +104,7 @@ describe("core rules", () => {
   <script>window.__timelines = {};</script>
 </body></html>`;
 
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
 
     expect(result.findings.find((item) => item.code === "id_requires_css_escape")).toBeUndefined();
   });
@@ -115,7 +115,7 @@ describe("core rules", () => {
   <div id="root" data-width="1920" data-height="1080"></div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_missing_composition_id");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -127,14 +127,14 @@ describe("core rules", () => {
   <div id="root" data-composition-id="c1"></div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_missing_dimensions");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
   });
 
   it("reports root_dimensions_mismatch when html/body CSS and the viewport meta are still the scaffolded landscape size", async () => {
-    // GH#4001: the root is edited to portrait without `hyperframes init
+    // GH#4001: the root is edited to portrait without `chalkframes init
     // --resolution`, the only thing that otherwise keeps the scaffold's copies
     // of the resolution in sync. The stale landscape body (overflow: hidden)
     // then clips the correctly-sized root at its old height.
@@ -142,7 +142,7 @@ describe("core rules", () => {
       "width: 1920px; height: 1080px;",
       "width=1920, height=1080",
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_dimensions_mismatch");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("warning");
@@ -155,7 +155,7 @@ describe("core rules", () => {
       "height: 1080px; width: 1920px;",
       "width=1080, height=1920",
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_dimensions_mismatch");
     expect(finding?.message).toContain("html/body CSS is 1920x1080");
     expect(finding?.message).not.toContain("viewport");
@@ -166,13 +166,13 @@ describe("core rules", () => {
       "width: 1080px; height: 1920px;",
       "width=1080, height=1920",
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_dimensions_mismatch")).toBeUndefined();
   });
 
   it("does not report root_dimensions_mismatch for a sub-composition fragment with no html/body/viewport to compare", async () => {
     const html = `<div data-composition-id="c1" data-width="1080" data-height="1920"></div>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_dimensions_mismatch")).toBeUndefined();
   });
 
@@ -191,7 +191,7 @@ describe("core rules", () => {
   <script>window.__timelines = {};</script>
 </body>
 </html>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
     expect(result.findings.find((f) => f.code === "root_dimensions_mismatch")).toBeUndefined();
   });
 
@@ -207,7 +207,7 @@ describe("core rules", () => {
   <script>window.__timelines = {};</script>
 </body>
 </html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_dimensions_mismatch");
     expect(finding).toBeDefined();
     // No html/body CSS block is present here at all (the real hf2550 fixture
@@ -223,7 +223,7 @@ describe("core rules", () => {
       "width: 1080px; height: 1920px;",
       "width=1440, height=2560",
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_dimensions_mismatch");
     expect(finding).toBeDefined();
     expect(finding?.message).toContain("the viewport meta is 1440x2560");
@@ -236,7 +236,7 @@ describe("core rules", () => {
       "width: 1920px; height: 1080px;",
       "width=1080, height=1920",
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "root_dimensions_mismatch");
     expect(finding?.message).toContain("clips");
   });
@@ -247,7 +247,7 @@ describe("core rules", () => {
   <div id="overlay-flash"></div>
   <script>window.__timelines = window.__timelines || {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_missing_composition_id")).toBeUndefined();
     expect(result.findings.find((f) => f.code === "root_missing_dimensions")).toBeUndefined();
   });
@@ -267,7 +267,7 @@ describe("core rules", () => {
   <div id="root" data-composition-id="c1" data-width="1920" data-height="1080"></div>
   <script>window.__timelines = window.__timelines || {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_missing_composition_id")).toBeUndefined();
     expect(result.findings.find((f) => f.code === "root_missing_dimensions")).toBeUndefined();
   });
@@ -278,7 +278,7 @@ describe("core rules", () => {
   <svg id="root" data-composition-id="c1" data-width="1920" data-height="1080"></svg>
   <script>window.__timelines = window.__timelines || {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_missing_composition_id")).toBeUndefined();
     expect(result.findings.find((f) => f.code === "root_missing_dimensions")).toBeUndefined();
   });
@@ -300,7 +300,7 @@ describe("core rules", () => {
   </svg>
   <script>window.__timelines = window.__timelines || {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "root_missing_composition_id")).toBeUndefined();
     expect(result.findings.find((f) => f.code === "root_missing_dimensions")).toBeUndefined();
   });
@@ -313,7 +313,7 @@ describe("core rules", () => {
     const tl = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "missing_timeline_registry");
     expect(finding).toBeDefined();
   });
@@ -323,7 +323,7 @@ describe("core rules", () => {
 <html><body>
   <div id="root" data-composition-id="c1" data-no-timeline data-width="1920" data-height="1080" data-duration="5"></div>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "missing_timeline_registry")).toBeUndefined();
   });
 
@@ -335,7 +335,7 @@ describe("core rules", () => {
     const tl = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html, { isSubComposition: true });
+    const result = await lintChalkframeHtml(html, { isSubComposition: true });
     const finding = result.findings.find((f) => f.code === "missing_timeline_registry");
     expect(finding).toBeUndefined();
   });
@@ -348,7 +348,7 @@ describe("core rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "host_missing_composition_id");
     expect(finding).toBeDefined();
   });
@@ -373,7 +373,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = tl;
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(
       result.findings.find((f) => f.code === "timeline_registry_missing_init"),
     ).toBeUndefined();
@@ -392,7 +392,7 @@ describe("core rules", () => {
     window.__timelines.c1 = tl;
   </script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(
       result.findings.find((f) => f.code === "timeline_registry_missing_init"),
     ).toBeUndefined();
@@ -415,7 +415,7 @@ describe("core rules", () => {
   </script>
 </body>
 </html>`;
-    const result = await lintHyperframeHtml(validComposition);
+    const result = await lintChalkframeHtml(validComposition);
     const finding = result.findings.find((f) => f.code === "timeline_registry_missing_init");
     expect(finding).toBeUndefined();
   });
@@ -432,7 +432,7 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "unbalanced_style_tags");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("error");
@@ -452,7 +452,7 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "unbalanced_style_tags")).toBeUndefined();
   });
 
@@ -468,7 +468,7 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "unbalanced_style_tags")?.severity).toBe("error");
   });
 
@@ -483,13 +483,13 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "unbalanced_style_tags")).toBeUndefined();
   });
 
   it("does not report paired style blocks", async () => {
     const html = compositionWithBodyPrefix("", `<div class="editorial-block">Hello</div>`);
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     expect(result.findings.find((f) => f.code === "unbalanced_style_tags")).toBeUndefined();
   });
 
@@ -501,7 +501,7 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "visible_markup_comment");
 
     expect(finding).toBeDefined();
@@ -522,7 +522,7 @@ describe("core rules", () => {
     <div class="editorial-block">Hello</div>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "visible_markup_comment");
 
     expect(finding).toBeDefined();
@@ -548,7 +548,7 @@ describe("core rules", () => {
   </script>
 </body>
 </html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "visible_markup_comment");
 
     expect(finding).toBeUndefined();
@@ -568,7 +568,7 @@ describe("core rules", () => {
     <svg viewBox="0 0 100 20"><text x="0" y="15">/* svg label */</text></svg>
 `,
     );
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "visible_markup_comment");
 
     expect(finding).toBeUndefined();
@@ -585,7 +585,7 @@ describe("core rules", () => {
     window.__timelines.launch = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "timeline_id_mismatch");
       expect(finding).toBeUndefined();
     });
@@ -600,7 +600,7 @@ describe("core rules", () => {
     window.__timelines.intro = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "timeline_id_mismatch");
       expect(finding).toBeDefined();
       expect(finding?.message).toContain('Timeline registered as "intro"');
@@ -616,7 +616,7 @@ describe("core rules", () => {
     window.__timelines["product-launch"] = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "timeline_id_mismatch");
       expect(finding).toBeUndefined();
     });
@@ -631,7 +631,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(result.findings.find((f) => f.code === "timeline_id_mismatch")).toBeUndefined();
     });
 
@@ -644,7 +644,7 @@ describe("core rules", () => {
     window.__timelines = { "comp-1": tl };
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(result.findings.find((f) => f.code === "missing_timeline_registry")).toBeUndefined();
       expect(
         result.findings.find((f) => f.code === "timeline_registry_missing_init"),
@@ -661,7 +661,7 @@ describe("core rules", () => {
     window.__timelines = { main: tl };
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "timeline_id_mismatch");
       expect(finding).toBeDefined();
       expect(finding?.message).toContain('Timeline registered as "main"');
@@ -673,7 +673,7 @@ describe("core rules", () => {
       const html = `<div id="scene_01" data-composition-id="root" data-width="1920" data-height="1080">
         <style>#scene_01 #scene_01 .headline { color: red; }</style>
       </div>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "repeated_id_descendant_selector");
       expect(finding?.severity).toBe("error");
       expect(finding?.selector).toBe("#scene_01 #scene_01 .headline");
@@ -683,7 +683,7 @@ describe("core rules", () => {
       const html = `<div id="scene_01" data-composition-id="root" data-width="1920" data-height="1080">
         <style>#scene_01 #headline { color: red; }</style>
       </div>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(
         result.findings.find((f) => f.code === "repeated_id_descendant_selector"),
       ).toBeUndefined();
@@ -695,7 +695,7 @@ describe("core rules", () => {
         const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
           <style>${selector} { color: red; }</style>
         </div>`;
-        const result = await lintHyperframeHtml(html);
+        const result = await lintChalkframeHtml(html);
         expect(
           result.findings.find((f) => f.code === "repeated_id_descendant_selector"),
         ).toBeDefined();
@@ -710,7 +710,7 @@ describe("core rules", () => {
       const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
           <style>${selector} { color: red; }</style>
         </div>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(
         result.findings.find((f) => f.code === "repeated_id_descendant_selector"),
       ).toBeDefined();
@@ -724,7 +724,7 @@ describe("core rules", () => {
       const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
           <style>${selector} { color: red; }</style>
         </div>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(
         result.findings.find((f) => f.code === "repeated_id_descendant_selector"),
       ).toBeUndefined();
@@ -736,7 +736,7 @@ describe("core rules", () => {
         const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
           <style>#scene_01 { ${nestedSelector} { color: red; } }</style>
         </div>`;
-        const result = await lintHyperframeHtml(html);
+        const result = await lintChalkframeHtml(html);
         const finding = result.findings.find(
           (candidate) => candidate.code === "repeated_id_descendant_selector",
         );
@@ -749,7 +749,7 @@ describe("core rules", () => {
       const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
         <style>#scene_01[data-query="$1"] { & #scene_01 { color: red; } }</style>
       </div>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find(
         (candidate) => candidate.code === "repeated_id_descendant_selector",
       );
@@ -762,7 +762,7 @@ describe("core rules", () => {
         const html = `<div data-composition-id="root" data-width="1920" data-height="1080">
         <style>${selector} { color: red; }</style>
       </div>`;
-        const result = await lintHyperframeHtml(html);
+        const result = await lintChalkframeHtml(html);
         expect(
           result.findings.find((f) => f.code === "repeated_id_descendant_selector"),
         ).toBeUndefined();
@@ -778,7 +778,7 @@ describe("core rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "studio_missing_editable_id");
     expect(finding).toBeDefined();
     expect(finding?.severity).toBe("warning");
@@ -794,14 +794,14 @@ describe("core rules", () => {
   </div>
   <script>window.__timelines = {};</script>
 </body></html>`;
-    const result = await lintHyperframeHtml(html);
+    const result = await lintChalkframeHtml(html);
     const finding = result.findings.find((f) => f.code === "studio_missing_editable_id");
     expect(finding).toBeUndefined();
   });
 
   describe("non_deterministic_code", () => {
     it("gives randomness guidance for crypto and clock guidance for wall time", async () => {
-      const result = await lintHyperframeHtml(`<html><body>
+      const result = await lintChalkframeHtml(`<html><body>
         <div data-composition-id="c1" data-width="1920" data-height="1080"></div>
         <script>
           crypto.getRandomValues(new Uint32Array(1));
@@ -829,7 +829,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeDefined();
       expect(finding?.severity).toBe("error");
@@ -846,7 +846,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeDefined();
       expect(finding?.severity).toBe("error");
@@ -864,7 +864,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeUndefined();
     });
@@ -880,7 +880,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeDefined();
       expect(finding?.severity).toBe("error");
@@ -898,7 +898,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeDefined();
       expect(finding?.message).toContain('"random(...)"');
@@ -915,7 +915,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = tl;
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeDefined();
     });
@@ -930,7 +930,7 @@ describe("core rules", () => {
     window.__timelines["c1"] = gsap.timeline({ paused: true });
   </script>
 </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "non_deterministic_code");
       expect(finding).toBeUndefined();
     });
@@ -947,7 +947,7 @@ describe("core rules", () => {
     it("does not flag new Date() with a fixed timestamp", async () => {
       // Deterministic, and the fixHint ("remove time-dependent code") cannot be
       // applied without deleting the label the composition renders.
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`const label = new Date("2026-01-01T00:00:00Z").toISOString();`),
       );
       expect(result.findings.find((f) => f.code === "non_deterministic_code")).toBeUndefined();
@@ -955,17 +955,17 @@ describe("core rules", () => {
 
     it("does not flag non-deterministic APIs quoted inside a string literal", async () => {
       // Code-display compositions render source they never execute.
-      const result = await lintHyperframeHtml(comp(`const SNIPPET = "const x = Math.random();";`));
+      const result = await lintChalkframeHtml(comp(`const SNIPPET = "const x = Math.random();";`));
       expect(result.findings.find((f) => f.code === "non_deterministic_code")).toBeUndefined();
     });
 
     it("still flags a bare new Date()", async () => {
-      const result = await lintHyperframeHtml(comp(`const now = new Date();`));
+      const result = await lintChalkframeHtml(comp(`const now = new Date();`));
       expect(result.findings.find((f) => f.code === "non_deterministic_code")).toBeDefined();
     });
 
     it("still flags Math.random() in executed code", async () => {
-      const result = await lintHyperframeHtml(comp(`const r = Math.random();`));
+      const result = await lintChalkframeHtml(comp(`const r = Math.random();`));
       expect(result.findings.find((f) => f.code === "non_deterministic_code")).toBeDefined();
     });
   });
@@ -982,14 +982,14 @@ describe("core rules", () => {
       // The inlined options object is not a registration. Reading `paused` as a
       // composition id produced an error whose fixHint named a registration that
       // did not exist, so it could never be applied.
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`window.__timelines = { main: gsap.timeline({ paused: true }) };`),
       );
       expect(result.findings.find((f) => f.code === "timeline_id_mismatch")).toBeUndefined();
     });
 
     it("still flags a genuinely mismatched id", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`window.__timelines = { wrongid: gsap.timeline({ paused: true }) };`),
       );
       expect(result.findings.find((f) => f.code === "timeline_id_mismatch")).toBeDefined();
@@ -1007,7 +1007,7 @@ describe("core rules", () => {
 </body></html>`;
 
     it("errors when a broad hidden-style selector forces replacement-frame opacity to zero", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`[style*="visibility: hidden"] { opacity: 0 !important; }`),
       );
       const finding = result.findings.find((item) => item.code === "runtime_hidden_style_opacity");
@@ -1019,7 +1019,7 @@ describe("core rules", () => {
     });
 
     it("errors when composition scoping still leaves the hidden-style selector on video", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`#root > video[style*="visibility: hidden"] { opacity: 0; }`),
       );
 
@@ -1029,7 +1029,7 @@ describe("core rules", () => {
     });
 
     it("errors when the root stylesheet can affect video mounted from a sub-composition", async () => {
-      const result = await lintHyperframeHtml(`
+      const result = await lintChalkframeHtml(`
 <html><head><style>[style*="visibility: hidden"] { opacity: 0; }</style></head><body>
   <div id="root" data-composition-id="main" data-width="1920" data-height="1080">
     <div data-composition-id="scene" data-composition-src="scene.html"></div>
@@ -1043,7 +1043,7 @@ describe("core rules", () => {
     });
 
     it("allows hidden-style opacity guards scoped to sub-composition hosts", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(
           `[data-composition-src][style*="visibility: hidden"],
            [data-composition-file][style*="visibility: hidden"] { opacity: 0 !important; }`,
@@ -1058,7 +1058,7 @@ describe("core rules", () => {
     });
 
     it("allows broad hidden-style selectors that do not change opacity", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`[style*="visibility: hidden"] { pointer-events: none; }`),
       );
 
@@ -1078,7 +1078,7 @@ describe("core rules", () => {
 </body></html>`;
 
     it("warns when an attribute selector on id sets a position property", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`.parent .row { position: absolute; left: 0; } [id="line1"] { left: 40px; }`),
       );
       const finding = result.findings.find((f) => f.code === "id_override_reduced_specificity");
@@ -1089,7 +1089,7 @@ describe("core rules", () => {
     });
 
     it("warns when a :where()-wrapped id selector sets a position property", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`.parent .row { position: absolute; top: 0; } :where(#line1) { top: 20px; }`),
       );
       const finding = result.findings.find((f) => f.code === "id_override_reduced_specificity");
@@ -1098,7 +1098,7 @@ describe("core rules", () => {
     });
 
     it("does not flag a bare #id selector, which always wins regardless of specificity", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`.parent .row { position: absolute; left: 0; } #line1 { left: 40px; }`),
       );
       expect(
@@ -1107,7 +1107,7 @@ describe("core rules", () => {
     });
 
     it("hints an escaped #id for a digit-leading id, where a bare #01-intro is invalid CSS", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`.parent .row { position: absolute; left: 0; } [id="01-intro"] { left: 40px; }`),
       );
       const finding = result.findings.find((f) => f.code === "id_override_reduced_specificity");
@@ -1115,7 +1115,7 @@ describe("core rules", () => {
     });
 
     it("does not flag prefix-matching id selectors or !important position overrides", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(
           `[id^="line"] { top: 0; } [id*="ine"] { left: 0; } [id="line1"] { left: 40px !important; }`,
         ),
@@ -1126,7 +1126,7 @@ describe("core rules", () => {
     });
 
     it("does not flag a compound that also carries a bare #id, or a nested rule's position", async () => {
-      const result = await lintHyperframeHtml(
+      const result = await lintChalkframeHtml(
         comp(`#line1[id="line1"] { left: 40px; } [id="root"] { color: red; .row { left: 0; } }`),
       );
       expect(
@@ -1135,7 +1135,7 @@ describe("core rules", () => {
     });
 
     it("does not flag an attribute selector on id for a non-position property", async () => {
-      const result = await lintHyperframeHtml(comp(`[id="line1"] { color: red; }`));
+      const result = await lintChalkframeHtml(comp(`[id="line1"] { color: red; }`));
       expect(
         result.findings.find((f) => f.code === "id_override_reduced_specificity"),
       ).toBeUndefined();
@@ -1147,7 +1147,7 @@ describe("core rules", () => {
       const html = compositionWithBodyPrefix(
         `<img class="browser-img" src="a.png" <div class="hl"></div></figure>`,
       );
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "unclosed_tag_swallowed_element");
       expect(finding).toBeDefined();
       expect(finding?.severity).toBe("error");
@@ -1156,7 +1156,7 @@ describe("core rules", () => {
 
     it("does not flag a normal <img> tag", async () => {
       const html = compositionWithBodyPrefix(`<img class="browser-img" src="a.png" />`);
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(
         result.findings.find((f) => f.code === "unclosed_tag_swallowed_element"),
       ).toBeUndefined();
@@ -1169,7 +1169,7 @@ describe("core rules", () => {
     ])(
       "does not flag valid sibling spans when the closing tag uses %s whitespace",
       async (_label, body) => {
-        const result = await lintHyperframeHtml(compositionWithBodyPrefix(body));
+        const result = await lintChalkframeHtml(compositionWithBodyPrefix(body));
         expect(
           result.findings.find((f) => f.code === "unclosed_tag_swallowed_element"),
         ).toBeUndefined();
@@ -1179,7 +1179,7 @@ describe("core rules", () => {
     it.each([`<span class="first" <span>B</span>`, `<span data-label=first <strong>B</strong>`])(
       "still flags a malformed span start tag that swallows its next element",
       async (body) => {
-        const result = await lintHyperframeHtml(compositionWithBodyPrefix(body));
+        const result = await lintChalkframeHtml(compositionWithBodyPrefix(body));
         const finding = result.findings.find((f) => f.code === "unclosed_tag_swallowed_element");
         expect(finding?.severity).toBe("error");
         expect(finding?.snippet).toContain("<span");
@@ -1188,7 +1188,7 @@ describe("core rules", () => {
 
     it("does not flag a legitimate attribute value containing a raw <", async () => {
       const html = compositionWithBodyPrefix(`<div data-expr="x < y">hi</div>`);
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       expect(
         result.findings.find((f) => f.code === "unclosed_tag_swallowed_element"),
       ).toBeUndefined();
@@ -1203,7 +1203,7 @@ describe("core rules", () => {
         <script src="gsap.min.js"></script>
         <script>window.__timelines = { main: gsap.timeline({ paused: true }) };</script>
       </body></html>`;
-      const result = await lintHyperframeHtml(html);
+      const result = await lintChalkframeHtml(html);
       const finding = result.findings.find((f) => f.code === "css_parse_error");
       expect(finding).toBeDefined();
       expect(finding?.severity).toBe("error");

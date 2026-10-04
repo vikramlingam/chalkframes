@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { parseSlideshowManifest, resolveSlideshow } from "./parseSlideshow";
 
 const ISLAND = `<!doctype html><html><body>
-<script type="application/hyperframes-slideshow+json">
+<script type="application/chalkframes-slideshow+json">
 { "slides": [
     { "sceneId": "a", "fragments": [2.0, 1.0], "hotspots": [{ "id": "h1", "label": "Why?", "target": "deep" }] },
     { "sceneId": "b" }
@@ -31,19 +31,19 @@ describe("parseSlideshowManifest", () => {
   });
 
   it("throws when slideSequences is present but not an array", () => {
-    const html = `<script type="application/hyperframes-slideshow+json">
+    const html = `<script type="application/chalkframes-slideshow+json">
       { "slides": [{ "sceneId": "a" }], "slideSequences": {} }
     </script>`;
     expect(() => parseSlideshowManifest(html)).toThrow();
   });
 
   it("rejects a non-object manifest (e.g. a JSON array)", () => {
-    const html = `<script type="application/hyperframes-slideshow+json">[42, null]</script>`;
+    const html = `<script type="application/chalkframes-slideshow+json">[42, null]</script>`;
     expect(() => parseSlideshowManifest(html)).toThrow();
   });
 
   it("throws when a slide entry is malformed (sceneId not a string)", () => {
-    const html = `<script type="application/hyperframes-slideshow+json">
+    const html = `<script type="application/chalkframes-slideshow+json">
       { "slides": [{ "sceneId": 42 }] }
     </script>`;
     expect(() => parseSlideshowManifest(html)).toThrow();
@@ -198,7 +198,7 @@ describe("resolveSlideshow", () => {
   });
 
   it("parses and carries through the per-slide autoplay flag", () => {
-    const island = `<script type="application/hyperframes-slideshow+json">
+    const island = `<script type="application/chalkframes-slideshow+json">
       { "slides": [ { "sceneId": "a", "autoplay": true }, { "sceneId": "b" } ] }
     </script>`;
     const m = parseSlideshowManifest(island);
@@ -210,7 +210,7 @@ describe("resolveSlideshow", () => {
   });
 
   it("rejects a manifest whose slide autoplay is not a boolean", () => {
-    const island = `<script type="application/hyperframes-slideshow+json">
+    const island = `<script type="application/chalkframes-slideshow+json">
       { "slides": [ { "sceneId": "a", "autoplay": "yes" } ] }
     </script>`;
     expect(() => parseSlideshowManifest(island)).toThrow();

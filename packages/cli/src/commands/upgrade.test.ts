@@ -20,13 +20,13 @@ describe("runDetectedInstall", () => {
 
     const { runDetectedInstall } = await import("./upgrade.js");
     runDetectedInstall(
-      { bin: "bun", args: ["add", "-g", "hyperframes@1.2.3"] },
-      "bun add -g hyperframes@1.2.3",
+      { bin: "bun", args: ["add", "-g", "chalkframes@1.2.3"] },
+      "bun add -g chalkframes@1.2.3",
       "1.2.3",
     );
 
     expect(execSpy).toHaveBeenCalledTimes(1);
-    expect(execSpy).toHaveBeenCalledWith("bun", ["add", "-g", "hyperframes@1.2.3"], {
+    expect(execSpy).toHaveBeenCalledWith("bun", ["add", "-g", "chalkframes@1.2.3"], {
       stdio: "inherit",
       shell: false,
     });
@@ -43,8 +43,8 @@ describe("runDetectedInstall", () => {
     try {
       expect(() =>
         runDetectedInstall(
-          { bin: "npm", args: ["install", "-g", "hyperframes@1.2.3"] },
-          "npm install -g hyperframes@1.2.3",
+          { bin: "npm", args: ["install", "-g", "chalkframes@1.2.3"] },
+          "npm install -g chalkframes@1.2.3",
           "1.2.3",
         ),
       ).not.toThrow();

@@ -14,7 +14,7 @@ describe("resolveCommandUsage", () => {
       subCommands: { render: loadRender },
     });
     const root = defineCommand({
-      meta: { name: "hyperframes" },
+      meta: { name: "chalkframes" },
       subCommands: { cloud: async () => cloud },
     });
 
@@ -28,7 +28,7 @@ describe("resolveCommandUsage", () => {
   it("keeps group and root help at the requested level", async () => {
     const cloud = defineCommand({ meta: { name: "cloud" }, subCommands: {} });
     const root = defineCommand({
-      meta: { name: "hyperframes" },
+      meta: { name: "chalkframes" },
       subCommands: { cloud: async () => cloud },
     });
 

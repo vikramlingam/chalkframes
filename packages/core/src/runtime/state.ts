@@ -12,7 +12,7 @@ export type RuntimeState = {
   bridgeVolume: number;
   /**
    * Internal mute of audible media output, owned by the audio-ownership
-   * protocol between the parent (`<hyperframes-player>`) and this runtime.
+   * protocol between the parent (`<chalkframes-player>`) and this runtime.
    * Independent of `bridgeMuted` (the user's mute preference). When the
    * parent takes over audible playback via parent-frame proxies, it sets
    * this to `true` so the runtime keeps driving timed media for frame
@@ -58,7 +58,7 @@ export type RuntimeState = {
    * its position to any listener.
    *
    * **Cross-reference (do not change in isolation)**: the parent-frame
-   * audio-mirror loop in `<hyperframes-player>` waits for
+   * audio-mirror loop in `<chalkframes-player>` waits for
    * `MIRROR_REQUIRED_CONSECUTIVE_DRIFT_SAMPLES` consecutive over-threshold
    * samples before issuing a `currentTime` correction. The product of
    * those two constants is the worst-case A/V re-sync latency:

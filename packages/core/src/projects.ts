@@ -3,9 +3,9 @@ import type { Dirent } from "node:fs";
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, sep } from "node:path";
-import { isHyperframesProject, PROJECT_MARKER_FILES } from "./projectRule";
+import { isChalkframesProject, PROJECT_MARKER_FILES } from "./projectRule";
 
-export { isHyperframesProject, PROJECT_MARKER_FILES };
+export { isChalkframesProject, PROJECT_MARKER_FILES };
 
 export interface FoundProject {
   path: string;
@@ -106,7 +106,7 @@ export async function findProjects({
     const visit = async (dir: string) => {
       const entries = await readEntries(dir);
       if (!entries || (dir !== root && (await isWorktreeCopy(dir, entries)))) return;
-      if (isHyperframesProject(fileNames(entries))) return report(dir, "walk");
+      if (isChalkframesProject(fileNames(entries))) return report(dir, "walk");
       for (const entry of entries) {
         if (entry.isDirectory() && !skippedDir(dir, entry.name))
           pending.push(join(dir, entry.name));
@@ -156,7 +156,7 @@ export async function findProjects({
     let current = root;
     for (const name of names) {
       if (await walkStopsAt(current)) return false;
-      if (isHyperframesProject(fileNames((await entriesOf(current))!))) return false;
+      if (isChalkframesProject(fileNames((await entriesOf(current))!))) return false;
       current = join(current, name);
     }
     return !(await walkStopsAt(current));
@@ -168,7 +168,7 @@ export async function findProjects({
       [...dirs].map(async (dir) => {
         if (stopped() || !(await walkWouldReach(dir))) return;
         const entries = await entriesOf(dir);
-        if (entries && isHyperframesProject(fileNames(entries))) await report(dir, "spotlight");
+        if (entries && isChalkframesProject(fileNames(entries))) await report(dir, "spotlight");
       }),
     );
   }

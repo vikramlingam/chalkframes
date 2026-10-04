@@ -5,8 +5,8 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fetchMedia, isPublicMediaUrl, readCappedBody } from "./media-fetch.mjs";
 import { freezeUrl } from "./freeze.mjs";
-import { downloadTo } from "../../audio/scripts/lib/heygen.mjs";
-import { synthesizeHeygen } from "../../audio/scripts/lib/tts.mjs";
+import { downloadTo } from "../../audio/scripts/lib/chalkframes.mjs";
+import { synthesizeChalkframes } from "../../audio/scripts/lib/tts.mjs";
 import { faviconSearch } from "./logo-provider.mjs";
 
 test("blocks private, reserved, alternate-encoded and mapped hosts", () => {
@@ -120,7 +120,7 @@ test("freeze refuses a public-to-private redirect without writing response bytes
   }
 });
 
-for (const entry of ["heygen audio", "tts mp3", "tts wav", "favicon"]) {
+for (const entry of ["chalkframes audio", "tts mp3", "tts wav", "favicon"]) {
   test(`${entry} blocks private redirects before saving or transcoding`, async (t) => {
     const dir = mkdtempSync(join(tmpdir(), "hf-provider-redirect-"));
     const requests = [];
@@ -134,7 +134,7 @@ for (const entry of ["heygen audio", "tts mp3", "tts wav", "favicon"]) {
         : new Response(new Uint8Array(600));
     });
     try {
-      if (entry === "heygen audio") {
+      if (entry === "chalkframes audio") {
         await assert.rejects(
           downloadTo("https://cdn.example/audio", join(dir, "audio.mp3")),
           /blocked/,
@@ -142,7 +142,7 @@ for (const entry of ["heygen audio", "tts mp3", "tts wav", "favicon"]) {
       } else if (entry === "favicon") {
         assert.equal(await faviconSearch("GitHub logo"), null);
       } else {
-        const result = await synthesizeHeygen(
+        const result = await synthesizeChalkframes(
           {
             text: "hi",
             voiceId: "v1",
@@ -151,8 +151,8 @@ for (const entry of ["heygen audio", "tts mp3", "tts wav", "favicon"]) {
             wavAbs: join(dir, entry === "tts wav" ? "audio.wav" : "audio.mp3"),
           },
           {
-            heygenAuthHeaders: () => ({}),
-            heygenJSON: async () => ({ data: { audio_url: "https://cdn.example/audio" } }),
+            chalkframesAuthHeaders: () => ({}),
+            chalkframesJSON: async () => ({ data: { audio_url: "https://cdn.example/audio" } }),
             fetch: fetchImpl,
             transcodeToWav: () => assert.fail("private bytes must not reach ffmpeg"),
           },

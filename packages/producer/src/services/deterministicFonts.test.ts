@@ -74,9 +74,9 @@ describe("Google Fonts CSS request caching", () => {
   });
 
   it("does not fail a concurrent caller when another caller sharing the lookup aborts", async () => {
-    const prevCacheEnv = process.env.HYPERFRAMES_FONT_CACHE_DIR;
+    const prevCacheEnv = process.env.CHALKFRAMES_FONT_CACHE_DIR;
     const cacheDir = mkdtempSync(join(tmpdir(), "hf-font-abort-isolation-"));
-    process.env.HYPERFRAMES_FONT_CACHE_DIR = cacheDir;
+    process.env.CHALKFRAMES_FONT_CACHE_DIR = cacheDir;
     try {
       const htmlA = `<html><head></head><body><p style="font-family: 'Abort Isolation Font';">Hello</p></body></html>`;
       const htmlB = `<html><head></head><body><p style="font-family: 'Abort Isolation Font';">olleH</p></body></html>`;
@@ -125,8 +125,8 @@ describe("Google Fonts CSS request caching", () => {
       await expect(resultA).rejects.toThrow();
       expect(await resultB).toContain("@font-face");
     } finally {
-      if (prevCacheEnv === undefined) delete process.env.HYPERFRAMES_FONT_CACHE_DIR;
-      else process.env.HYPERFRAMES_FONT_CACHE_DIR = prevCacheEnv;
+      if (prevCacheEnv === undefined) delete process.env.CHALKFRAMES_FONT_CACHE_DIR;
+      else process.env.CHALKFRAMES_FONT_CACHE_DIR = prevCacheEnv;
       rmSync(cacheDir, { recursive: true, force: true });
     }
   });

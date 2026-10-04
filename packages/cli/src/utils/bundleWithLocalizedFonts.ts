@@ -21,7 +21,7 @@ export async function bundleWithLocalizedFonts(
   // font-localization pass (see localizeWithProducer).
   localizeFonts: (html: string) => Promise<string> = localizeWithProducer,
 ): Promise<string> {
-  const { bundleToSingleHtml } = await import("@hyperframes/core/compiler");
+  const { bundleToSingleHtml } = await import("@chalkframes/core/compiler");
   const html = await bundleToSingleHtml(projectDir);
   return localizeFonts(html);
 }

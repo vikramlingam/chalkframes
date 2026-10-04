@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { HyperframeLintFinding } from "@hyperframes/core/lint";
+import type { ChalkframeLintFinding } from "@chalkframes/core/lint";
 import { hasDefinitiveEntryMismatch, lintProject, shouldBlockRender } from "./lintProject.js";
 
 function tmpProject(name: string): string {
@@ -38,7 +38,7 @@ function htmlWithPreloadNone(): string {
 let dirs: string[] = [];
 
 // Project-wide findings are filed under the composition they name, so look across every entry.
-const allFindings = (results: Array<{ result: { findings: HyperframeLintFinding[] } }>) =>
+const allFindings = (results: Array<{ result: { findings: ChalkframeLintFinding[] } }>) =>
   results.flatMap((entry) => entry.result.findings);
 
 function makeProject(indexHtml: string, subComps?: Record<string, string>): string {
@@ -1159,7 +1159,7 @@ describe("missing_or_empty_sub_composition", () => {
   async function lintSubComp(
     srcPath: string,
     subCompFiles?: Record<string, string>,
-  ): Promise<{ finding: HyperframeLintFinding | undefined; totalErrors: number }> {
+  ): Promise<{ finding: ChalkframeLintFinding | undefined; totalErrors: number }> {
     const project = makeProject(htmlWithSubComp(srcPath), subCompFiles);
     const { totalErrors, results } = await lintProject(project);
     const finding = results

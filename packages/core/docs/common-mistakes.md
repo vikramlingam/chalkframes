@@ -1,8 +1,8 @@
 # Common Mistakes
 
-Pitfalls that break HyperFrames compositions that can't be caught by the linter.
+Pitfalls that break ChalkFrames compositions that can't be caught by the linter.
 
-> **Linter:** Run `lintHyperframeHtml()` on your composition to catch most issues automatically. The linter detects: missing timeline registration, unmuted video, nested video in timed elements, missing `class="clip"`, deprecated attribute names (`data-layer`, `data-end`), and missing dimensions. See `core/src/lint/` for the full rule list.
+> **Linter:** Run `lintChalkframeHtml()` on your composition to catch most issues automatically. The linter detects: missing timeline registration, unmuted video, nested video in timed elements, missing `class="clip"`, deprecated attribute names (`data-layer`, `data-end`), and missing dimensions. See `core/src/lint/` for the full rule list.
 
 ---
 
@@ -66,7 +66,7 @@ tl.set({}, {}, 283); // ← extends timeline to 283 seconds
 
 When something doesn't work, check in this order:
 
-1. Run the linter: `lintHyperframeHtml(html)` — catches most structural issues
+1. Run the linter: `lintChalkframeHtml(html)` — catches most structural issues
 2. Is `window.__timelines["<id>"]` registered? Does the key match `data-composition-id`?
 3. Are GSAP animations only on visual properties (opacity, transform, color)?
 4. Is the GSAP timeline long enough? (`tl.set({}, {}, DURATION)` at the end)

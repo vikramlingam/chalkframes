@@ -8,14 +8,14 @@ const ROOT = join(import.meta.dirname, "..");
 const RUNTIME_DEPENDENCY_FIELDS = ["dependencies", "optionalDependencies", "peerDependencies"];
 
 /**
- * The deprecated @hyperframes/core/studio-api forwarding surface is public and
+ * The deprecated @chalkframes/core/studio-api forwarding surface is public and
  * cannot disappear before a breaking release. Keep its one known package SCC
  * explicit so every new cycle still fails CI. Delete this exception together
  * with the forwarding surface in the next breaking release.
  */
 export const ALLOWED_COMPATIBILITY_CYCLES = [
   {
-    packages: ["@hyperframes/core", "@hyperframes/studio-server"],
+    packages: ["@chalkframes/core", "@chalkframes/studio-server"],
     reason: "Deprecated core/studio-api forwarding exports; remove at the next breaking release.",
   },
 ];

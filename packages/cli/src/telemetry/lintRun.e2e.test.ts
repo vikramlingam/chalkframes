@@ -35,7 +35,7 @@ vi.mock("./config.js", async (importOriginal) => {
 });
 
 const { trackLintRun } = await import("./lintRun.js");
-const { lintProject } = await import("@hyperframes/lint");
+const { lintProject } = await import("@chalkframes/lint");
 
 const COMPOSITION = `<html><body>
   <div id="scene" data-composition-id="main" data-width="1920" data-height="1080"
@@ -58,7 +58,7 @@ function makeProject(html: string): string {
 
 beforeEach(() => {
   enqueued.length = 0;
-  rmSync(join(HOME, ".hyperframes"), { recursive: true, force: true });
+  rmSync(join(HOME, ".chalkframes"), { recursive: true, force: true });
 });
 
 describe("trackLintRun end to end", () => {

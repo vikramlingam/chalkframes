@@ -1,15 +1,30 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="100" height="100" fill="black"/>
-<path d="M10.1851 57.8021L33.1145 73.8313C36.2202 75.9978 41.5173 73.5433 42.4816 69.4984L51.7611 30.4271C52.7253 26.3822 48.5802 23.9277 44.4602 26.0942L13.917 42.1235C6.96677 45.7676 4.97564 54.1579 10.1851 57.8021Z" fill="url(#paint0_linear_2204_3080)"/>
-<path d="M87.5129 57.5141L56.9696 73.5433C52.8371 75.7098 48.7046 73.2553 49.6688 69.2104L58.9483 30.1391C59.9125 26.0942 65.2097 23.6397 68.3154 25.8062L91.2447 41.8354C96.4668 45.4796 94.4631 53.8699 87.5129 57.5141Z" fill="url(#paint1_linear_2204_3080)"/>
 <defs>
-<linearGradient id="paint0_linear_2204_3080" x1="48.5676" y1="25" x2="44.7804" y2="71.9384" gradientUnits="userSpaceOnUse">
-<stop stop-color="#06E3FA"/>
-<stop offset="1" stop-color="#4FDB5E"/>
-</linearGradient>
-<linearGradient id="paint1_linear_2204_3080" x1="54.8282" y1="73.8392" x2="72.0989" y2="32.8932" gradientUnits="userSpaceOnUse">
-<stop stop-color="#06E3FA"/>
-<stop offset="1" stop-color="#4FDB5E"/>
-</linearGradient>
+  <linearGradient id="chalkBodyDark" x1="36" y1="20" x2="68" y2="52" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="55%" stop-color="#f1f5f9"/>
+    <stop offset="100%" stop-color="#cbd5e1"/>
+  </linearGradient>
+  <linearGradient id="chalkShadeDark" x1="44" y1="26" x2="64" y2="48" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.2"/>
+    <stop offset="100%" stop-color="#64748b" stop-opacity="0.45"/>
+  </linearGradient>
+  <linearGradient id="strokeDark" x1="14" y1="80" x2="86" y2="80" gradientUnits="userSpaceOnUse">
+    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+    <stop offset="55%" stop-color="#e2e8f0" stop-opacity="0.75"/>
+    <stop offset="100%" stop-color="#94a3b8" stop-opacity="0"/>
+  </linearGradient>
 </defs>
+<path d="M16 82C32 79.5 52 82.5 84 80" stroke="url(#strokeDark)" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 7 24 4.5 15"/>
+<circle cx="82" cy="70" r="2.8" fill="#ffffff" opacity="0.8"/>
+<circle cx="89" cy="77" r="1.9" fill="#ffffff" opacity="0.55"/>
+<circle cx="75" cy="58" r="2.2" fill="#ffffff" opacity="0.65"/>
+<circle cx="28" cy="74" r="1.6" fill="#ffffff" opacity="0.5"/>
+<g transform="translate(12, -3) rotate(42 50 50)">
+  <rect x="42" y="18" width="16" height="46" rx="5.5" fill="url(#chalkBodyDark)"/>
+  <rect x="51" y="18" width="7" height="46" rx="3.5" fill="url(#chalkShadeDark)"/>
+  <ellipse cx="50" cy="18" rx="8" ry="3.6" fill="#ffffff"/>
+  <path d="M42 64L48 74L58 64Z" fill="#e2e8f0"/>
+</g>
 </svg>

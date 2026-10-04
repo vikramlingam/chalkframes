@@ -102,7 +102,7 @@ function isSoundingVideoTag(tag: string): boolean {
  */
 export function findMusicAudioSrc(html: string): string | null {
   // `[^>]*` spans newlines (it's a negated class, not `.`), so multi-line opening
-  // tags are handled. HyperFrames authors src as an attribute on <audio>.
+  // tags are handled. ChalkFrames authors src as an attribute on <audio>.
   const tags = html.match(/<(?:audio|video)\b[^>]*>/gi) ?? [];
   for (const tag of tags) {
     if (/^<video/i.test(tag) && !isSoundingVideoTag(tag)) continue;

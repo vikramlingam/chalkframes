@@ -43,7 +43,7 @@ test("staged bytes match their key, dry-run is unchanged, and no-upload preserve
     const manifest = JSON.parse(fs.readFileSync(f.manifestPath, "utf8"));
     assert.equal(
       manifest.files[0].url,
-      `https://static.heygen.ai/hyperframes-oss/registry-assets/${key}`,
+      `https://static.chalkframes.dev/chalkframes-oss/registry-assets/${key}`,
     );
   } finally {
     fs.rmSync(f.root, { recursive: true, force: true });

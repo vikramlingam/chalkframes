@@ -9,12 +9,12 @@ export type RuntimeJson =
   | RuntimeJson[]
   | { [key: string]: RuntimeJson };
 
-import type { HyperframeControlAction } from "../inline-scripts/runtimeContract.js";
-import type { HyperframePickerElementInfo } from "../inline-scripts/pickerApi.js";
+import type { ChalkframeControlAction } from "../inline-scripts/runtimeContract.js";
+import type { ChalkframePickerElementInfo } from "../inline-scripts/pickerApi.js";
 import type { RuntimeProtocolV1 } from "./protocol.js";
 
 type RuntimeBridgeControlActionBase =
-  | HyperframeControlAction
+  | ChalkframeControlAction
   | "tick"
   | "set-volume"
   | "set-media-output-muted"
@@ -116,7 +116,7 @@ export type RuntimeDiagnosticMessage = {
   details: Record<string, RuntimeJson>;
 };
 
-export type RuntimePickerElementInfo = HyperframePickerElementInfo;
+export type RuntimePickerElementInfo = ChalkframePickerElementInfo;
 
 export type RuntimePickerHoveredMessage = {
   source: "hf-preview";

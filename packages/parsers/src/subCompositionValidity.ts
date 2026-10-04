@@ -21,13 +21,13 @@
  * This module gives every consumer (lint, render pre-flight, the tolerant
  * inliner) a single, shared definition of "usable" so they can never
  * disagree about whether a given file would render something. It lives in
- * `@hyperframes/parsers` (rather than `@hyperframes/core`, where it
- * originated) because `@hyperframes/lint` needs it too, and `lint` cannot
+ * `@chalkframes/parsers` (rather than `@chalkframes/core`, where it
+ * originated) because `@chalkframes/lint` needs it too, and `lint` cannot
  * depend on `core` — `core` already depends on `lint` — so this shared,
  * dependency-free check lives in the common ancestor package both `core`
  * and `lint` already depend on.
  *
- * `inlineSubCompositions.ts` (in `@hyperframes/core`) intentionally stays
+ * `inlineSubCompositions.ts` (in `@chalkframes/core`) intentionally stays
  * tolerant (skip + continue) for the preview/studio bundling path, where
  * partial content while iterating is expected. `lint` and the render
  * pre-flight check (`packages/producer/src/services/htmlCompiler.ts`) use

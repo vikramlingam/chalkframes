@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NotMediaPayloadError } from "@hyperframes/engine";
+import { NotMediaPayloadError } from "@chalkframes/engine";
 import { extractSafeRenderErrorMetadata } from "./server.js";
 
 // Kept out of server.errorCode.test.ts so that suite keeps exactly one typed

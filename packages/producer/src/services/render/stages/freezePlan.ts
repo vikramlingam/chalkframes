@@ -13,7 +13,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
-import type { Fps } from "@hyperframes/core";
+import type { Fps } from "@chalkframes/core";
 import { PLAN_PROTOCOL_V1 } from "../../distributed/planProtocol.js";
 import {
   canonicalJsonStringify,

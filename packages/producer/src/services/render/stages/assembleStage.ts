@@ -20,7 +20,7 @@
  *     verbatim on the respective `success: false` results.
  */
 
-import { applyFaststart, muxVideoWithAudio, packageHls } from "@hyperframes/engine";
+import { applyFaststart, muxVideoWithAudio, packageHls } from "@chalkframes/engine";
 import { extname } from "node:path";
 import type { ProgressCallback, RenderJob } from "../../renderOrchestrator.js";
 import { AAC_DELIVERY_TRUE_PEAK_DBFS, padOrTrimAudioToVideoFrameCount } from "../audioPadTrim.js";

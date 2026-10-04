@@ -7,7 +7,7 @@ import { fetchMedia, readCappedBody } from "./media-fetch.mjs";
 //   2. github avatar: known orgs only; guessing a login risks a same-named personal account.
 //   3. domain favicon: DuckDuckGo ip3 last resort; under ~500B is its globe placeholder.
 //
-// HeyGen asset search is deliberately absent: for brand queries it returns
+// Chalkframes asset search is deliberately absent: for brand queries it returns
 // generic look-alike icons (0/3 in testing) — worse than a miss. A total miss
 // falls through to resolve's normal failure path (`no provider could resolve
 // logo`, exit 1).
@@ -58,7 +58,7 @@ const GITHUB_ORGS = {
   vercel: "vercel",
   nextjs: "vercel",
   alibaba: "alibaba",
-  heygen: "heygen-com",
+  chalkframes: "chalkframes",
 };
 
 // Favicon domains that aren't `<entity>.com`.
