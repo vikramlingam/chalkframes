@@ -88,13 +88,110 @@ import { enrichScene } from "./enrichment.mjs";
 
 /** Max share of scenes that may use Manim, and max consecutive Manim scenes. */
 export const MANIM_MAX_SHARE = 0.4;
+export const MANIM_MATH_MAX_SHARE = 0.65;
 export const MANIM_MAX_CONSECUTIVE = 2;
+export const MANIM_MATH_MAX_CONSECUTIVE = 3;
+
+export const MATH_KEYWORDS_REGEX =
+  /\b(math|mathematics|calculus|derivative|integral|differential|algebra|linear[- ]algebra|matrix|matrices|vector|eigen|eigenvalue|eigenvector|probability|bayes|bayesian|sampling|monte[- ]carlo|markov|stochastic|combinatorics|distribution|geometry|theorem|proof|neural[- ]net|neural[- ]network|transformer|backprop|gradient|gradient[- ]descent|loss[- ]function|fourier|quaternion|hyperplane)\b/i;
+
+/**
+ * Checks if a storyboard or prompt describes a mathematical topic.
+ */
+export function isMathematicalStoryboard(value, options = {}) {
+  if (options.isMath === true || value?.isMath === true) return true;
+  if (options.isMath === false || value?.isMath === false) return false;
+
+  const genres = [
+    value?.genre,
+    options.genre,
+    value?.style,
+    options.style,
+    value?.intent,
+    options.intent,
+  ]
+    .filter(Boolean)
+    .map(String);
+
+  for (const g of genres) {
+    if (/math|calculus|probability|scientific|deep-dive/i.test(g)) return true;
+  }
+
+  const promptText = [
+    value?.topic,
+    options.topic,
+    value?.userPrompt,
+    options.userPrompt,
+    value?.prompt,
+    options.prompt,
+    value?.productName,
+    value?.title,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (MATH_KEYWORDS_REGEX.test(promptText)) return true;
+
+  // If general software / product names are present, keep general cap
+  if (value?.productName && /\b(crm|saas|app|platform|^t$)\b/i.test(value.productName.trim())) {
+    return false;
+  }
+
+  const scenes = Array.isArray(value?.scenes) ? value.scenes : [];
+  const scenesText = scenes
+    .flatMap((s) => [s?.title, s?.voiceover, s?.narration, s?.headline, s?.chapterTitle])
+    .filter(Boolean)
+    .join(" ");
+
+  const requestedManimCount = scenes.filter((s) => {
+    const arch = strictArchetype(s?.archetype);
+    const eng = String(s?.engine || "").toLowerCase();
+    return eng === "manim" || (arch && MANIM_ARCHETYPES.includes(arch));
+  }).length;
+
+  if (requestedManimCount > 2 && MATH_KEYWORDS_REGEX.test(scenesText)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Audits and degrades Manim scenes according to dynamic topic thresholds.
+ * For math/calculus/probability topics: up to 65% Manim share and 3 consecutive.
+ * For general product/software topics: 40% cap and 2 consecutive.
+ */
+export function auditAndDegradeManimScenes(scenes, options = {}) {
+  const isMath = isMathematicalStoryboard({ scenes }, options);
+  const maxAllowed = isMath ? MANIM_MATH_MAX_SHARE : MANIM_MAX_SHARE;
+  const maxConsecutive = isMath ? MANIM_MATH_MAX_CONSECUTIVE : MANIM_MAX_CONSECUTIVE;
+  const maxCount = Math.floor((scenes?.length || 0) * maxAllowed);
+
+  return {
+    isMath,
+    maxAllowed,
+    maxShare: maxAllowed,
+    maxConsecutive,
+    maxCount,
+  };
+}
 
 /**
  * Decide whether a Manim scene may keep its engine. Returns { ok:true, brief, beats,
  * fallback } or { ok:false, reason, fallback } -- the caller degrades on !ok.
  */
-function planManimScene({ scene, archetype, index, lastIndex, enabled, count, max, run }) {
+function planManimScene({
+  scene,
+  archetype,
+  index,
+  lastIndex,
+  enabled,
+  count,
+  max,
+  run,
+  maxShare = MANIM_MAX_SHARE,
+  maxConsecutive = MANIM_MAX_CONSECUTIVE,
+}) {
   const requested = strictArchetype(scene.fallbackArchetype);
   const fallbackOk =
     requested &&
@@ -105,8 +202,8 @@ function planManimScene({ scene, archetype, index, lastIndex, enabled, count, ma
   const no = (reason) => ({ ok: false, reason, fallback });
   if (!enabled) return no("Manim engine unavailable");
   if (index === 0 || index === lastIndex) return no("hook and outro must be html-gsap");
-  if (count >= max) return no(`Manim share capped at ${Math.round(MANIM_MAX_SHARE * 100)}%`);
-  if (run >= MANIM_MAX_CONSECUTIVE) return no("too many consecutive Manim scenes");
+  if (count >= max) return no(`Manim share capped at ${Math.round(maxShare * 100)}%`);
+  if (run >= maxConsecutive) return no("too many consecutive Manim scenes");
   if (!fallbackOk) return no("missing or invalid fallbackArchetype");
   let beats;
   let brief;
@@ -251,7 +348,7 @@ function safeTextFields(value) {
 }
 
 // The director owns prose, never filenames, IDs, arbitrary DOM markup or bar geometry.
-export function validateStoryboard(value, timing, { manimEnabled = false } = {}) {
+export function validateStoryboard(value, timing, { manimEnabled = false, ...options } = {}) {
   if (
     !value ||
     typeof value !== "object" ||
@@ -285,7 +382,10 @@ export function validateStoryboard(value, timing, { manimEnabled = false } = {})
   const rng = makeRng(hashSeed(`${value.productName}|${rawScenes.length}|${seedEntropy}`));
 
   const scenes = [];
-  const manimMax = Math.floor(rawScenes.length * MANIM_MAX_SHARE);
+  const mathTopic = isMathematicalStoryboard(value, { manimEnabled, ...options });
+  const maxAllowed = mathTopic ? MANIM_MATH_MAX_SHARE : MANIM_MAX_SHARE;
+  const maxConsecutive = mathTopic ? MANIM_MATH_MAX_CONSECUTIVE : MANIM_MAX_CONSECUTIVE;
+  const manimMax = Math.floor(rawScenes.length * maxAllowed);
   let manimCount = 0;
   let manimRun = 0;
   for (let index = 0; index < rawScenes.length; index++) {
@@ -601,6 +701,8 @@ export function validateStoryboard(value, timing, { manimEnabled = false } = {})
         count: manimCount,
         max: manimMax,
         run: manimRun,
+        maxShare: maxAllowed,
+        maxConsecutive,
       });
       let twin = null;
       if (plan.ok) {

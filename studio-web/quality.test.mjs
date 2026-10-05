@@ -7,6 +7,8 @@ import {
   validateTopicInput,
   isPublicAddress,
   normalizeArchetype,
+  auditAndDegradeManimScenes,
+  isMathematicalStoryboard,
 } from "./quality.mjs";
 import {
   getSceneTimingStructure,
@@ -843,4 +845,83 @@ test("outro archetype adopts dark card styling and high-contrast pills in dark m
   // CTA button has accent styling and glow
   assert.match(scopedCss, /\.cta-button\s*\{[^}]*background:\s*#6366f1/);
   assert.match(scopedCss, /\.cta-button\s*\{[^}]*box-shadow:[^}]*#6366f155/);
+});
+
+test("dynamic Manim thresholds: math topics allow up to 65% share and 3 consecutive", () => {
+  assert.equal(isMathematicalStoryboard({ productName: "Linear Algebra & Vectors" }), true);
+  assert.equal(isMathematicalStoryboard({ productName: "SaaS Dashboard CRM" }), false);
+
+  const generalReport = auditAndDegradeManimScenes(
+    [{ archetype: "hook" }, { archetype: "features-cards" }],
+    { topic: "Modern SaaS Analytics Platform" },
+  );
+  assert.equal(generalReport.isMath, false);
+  assert.equal(generalReport.maxAllowed, 0.4);
+  assert.equal(generalReport.maxConsecutive, 2);
+
+  const mathReport = auditAndDegradeManimScenes(
+    [{ archetype: "hook" }, { archetype: "manim-bayes-theorem" }],
+    { topic: "Bayesian Probability and Conditional Sampling" },
+  );
+  assert.equal(mathReport.isMath, true);
+  assert.equal(mathReport.maxAllowed, 0.65);
+  assert.equal(mathReport.maxConsecutive, 3);
+
+  // In validateStoryboard:
+  const timing6 = ["hook", "m1", "m2", "m3", "m4", "outro"].map((role, i) => ({
+    id: `s${i}`,
+    role,
+  }));
+  const manimScene = (i, arch = "manim-bayes-theorem") => ({
+    archetype: arch,
+    title: `Math Beat ${i}`,
+    voiceover: `Calculating probability distribution ${i}.`,
+    beats: [`Calculating probability distribution ${i}.`],
+    manimData:
+      arch === "manim-bayes-theorem"
+        ? { title: "Bayes", pA: 0.3, pBGivenA: 0.8, pBGivenNotA: 0.1 }
+        : arch === "manim-monte-carlo-pi"
+          ? { title: "Monte Carlo", samplePoints: 500 }
+          : { title: "Function Plot", expr: "sin(x)", xRange: [-3, 3] },
+    fallbackArchetype: "bento-metric-grid",
+  });
+
+  // Math storyboard with 3 consecutive Manim scenes in a 6-scene video
+  const mathBoard = {
+    productName: "Probability & Bayes Theorem",
+    seed: 1,
+    scenes: [
+      { archetype: "hook", title: "Hook", voiceover: "Welcome to Bayes Theorem." },
+      manimScene(1, "manim-bayes-theorem"),
+      manimScene(2, "manim-function-plot"),
+      manimScene(3, "manim-monte-carlo-pi"),
+      { archetype: "split-comparison", title: "Compare", voiceover: "Compare the results." },
+      { archetype: "outro", title: "Outro", voiceover: "That wraps up probability." },
+    ],
+  };
+
+  const validatedMath = validateStoryboard(mathBoard, timing6, { manimEnabled: true });
+  const mathEngines = validatedMath.scenes.map((s) => s.engine);
+  // All 3 middle Manim scenes must survive! (3/6 = 50% <= 65% cap, 3 consecutive <= 3 consecutive)
+  assert.deepEqual(mathEngines, ["html-gsap", "manim", "manim", "manim", "html-gsap", "html-gsap"]);
+
+  // For a general SaaS video with the same scene configuration, the 3rd consecutive is capped at 2 and 40%
+  const generalBoard = {
+    productName: "SuperSaaS CRM",
+    seed: 1,
+    scenes: [
+      { archetype: "hook", title: "Hook", voiceover: "Welcome to SuperSaaS." },
+      manimScene(1, "manim-bayes-theorem"),
+      manimScene(2, "manim-function-plot"),
+      manimScene(3, "manim-monte-carlo-pi"),
+      { archetype: "split-comparison", title: "Compare", voiceover: "Compare the results." },
+      { archetype: "outro", title: "Outro", voiceover: "That wraps up SuperSaaS." },
+    ],
+  };
+
+  const validatedGeneral = validateStoryboard(generalBoard, timing6, { manimEnabled: true });
+  const generalEngines = validatedGeneral.scenes.map((s) => s.engine);
+  // General topic caps at 40% (max 2 scenes) and max 2 consecutive
+  assert.equal(generalEngines.filter((e) => e === "manim").length, 2);
+  assert.equal(generalEngines[3], "html-gsap"); // 3rd manim was degraded
 });

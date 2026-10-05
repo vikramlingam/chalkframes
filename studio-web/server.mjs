@@ -1275,6 +1275,16 @@ Analyze the input to identify its primary communication goal:
      * Linear Algebra: 'manim-vector-transform', 'manim-basis-change', 'manim-svd-transform', 'manim-eigen-decomposition', 'manim-dot-cross-product'.
      * Probability & Search: 'manim-monte-carlo-pi', 'manim-markov-chain', 'manim-bayes-theorem', 'manim-latent-manifold', 'manim-sorting-visualizer'.
 
+   PROBABILITY, COMBINATORICS & SAMPLING (Prefer Manim):
+   - Probability growth curves, S-curves, distributions: 'manim-function-plot'.
+   - Sampling simulations, random trials, Monte Carlo runs: 'manim-monte-carlo-pi'.
+   - Conditional probability, Bayes partitions, Venn areas: 'manim-bayes-theorem'.
+   - Pair connections, state graphs, network transitions: 'manim-network-topology', 'manim-markov-chain'.
+
+   AVOID USING HTML FOR PURE MATH:
+   - Do NOT use 'terminal-flow' to print math formulas. Use 'manim-function-plot' or 'manim-bayes-theorem'.
+   - Do NOT use 'live-feed' or 'chat-exchange' to simulate math experiments. Use 'manim-monte-carlo-pi'.
+
 ---
 
 STEP 2: ENFORCE RHYTHM AND MOTION RULES
@@ -1292,7 +1302,7 @@ ${
 ENGINE ROUTING RULE (applies to every scene; set "engine" explicitly on every scene):
 Categorize each scene's narrative purpose, then assign its engine:
 - If a beat explains a continuous function curve, rate of change, geometric transformation, vector field, coordinate projection, or graph traversal, you MUST set "engine": "manim" and choose a "manim-*" archetype.
-- For all technical / scientific / mathematical scripts, allocate 25% to 40% of the middle scenes to "engine": "manim" (about ${Math.max(1, Math.round((actualSceneCount - 2) * 0.25))} to ${Math.max(1, Math.floor(actualSceneCount * 0.4))} of the ${Math.max(0, actualSceneCount - 2)} middle scenes here), never more than 2 in a row.
+- For deep mathematical, calculus, linear algebra, and probability explainers, allocate 50% to 65% of the middle scenes to "engine": "manim" (about ${Math.max(1, Math.round((actualSceneCount - 2) * 0.5))} to ${Math.max(1, Math.floor(actualSceneCount * 0.65))} of the ${Math.max(0, actualSceneCount - 2)} middle scenes here), up to 3 in a row. For general software / product explainers, allocate 25% to 40% (never more than 2 in a row).
 - Use "engine": "html-gsap" for hooks, outros, high-level architectures, comparisons, and KPI metrics. The first and last scene are always "html-gsap".
 - Pick the primitive by what the beat shows: a changing curve or area -> "manim-function-plot"; a matrix or basis change, rotation, shear or projection -> "manim-vector-transform"; layers of a network or a graph/tree traversal -> "manim-network-topology".
 
@@ -2045,6 +2055,7 @@ async function runProductionPipeline(jobId, payload) {
     );
     const storyboard = validateStoryboard(rawStoryboard, timingStructure, {
       manimEnabled: manimCapability.ok,
+      topic: sourceTopic || sourceScript || sourcePdfName,
     });
     for (const [idx, s] of storyboard.scenes.entries()) {
       if (s.degraded) {
