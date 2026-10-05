@@ -39,12 +39,12 @@ export const SOUNDTRACKS = [
   {
     id: "gentle-pulse",
     file: "gentle-pulse.mp3",
-    title: "Coexistenz",
+    title: "It Feels Good To Be Alive Too",
     name: "Gentle Pulse",
     artist: "Loyalty Freak Music",
     license: "CC0 1.0 Universal (Public Domain)",
-    genre: "Warm acoustic pluck and subtle downtempo electronic hum",
-    desc: "Warm acoustic pluck and subtle downtempo electronic hum",
+    genre: "Warm acoustic guitar pluck and subtle downtempo electronic hum",
+    desc: "Warm acoustic guitar pluck and subtle downtempo electronic hum",
     bestFor: "Company pitches, vision explainers, and macroeconomic overviews",
   },
   {
