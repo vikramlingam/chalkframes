@@ -279,6 +279,18 @@ test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t
     assert.ok(track.license.includes("CC0") || track.license.includes("Public Domain"));
   }
 
+  // Verify all 5 CC0 tracks are distinct audio files with unique content (no duplicates)
+  const crypto = await import("node:crypto");
+  const fsPromises = await import("node:fs/promises");
+  const hashes = new Set();
+  for (const track of soundtracks) {
+    const filePath = path.join(repo, "studio-web", "public", "soundtracks", track.file);
+    const content = await fsPromises.readFile(filePath);
+    const hash = crypto.createHash("sha256").update(content).digest("hex");
+    assert.ok(!hashes.has(hash), `Soundtrack ${track.file} must not duplicate another audio file`);
+    hashes.add(hash);
+  }
+
   const cfgRes = await fetch(`${base}/api/config`);
   assert.equal(cfgRes.status, 200);
   const cfg = await cfgRes.json();
