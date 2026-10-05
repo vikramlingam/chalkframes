@@ -7,6 +7,26 @@ export const MANIM_PRIMITIVE_IDS = [
   "manim-function-plot",
   "manim-vector-transform",
   "manim-network-topology",
+  "manim-transformer-block",
+  "manim-kv-cache",
+  "manim-positional-rope",
+  "manim-token-unembedding",
+  "manim-residual-stream",
+  "manim-temperature-softmax",
+  "manim-gradient-descent-3d",
+  "manim-backprop-chain",
+  "manim-convolution-kernel",
+  "manim-svd-transform",
+  "manim-latent-manifold",
+  "manim-eigen-decomposition",
+  "manim-activation-functions",
+  "manim-dot-cross-product",
+  "manim-hyperplane-separator",
+  "manim-basis-change",
+  "manim-sorting-visualizer",
+  "manim-monte-carlo-pi",
+  "manim-markov-chain",
+  "manim-bayes-theorem",
 ];
 
 /** Safe HTML archetypes used when the director gives no usable fallback. */
@@ -14,6 +34,26 @@ export const DEFAULT_FALLBACK = {
   "manim-function-plot": "bento-metric-grid",
   "manim-vector-transform": "vector-cluster-graph",
   "manim-network-topology": "vector-cluster-graph",
+  "manim-transformer-block": "step-progression",
+  "manim-kv-cache": "step-progression",
+  "manim-positional-rope": "vector-cluster-graph",
+  "manim-token-unembedding": "data-graph",
+  "manim-residual-stream": "architecture-pipeline",
+  "manim-temperature-softmax": "data-graph",
+  "manim-gradient-descent-3d": "vector-cluster-graph",
+  "manim-backprop-chain": "flowchart-process",
+  "manim-convolution-kernel": "bento-grid",
+  "manim-svd-transform": "vector-cluster-graph",
+  "manim-latent-manifold": "vector-cluster-graph",
+  "manim-eigen-decomposition": "manim-vector-transform",
+  "manim-activation-functions": "manim-function-plot",
+  "manim-dot-cross-product": "manim-vector-transform",
+  "manim-hyperplane-separator": "embedding-similarity-space",
+  "manim-basis-change": "manim-vector-transform",
+  "manim-sorting-visualizer": "data-graph",
+  "manim-monte-carlo-pi": "data-graph",
+  "manim-markov-chain": "dag-pipeline",
+  "manim-bayes-theorem": "confusion-matrix",
 };
 
 const EXPR_IDENTIFIERS = new Set([
@@ -46,6 +86,36 @@ export function inferManimPrimitive(manimData) {
   if (Array.isArray(manimData.matrix)) return "manim-vector-transform";
   if (Array.isArray(manimData.layers) || Array.isArray(manimData.nodes))
     return "manim-network-topology";
+  if (manimData.highlight && ["attention", "ffn", "residual"].includes(manimData.highlight))
+    return "manim-transformer-block";
+  if (Array.isArray(manimData.promptTokens)) return "manim-kv-cache";
+  if (manimData.angle1 !== undefined || manimData.angle2 !== undefined)
+    return "manim-positional-rope";
+  if (Array.isArray(manimData.topTokens)) return "manim-token-unembedding";
+  if (Array.isArray(manimData.stages)) return "manim-residual-stream";
+  if (Array.isArray(manimData.logits)) return "manim-temperature-softmax";
+  if (manimData.steps !== undefined && manimData.momentum !== undefined)
+    return "manim-gradient-descent-3d";
+  if (Array.isArray(manimData.nodeNames)) return "manim-backprop-chain";
+  if (manimData.kernelSize !== undefined) return "manim-convolution-kernel";
+  if (Array.isArray(manimData.sigma)) return "manim-svd-transform";
+  if (manimData.interpolationSteps !== undefined || manimData.showGeodesic !== undefined)
+    return "manim-latent-manifold";
+  if (Array.isArray(manimData.eigenvalues)) return "manim-eigen-decomposition";
+  if (typeof manimData.functionType === "string") return "manim-activation-functions";
+  if (typeof manimData.mode === "string" && (manimData.vectorA || manimData.vectorB))
+    return "manim-dot-cross-product";
+  if (manimData.marginWidth !== undefined || manimData.showSupportVectors !== undefined)
+    return "manim-hyperplane-separator";
+  if (Array.isArray(manimData.basis1) && Array.isArray(manimData.basis2))
+    return "manim-basis-change";
+  if (Array.isArray(manimData.array) && (manimData.algorithm || Array.isArray(manimData.array)))
+    return "manim-sorting-visualizer";
+  if (manimData.pointCount !== undefined || manimData.targetRatio !== undefined)
+    return "manim-monte-carlo-pi";
+  if (Array.isArray(manimData.states) && manimData.transitions) return "manim-markov-chain";
+  if (manimData.priorA !== undefined || manimData.likelihoodBGivenA !== undefined)
+    return "manim-bayes-theorem";
   return null;
 }
 
@@ -163,10 +233,243 @@ function networkTopology(raw) {
   return brief;
 }
 
+function transformerBlock(raw) {
+  const brief = { title: text(raw.title, 60) };
+  if (raw.layers !== undefined) {
+    if (!Array.isArray(raw.layers) || raw.layers.length < 2 || raw.layers.length > 7) {
+      throw new Error("layers must be an array of 2-7 strings");
+    }
+    brief.layers = raw.layers.map((l) => text(l, 25));
+  } else {
+    brief.layers = [
+      "Input Embedding",
+      "Multi-Head Attention",
+      "Add & Norm",
+      "Feed Forward",
+      "Add & Norm",
+    ];
+  }
+  const h = String(raw.highlight || "attention")
+    .toLowerCase()
+    .trim();
+  brief.highlight = ["attention", "ffn", "residual"].includes(h) ? h : "attention";
+  return brief;
+}
+
+function kvCache(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const prompt = Array.isArray(raw.promptTokens) ? raw.promptTokens : ["The", "quick", "brown"];
+  if (prompt.length < 1 || prompt.length > 6) {
+    throw new Error("promptTokens must have 1-6 entries");
+  }
+  brief.promptTokens = prompt.map((t) => text(t, 12));
+
+  const generated = Array.isArray(raw.generatedTokens) ? raw.generatedTokens : ["fox", "jumps"];
+  if (generated.length < 1 || generated.length > 5) {
+    throw new Error("generatedTokens must have 1-5 entries");
+  }
+  brief.generatedTokens = generated.map((t) => text(t, 12));
+  return brief;
+}
+
+function positionalRope(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.angle1 = finite(raw.angle1 ?? 30, "angle1");
+  brief.angle2 = finite(raw.angle2 ?? 75, "angle2");
+  return brief;
+}
+
+function tokenUnembedding(raw) {
+  const brief = { title: text(raw.title, 60) };
+  if (!Array.isArray(raw.topTokens) || raw.topTokens.length < 2 || raw.topTokens.length > 6) {
+    throw new Error("topTokens must be an array of 2-6 items");
+  }
+  brief.topTokens = raw.topTokens.map((item, idx) => {
+    if (!item || typeof item !== "object") throw new Error(`topTokens[${idx}] must be an object`);
+    return {
+      token: text(item.token ?? `T${idx + 1}`, 15),
+      prob: Math.max(0, Math.min(1, finite(item.prob ?? 0.2, `topTokens[${idx}].prob`))),
+    };
+  });
+  return brief;
+}
+
+function residualStream(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const stages = Array.isArray(raw.stages)
+    ? raw.stages
+    : ["Attention 1", "MLP 1", "Attention 2", "MLP 2"];
+  if (stages.length < 2 || stages.length > 5) {
+    throw new Error("stages must be an array of 2-5 strings");
+  }
+  brief.stages = stages.map((s) => text(s, 20));
+  return brief;
+}
+
+function temperatureSoftmax(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const logits = Array.isArray(raw.logits) ? raw.logits : [2.0, 1.0, 0.5, 3.2];
+  if (logits.length < 2 || logits.length > 6) {
+    throw new Error("logits must be an array of 2-6 numbers");
+  }
+  brief.logits = logits.map((val, idx) => finite(val, `logits[${idx}]`));
+  brief.temperature = Math.max(0.05, Math.min(10.0, finite(raw.temperature ?? 0.5, "temperature")));
+  return brief;
+}
+
+function gradientDescent3d(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.steps = Math.max(3, Math.min(8, Math.round(finite(raw.steps ?? 5, "steps"))));
+  brief.momentum = Boolean(raw.momentum ?? true);
+  return brief;
+}
+
+function backpropChain(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const nodes = Array.isArray(raw.nodeNames) ? raw.nodeNames : ["x, y", "z = x * y", "loss L"];
+  if (nodes.length < 2 || nodes.length > 6) {
+    throw new Error("nodeNames must be an array of 2-6 strings");
+  }
+  brief.nodeNames = nodes.map((n) => text(n, 20));
+  return brief;
+}
+
+function convolutionKernel(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.kernelSize = Math.max(
+    2,
+    Math.min(3, Math.round(finite(raw.kernelSize ?? 3, "kernelSize"))),
+  );
+  brief.stride = Math.max(1, Math.min(2, Math.round(finite(raw.stride ?? 1, "stride"))));
+  return brief;
+}
+
+function svdTransform(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const sigma = raw.sigma ?? [2.2, 0.8];
+  brief.sigma = pair(sigma, "sigma", { min: 0.1, max: 4.0 });
+  return brief;
+}
+
+function latentManifold(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.interpolationSteps = Math.max(
+    3,
+    Math.min(8, Math.round(finite(raw.interpolationSteps ?? 5, "interpolationSteps"))),
+  );
+  brief.showGeodesic = Boolean(raw.showGeodesic ?? true);
+  return brief;
+}
+
+function eigenDecomposition(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.eigenvalues = pair(raw.eigenvalues ?? [2.0, 0.7], "eigenvalues", { min: 0.1, max: 5.0 });
+  brief.showGrid = Boolean(raw.showGrid ?? true);
+  return brief;
+}
+
+function activationFunctions(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const ft = String(raw.functionType ?? "gelu").toLowerCase();
+  brief.functionType = ["relu", "gelu", "sigmoid", "swiglu"].includes(ft) ? ft : "gelu";
+  brief.showDerivative = Boolean(raw.showDerivative ?? false);
+  return brief;
+}
+
+function dotCrossProduct(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const m = String(raw.mode ?? "dot").toLowerCase();
+  brief.mode = ["dot", "cross"].includes(m) ? m : "dot";
+  brief.vectorA = pair(raw.vectorA ?? [2.6, 0.4], "vectorA", { min: -5.0, max: 5.0 });
+  brief.vectorB = pair(raw.vectorB ?? [1.2, 1.8], "vectorB", { min: -5.0, max: 5.0 });
+  return brief;
+}
+
+function hyperplaneSeparator(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.marginWidth = Math.max(0.1, Math.min(2.0, finite(raw.marginWidth ?? 0.6, "marginWidth")));
+  brief.showSupportVectors = Boolean(raw.showSupportVectors ?? true);
+  return brief;
+}
+
+function basisChange(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.basis1 = pair(raw.basis1 ?? [1.5, 0.5], "basis1", { min: -4.0, max: 4.0 });
+  brief.basis2 = pair(raw.basis2 ?? [0.4, 1.4], "basis2", { min: -4.0, max: 4.0 });
+  return brief;
+}
+
+function sortingVisualizer(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const arr = Array.isArray(raw.array)
+    ? raw.array.slice(0, 8).map((x, idx) => finite(x, `array[${idx}]`))
+    : [6, 2, 8, 4, 9, 3, 5];
+  brief.array = arr;
+  const alg = String(raw.algorithm ?? "quicksort").toLowerCase();
+  brief.algorithm = ["quicksort", "mergesort"].includes(alg) ? alg : "quicksort";
+  return brief;
+}
+
+function monteCarloPi(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.pointCount = Math.max(
+    10,
+    Math.min(100, Math.round(finite(raw.pointCount ?? 36, "pointCount"))),
+  );
+  brief.targetRatio = Math.max(0.1, Math.min(1.0, finite(raw.targetRatio ?? 0.785, "targetRatio")));
+  return brief;
+}
+
+function markovChain(raw) {
+  const brief = { title: text(raw.title, 60) };
+  const states = Array.isArray(raw.states)
+    ? raw.states.slice(0, 4).map((s) => text(s, 20))
+    : ["State A", "State B", "State C"];
+  brief.states = states;
+  brief.transitions = Array.isArray(raw.transitions)
+    ? raw.transitions
+    : [
+        [0, 1, 0.7],
+        [1, 2, 0.5],
+        [2, 0, 0.6],
+      ];
+  return brief;
+}
+
+function bayesTheorem(raw) {
+  const brief = { title: text(raw.title, 60) };
+  brief.priorA = Math.max(0.01, Math.min(0.99, finite(raw.priorA ?? 0.35, "priorA")));
+  brief.likelihoodBGivenA = Math.max(
+    0.01,
+    Math.min(0.99, finite(raw.likelihoodBGivenA ?? 0.8, "likelihoodBGivenA")),
+  );
+  return brief;
+}
+
 const VALIDATORS = {
   "manim-function-plot": functionPlot,
   "manim-vector-transform": vectorTransform,
   "manim-network-topology": networkTopology,
+  "manim-transformer-block": transformerBlock,
+  "manim-kv-cache": kvCache,
+  "manim-positional-rope": positionalRope,
+  "manim-token-unembedding": tokenUnembedding,
+  "manim-residual-stream": residualStream,
+  "manim-temperature-softmax": temperatureSoftmax,
+  "manim-gradient-descent-3d": gradientDescent3d,
+  "manim-backprop-chain": backpropChain,
+  "manim-convolution-kernel": convolutionKernel,
+  "manim-svd-transform": svdTransform,
+  "manim-latent-manifold": latentManifold,
+  "manim-eigen-decomposition": eigenDecomposition,
+  "manim-activation-functions": activationFunctions,
+  "manim-dot-cross-product": dotCrossProduct,
+  "manim-hyperplane-separator": hyperplaneSeparator,
+  "manim-basis-change": basisChange,
+  "manim-sorting-visualizer": sortingVisualizer,
+  "manim-monte-carlo-pi": monteCarloPi,
+  "manim-markov-chain": markovChain,
+  "manim-bayes-theorem": bayesTheorem,
 };
 
 /** Returns the sanitized brief or throws. */

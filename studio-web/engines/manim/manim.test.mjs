@@ -103,6 +103,152 @@ test("brief validation sanitizes good briefs and rejects malformed ones", () => 
   assert.throws(() =>
     validateManimBrief("manim-network-topology", { nodes: ["A", "B"], edges: [] }),
   );
+
+  // 10 new 3Blue1Brown Manim primitives
+  const tb = validateManimBrief("manim-transformer-block", {
+    title: "Block",
+    layers: ["Embedding", "Attention", "Add & Norm", "Feed Forward", "Add & Norm"],
+    highlight: "residual",
+  });
+  assert.equal(tb.highlight, "residual");
+  assert.equal(tb.layers.length, 5);
+
+  const kv = validateManimBrief("manim-kv-cache", {
+    title: "KV",
+    promptTokens: ["Hello", "world"],
+    generatedTokens: ["from", "AI"],
+  });
+  assert.deepEqual(kv.promptTokens, ["Hello", "world"]);
+  assert.deepEqual(kv.generatedTokens, ["from", "AI"]);
+
+  const rope = validateManimBrief("manim-positional-rope", {
+    title: "RoPE",
+    angle1: 45,
+    angle2: 90,
+  });
+  assert.equal(rope.angle1, 45);
+  assert.equal(rope.angle2, 90);
+
+  const unembed = validateManimBrief("manim-token-unembedding", {
+    title: "Unembed",
+    topTokens: [
+      { token: "alpha", prob: 0.7 },
+      { token: "beta", prob: 0.3 },
+    ],
+  });
+  assert.equal(unembed.topTokens[0].token, "alpha");
+  assert.equal(unembed.topTokens[0].prob, 0.7);
+
+  const res = validateManimBrief("manim-residual-stream", {
+    title: "Stream",
+    stages: ["Attn", "MLP"],
+  });
+  assert.deepEqual(res.stages, ["Attn", "MLP"]);
+
+  const temp = validateManimBrief("manim-temperature-softmax", {
+    title: "Softmax",
+    logits: [1.0, 2.0, 3.0],
+    temperature: 0.8,
+  });
+  assert.deepEqual(temp.logits, [1.0, 2.0, 3.0]);
+  assert.equal(temp.temperature, 0.8);
+
+  const gd = validateManimBrief("manim-gradient-descent-3d", {
+    title: "GD",
+    steps: 6,
+    momentum: true,
+  });
+  assert.equal(gd.steps, 6);
+  assert.equal(gd.momentum, true);
+
+  const bp = validateManimBrief("manim-backprop-chain", {
+    title: "Backprop",
+    nodeNames: ["x", "f(x)", "Loss"],
+  });
+  assert.deepEqual(bp.nodeNames, ["x", "f(x)", "Loss"]);
+
+  const conv = validateManimBrief("manim-convolution-kernel", {
+    title: "Conv",
+    kernelSize: 3,
+    stride: 1,
+  });
+  assert.equal(conv.kernelSize, 3);
+  assert.equal(conv.stride, 1);
+
+  const svd = validateManimBrief("manim-svd-transform", {
+    title: "SVD",
+    sigma: [3.0, 1.2],
+  });
+  assert.deepEqual(svd.sigma, [3.0, 1.2]);
+
+  const manifold = validateManimBrief("manim-latent-manifold", {
+    title: "Manifold",
+    interpolationSteps: 6,
+    showGeodesic: true,
+  });
+  assert.equal(manifold.interpolationSteps, 6);
+  assert.equal(manifold.showGeodesic, true);
+
+  const eigen = validateManimBrief("manim-eigen-decomposition", {
+    title: "Eigen",
+    eigenvalues: [2.5, 0.6],
+  });
+  assert.deepEqual(eigen.eigenvalues, [2.5, 0.6]);
+
+  const act = validateManimBrief("manim-activation-functions", {
+    title: "Act",
+    functionType: "swiglu",
+  });
+  assert.equal(act.functionType, "swiglu");
+
+  const dot = validateManimBrief("manim-dot-cross-product", {
+    title: "Dot",
+    mode: "cross",
+    vectorA: [2.0, 1.0],
+    vectorB: [0.5, 2.5],
+  });
+  assert.equal(dot.mode, "cross");
+
+  const hp = validateManimBrief("manim-hyperplane-separator", {
+    title: "HP",
+    marginWidth: 0.8,
+  });
+  assert.equal(hp.marginWidth, 0.8);
+
+  const basis = validateManimBrief("manim-basis-change", {
+    title: "Basis",
+    basis1: [2.0, 0.0],
+    basis2: [0.0, 2.0],
+  });
+  assert.deepEqual(basis.basis1, [2.0, 0.0]);
+
+  const sort = validateManimBrief("manim-sorting-visualizer", {
+    title: "Sort",
+    array: [5, 1, 4],
+    algorithm: "mergesort",
+  });
+  assert.equal(sort.algorithm, "mergesort");
+
+  const mc = validateManimBrief("manim-monte-carlo-pi", {
+    title: "MonteCarlo",
+    pointCount: 50,
+  });
+  assert.equal(mc.pointCount, 50);
+
+  const mc_chain = validateManimBrief("manim-markov-chain", {
+    title: "Markov",
+    states: ["S1", "S2", "S3"],
+  });
+  assert.equal(mc_chain.states.length, 3);
+
+  const bayes = validateManimBrief("manim-bayes-theorem", {
+    title: "Bayes",
+    priorA: 0.4,
+    likelihoodBGivenA: 0.75,
+  });
+  assert.equal(bayes.priorA, 0.4);
+  assert.equal(bayes.likelihoodBGivenA, 0.75);
+
   assert.throws(() => validateManimBrief("not-a-primitive", {}));
   assert.throws(() => validateBeats([]));
   assert.deepEqual(validateBeats(["One.", { narration: "Two." }]), ["One.", "Two."]);
@@ -518,6 +664,42 @@ test(
       assert.equal((await probeVideo(raw.outputPath)).frames, 60);
       const gridless = await detectBlankVideo(raw.outputPath);
       assert.equal(gridless.blank, false, "scene must render visible content");
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  },
+);
+
+test(
+  "Flagship 3Blue1Brown primitive (manim-transformer-block) renders without LaTeX or drift",
+  { timeout: 180_000 },
+  async (t) => {
+    const cap = await checkManimCapability();
+    if (!cap.ok || !hasFfmpeg) return t.skip("Manim not available on this machine");
+    const dir = tmp();
+    try {
+      const plan = {
+        palette: sanitizePalette(CSS_PALETTE),
+        fonts: cap.fonts,
+        width: 640,
+        height: 360,
+        fps: 30,
+        totalFrames: 75,
+        mediaDir: path.join(dir, "media"),
+        primitive: "manim-transformer-block",
+        brief: {
+          title: "Transformer Block",
+          layers: ["Embedding", "Attention", "Add & Norm", "FFN", "Add & Norm"],
+          highlight: "attention",
+        },
+        beatFrames: [25, 25, 25],
+        outputPath: path.join(dir, "transformer.mp4"),
+      };
+      await runManimScene({ plan, workDir: path.join(dir, "w_tb"), python: cap.python });
+      const probed = await probeVideo(plan.outputPath);
+      assert.equal(probed.frames, 75);
+      const blankReport = await detectBlankVideo(plan.outputPath);
+      assert.equal(blankReport.blank, false, "rendered transformer block must not be blank");
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

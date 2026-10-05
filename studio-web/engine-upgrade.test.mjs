@@ -252,3 +252,119 @@ test("a valid director engine:'manim' choice survives validation; failures log a
     warnings.join("\n"),
   );
 });
+
+test("Batch 2: all 15 modern AI & Systems HTML archetypes render cleanly in landscape and portrait", () => {
+  const newArchetypes = [
+    "rag-retrieval-pipeline",
+    "agent-scratchpad",
+    "prompt-budget-canvas",
+    "embedding-similarity-space",
+    "tool-calling-schema",
+    "context-window-gauge",
+    "eval-benchmark-matrix",
+    "data-lineage-flow",
+    "microservice-mesh",
+    "database-shard-map",
+    "memory-layout-stack",
+    "dag-pipeline",
+    "event-bus-pubsub",
+    "compiler-ast",
+    "raft-consensus",
+  ];
+
+  for (const id of newArchetypes) {
+    assert.ok(ARCHETYPE_RENDERERS[id], `Renderer for ${id} must be registered`);
+
+    for (const isPortrait of [false, true]) {
+      const scene = {
+        id: `test-${id}`,
+        archetype: id,
+        title: "Distributed Transformer Consensus",
+        subtitle: "Analyzing semantic memory layout and pipeline efficiency.",
+        voiceover: "Detailed walkthrough of modern architecture.",
+      };
+
+      const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+        scene,
+        1,
+        5,
+        10.5,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+
+      assert.ok(innerHtml.length > 100, `${id} innerHtml must not be trivial`);
+      assert.ok(innerHtml.includes("scene-inner"), `${id} must contain .scene-inner`);
+      assert.ok(gsapChoreography.includes("tl."), `${id} must register tweens on tl`);
+
+      const css = getArchetypeScopedCss(
+        scene,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+      assert.ok(css.includes(`[data-composition-id="${scene.id}"]`), `${id} CSS must be scoped`);
+    }
+  }
+});
+
+test("Batch 3: all 15 Technical Product, UX, and Quantitative HTML archetypes render cleanly in landscape and portrait", () => {
+  const batch3Archetypes = [
+    "git-branch-graph",
+    "browser-devtools",
+    "security-threat-model",
+    "kanban-sprint",
+    "changelog-timeline",
+    "circuit-breaker-status",
+    "rate-limiter-bucket",
+    "audit-log-stream",
+    "confusion-matrix",
+    "quantile-distribution",
+    "radar-capability",
+    "sankey-cost-flow",
+    "cohort-retention-grid",
+    "multi-metric-dashboard",
+    "ab-test-confidence",
+  ];
+
+  for (const id of batch3Archetypes) {
+    assert.ok(ARCHETYPE_RENDERERS[id], `Renderer for ${id} must be registered`);
+
+    for (const isPortrait of [false, true]) {
+      const scene = {
+        id: `test-${id}`,
+        archetype: id,
+        title: "Product Telemetry & Verification",
+        subtitle: "Analyzing metric reliability and execution speed.",
+        voiceover: "Detailed overview of operational capability.",
+      };
+
+      const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+        scene,
+        1,
+        5,
+        10.5,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+
+      assert.ok(innerHtml.length > 100, `${id} innerHtml must not be trivial`);
+      assert.ok(innerHtml.includes("scene-inner"), `${id} must contain .scene-inner`);
+      assert.ok(gsapChoreography.includes("tl."), `${id} must register tweens on tl`);
+
+      const css = getArchetypeScopedCss(
+        scene,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+      assert.ok(css.includes(`[data-composition-id="${scene.id}"]`), `${id} CSS must be scoped`);
+    }
+  }
+});

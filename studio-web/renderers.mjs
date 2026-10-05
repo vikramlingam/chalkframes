@@ -2429,3 +2429,2397 @@ registerArchetypeRenderer("stat-spotlight", {
   `;
   },
 });
+
+// =========================================================================
+// BATCH 2: 15 MODERN AI & SYSTEMS HTML/GSAP ARCHETYPES
+// =========================================================================
+
+// 28. RAG Retrieval Pipeline
+registerArchetypeRenderer("rag-retrieval-pipeline", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawStages = scene.ragData?.stages;
+    const stages = (
+      Array.isArray(rawStages) && rawStages.length >= 3
+        ? rawStages
+        : [0, 1, 2, 3, 4].map((k) => ({
+            name: synthesizeFallbackText(scene, "step", k),
+            detail: synthesizeFallbackText(scene, "caption", k),
+          }))
+    ).slice(0, 5);
+
+    const queryText = scene.ragData?.queryText || scene.title;
+    const retrievedCount = scene.ragData?.retrievedCount || 5;
+
+    const stagesHtml = stages
+      .map((st, idx) => {
+        const isHighlight = idx === 3;
+        const name = typeof st.name === "string" ? st.name : `Stage ${idx + 1}`;
+        const detail = typeof st.detail === "string" ? st.detail : "";
+        return `
+        <div class="rag-stage-card ${isHighlight ? "rag-stage-hero" : ""}">
+          <div class="rag-stage-num">0${idx + 1}</div>
+          <div class="rag-stage-name">${h(name)}</div>
+          ${detail ? `<div class="rag-stage-detail">${h(detail)}</div>` : ""}
+          <div class="rag-stage-badge">${isHighlight ? `${retrievedCount} Top-K` : "Verified"}</div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".rag-stage-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner rag-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "RETRIEVAL-AUGMENTED GENERATION")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "48px" : "64px"}">${h(scene.title)}</h1>
+          <div class="rag-query-hud">
+            <span class="rag-query-tag">SEARCH QUERY</span>
+            <span class="rag-query-val">"${h(queryText)}"</span>
+          </div>
+          <div id="s${i + 1}-track" class="rag-track">
+            <div class="rag-connector"></div>
+            ${stagesHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 18, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".rag-query-hud"), { opacity: 0, y: 20, duration: 0.5 }, 0.5);
+        tl.fromTo(scope.querySelector(".rag-connector"), { scaleX: 0, opacity: 1 }, { scaleX: 1, opacity: 1, duration: 0.9, ease: "power2.inOut" }, 0.65);
+        tl.from(scope.querySelectorAll(".rag-stage-card"), { opacity: 0, y: 30, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.8);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .rag-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .rag-query-hud { display: inline-flex; align-items: center; gap: 14px; padding: 10px 22px; border-radius: 999px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; margin: 24px auto 0; max-width: 90%; }
+    [data-composition-id="${scene.id}"] .rag-query-tag { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .rag-query-val { font-size: 18px; color: ${activePalette.text}; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 700px; }
+    [data-composition-id="${scene.id}"] .rag-track { position: relative; display: flex; ${isPortrait ? "flex-direction: column; align-items: stretch; gap: 20px;" : "flex-direction: row; align-items: stretch; justify-content: space-between; gap: 20px;"} margin-top: ${isPortrait ? "32px" : "56px"}; width: min(1420px, 86vw); min-height: ${isPortrait ? "auto" : "320px"}; }
+    [data-composition-id="${scene.id}"] .rag-connector { position: absolute; ${isPortrait ? "left: 36px; top: 0; bottom: 0; width: 4px; height: auto; transform-origin: top;" : "left: 4%; right: 4%; top: 38px; height: 4px; transform-origin: left;"} background: linear-gradient(90deg, ${activePalette.accent}, ${activePalette.accent}44); border-radius: 2px; }
+    [data-composition-id="${scene.id}"] .rag-stage-card { position: relative; z-index: 1; flex: 1 1 0; display: flex; flex-direction: column; justify-content: space-between; padding: 26px 20px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; }
+    [data-composition-id="${scene.id}"] .rag-stage-hero { border-color: ${activePalette.accent}; box-shadow: 0 0 32px ${activePalette.accent}26; }
+    [data-composition-id="${scene.id}"] .rag-stage-num { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .rag-stage-name { font-size: ${isPortrait ? "22px" : "26px"}; font-weight: 800; color: ${activePalette.text}; margin-top: 14px; line-height: 1.25; }
+    [data-composition-id="${scene.id}"] .rag-stage-detail { font-size: 17px; color: ${activePalette.textMuted || activePalette.text}; line-height: 1.45; margin-top: 10px; }
+    [data-composition-id="${scene.id}"] .rag-stage-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; color: ${activePalette.accent}; margin-top: 18px; padding: 4px 10px; border-radius: 6px; background: ${activePalette.accent}16; display: inline-block; width: fit-content; }
+  `,
+});
+
+// 29. Agent Scratchpad (ReAct Cognitive Loop)
+registerArchetypeRenderer("agent-scratchpad", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 80% 20%, ${activePalette.accent}16 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawSteps = scene.agentData?.steps;
+    const steps = (
+      Array.isArray(rawSteps) && rawSteps.length >= 2
+        ? rawSteps
+        : [
+            {
+              type: "thought",
+              content:
+                synthesizeFallbackText(scene, "caption", 0) ||
+                "Analyze user objective and verify parameters",
+            },
+            {
+              type: "action",
+              content: `search_database(target="${synthesizeFallbackText(scene, "node", 0)}")`,
+            },
+            {
+              type: "observation",
+              content:
+                synthesizeFallbackText(scene, "caption", 1) ||
+                "Retrieved 14 matching entries with high confidence",
+            },
+            {
+              type: "answer",
+              content:
+                synthesizeFallbackText(scene, "caption", 2) ||
+                "Synthesized conclusive plan meeting constraints",
+            },
+          ]
+    ).slice(0, 4);
+
+    const typeIcons = {
+      thought: "🧠 THOUGHT",
+      action: "⚡ ACTION",
+      observation: "👁 OBSERVATION",
+      answer: "🎯 FINAL ANSWER",
+    };
+
+    const cardsHtml = steps
+      .map((st, idx) => {
+        const type = String(st.type || "thought").toLowerCase();
+        const header = typeIcons[type] || "STEP";
+        const content = typeof st.content === "string" ? st.content : "";
+        const isAnswer = type === "answer";
+        return `
+        <div class="agent-step-card ${isAnswer ? "agent-card-answer" : ""}">
+          <div class="agent-card-header">
+            <span class="agent-type-tag agent-tag-${type}">${header}</span>
+            <span class="agent-step-idx">#0${idx + 1}</span>
+          </div>
+          <div class="agent-card-content ${type === "action" ? "agent-code-font" : ""}">${h(content)}</div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".agent-step-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner agent-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "COGNITIVE REASONING LOOP")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "62px"}">${h(scene.title)}</h1>
+          <div id="s${i + 1}-grid" class="agent-grid">
+            ${cardsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".agent-step-card"), { opacity: 0, y: 28, stagger: 0.12, duration: 0.5, ease: "power3.out" }, 0.6);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .agent-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .agent-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(2, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "32px" : "52px"}; }
+    [data-composition-id="${scene.id}"] .agent-step-card { padding: 26px 28px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
+    [data-composition-id="${scene.id}"] .agent-card-answer { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}24; }
+    [data-composition-id="${scene.id}"] .agent-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    [data-composition-id="${scene.id}"] .agent-type-tag { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 6px; }
+    [data-composition-id="${scene.id}"] .agent-tag-thought { background: rgba(139, 92, 246, 0.16); color: #a78bfa; }
+    [data-composition-id="${scene.id}"] .agent-tag-action { background: rgba(59, 130, 246, 0.16); color: #60a5fa; }
+    [data-composition-id="${scene.id}"] .agent-tag-observation { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
+    [data-composition-id="${scene.id}"] .agent-tag-answer { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    [data-composition-id="${scene.id}"] .agent-step-idx { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .agent-card-content { font-size: 21px; line-height: 1.45; color: ${activePalette.text}; font-weight: 600; }
+    [data-composition-id="${scene.id}"] .agent-code-font { font-family: "JetBrains Mono", monospace; font-size: 19px; color: ${activePalette.accent}; }
+  `,
+});
+
+// 30. Prompt Budget Canvas (Stacked Context Breakdown)
+registerArchetypeRenderer("prompt-budget-canvas", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 50%, ${activePalette.accent}12 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawSegments = scene.budgetData?.segments;
+    const totalTokens = Number(scene.budgetData?.totalTokens) || 8192;
+    const segments = (
+      Array.isArray(rawSegments) && rawSegments.length >= 2
+        ? rawSegments
+        : [
+            { label: "System Persona", tokens: 1200 },
+            { label: "Few-Shot Examples", tokens: 2200 },
+            { label: "RAG Context", tokens: 2800 },
+            { label: "Output Headroom", tokens: 1992 },
+          ]
+    ).slice(0, 5);
+
+    const colors = [activePalette.accent, "#3b82f6", "#10b981", "#f59e0b", "#ec4899"];
+
+    const segBarsHtml = segments
+      .map((seg, idx) => {
+        const tokens = Number(seg.tokens) || 1000;
+        const pct = Math.max(5, Math.round((tokens / totalTokens) * 100));
+        const color = colors[idx % colors.length];
+        return `<div class="pbc-bar-seg" style="flex: ${pct}; background: ${color};" title="${h(seg.label)}: ${tokens}"></div>`;
+      })
+      .join("\n");
+
+    const legendHtml = segments
+      .map((seg, idx) => {
+        const tokens = Number(seg.tokens) || 1000;
+        const pct = Math.round((tokens / totalTokens) * 100);
+        const color = colors[idx % colors.length];
+        return `
+        <div class="pbc-legend-card">
+          <div class="pbc-card-dot" style="background: ${color};"></div>
+          <div class="pbc-card-info">
+            <div class="pbc-card-label">${h(seg.label)}</div>
+            <div class="pbc-card-num">${tokens.toLocaleString()} <span class="pbc-card-pct">(${pct}%)</span></div>
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".pbc-legend-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner pbc-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "CONTEXT BUDGET ALLOCATION")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "48px" : "64px"}">${h(scene.title)}</h1>
+          <div class="pbc-total-badge">
+            <span class="pbc-total-num">${totalTokens.toLocaleString()}</span>
+            <span class="pbc-total-unit">TOTAL TOKENS</span>
+          </div>
+          <div id="s${i + 1}-bar" class="pbc-bar-container">
+            ${segBarsHtml}
+          </div>
+          <div id="s${i + 1}-legend" class="pbc-legend-grid">
+            ${legendHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".pbc-total-badge"), { opacity: 0, scale: 0.8, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelector(".pbc-bar-container"), { scaleX: 0, opacity: 0, duration: 0.8, ease: "power3.out" }, 0.65);
+        tl.from(scope.querySelectorAll(".pbc-legend-card"), { opacity: 0, y: 24, stagger: 0.1, duration: 0.5, ease: "power3.out" }, 0.85);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .pbc-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .pbc-total-badge { display: inline-flex; align-items: baseline; gap: 10px; margin-top: 18px; padding: 8px 24px; border-radius: 999px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .pbc-total-num { font-family: "JetBrains Mono", monospace; font-size: 32px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .pbc-total-unit { font-size: 16px; font-weight: 800; color: ${activePalette.textMuted || activePalette.text}; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .pbc-bar-container { display: flex; width: min(1360px, 86vw); height: 48px; border-radius: 14px; overflow: hidden; margin-top: 36px; border: 2px solid ${activePalette.border}; box-shadow: 0 0 32px rgba(0,0,0,0.2); }
+    [data-composition-id="${scene.id}"] .pbc-bar-seg { height: 100%; transition: opacity 0.3s; }
+    [data-composition-id="${scene.id}"] .pbc-legend-grid { display: grid; grid-template-columns: ${isPortrait ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(240px, 1fr))"}; gap: 20px; width: min(1360px, 86vw); margin-top: 40px; }
+    [data-composition-id="${scene.id}"] .pbc-legend-card { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; }
+    [data-composition-id="${scene.id}"] .pbc-card-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+    [data-composition-id="${scene.id}"] .pbc-card-label { font-size: 18px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .pbc-card-num { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 800; color: ${activePalette.text}; margin-top: 4px; }
+    [data-composition-id="${scene.id}"] .pbc-card-pct { font-size: 16px; color: ${activePalette.textMuted || activePalette.text}; font-weight: 500; }
+  `,
+});
+
+// 31. Embedding Similarity Space (2D Vector Metric)
+registerArchetypeRenderer("embedding-similarity-space", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 30% 40%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawCandidates = scene.similarityData?.candidates;
+    const candidates = (
+      Array.isArray(rawCandidates) && rawCandidates.length >= 2
+        ? rawCandidates
+        : [
+            { label: "Semantic Chunk A", score: 0.94, match: true },
+            { label: "Context Window B", score: 0.81, match: false },
+            { label: "Related Token C", score: 0.67, match: false },
+          ]
+    ).slice(0, 4);
+
+    const queryLabel = scene.similarityData?.queryLabel || scene.title;
+
+    const rankRowsHtml = candidates
+      .map((c, idx) => {
+        const isMatch = Boolean(c.match);
+        const score = Number(c.score) || 0.75;
+        const pct = Math.round(score * 100);
+        return `
+        <div class="ess-rank-row ${isMatch ? "ess-row-match" : ""}">
+          <div class="ess-rank-idx">#0${idx + 1}</div>
+          <div class="ess-rank-name">${h(c.label)}</div>
+          <div class="ess-rank-score-wrap">
+            <span class="ess-rank-score">${score.toFixed(2)}</span>
+            <span class="ess-rank-badge">${isMatch ? "NEAREST" : `${pct}%`}</span>
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".ess-rank-row")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner ess-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "HIGH-DIMENSIONAL VECTOR SPACE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="ess-canvas-grid">
+            <!-- Left: 2D Projection Space -->
+            <div class="ess-polar-space">
+              <svg class="ess-polar-svg" viewBox="0 0 400 400">
+                <circle cx="200" cy="200" r="160" class="ess-grid-ring" />
+                <circle cx="200" cy="200" r="110" class="ess-grid-ring" />
+                <circle cx="200" cy="200" r="60" class="ess-grid-ring" />
+                <line x1="20" y1="200" x2="380" y2="200" class="ess-grid-axis" />
+                <line x1="200" y1="20" x2="200" y2="380" class="ess-grid-axis" />
+                <!-- Anchor Query Node -->
+                <circle cx="200" cy="200" r="10" class="ess-anchor-node" />
+                <text x="200" y="235" text-anchor="middle" class="ess-anchor-txt">QUERY</text>
+                <!-- Plotted vectors -->
+                <line x1="200" y1="200" x2="290" y2="130" class="ess-cosine-line" />
+                <circle cx="290" cy="130" r="8" class="ess-target-node" />
+                <line x1="200" y1="200" x2="110" y2="120" class="ess-cosine-line" />
+                <circle cx="110" cy="120" r="7" class="ess-candidate-node" />
+                <line x1="200" y1="200" x2="270" y2="280" class="ess-cosine-line" />
+                <circle cx="270" cy="280" r="7" class="ess-candidate-node" />
+              </svg>
+              <div class="ess-query-tag">${h(queryLabel)}</div>
+            </div>
+            <!-- Right: Ranked List -->
+            <div class="ess-rank-table">
+              <div class="ess-table-head">METRIC SIMILARITY RANKING</div>
+              ${rankRowsHtml}
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".ess-polar-space"), { opacity: 0, scale: 0.85, duration: 0.7, ease: "back.out(1.4)" }, 0.55);
+        tl.from(scope.querySelectorAll(".ess-rank-row"), { opacity: 0, x: 26, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.75);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .ess-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .ess-canvas-grid { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row;"} align-items: center; justify-content: space-between; gap: 36px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; }
+    [data-composition-id="${scene.id}"] .ess-polar-space { flex: 0 0 ${isPortrait ? "100%" : "44%"}; display: flex; flex-direction: column; align-items: center; padding: 24px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .ess-polar-svg { width: 340px; height: 340px; }
+    [data-composition-id="${scene.id}"] .ess-grid-ring { fill: none; stroke: ${activePalette.border}; stroke-width: 1.5; stroke-dasharray: 4 6; }
+    [data-composition-id="${scene.id}"] .ess-grid-axis { stroke: ${activePalette.border}; stroke-width: 1.5; }
+    [data-composition-id="${scene.id}"] .ess-anchor-node { fill: ${activePalette.accent}; filter: drop-shadow(0 0 10px ${activePalette.accent}); }
+    [data-composition-id="${scene.id}"] .ess-anchor-txt { fill: ${activePalette.accent}; font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; }
+    [data-composition-id="${scene.id}"] .ess-cosine-line { stroke: ${activePalette.accent}; stroke-width: 2; stroke-dasharray: 4 4; opacity: 0.7; }
+    [data-composition-id="${scene.id}"] .ess-target-node { fill: #10b981; filter: drop-shadow(0 0 8px #10b981); }
+    [data-composition-id="${scene.id}"] .ess-candidate-node { fill: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .ess-query-tag { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: ${activePalette.accent}; margin-top: 14px; }
+    [data-composition-id="${scene.id}"] .ess-rank-table { flex: 1; width: 100%; display: flex; flex-direction: column; gap: 16px; }
+    [data-composition-id="${scene.id}"] .ess-table-head { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; text-align: left; }
+    [data-composition-id="${scene.id}"] .ess-rank-row { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .ess-row-match { border-color: ${activePalette.accent}; box-shadow: 0 0 24px ${activePalette.accent}24; }
+    [data-composition-id="${scene.id}"] .ess-rank-idx { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .ess-rank-name { font-size: 21px; font-weight: 700; color: ${activePalette.text}; margin-left: 16px; text-align: left; flex: 1; }
+    [data-composition-id="${scene.id}"] .ess-rank-score-wrap { display: flex; align-items: center; gap: 14px; }
+    [data-composition-id="${scene.id}"] .ess-rank-score { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .ess-rank-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: ${activePalette.accent}16; color: ${activePalette.accent}; }
+  `,
+});
+
+// 32. Tool Calling Schema (Structured Function Contract)
+registerArchetypeRenderer("tool-calling-schema", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 75% 30%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const fnName = scene.toolData?.functionName || "query_vector_store";
+    const desc =
+      scene.toolData?.description || "Executes semantic similarity search over index chunks";
+    const rawParams = scene.toolData?.parameters;
+    const params = (
+      Array.isArray(rawParams) && rawParams.length >= 2
+        ? rawParams
+        : [
+            { name: "query", type: "string", desc: "Target query prompt text", required: true },
+            { name: "top_k", type: "number", desc: "Maximum candidates to return", required: true },
+            { name: "threshold", type: "number", desc: "Minimum score cutoff", required: false },
+          ]
+    ).slice(0, 4);
+
+    const paramsHtml = params
+      .map((p) => {
+        const reqBadge = p.required
+          ? `<span class="tcs-req-badge">REQUIRED</span>`
+          : `<span class="tcs-opt-badge">OPTIONAL</span>`;
+        return `
+        <div class="tcs-param-row">
+          <div class="tcs-param-head">
+            <span class="tcs-param-name">${h(p.name)}</span>
+            <span class="tcs-param-type">${h(p.type)}</span>
+            ${reqBadge}
+          </div>
+          <div class="tcs-param-desc">${h(p.desc)}</div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".tcs-param-row")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner tcs-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "FUNCTION CALLING SCHEMA")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="tcs-split-layout">
+            <!-- Left: Function Summary -->
+            <div class="tcs-left-card">
+              <div class="tcs-badge-pill">VALIDATED SPEC</div>
+              <div class="tcs-fn-name">fn: ${h(fnName)}()</div>
+              <div class="tcs-fn-desc">${h(desc)}</div>
+              <div class="tcs-call-box">
+                <span class="tcs-prompt-sign">&gt;</span>
+                <span class="tcs-call-txt">${h(fnName)}(query="search_terms", top_k=5)</span>
+              </div>
+            </div>
+            <!-- Right: Schema Parameters -->
+            <div class="tcs-right-card">
+              <div class="tcs-schema-title">PARAMETERS SCHEMA</div>
+              <div class="tcs-params-list">
+                ${paramsHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".tcs-left-card"), { opacity: 0, x: -30, duration: 0.6, ease: "power3.out" }, 0.55);
+        tl.from(scope.querySelector(".tcs-right-card"), { opacity: 0, x: 30, duration: 0.6, ease: "power3.out" }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .tcs-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .tcs-split-layout { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row;"} gap: 28px; width: min(1380px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .tcs-left-card { flex: 0 0 ${isPortrait ? "100%" : "42%"}; padding: 32px 30px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; display: flex; flex-direction: column; justify-content: space-between; }
+    [data-composition-id="${scene.id}"] .tcs-badge-pill { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 4px 12px; border-radius: 999px; width: fit-content; }
+    [data-composition-id="${scene.id}"] .tcs-fn-name { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "26px" : "32px"}; font-weight: 800; color: ${activePalette.accent}; margin-top: 18px; }
+    [data-composition-id="${scene.id}"] .tcs-fn-desc { font-size: 20px; color: ${activePalette.textMuted || activePalette.text}; line-height: 1.45; margin-top: 12px; }
+    [data-composition-id="${scene.id}"] .tcs-call-box { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 12px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; margin-top: 24px; }
+    [data-composition-id="${scene.id}"] .tcs-prompt-sign { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .tcs-call-txt { font-family: "JetBrains Mono", monospace; font-size: 17px; color: ${activePalette.text}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    [data-composition-id="${scene.id}"] .tcs-right-card { flex: 1; padding: 32px 30px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; display: flex; flex-direction: column; }
+    [data-composition-id="${scene.id}"] .tcs-schema-title { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; margin-bottom: 20px; }
+    [data-composition-id="${scene.id}"] .tcs-params-list { display: flex; flex-direction: column; gap: 14px; }
+    [data-composition-id="${scene.id}"] .tcs-param-row { padding: 18px 20px; border-radius: 14px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .tcs-param-head { display: flex; align-items: center; gap: 12px; }
+    [data-composition-id="${scene.id}"] .tcs-param-name { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .tcs-param-type { font-family: "JetBrains Mono", monospace; font-size: 14px; color: ${activePalette.accent}; background: ${activePalette.accent}14; padding: 2px 8px; border-radius: 4px; }
+    [data-composition-id="${scene.id}"] .tcs-req-badge { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.15); padding: 2px 8px; border-radius: 4px; margin-left: auto; }
+    [data-composition-id="${scene.id}"] .tcs-opt-badge { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; background: rgba(255, 255, 255, 0.08); padding: 2px 8px; border-radius: 4px; margin-left: auto; }
+    [data-composition-id="${scene.id}"] .tcs-param-desc { font-size: 17px; color: ${activePalette.textMuted || activePalette.text}; margin-top: 6px; line-height: 1.4; }
+  `,
+});
+
+// 33. Context Window Gauge (Radial Memory Pressure)
+registerArchetypeRenderer("context-window-gauge", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 40%, ${activePalette.accent}16 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const curTokens = Number(scene.gaugeData?.currentTokens) || 64000;
+    const maxTokens = Number(scene.gaugeData?.maxTokens) || 128000;
+    const ratio = Math.min(1.0, Math.max(0.05, curTokens / maxTokens));
+    const pct = Math.round(ratio * 100);
+    const label = scene.gaugeData?.label || "Working Context Allocation";
+    const fillDur = Math.min(1.4, Math.max(0.6, sDur * 0.3));
+
+    return {
+      innerHtml: `
+        <div class="scene-inner cwg-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "ACTIVE CONTEXT MONITOR")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="cwg-gauge-wrap" style="--cwg-accent: ${activePalette.accent};">
+            <svg class="cwg-gauge-svg" viewBox="0 0 360 220">
+              <path d="M 40 190 A 140 140 0 0 1 320 190" class="cwg-gauge-track" />
+              <path d="M 40 190 A 140 140 0 0 1 320 190" class="cwg-gauge-fill" style="stroke-dasharray: 440; stroke-dashoffset: ${440 - 440 * ratio};" />
+            </svg>
+            <div class="cwg-readout">
+              <div class="cwg-pct">${pct}%</div>
+              <div class="cwg-sub">${(curTokens / 1000).toFixed(0)}k / ${(maxTokens / 1000).toFixed(0)}k TOKENS</div>
+            </div>
+          </div>
+          <div class="cwg-status-card">
+            <div class="cwg-status-indicator"></div>
+            <div class="cwg-status-text">${h(label)}</div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".cwg-gauge-fill"), { strokeDashoffset: 440, duration: ${fillDur}, ease: "power3.out" }, 0.5);
+        tl.from(scope.querySelector(".cwg-readout"), { opacity: 0, scale: 0.8, duration: 0.6, ease: "back.out(1.5)" }, 0.7);
+        tl.from(scope.querySelector(".cwg-status-card"), { opacity: 0, y: 20, duration: 0.5 }, 0.9);
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .cwg-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .cwg-gauge-wrap { position: relative; width: 420px; height: 260px; margin-top: 36px; display: flex; align-items: flex-end; justify-content: center; }
+    [data-composition-id="${scene.id}"] .cwg-gauge-svg { width: 100%; height: 100%; overflow: visible; }
+    [data-composition-id="${scene.id}"] .cwg-gauge-track { fill: none; stroke: ${activePalette.border}; stroke-width: 28; stroke-linecap: round; }
+    [data-composition-id="${scene.id}"] .cwg-gauge-fill { fill: none; stroke: ${activePalette.accent}; stroke-width: 28; stroke-linecap: round; filter: drop-shadow(0 0 14px ${activePalette.accent}); }
+    [data-composition-id="${scene.id}"] .cwg-readout { position: absolute; bottom: 10px; display: flex; flex-direction: column; align-items: center; }
+    [data-composition-id="${scene.id}"] .cwg-pct { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "56px" : "68px"}; font-weight: 900; color: ${activePalette.text}; line-height: 1; }
+    [data-composition-id="${scene.id}"] .cwg-sub { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 700; color: ${activePalette.accent}; margin-top: 8px; letter-spacing: 0.05em; }
+    [data-composition-id="${scene.id}"] .cwg-status-card { display: inline-flex; align-items: center; gap: 12px; padding: 14px 28px; border-radius: 999px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; margin-top: 40px; }
+    [data-composition-id="${scene.id}"] .cwg-status-indicator { width: 14px; height: 14px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
+    [data-composition-id="${scene.id}"] .cwg-status-text { font-size: 20px; font-weight: 700; color: ${activePalette.text}; }
+  `,
+});
+
+// 34. Eval Benchmark Matrix (Leaderboard Comparison)
+registerArchetypeRenderer("eval-benchmark-matrix", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 50%, ${activePalette.accent}12 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawBench = scene.benchmarkData?.benchmarks;
+    const benchmarks = (
+      Array.isArray(rawBench) && rawBench.length >= 2
+        ? rawBench
+        : [
+            {
+              name: "MMLU Reasoning",
+              scores: [
+                { model: "Hero Model", score: 89.2, isHero: true },
+                { model: "Baseline A", score: 78.4 },
+                { model: "Baseline B", score: 71.0 },
+              ],
+            },
+            {
+              name: "HumanEval Coding",
+              scores: [
+                { model: "Hero Model", score: 84.6, isHero: true },
+                { model: "Baseline A", score: 73.1 },
+                { model: "Baseline B", score: 65.5 },
+              ],
+            },
+            {
+              name: "GSM8K Math",
+              scores: [
+                { model: "Hero Model", score: 92.4, isHero: true },
+                { model: "Baseline A", score: 81.0 },
+                { model: "Baseline B", score: 74.8 },
+              ],
+            },
+          ]
+    ).slice(0, 3);
+
+    const rowsHtml = benchmarks
+      .map((bm) => {
+        const barsHtml = (bm.scores || [])
+          .map((sc) => {
+            const isHero = Boolean(sc.isHero);
+            const score = Number(sc.score) || 75;
+            return `
+            <div class="ebm-bar-row">
+              <span class="ebm-model-name ${isHero ? "ebm-hero-text" : ""}">${h(sc.model)}</span>
+              <div class="ebm-bar-track">
+                <div class="ebm-bar-fill ${isHero ? "ebm-hero-bar" : ""}" style="width: ${score}%;"></div>
+              </div>
+              <span class="ebm-model-score ${isHero ? "ebm-hero-text" : ""}">${score.toFixed(1)}%</span>
+            </div>`;
+          })
+          .join("\n");
+
+        return `
+        <div class="ebm-bench-card">
+          <div class="ebm-bench-title">${h(bm.name)}</div>
+          <div class="ebm-bars-group">
+            ${barsHtml}
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".ebm-bench-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner ebm-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "EVALUATION BENCHMARK SUITE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="ebm-cards-grid">
+            ${rowsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".ebm-bench-card"), { opacity: 0, y: 28, stagger: 0.14, duration: 0.6, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .ebm-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .ebm-cards-grid { display: flex; flex-direction: column; gap: 22px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "44px"}; }
+    [data-composition-id="${scene.id}"] .ebm-bench-card { padding: 24px 30px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; }
+    [data-composition-id="${scene.id}"] .ebm-bench-title { font-size: 24px; font-weight: 800; color: ${activePalette.text}; margin-bottom: 18px; }
+    [data-composition-id="${scene.id}"] .ebm-bars-group { display: flex; flex-direction: column; gap: 12px; }
+    [data-composition-id="${scene.id}"] .ebm-bar-row { display: flex; align-items: center; gap: 18px; }
+    [data-composition-id="${scene.id}"] .ebm-model-name { font-size: 18px; font-weight: 600; color: ${activePalette.textMuted || activePalette.text}; width: 140px; flex-shrink: 0; }
+    [data-composition-id="${scene.id}"] .ebm-hero-text { color: ${activePalette.accent} !important; font-weight: 800; }
+    [data-composition-id="${scene.id}"] .ebm-bar-track { flex: 1; height: 16px; border-radius: 999px; background: ${activePalette.background}; overflow: hidden; border: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .ebm-bar-fill { height: 100%; border-radius: 999px; background: ${activePalette.textMuted || "#888"}; transition: width 0.5s; }
+    [data-composition-id="${scene.id}"] .ebm-hero-bar { background: ${activePalette.accent}; box-shadow: 0 0 12px ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .ebm-model-score { font-family: "JetBrains Mono", monospace; font-size: 19px; font-weight: 700; color: ${activePalette.text}; width: 70px; text-align: right; flex-shrink: 0; }
+  `,
+});
+
+// 35. Data Lineage Flow (ETL/DAG Stream)
+registerArchetypeRenderer("data-lineage-flow", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 70% 30%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawStages = scene.lineageData?.stages;
+    const stages = (
+      Array.isArray(rawStages) && rawStages.length >= 2
+        ? rawStages
+        : [
+            {
+              title: "Raw Sources",
+              subtitle: "Event logs & APIs",
+              items: ["Kafka Stream", "Postgres CDC"],
+            },
+            {
+              title: "Transformation",
+              subtitle: "Cleaning & dedup",
+              items: ["Schema Validator", "Filter Pass"],
+            },
+            {
+              title: "Vector Store",
+              subtitle: "Storage & Index",
+              items: ["Graph Cache", "Index Cache"],
+            },
+            {
+              title: "Serving Layer",
+              subtitle: "Low latency query",
+              items: ["gRPC Endpoint", "Edge Cache"],
+            },
+          ]
+    ).slice(0, 4);
+
+    const columnsHtml = stages
+      .map((st, idx) => {
+        const itemsHtml = (st.items || [])
+          .map((item) => `<div class="dlf-item-badge">${h(item)}</div>`)
+          .join("\n");
+        return `
+        <div class="dlf-stage-col">
+          <div class="dlf-stage-header">
+            <span class="dlf-step-num">STAGE 0${idx + 1}</span>
+            <div class="dlf-step-title">${h(st.title)}</div>
+            <div class="dlf-step-sub">${h(st.subtitle || "")}</div>
+          </div>
+          <div class="dlf-items-box">
+            ${itemsHtml}
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".dlf-stage-col")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner dlf-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "END-TO-END DATA LINEAGE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="dlf-columns-track">
+            ${columnsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".dlf-stage-col"), { opacity: 0, y: 28, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .dlf-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .dlf-columns-track { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row;"} gap: 24px; width: min(1400px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; }
+    [data-composition-id="${scene.id}"] .dlf-stage-col { flex: 1; padding: 28px 24px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; display: flex; flex-direction: column; justify-content: space-between; min-height: 280px; }
+    [data-composition-id="${scene.id}"] .dlf-step-num { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .dlf-step-title { font-size: 24px; font-weight: 800; color: ${activePalette.text}; margin-top: 10px; }
+    [data-composition-id="${scene.id}"] .dlf-step-sub { font-size: 17px; color: ${activePalette.textMuted || activePalette.text}; margin-top: 6px; }
+    [data-composition-id="${scene.id}"] .dlf-items-box { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+    [data-composition-id="${scene.id}"] .dlf-item-badge { padding: 12px 14px; border-radius: 10px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: ${activePalette.text}; }
+  `,
+});
+
+// 36. Microservice Mesh (Distributed Service Topology)
+registerArchetypeRenderer("microservice-mesh", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 30%, ${activePalette.accent}14 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawNodes = scene.meshData?.nodes;
+    const nodes = (
+      Array.isArray(rawNodes) && rawNodes.length >= 2
+        ? rawNodes
+        : [
+            { id: "gw", label: "API Gateway", role: "Load Balancer", status: "ok" },
+            { id: "auth", label: "Auth Service", role: "OAuth & JWT", status: "ok" },
+            { id: "core", label: "Core Service", role: "Business Logic", status: "ok" },
+            { id: "db", label: "Data Cluster", role: "Storage Shard", status: "ok" },
+          ]
+    ).slice(0, 4);
+
+    const nodesHtml = nodes
+      .map(
+        (node) => `
+        <div class="msm-node-card">
+          <div class="msm-node-status"></div>
+          <div class="msm-node-name">${h(node.label)}</div>
+          <div class="msm-node-role">${h(node.role || "")}</div>
+          <div class="msm-node-meta">gRPC // 1.2ms</div>
+        </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".msm-node-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner msm-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "DISTRIBUTED SERVICE MESH")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="msm-mesh-grid">
+            ${nodesHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".msm-node-card"), { opacity: 0, scale: 0.85, stagger: 0.12, duration: 0.55, ease: "back.out(1.4)" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .msm-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .msm-mesh-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(2, 1fr)"}; gap: 24px; width: min(1200px, 84vw); margin-top: ${isPortrait ? "28px" : "48px"}; }
+    [data-composition-id="${scene.id}"] .msm-node-card { position: relative; padding: 28px 30px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; }
+    [data-composition-id="${scene.id}"] .msm-node-status { position: absolute; top: 28px; right: 28px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
+    [data-composition-id="${scene.id}"] .msm-node-name { font-size: 26px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .msm-node-role { font-size: 18px; color: ${activePalette.textMuted || activePalette.text}; margin-top: 8px; }
+    [data-composition-id="${scene.id}"] .msm-node-meta { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; color: ${activePalette.accent}; margin-top: 18px; }
+  `,
+});
+
+// 37. Database Shard Map (Partition Ring)
+registerArchetypeRenderer("database-shard-map", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const routerKey = scene.shardData?.routerKey || "user_hash_key";
+    const rawShards = scene.shardData?.shards;
+    const shards = (
+      Array.isArray(rawShards) && rawShards.length >= 2
+        ? rawShards
+        : [
+            { name: "Shard 01", range: "[0x00..0x3F]", count: 14200, active: true },
+            { name: "Shard 02", range: "[0x40..0x7F]", count: 18900, active: false },
+            { name: "Shard 03", range: "[0x80..0xBF]", count: 16400, active: false },
+          ]
+    ).slice(0, 3);
+
+    const shardsHtml = shards
+      .map((sh) => {
+        const isActive = Boolean(sh.active);
+        const count = Number(sh.count) || 12000;
+        return `
+        <div class="dsm-shard-card ${isActive ? "dsm-shard-active" : ""}">
+          <div class="dsm-shard-head">
+            <span class="dsm-shard-title">${h(sh.name)}</span>
+            <span class="dsm-shard-badge">${isActive ? "TARGET SHARD" : "ONLINE"}</span>
+          </div>
+          <div class="dsm-shard-range">${h(sh.range)}</div>
+          <div class="dsm-shard-count">${count.toLocaleString()} <span class="dsm-count-unit">records</span></div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".dsm-shard-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner dsm-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "HORIZONTAL STORAGE PARTITIONING")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="dsm-router-hud">
+            <span class="dsm-router-tag">HASH ROUTER</span>
+            <span class="dsm-router-val">fn(${h(routerKey)}) -&gt; Murmur3</span>
+          </div>
+          <div class="dsm-shards-grid">
+            ${shardsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".dsm-router-hud"), { opacity: 0, scale: 0.85, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelectorAll(".dsm-shard-card"), { opacity: 0, y: 26, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.7);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .dsm-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .dsm-router-hud { display: inline-flex; align-items: center; gap: 14px; padding: 10px 24px; border-radius: 999px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; margin: 24px auto 0; }
+    [data-composition-id="${scene.id}"] .dsm-router-tag { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .dsm-router-val { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .dsm-shards-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(3, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .dsm-shard-card { padding: 30px 28px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .dsm-shard-active { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}24; }
+    [data-composition-id="${scene.id}"] .dsm-shard-head { display: flex; align-items: center; justify-content: space-between; }
+    [data-composition-id="${scene.id}"] .dsm-shard-title { font-size: 26px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .dsm-shard-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.accent}; background: ${activePalette.accent}14; padding: 4px 10px; border-radius: 6px; }
+    [data-composition-id="${scene.id}"] .dsm-shard-range { font-family: "JetBrains Mono", monospace; font-size: 17px; color: ${activePalette.textMuted || activePalette.text}; margin-top: 14px; }
+    [data-composition-id="${scene.id}"] .dsm-shard-count { font-family: "JetBrains Mono", monospace; font-size: 30px; font-weight: 900; color: ${activePalette.text}; margin-top: 14px; }
+    [data-composition-id="${scene.id}"] .dsm-count-unit { font-size: 16px; font-weight: 600; color: ${activePalette.textMuted || activePalette.text}; }
+  `,
+});
+
+// 38. Memory Layout Stack (Stack vs Heap)
+registerArchetypeRenderer("memory-layout-stack", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 60% 40%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawFrames = scene.memoryData?.stackFrames;
+    const frames = (
+      Array.isArray(rawFrames) && rawFrames.length >= 2
+        ? rawFrames
+        : [
+            { func: "execute()", vars: ["ptr_a = 0x7ffe10", "ret_ip"] },
+            { func: "main()", vars: ["argc = 2", "argv = 0x7ffe40"] },
+          ]
+    ).slice(0, 3);
+
+    const rawHeap = scene.memoryData?.heapObjects;
+    const heap = (
+      Array.isArray(rawHeap) && rawHeap.length >= 2
+        ? rawHeap
+        : [
+            { addr: "0x7ffe10", label: "Payload Buffer [1024]" },
+            { addr: "0x7ffe40", label: "Context String Object" },
+          ]
+    ).slice(0, 3);
+
+    const stackHtml = frames
+      .map(
+        (f) => `
+        <div class="mls-frame-card">
+          <div class="mls-frame-func">${h(f.func)}</div>
+          <div class="mls-vars-list">${(f.vars || []).map((v) => `<div class="mls-var-item">${h(v)}</div>`).join("")}</div>
+        </div>`,
+      )
+      .join("\n");
+
+    const heapHtml = heap
+      .map(
+        (hp) => `
+        <div class="mls-heap-card">
+          <span class="mls-heap-addr">${h(hp.addr)}</span>
+          <div class="mls-heap-label">${h(hp.label)}</div>
+        </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".mls-frame-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner mls-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "VIRTUAL MEMORY ARCHITECTURE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="mls-columns-wrap">
+            <div class="mls-col">
+              <div class="mls-col-title">CALL STACK (LIFO)</div>
+              <div class="mls-frames-group">
+                ${stackHtml}
+              </div>
+            </div>
+            <div class="mls-col">
+              <div class="mls-col-title">DYNAMIC HEAP</div>
+              <div class="mls-heap-group">
+                ${heapHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".mls-col"), { opacity: 0, y: 26, stagger: 0.14, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .mls-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .mls-columns-wrap { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row;"} gap: 32px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .mls-col { flex: 1; padding: 28px 30px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .mls-col-title { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; margin-bottom: 20px; }
+    [data-composition-id="${scene.id}"] .mls-frames-group { display: flex; flex-direction: column; gap: 14px; }
+    [data-composition-id="${scene.id}"] .mls-frame-card { padding: 18px 20px; border-radius: 12px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .mls-frame-func { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .mls-vars-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    [data-composition-id="${scene.id}"] .mls-var-item { font-family: "JetBrains Mono", monospace; font-size: 15px; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .mls-heap-group { display: flex; flex-direction: column; gap: 14px; }
+    [data-composition-id="${scene.id}"] .mls-heap-card { padding: 18px 20px; border-radius: 12px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .mls-heap-addr { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .mls-heap-label { font-size: 19px; font-weight: 700; color: ${activePalette.text}; margin-top: 6px; }
+  `,
+});
+
+// 39. DAG Pipeline (Task Dependency Flow)
+registerArchetypeRenderer("dag-pipeline", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 30%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawNodes = scene.dagData?.nodes;
+    const nodes = (
+      Array.isArray(rawNodes) && rawNodes.length >= 2
+        ? rawNodes
+        : [
+            { id: "n1", label: "Extract Source", status: "done" },
+            { id: "n2", label: "Feature Engine A", status: "running" },
+            { id: "n3", label: "Feature Engine B", status: "running" },
+            { id: "n4", label: "Deploy Artifact", status: "pending" },
+          ]
+    ).slice(0, 4);
+
+    const nodesHtml = nodes
+      .map((nd) => {
+        const st = String(nd.status || "pending").toLowerCase();
+        const isRunning = st === "running";
+        return `
+        <div class="dag-node-card dag-node-${st}">
+          <div class="dag-node-head">
+            <span class="dag-node-id">${h(nd.id)}</span>
+            <span class="dag-status-pill dag-status-${st}">${st.toUpperCase()}</span>
+          </div>
+          <div class="dag-node-label">${h(nd.label)}</div>
+          ${isRunning ? `<div class="dag-pulse-bar"></div>` : ""}
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".dag-node-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner dag-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "DIRECTED ACYCLIC GRAPH")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="dag-nodes-grid">
+            ${nodesHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".dag-node-card"), { opacity: 0, y: 26, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .dag-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .dag-nodes-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(2, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .dag-node-card { position: relative; padding: 26px 28px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .dag-node-running { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}24; }
+    [data-composition-id="${scene.id}"] .dag-node-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .dag-node-id { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .dag-status-pill { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; padding: 3px 10px; border-radius: 6px; }
+    [data-composition-id="${scene.id}"] .dag-status-done { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    [data-composition-id="${scene.id}"] .dag-status-running { background: ${activePalette.accent}22; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .dag-status-pending { background: rgba(255, 255, 255, 0.08); color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .dag-node-label { font-size: 24px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .dag-pulse-bar { height: 3px; border-radius: 2px; background: ${activePalette.accent}; margin-top: 14px; animation: pulse 1.5s infinite; }
+  `,
+});
+
+// 40. Event Bus Pub/Sub (Broker Stream)
+registerArchetypeRenderer("event-bus-pubsub", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 40% 40%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const topic = scene.eventData?.topic || "user.events.v1";
+    const rawEvents = scene.eventData?.events;
+    const events = (
+      Array.isArray(rawEvents) && rawEvents.length >= 2
+        ? rawEvents
+        : [
+            { id: "evt-01", payload: "UserSignupVerified", targetConsumer: "Email Worker" },
+            { id: "evt-02", payload: "BillingAccountCreated", targetConsumer: "Invoice Worker" },
+            { id: "evt-03", payload: "AuditLogDispatched", targetConsumer: "Analytics Stream" },
+          ]
+    ).slice(0, 3);
+
+    const eventsHtml = events
+      .map(
+        (ev) => `
+        <div class="ebp-event-card">
+          <div class="ebp-card-top">
+            <span class="ebp-event-id">${h(ev.id)}</span>
+            <span class="ebp-target-pill">--&gt; ${h(ev.targetConsumer)}</span>
+          </div>
+          <div class="ebp-event-payload">${h(ev.payload)}</div>
+        </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".ebp-event-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner ebp-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "EVENT-DRIVEN STREAMING BROKER")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="ebp-topic-badge">
+            <span class="ebp-topic-tag">TOPIC</span>
+            <span class="ebp-topic-val">${h(topic)}</span>
+          </div>
+          <div class="ebp-events-list">
+            ${eventsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".ebp-topic-badge"), { opacity: 0, scale: 0.85, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelectorAll(".ebp-event-card"), { opacity: 0, y: 26, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .ebp-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .ebp-topic-badge { display: inline-flex; align-items: center; gap: 14px; padding: 10px 24px; border-radius: 999px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; margin: 24px auto 0; }
+    [data-composition-id="${scene.id}"] .ebp-topic-tag { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .ebp-topic-val { font-family: "JetBrains Mono", monospace; font-size: 19px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .ebp-events-list { display: flex; flex-direction: column; gap: 18px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "44px"}; }
+    [data-composition-id="${scene.id}"] .ebp-event-card { padding: 22px 26px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; text-align: left; }
+    [data-composition-id="${scene.id}"] .ebp-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    [data-composition-id="${scene.id}"] .ebp-event-id { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .ebp-target-pill { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .ebp-event-payload { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 800; color: ${activePalette.text}; }
+  `,
+});
+
+// 41. Compiler AST (Hierarchical Syntax Tree)
+registerArchetypeRenderer("compiler-ast", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rootLabel = scene.astData?.root?.label || "Program (AST)";
+    const rawChildren = scene.astData?.root?.children;
+    const branches = (
+      Array.isArray(rawChildren) && rawChildren.length >= 2
+        ? rawChildren
+        : [
+            {
+              label: "BinaryExpr (+)",
+              children: [{ label: "Var (x)" }, { label: "Literal (42)" }],
+            },
+            { label: "ReturnStmt", children: [{ label: "Identifier (res)" }] },
+          ]
+    ).slice(0, 3);
+
+    const branchesHtml = branches
+      .map(
+        (br) => `
+        <div class="ast-branch-card">
+          <div class="ast-branch-title">${h(br.label)}</div>
+          <div class="ast-leaves-group">
+            ${(br.children || []).map((ch) => `<div class="ast-leaf-item">${h(ch.label)}</div>`).join("")}
+          </div>
+        </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".ast-branch-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner ast-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "ABSTRACT SYNTAX TREE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="ast-root-badge">
+            <span class="ast-root-node">${h(rootLabel)}</span>
+          </div>
+          <div class="ast-branches-grid">
+            ${branchesHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".ast-root-badge"), { opacity: 0, scale: 0.8, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelectorAll(".ast-branch-card"), { opacity: 0, y: 26, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .ast-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .ast-root-badge { display: inline-flex; align-items: center; padding: 12px 32px; border-radius: 999px; background: ${activePalette.card}; border: 2px solid ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}26; margin-top: 28px; }
+    [data-composition-id="${scene.id}"] .ast-root-node { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .ast-branches-grid { display: flex; ${isPortrait ? "flex-direction: column;" : "flex-direction: row;"} gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .ast-branch-card { flex: 1; padding: 26px 28px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .ast-branch-title { font-family: "JetBrains Mono", monospace; font-size: 21px; font-weight: 800; color: ${activePalette.accent}; margin-bottom: 18px; }
+    [data-composition-id="${scene.id}"] .ast-leaves-group { display: flex; flex-direction: column; gap: 10px; }
+    [data-composition-id="${scene.id}"] .ast-leaf-item { padding: 12px 16px; border-radius: 10px; background: ${activePalette.background}; border: 1px solid ${activePalette.border}; font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: ${activePalette.text}; }
+  `,
+});
+
+// 42. Raft Consensus (Quorum Cluster)
+registerArchetypeRenderer("raft-consensus", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 30%, ${activePalette.accent}16 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawNodes = scene.consensusData?.nodes;
+    const nodes = (
+      Array.isArray(rawNodes) && rawNodes.length >= 2
+        ? rawNodes
+        : [
+            { id: "node-1", role: "leader", term: 3, logIndex: 42 },
+            { id: "node-2", role: "follower", term: 3, logIndex: 42 },
+            { id: "node-3", role: "follower", term: 3, logIndex: 41 },
+          ]
+    ).slice(0, 3);
+
+    const nodesHtml = nodes
+      .map((nd) => {
+        const isLeader = nd.role === "leader";
+        return `
+        <div class="raft-node-card ${isLeader ? "raft-leader-card" : ""}">
+          <div class="raft-node-head">
+            <span class="raft-role-badge raft-role-${nd.role}">${String(nd.role).toUpperCase()}</span>
+            <span class="raft-term-badge">TERM ${nd.term}</span>
+          </div>
+          <div class="raft-node-id">${h(nd.id)}</div>
+          <div class="raft-log-index">Commit Index: <span class="raft-idx-num">${nd.logIndex}</span></div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".raft-node-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner raft-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "DISTRIBUTED RAFT CONSENSUS")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="raft-nodes-grid">
+            ${nodesHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".raft-node-card"), { opacity: 0, scale: 0.85, stagger: 0.14, duration: 0.55, ease: "back.out(1.4)" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .raft-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .raft-nodes-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(3, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "52px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .raft-node-card { padding: 32px 28px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .raft-leader-card { border-color: ${activePalette.accent}; box-shadow: 0 0 32px ${activePalette.accent}28; }
+    [data-composition-id="${scene.id}"] .raft-node-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    [data-composition-id="${scene.id}"] .raft-role-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+    [data-composition-id="${scene.id}"] .raft-role-leader { background: ${activePalette.accent}22; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .raft-role-follower { background: rgba(255, 255, 255, 0.08); color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .raft-term-badge { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .raft-node-id { font-size: 28px; font-weight: 900; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .raft-log-index { font-family: "JetBrains Mono", monospace; font-size: 17px; color: ${activePalette.textMuted || activePalette.text}; margin-top: 14px; }
+    [data-composition-id="${scene.id}"] .raft-idx-num { font-weight: 800; color: ${activePalette.text}; }
+  `,
+});
+
+// 43. Git Branch Graph
+registerArchetypeRenderer("git-branch-graph", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawCommits = scene.gitData?.commits;
+    const commits = (
+      Array.isArray(rawCommits) && rawCommits.length >= 2
+        ? rawCommits
+        : [
+            { id: "c1", branch: "main", message: synthesizeFallbackText(scene, "step", 0) },
+            { id: "c2", branch: "feature", message: synthesizeFallbackText(scene, "step", 1) },
+            {
+              id: "c3",
+              branch: "main",
+              message: synthesizeFallbackText(scene, "step", 2),
+              isMerge: true,
+            },
+          ]
+    ).slice(0, 4);
+
+    const commitsHtml = commits
+      .map((c, idx) => {
+        const isMain = c.branch === "main";
+        return `
+        <div class="git-commit-node ${c.isMerge ? "git-merge-node" : ""}">
+          <div class="git-node-dot" style="background: ${isMain ? activePalette.accent : activePalette.accent2 || activePalette.accent};"></div>
+          <div class="git-node-content">
+            <div class="git-sha-row">
+              <span class="git-sha-badge">${h(c.id || `c${idx + 1}`)}</span>
+              <span class="git-branch-pill">${h(c.branch || "main")}</span>
+              ${c.isMerge ? `<span class="git-merge-pill">MERGE</span>` : ""}
+            </div>
+            <div class="git-commit-msg">${h(c.message || "Commit")}</div>
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".git-commit-node")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner git-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "VERSION CONTROL GRAPH")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="git-graph-container">
+            <div class="git-line-track"></div>
+            ${commitsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".git-commit-node"), { opacity: 0, x: -24, stagger: 0.14, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .git-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .git-graph-container { position: relative; width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; display: flex; flex-direction: column; gap: 20px; text-align: left; }
+    [data-composition-id="${scene.id}"] .git-commit-node { display: flex; align-items: center; gap: 24px; padding: 20px 24px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .git-merge-node { border-color: ${activePalette.accent}; box-shadow: 0 0 24px ${activePalette.accent}20; }
+    [data-composition-id="${scene.id}"] .git-node-dot { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 12px currentColor; flex-shrink: 0; }
+    [data-composition-id="${scene.id}"] .git-node-content { flex: 1; }
+    [data-composition-id="${scene.id}"] .git-sha-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    [data-composition-id="${scene.id}"] .git-sha-badge { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .git-branch-pill { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .git-merge-pill { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: ${activePalette.accent}26; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .git-commit-msg { font-size: 20px; font-weight: 700; color: ${activePalette.text}; }
+  `,
+});
+
+// 44. Browser DevTools
+registerArchetypeRenderer("browser-devtools", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}12 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawReqs = scene.devtoolsData?.requests;
+    const reqs = (
+      Array.isArray(rawReqs) && rawReqs.length >= 2
+        ? rawReqs
+        : [
+            { path: "/api/v1/auth", method: "POST", status: 200, durationMs: 42 },
+            { path: "/api/v1/stream", method: "GET", status: 200, durationMs: 128 },
+            { path: "/assets/runtime.js", method: "GET", status: 200, durationMs: 18 },
+          ]
+    ).slice(0, 4);
+
+    const rowsHtml = reqs
+      .map(
+        (r) => `
+      <div class="devtools-row">
+        <span class="dt-method dt-method-${r.method.toLowerCase()}">${h(r.method)}</span>
+        <span class="dt-status dt-status-200">${r.status}</span>
+        <span class="dt-path">${h(r.path)}</span>
+        <div class="dt-latency-wrap">
+          <div class="dt-latency-bar" style="width: ${Math.min(100, (r.durationMs / 150) * 100)}%;"></div>
+          <span class="dt-ms">${r.durationMs}ms</span>
+        </div>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".devtools-row")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner devtools-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "DEVELOPER TOOLS INSPECTOR")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="devtools-window">
+            <div class="devtools-chrome">
+              <div class="dt-dots"><span class="dt-dot"></span><span class="dt-dot"></span><span class="dt-dot"></span></div>
+              <div class="dt-tabs">
+                <span class="dt-tab dt-tab-active">Network</span>
+                <span class="dt-tab">Console</span>
+                <span class="dt-tab">Elements</span>
+              </div>
+            </div>
+            <div class="devtools-table">
+              <div class="dt-table-head">
+                <span>METHOD</span><span>STATUS</span><span>PATH</span><span>LATENCY</span>
+              </div>
+              ${rowsHtml}
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".devtools-window"), { opacity: 0, y: 28, duration: 0.6, ease: "power3.out" }, 0.5);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .devtools-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .devtools-window { width: min(1280px, 86vw); margin-top: ${isPortrait ? "24px" : "44px"}; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; overflow: hidden; text-align: left; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+    [data-composition-id="${scene.id}"] .devtools-chrome { display: flex; align-items: center; gap: 24px; padding: 16px 20px; background: rgba(0, 0, 0, 0.25); border-bottom: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .dt-dots { display: flex; gap: 8px; }
+    [data-composition-id="${scene.id}"] .dt-dot { width: 12px; height: 12px; border-radius: 50%; background: ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .dt-tabs { display: flex; gap: 12px; }
+    [data-composition-id="${scene.id}"] .dt-tab { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 6px; color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .dt-tab-active { background: ${activePalette.accent}20; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .devtools-table { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+    [data-composition-id="${scene.id}"] .dt-table-head { display: grid; grid-template-columns: 90px 80px 1fr 180px; font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; padding-bottom: 10px; border-bottom: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .devtools-row { display: grid; grid-template-columns: 90px 80px 1fr 180px; align-items: center; padding: 14px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); }
+    [data-composition-id="${scene.id}"] .dt-method { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; }
+    [data-composition-id="${scene.id}"] .dt-method-post { color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .dt-method-get { color: ${activePalette.accent2 || activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .dt-status-200 { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: #4ade80; }
+    [data-composition-id="${scene.id}"] .dt-path { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 600; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .dt-latency-wrap { display: flex; align-items: center; gap: 12px; }
+    [data-composition-id="${scene.id}"] .dt-latency-bar { height: 8px; border-radius: 4px; background: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .dt-ms { font-family: "JetBrains Mono", monospace; font-size: 13px; color: ${activePalette.textMuted || activePalette.text}; }
+  `,
+});
+
+// 45. Security Threat Model
+registerArchetypeRenderer("security-threat-model", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawThreats = scene.securityData?.threats;
+    const threats = (
+      Array.isArray(rawThreats) && rawThreats.length >= 2
+        ? rawThreats
+        : [
+            { label: synthesizeFallbackText(scene, "step", 0), blocked: true },
+            { label: synthesizeFallbackText(scene, "step", 1), blocked: false },
+            { label: synthesizeFallbackText(scene, "step", 2), blocked: true },
+          ]
+    ).slice(0, 3);
+
+    const threatsHtml = threats
+      .map(
+        (t) => `
+      <div class="threat-card ${t.blocked ? "threat-blocked" : "threat-flagged"}">
+        <div class="threat-shield">${t.blocked ? "🛡️" : "⚠️"}</div>
+        <div class="threat-content">
+          <div class="threat-status">${t.blocked ? "THREAT MITIGATED" : "INSPECTION GATEWAY"}</div>
+          <div class="threat-label">${h(t.label)}</div>
+        </div>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".threat-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner sec-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "ZERO-TRUST PERIMETER")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="sec-grid">
+            ${threatsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".threat-card"), { opacity: 0, y: 24, stagger: 0.14, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .sec-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .sec-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(3, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "28px" : "50px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .threat-card { display: flex; align-items: center; gap: 20px; padding: 28px 24px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .threat-blocked { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}20; }
+    [data-composition-id="${scene.id}"] .threat-flagged { border-color: #f59e0b; }
+    [data-composition-id="${scene.id}"] .threat-shield { font-size: 32px; }
+    [data-composition-id="${scene.id}"] .threat-status { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; color: ${activePalette.accent}; margin-bottom: 6px; }
+    [data-composition-id="${scene.id}"] .threat-flagged .threat-status { color: #f59e0b; }
+    [data-composition-id="${scene.id}"] .threat-label { font-size: 20px; font-weight: 700; color: ${activePalette.text}; }
+  `,
+});
+
+// 46. Kanban Sprint Board
+registerArchetypeRenderer("kanban-sprint", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawCols = scene.kanbanData?.columns;
+    const cols = (
+      Array.isArray(rawCols) && rawCols.length >= 2
+        ? rawCols
+        : [
+            {
+              name: "Backlog",
+              cards: [{ title: synthesizeFallbackText(scene, "step", 0), tag: "3d" }],
+            },
+            {
+              name: "In Progress",
+              cards: [{ title: synthesizeFallbackText(scene, "step", 1), tag: "2d" }],
+            },
+            {
+              name: "Done",
+              cards: [{ title: synthesizeFallbackText(scene, "step", 2), tag: "1d" }],
+            },
+          ]
+    ).slice(0, 3);
+
+    const colsHtml = cols
+      .map((col) => {
+        const cardsHtml = (col.cards || [])
+          .map(
+            (cd) => `
+          <div class="kanban-card">
+            <div class="kanban-card-title">${h(cd.title)}</div>
+            <div class="kanban-card-tag">${h(cd.tag || cd.estimate || "Sprint")}</div>
+          </div>`,
+          )
+          .join("\n");
+
+        return `
+        <div class="kanban-col">
+          <div class="kanban-col-head">
+            <span class="kanban-col-name">${h(col.name)}</span>
+            <span class="kanban-col-count">${col.cards?.length || 0}</span>
+          </div>
+          <div class="kanban-col-body">
+            ${cardsHtml}
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".kanban-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner kanban-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "SPRINT EXECUTION BOARD")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="kanban-board">
+            ${colsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".kanban-col"), { opacity: 0, y: 30, stagger: 0.12, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .kanban-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .kanban-board { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(3, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .kanban-col { padding: 22px 20px; border-radius: 18px; background: rgba(255, 255, 255, 0.03); border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .kanban-col-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    [data-composition-id="${scene.id}"] .kanban-col-name { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .kanban-col-count { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .kanban-col-body { display: flex; flex-direction: column; gap: 14px; }
+    [data-composition-id="${scene.id}"] .kanban-card { padding: 18px 20px; border-radius: 14px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .kanban-card-title { font-size: 18px; font-weight: 700; color: ${activePalette.text}; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .kanban-card-tag { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: ${activePalette.accent}20; color: ${activePalette.accent}; }
+  `,
+});
+
+// 47. Changelog Timeline
+registerArchetypeRenderer("changelog-timeline", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawRels = scene.changelogData?.releases;
+    const rels = (
+      Array.isArray(rawRels) && rawRels.length >= 2
+        ? rawRels
+        : [
+            {
+              version: "v2.0",
+              date: "Latest",
+              highlights: [
+                synthesizeFallbackText(scene, "step", 0),
+                synthesizeFallbackText(scene, "step", 1),
+              ],
+              isLatest: true,
+            },
+            {
+              version: "v1.9",
+              date: "Stable",
+              highlights: [synthesizeFallbackText(scene, "step", 2)],
+              isLatest: false,
+            },
+          ]
+    ).slice(0, 3);
+
+    const relsHtml = rels
+      .map((rel) => {
+        const bulletsHtml = (rel.highlights || [])
+          .map((b) => `<li class="cl-bullet">${h(b)}</li>`)
+          .join("\n");
+
+        return `
+        <div class="changelog-item ${rel.isLatest ? "cl-latest" : ""}">
+          <div class="cl-badge-col">
+            <span class="cl-ver-pill">${h(rel.version)}</span>
+            <span class="cl-date">${h(rel.date)}</span>
+          </div>
+          <div class="cl-card">
+            <ul class="cl-list">
+              ${bulletsHtml}
+            </ul>
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".changelog-item")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner cl-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "PRODUCT RELEASE HISTORY")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="changelog-timeline">
+            ${relsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".changelog-item"), { opacity: 0, x: -30, stagger: 0.15, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .cl-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .changelog-timeline { display: flex; flex-direction: column; gap: 20px; width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .changelog-item { display: flex; gap: 28px; align-items: flex-start; }
+    [data-composition-id="${scene.id}"] .cl-badge-col { display: flex; flex-direction: column; gap: 6px; width: 140px; flex-shrink: 0; }
+    [data-composition-id="${scene.id}"] .cl-ver-pill { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .cl-date { font-family: "JetBrains Mono", monospace; font-size: 13px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .cl-card { flex: 1; padding: 22px 28px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .cl-latest .cl-card { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}20; }
+    [data-composition-id="${scene.id}"] .cl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    [data-composition-id="${scene.id}"] .cl-bullet { font-size: 19px; font-weight: 600; color: ${activePalette.text}; }
+  `,
+});
+
+// 48. Circuit Breaker Status
+registerArchetypeRenderer("circuit-breaker-status", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawState = scene.circuitData?.state || "closed";
+    const failRate = scene.circuitData?.failureRate || 0.02;
+    const thresh = scene.circuitData?.threshold || 0.05;
+
+    const states = [
+      { id: "closed", name: "CLOSED", label: "Normal Flow", active: rawState === "closed" },
+      {
+        id: "half-open",
+        name: "HALF-OPEN",
+        label: "Trial Probing",
+        active: rawState === "half-open",
+      },
+      { id: "open", name: "OPEN", label: "Fail-Fast Protection", active: rawState === "open" },
+    ];
+
+    const statesHtml = states
+      .map(
+        (st) => `
+      <div class="circuit-state-card ${st.active ? "circuit-state-active" : ""}">
+        <div class="circuit-state-head">
+          <span class="circuit-indicator"></span>
+          <span class="circuit-state-name">${st.name}</span>
+        </div>
+        <div class="circuit-state-desc">${st.label}</div>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression(
+      "tl",
+      'scope.querySelectorAll(".circuit-state-card")',
+      sDur,
+      {
+        accent: activePalette.accent,
+      },
+    );
+
+    return {
+      innerHtml: `
+        <div class="scene-inner circuit-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "RESILIENCE PATTERN")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="circuit-states-grid">
+            ${statesHtml}
+          </div>
+          <div class="circuit-metric-hud">
+            <div class="circuit-hud-item">
+              <span class="circuit-hud-label">ERROR RATE</span>
+              <span class="circuit-hud-val">${(failRate * 100).toFixed(1)}%</span>
+            </div>
+            <div class="circuit-hud-sep"></div>
+            <div class="circuit-hud-item">
+              <span class="circuit-hud-label">TRIP THRESHOLD</span>
+              <span class="circuit-hud-val">${(thresh * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".circuit-state-card"), { opacity: 0, scale: 0.9, stagger: 0.12, duration: 0.55, ease: "back.out(1.4)" }, 0.55);
+        tl.from(scope.querySelector(".circuit-metric-hud"), { opacity: 0, y: 20, duration: 0.5 }, 0.7);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .circuit-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .circuit-states-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(3, 1fr)"}; gap: 24px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .circuit-state-card { padding: 32px 28px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .circuit-state-active { border-color: ${activePalette.accent}; box-shadow: 0 0 32px ${activePalette.accent}25; }
+    [data-composition-id="${scene.id}"] .circuit-state-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .circuit-indicator { width: 14px; height: 14px; border-radius: 50%; background: ${activePalette.accent}; box-shadow: 0 0 10px ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .circuit-state-name { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 900; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .circuit-state-desc { font-size: 18px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .circuit-metric-hud { display: flex; align-items: center; justify-content: center; gap: 36px; margin-top: 36px; padding: 18px 36px; border-radius: 14px; background: rgba(0, 0, 0, 0.25); border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .circuit-hud-item { display: flex; flex-direction: column; gap: 4px; }
+    [data-composition-id="${scene.id}"] .circuit-hud-label { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .circuit-hud-val { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .circuit-hud-sep { width: 1px; height: 36px; background: ${activePalette.border}; }
+  `,
+});
+
+// 49. Rate Limiter Bucket
+registerArchetypeRenderer("rate-limiter-bucket", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const capacity = scene.limiterData?.capacity || 1000;
+    const current = scene.limiterData?.currentTokens || 750;
+    const refill = scene.limiterData?.refillRate || "50/sec";
+    const pct = Math.min(100, Math.round((current / capacity) * 100));
+
+    const pace = scheduleStepProgression(
+      "tl",
+      'scope.querySelectorAll(".limiter-metric-tile")',
+      sDur,
+      {
+        accent: activePalette.accent,
+      },
+    );
+
+    return {
+      innerHtml: `
+        <div class="scene-inner limiter-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "TRAFFIC SHAPING ALGORITHM")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="limiter-container">
+            <div class="limiter-bucket-card">
+              <div class="bucket-header">
+                <span class="bucket-title">TOKEN CAPACITY GAUGE</span>
+                <span class="bucket-pct">${pct}%</span>
+              </div>
+              <div class="bucket-fill-track">
+                <div class="bucket-fill-bar" style="width: ${pct}%;"></div>
+              </div>
+              <div class="bucket-meta">
+                <span>Available: ${current} tokens</span>
+                <span>Max: ${capacity} tokens</span>
+              </div>
+            </div>
+            <div class="limiter-stats-row">
+              <div class="limiter-metric-tile">
+                <span class="limiter-tile-label">REFILL RATE</span>
+                <span class="limiter-tile-val">${h(refill)}</span>
+              </div>
+              <div class="limiter-metric-tile">
+                <span class="limiter-tile-label">INGRESS STATUS</span>
+                <span class="limiter-tile-val" style="color: #4ade80;">HEALTHY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".limiter-bucket-card"), { opacity: 0, scale: 0.95, duration: 0.55 }, 0.5);
+        tl.from(scope.querySelectorAll(".limiter-metric-tile"), { opacity: 0, y: 20, stagger: 0.12, duration: 0.5 }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .limiter-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .limiter-container { width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; display: flex; flex-direction: column; gap: 24px; text-align: left; }
+    [data-composition-id="${scene.id}"] .limiter-bucket-card { padding: 36px 32px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .bucket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    [data-composition-id="${scene.id}"] .bucket-title { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .bucket-pct { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .bucket-fill-track { height: 24px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); overflow: hidden; margin-bottom: 16px; border: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .bucket-fill-bar { height: 100%; border-radius: 12px; background: ${activePalette.accent}; box-shadow: 0 0 20px ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .bucket-meta { display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace; font-size: 15px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .limiter-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    [data-composition-id="${scene.id}"] .limiter-metric-tile { padding: 22px 24px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .limiter-tile-label { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; display: block; margin-bottom: 6px; }
+    [data-composition-id="${scene.id}"] .limiter-tile-val { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 900; color: ${activePalette.text}; }
+  `,
+});
+
+// 50. Audit Log Stream
+registerArchetypeRenderer("audit-log-stream", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawLogs = scene.auditData?.logs;
+    const logs = (
+      Array.isArray(rawLogs) && rawLogs.length >= 2
+        ? rawLogs
+        : [
+            {
+              timestamp: "10:14:01",
+              actor: "service-auth",
+              action: "token_issue",
+              resource: "auth:token",
+              status: "allow",
+            },
+            {
+              timestamp: "10:14:02",
+              actor: "client-proxy",
+              action: "route_invoke",
+              resource: "api:model",
+              status: "allow",
+            },
+            {
+              timestamp: "10:14:03",
+              actor: "worker-pool",
+              action: "batch_eval",
+              resource: "worker:job",
+              status: "allow",
+            },
+          ]
+    ).slice(0, 4);
+
+    const logsHtml = logs
+      .map(
+        (l) => `
+      <div class="audit-row">
+        <span class="audit-ts">${h(l.timestamp)}</span>
+        <span class="audit-actor">${h(l.actor)}</span>
+        <span class="audit-action">${h(l.action)}</span>
+        <span class="audit-res">${h(l.resource)}</span>
+        <span class="audit-status audit-status-${l.status}">${String(l.status).toUpperCase()}</span>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".audit-row")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner audit-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "IMMUTABLE AUDIT LOG")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="audit-table-wrap">
+            <div class="audit-table-head">
+              <span>TIME</span><span>ACTOR</span><span>ACTION</span><span>TARGET</span><span>STATUS</span>
+            </div>
+            ${logsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".audit-row"), { opacity: 0, x: -20, stagger: 0.12, duration: 0.5, ease: "power3.out" }, 0.5);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .audit-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .audit-table-wrap { width: min(1360px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+    [data-composition-id="${scene.id}"] .audit-table-head { display: grid; grid-template-columns: 100px 180px 180px 1fr 100px; font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; padding: 10px 14px; border-bottom: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .audit-row { display: grid; grid-template-columns: 100px 180px 180px 1fr 100px; align-items: center; padding: 16px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); }
+    [data-composition-id="${scene.id}"] .audit-ts { font-family: "JetBrains Mono", monospace; font-size: 14px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .audit-actor { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 700; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .audit-action { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .audit-res { font-family: "JetBrains Mono", monospace; font-size: 14px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .audit-status { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-align: center; }
+    [data-composition-id="${scene.id}"] .audit-status-allow { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+  `,
+});
+
+// 51. Confusion Matrix
+registerArchetypeRenderer("confusion-matrix", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const tp = scene.matrixData?.tp ?? 840;
+    const fp = scene.matrixData?.fp ?? 45;
+    const fn = scene.matrixData?.fn ?? 30;
+    const tn = scene.matrixData?.tn ?? 920;
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".cm-cell")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner cm-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "CLASSIFICATION BENCHMARK")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="cm-layout">
+            <div class="cm-grid">
+              <div class="cm-cell cm-tp">
+                <span class="cm-cell-tag">TRUE POSITIVE</span>
+                <span class="cm-cell-val">${tp}</span>
+              </div>
+              <div class="cm-cell cm-fp">
+                <span class="cm-cell-tag">FALSE POSITIVE</span>
+                <span class="cm-cell-val">${fp}</span>
+              </div>
+              <div class="cm-cell cm-fn">
+                <span class="cm-cell-tag">FALSE NEGATIVE</span>
+                <span class="cm-cell-val">${fn}</span>
+              </div>
+              <div class="cm-cell cm-tn">
+                <span class="cm-cell-tag">TRUE NEGATIVE</span>
+                <span class="cm-cell-val">${tn}</span>
+              </div>
+            </div>
+            <div class="cm-metrics-card">
+              <div class="cm-metric-row">
+                <span class="cm-m-name">Precision</span>
+                <span class="cm-m-val">${((tp / (tp + fp)) * 100).toFixed(1)}%</span>
+              </div>
+              <div class="cm-metric-row">
+                <span class="cm-m-name">Sensitivity</span>
+                <span class="cm-m-val">${((tp / (tp + fn)) * 100).toFixed(1)}%</span>
+              </div>
+              <div class="cm-metric-row">
+                <span class="cm-m-name">Accuracy</span>
+                <span class="cm-m-val">${(((tp + tn) / (tp + tn + fp + fn)) * 100).toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".cm-cell"), { opacity: 0, scale: 0.9, stagger: 0.1, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelector(".cm-metrics-card"), { opacity: 0, x: 24, duration: 0.5 }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .cm-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .cm-layout { display: flex; flex-direction: ${isPortrait ? "column" : "row"}; gap: 32px; width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; align-items: stretch; text-align: left; }
+    [data-composition-id="${scene.id}"] .cm-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    [data-composition-id="${scene.id}"] .cm-cell { padding: 32px 24px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .cm-tp { background: ${activePalette.accent}18; border-color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .cm-tn { background: ${activePalette.accent}10; }
+    [data-composition-id="${scene.id}"] .cm-cell-tag { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; display: block; margin-bottom: 8px; }
+    [data-composition-id="${scene.id}"] .cm-cell-val { font-family: "JetBrains Mono", monospace; font-size: 36px; font-weight: 900; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .cm-metrics-card { width: ${isPortrait ? "100%" : "320px"}; padding: 28px 24px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+    [data-composition-id="${scene.id}"] .cm-metric-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid ${activePalette.border}; padding-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .cm-m-name { font-size: 18px; font-weight: 600; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .cm-m-val { font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 900; color: ${activePalette.accent}; }
+  `,
+});
+
+// 52. Quantile Distribution
+registerArchetypeRenderer("quantile-distribution", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const p50 = scene.quantileData?.p50 ?? 12;
+    const p90 = scene.quantileData?.p90 ?? 45;
+    const p99 = scene.quantileData?.p99 ?? 125;
+    const unit = scene.quantileData?.unit || "ms";
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".quantile-badge")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner qd-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "PERCENTILE TAIL DISTRIBUTION")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="qd-container">
+            <svg class="qd-curve-svg" viewBox="0 0 800 240" fill="none">
+              <path d="M 50 220 Q 200 220 300 40 Q 400 220 750 220" stroke="${activePalette.accent}" stroke-width="4" fill="none" />
+              <line x1="300" y1="220" x2="300" y2="40" stroke="${activePalette.border}" stroke-width="2" stroke-dasharray="4" />
+              <line x1="450" y1="220" x2="450" y2="120" stroke="${activePalette.accent}" stroke-width="2" stroke-dasharray="4" />
+              <line x1="620" y1="220" x2="620" y2="190" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4" />
+            </svg>
+            <div class="qd-badges-row">
+              <div class="quantile-badge">
+                <span class="qd-tag">P50 (MEDIAN)</span>
+                <span class="qd-val">${p50}${unit}</span>
+              </div>
+              <div class="quantile-badge qd-hero">
+                <span class="qd-tag">P90</span>
+                <span class="qd-val">${p90}${unit}</span>
+              </div>
+              <div class="quantile-badge qd-warn">
+                <span class="qd-tag">P99 (TAIL)</span>
+                <span class="qd-val">${p99}${unit}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".qd-curve-svg"), { opacity: 0, scaleY: 0, transformOrigin: "bottom", duration: 0.7 }, 0.5);
+        tl.from(scope.querySelectorAll(".quantile-badge"), { opacity: 0, y: 20, stagger: 0.12, duration: 0.5 }, 0.7);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .qd-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .qd-container { width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; display: flex; flex-direction: column; gap: 28px; }
+    [data-composition-id="${scene.id}"] .qd-curve-svg { width: 100%; height: 220px; }
+    [data-composition-id="${scene.id}"] .qd-badges-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: left; }
+    [data-composition-id="${scene.id}"] .quantile-badge { padding: 24px 28px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .qd-hero { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}20; }
+    [data-composition-id="${scene.id}"] .qd-warn { border-color: #f59e0b; }
+    [data-composition-id="${scene.id}"] .qd-tag { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; display: block; margin-bottom: 6px; }
+    [data-composition-id="${scene.id}"] .qd-val { font-family: "JetBrains Mono", monospace; font-size: 32px; font-weight: 900; color: ${activePalette.text}; }
+  `,
+});
+
+// 53. Radar Capability
+registerArchetypeRenderer("radar-capability", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawAxes = scene.radarData?.axes;
+    const axes = (
+      Array.isArray(rawAxes) && rawAxes.length >= 3
+        ? rawAxes
+        : ["Reasoning", "Coding", "Mathematics", "Context", "Instruction"].map((n) => ({ name: n }))
+    ).slice(0, 5);
+
+    const labelsHtml = axes
+      .map((ax) => `<div class="radar-axis-chip">${h(ax.name)}</div>`)
+      .join("\n");
+
+    const pace = scheduleStepProgression(
+      "tl",
+      'scope.querySelectorAll(".radar-legend-item")',
+      sDur,
+      {
+        accent: activePalette.accent,
+      },
+    );
+
+    return {
+      innerHtml: `
+        <div class="scene-inner radar-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "MULTI-AXIS BENCHMARK")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="radar-wrap">
+            <svg class="radar-svg" viewBox="0 0 400 400">
+              <polygon points="200,40 350,150 290,330 110,330 50,150" stroke="${activePalette.border}" stroke-width="1.5" fill="none" />
+              <polygon points="200,80 305,160 260,290 140,290 95,160" stroke="${activePalette.border}" stroke-width="1.5" fill="none" />
+              <polygon points="200,55 330,155 280,310 120,310 65,155" stroke="${activePalette.accent}" stroke-width="3" fill="${activePalette.accent}25" />
+            </svg>
+            <div class="radar-axes-list">
+              ${labelsHtml}
+            </div>
+            <div class="radar-legend">
+              <div class="radar-legend-item"><span class="r-dot" style="background: ${activePalette.accent};"></span><span>Model Target</span></div>
+              <div class="radar-legend-item"><span class="r-dot" style="background: ${activePalette.border};"></span><span>Baseline Frontier</span></div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".radar-svg polygon:last-child"), { opacity: 0, scale: 0.2, transformOrigin: "center", duration: 0.7, ease: "back.out(1.4)" }, 0.5);
+        tl.from(scope.querySelectorAll(".radar-axis-chip"), { opacity: 0, y: 14, stagger: 0.08, duration: 0.4 }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .radar-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .radar-wrap { width: min(1200px, 86vw); margin-top: ${isPortrait ? "20px" : "40px"}; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    [data-composition-id="${scene.id}"] .radar-svg { width: 340px; height: 340px; }
+    [data-composition-id="${scene.id}"] .radar-axes-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    [data-composition-id="${scene.id}"] .radar-axis-chip { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 8px; background: ${activePalette.card}; border: 1px solid ${activePalette.border}; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .radar-legend { display: flex; gap: 24px; font-family: "JetBrains Mono", monospace; font-size: 14px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .radar-legend-item { display: flex; align-items: center; gap: 8px; }
+    [data-composition-id="${scene.id}"] .r-dot { width: 10px; height: 10px; border-radius: 50%; }
+  `,
+});
+
+// 54. Sankey Cost Flow
+registerArchetypeRenderer("sankey-cost-flow", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawStreams = scene.sankeyData?.streams;
+    const streams = (
+      Array.isArray(rawStreams) && rawStreams.length >= 2
+        ? rawStreams
+        : [
+            { source: "Budget", target: synthesizeFallbackText(scene, "step", 0), value: 45 },
+            { source: "Budget", target: synthesizeFallbackText(scene, "step", 1), value: 30 },
+            { source: "Budget", target: synthesizeFallbackText(scene, "step", 2), value: 25 },
+          ]
+    ).slice(0, 4);
+
+    const total = scene.sankeyData?.total || "$50k";
+
+    const streamsHtml = streams
+      .map(
+        (st) => `
+      <div class="sankey-branch">
+        <div class="sankey-branch-head">
+          <span class="sankey-target">${h(st.target)}</span>
+          <span class="sankey-val">${st.value}%</span>
+        </div>
+        <div class="sankey-bar-track">
+          <div class="sankey-bar-fill" style="width: ${st.value}%;"></div>
+        </div>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".sankey-branch")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner sankey-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "CAPITAL & TOKEN ALLOCATION")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="sankey-layout">
+            <div class="sankey-source-node">
+              <span class="sankey-src-label">TOTAL ALLOCATION</span>
+              <span class="sankey-src-val">${h(total)}</span>
+            </div>
+            <div class="sankey-branches-col">
+              ${streamsHtml}
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".sankey-source-node"), { opacity: 0, scale: 0.9, duration: 0.5 }, 0.5);
+        tl.from(scope.querySelectorAll(".sankey-branch"), { opacity: 0, x: 20, stagger: 0.12, duration: 0.5 }, 0.65);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .sankey-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .sankey-layout { display: flex; flex-direction: ${isPortrait ? "column" : "row"}; gap: 36px; width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; align-items: center; text-align: left; }
+    [data-composition-id="${scene.id}"] .sankey-source-node { width: ${isPortrait ? "100%" : "260px"}; padding: 36px 28px; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.accent}; box-shadow: 0 0 32px ${activePalette.accent}20; text-align: center; }
+    [data-composition-id="${scene.id}"] .sankey-src-label { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; display: block; margin-bottom: 8px; }
+    [data-composition-id="${scene.id}"] .sankey-src-val { font-family: "JetBrains Mono", monospace; font-size: 38px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .sankey-branches-col { flex: 1; display: flex; flex-direction: column; gap: 18px; width: 100%; }
+    [data-composition-id="${scene.id}"] .sankey-branch { padding: 20px 24px; border-radius: 16px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .sankey-branch-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .sankey-target { font-size: 18px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .sankey-val { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .sankey-bar-track { height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.05); overflow: hidden; }
+    [data-composition-id="${scene.id}"] .sankey-bar-fill { height: 100%; border-radius: 5px; background: ${activePalette.accent}; }
+  `,
+});
+
+// 55. Cohort Retention Grid
+registerArchetypeRenderer("cohort-retention-grid", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawCohorts = scene.cohortData?.cohorts;
+    const cohorts = (
+      Array.isArray(rawCohorts) && rawCohorts.length >= 2
+        ? rawCohorts
+        : [
+            { label: "Cohort 1", size: 1200, percentages: [100, 78, 65, 58, 52] },
+            { label: "Cohort 2", size: 1450, percentages: [100, 82, 70, 63] },
+            { label: "Cohort 3", size: 1600, percentages: [100, 85, 74] },
+          ]
+    ).slice(0, 3);
+
+    const rowsHtml = cohorts
+      .map((c) => {
+        const tilesHtml = (c.percentages || [])
+          .map((p) => {
+            const alpha = Math.max(0.1, p / 100);
+            return `<div class="cohort-tile" style="background: ${activePalette.accent}${Math.round(
+              alpha * 255,
+            )
+              .toString(16)
+              .padStart(2, "0")};">${p}%</div>`;
+          })
+          .join("\n");
+
+        return `
+        <div class="cohort-row">
+          <span class="cohort-label">${h(c.label)}</span>
+          <div class="cohort-tiles">
+            ${tilesHtml}
+          </div>
+        </div>`;
+      })
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".cohort-row")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner cohort-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "RETENTION HEATMAP")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="cohort-table">
+            <div class="cohort-head">
+              <span>COHORT</span>
+              <div class="cohort-head-cols">
+                <span>W0</span><span>W1</span><span>W2</span><span>W3</span><span>W4</span>
+              </div>
+            </div>
+            ${rowsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".cohort-row"), { opacity: 0, y: 18, stagger: 0.12, duration: 0.5 }, 0.5);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .cohort-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .cohort-table { width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; text-align: left; }
+    [data-composition-id="${scene.id}"] .cohort-head { display: grid; grid-template-columns: 140px 1fr; font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; border-bottom: 1px solid ${activePalette.border}; padding-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .cohort-head-cols { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; }
+    [data-composition-id="${scene.id}"] .cohort-row { display: grid; grid-template-columns: 140px 1fr; align-items: center; }
+    [data-composition-id="${scene.id}"] .cohort-label { font-family: "JetBrains Mono", monospace; font-size: 16px; font-weight: 700; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .cohort-tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    [data-composition-id="${scene.id}"] .cohort-tile { padding: 14px 10px; border-radius: 8px; text-align: center; font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 800; color: ${activePalette.text}; }
+  `,
+});
+
+// 56. Multi-Metric Dashboard
+registerArchetypeRenderer("multi-metric-dashboard", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawMetrics = scene.dashboardData?.metrics;
+    const metrics = (
+      Array.isArray(rawMetrics) && rawMetrics.length >= 2
+        ? rawMetrics
+        : [0, 1, 2, 3].map((k) => ({
+            title: synthesizeFallbackText(scene, "metric", k),
+            value: `${(k + 1) * 25}%`,
+            change: `+${k + 2}.4%`,
+          }))
+    ).slice(0, 4);
+
+    const cardsHtml = metrics
+      .map(
+        (m) => `
+      <div class="kpi-card">
+        <div class="kpi-card-head">
+          <span class="kpi-title">${h(m.title)}</span>
+          <span class="kpi-delta">${h(m.change || "+2.4%")}</span>
+        </div>
+        <div class="kpi-val">${h(m.value)}</div>
+        <svg class="kpi-sparkline" viewBox="0 0 100 24" preserveAspectRatio="none">
+          <path d="M 0 18 Q 25 10 50 14 T 100 4" stroke="${activePalette.accent}" stroke-width="2.5" fill="none" />
+        </svg>
+      </div>`,
+      )
+      .join("\n");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".kpi-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner dash-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "TELEMETRY OVERVIEW")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="dash-grid">
+            ${cardsHtml}
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".kpi-card"), { opacity: 0, y: 24, stagger: 0.1, duration: 0.55, ease: "power3.out" }, 0.55);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .dash-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .dash-grid { display: grid; grid-template-columns: ${isPortrait ? "1fr" : "repeat(4, 1fr)"}; gap: 20px; width: min(1360px, 86vw); margin-top: ${isPortrait ? "24px" : "48px"}; text-align: left; }
+    [data-composition-id="${scene.id}"] .kpi-card { padding: 28px 24px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .kpi-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .kpi-title { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .kpi-delta { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: #4ade80; }
+    [data-composition-id="${scene.id}"] .kpi-val { font-family: "JetBrains Mono", monospace; font-size: 34px; font-weight: 900; color: ${activePalette.text}; margin-bottom: 16px; }
+    [data-composition-id="${scene.id}"] .kpi-sparkline { width: 100%; height: 24px; }
+  `,
+});
+
+// 57. A/B Test Confidence
+registerArchetypeRenderer("ab-test-confidence", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawAb = scene.abData;
+    const vA = rawAb?.variantA || { label: "Control", mean: 12.4, conversion: "12.4%" };
+    const vB = rawAb?.variantB || { label: "Candidate", mean: 14.8, conversion: "14.8%" };
+    const pVal = rawAb?.pValue ?? 0.003;
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".ab-variant-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner ab-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "STATISTICAL SIGNIFICANCE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "46px" : "60px"}">${h(scene.title)}</h1>
+          <div class="ab-container">
+            <svg class="ab-bell-svg" viewBox="0 0 600 200" fill="none">
+              <!-- Curve A (Control) -->
+              <path d="M 80 180 Q 220 180 250 50 Q 280 180 420 180" stroke="${activePalette.border}" stroke-width="3" fill="${activePalette.border}20" />
+              <!-- Curve B (Candidate) -->
+              <path d="M 180 180 Q 320 180 350 40 Q 380 180 520 180" stroke="${activePalette.accent}" stroke-width="3.5" fill="${activePalette.accent}25" />
+            </svg>
+            <div class="ab-variants-grid">
+              <div class="ab-variant-card">
+                <span class="ab-tag">VARIANT A (CONTROL)</span>
+                <span class="ab-rate">${h(vA.conversion)}</span>
+                <span class="ab-mean">Mean = ${vA.mean}</span>
+              </div>
+              <div class="ab-variant-card ab-hero">
+                <span class="ab-tag">VARIANT B (CANDIDATE)</span>
+                <span class="ab-rate" style="color: ${activePalette.accent};">${h(vB.conversion)}</span>
+                <span class="ab-mean">Uplift: +${(((vB.mean - vA.mean) / vA.mean) * 100).toFixed(1)}%</span>
+              </div>
+            </div>
+            <div class="ab-significance-chip">
+              <span class="ab-sig-icon">✓</span>
+              <span>Statistically Significant (p = ${pVal})</span>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".ab-bell-svg"), { opacity: 0, scaleY: 0, transformOrigin: "bottom", duration: 0.7 }, 0.5);
+        tl.from(scope.querySelectorAll(".ab-variant-card"), { opacity: 0, y: 20, stagger: 0.14, duration: 0.5 }, 0.65);
+        tl.from(scope.querySelector(".ab-significance-chip"), { opacity: 0, scale: 0.85, duration: 0.4 }, 0.85);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .ab-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .ab-container { width: min(1200px, 86vw); margin-top: ${isPortrait ? "24px" : "44px"}; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: left; }
+    [data-composition-id="${scene.id}"] .ab-bell-svg { width: 100%; max-width: 600px; height: 180px; }
+    [data-composition-id="${scene.id}"] .ab-variants-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; width: 100%; }
+    [data-composition-id="${scene.id}"] .ab-variant-card { padding: 28px 24px; border-radius: 18px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .ab-hero { border-color: ${activePalette.accent}; box-shadow: 0 0 28px ${activePalette.accent}20; }
+    [data-composition-id="${scene.id}"] .ab-tag { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; display: block; margin-bottom: 6px; }
+    [data-composition-id="${scene.id}"] .ab-rate { font-family: "JetBrains Mono", monospace; font-size: 36px; font-weight: 900; color: ${activePalette.text}; display: block; margin-bottom: 4px; }
+    [data-composition-id="${scene.id}"] .ab-mean { font-family: "JetBrains Mono", monospace; font-size: 15px; color: ${activePalette.textMuted || activePalette.text}; }
+    [data-composition-id="${scene.id}"] .ab-significance-chip { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 30px; background: rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.3); font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: #4ade80; }
+  `,
+});
