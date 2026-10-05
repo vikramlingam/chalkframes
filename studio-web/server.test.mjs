@@ -224,3 +224,65 @@ test("parseStoryboardJson recovers from common LLM JSON anomalies", async () => 
 
   assert.throws(() => parseStoryboardJson("no json here"), /invalid JSON/);
 });
+
+test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t) => {
+  const base = await startServer(t);
+
+  const palRes = await fetch(`${base}/api/palettes`);
+  assert.equal(palRes.status, 200);
+  const palettes = await palRes.json();
+
+  const requiredPalettes = [
+    "braun-industrial",
+    "tokyo-metro",
+    "broadside-editorial",
+    "swiss-international",
+    "nordic-fjord",
+    "risograph-studio",
+    "solarized-amber",
+    "kyoto-matcha",
+    "bauhaus-dessau",
+    "monolith-titanium",
+  ];
+
+  for (const id of requiredPalettes) {
+    const p = palettes[id];
+    assert.ok(p, `Palette ${id} must exist`);
+    assert.equal(p.id, id);
+    assert.ok(p.name);
+    assert.ok(p.description);
+    assert.match(p.background, /^#[0-9a-fA-F]{6}$/);
+    assert.match(p.card, /^#[0-9a-fA-F]{6}$/);
+    assert.match(p.border, /^#[0-9a-fA-F]{6}$/);
+    assert.match(p.text, /^#[0-9a-fA-F]{6}$/);
+    assert.match(p.textMuted, /^#[0-9a-fA-F]{6}$/);
+    assert.match(p.accent, /^#[0-9a-fA-F]{6}$/);
+    assert.equal(typeof p.isDark, "boolean");
+  }
+
+  const soundRes = await fetch(`${base}/api/soundtracks`);
+  assert.equal(soundRes.status, 200);
+  const soundtracks = await soundRes.json();
+  assert.equal(soundtracks.length, 5);
+
+  const requiredTracks = [
+    "quiet-reflection",
+    "ambient-drift",
+    "minimal-clarity",
+    "gentle-pulse",
+    "deliberate-thought",
+  ];
+  for (const trackId of requiredTracks) {
+    const track = soundtracks.find((t) => t.id === trackId);
+    assert.ok(track, `Track ${trackId} must exist`);
+    assert.ok(track.file);
+    assert.ok(track.license.includes("CC0") || track.license.includes("Public Domain"));
+  }
+
+  const cfgRes = await fetch(`${base}/api/config`);
+  assert.equal(cfgRes.status, 200);
+  const cfg = await cfgRes.json();
+  assert.ok(cfg.palettes);
+  assert.ok(cfg.soundtracks);
+  assert.equal(cfg.soundtracks.length, 5);
+});

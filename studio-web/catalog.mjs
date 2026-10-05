@@ -804,10 +804,7 @@ export const ARCHETYPE_FAMILY = Object.fromEntries(
 );
 
 /** Archetypes eligible for middle scenes (non-hook, non-outro). */
-export const MIDDLE_ARCHS = VISUAL_CATALOG.filter(
-  (item) =>
-    item.isMiddle !== false && item.engine !== "manim" && item.id !== "hook" && item.id !== "outro",
-).map((item) => item.id);
+export const MIDDLE_ARCHS = VISUAL_CATALOG.filter((a) => a.isMiddle).map((a) => a.id);
 
 /** Archetypes rendered by the Manim worker rather than HTML/GSAP. */
 export const MANIM_ARCHETYPES = VISUAL_CATALOG.filter((item) => item.engine === "manim").map(
@@ -853,11 +850,7 @@ export function registerArchetype(entryOrId, maybeOptions = {}) {
   archetypes.add(id);
   ARCHETYPE_FAMILY[id] = normalizedEntry.family;
 
-  if (
-    normalizedEntry.isMiddle &&
-    normalizedEntry.engine !== "manim" &&
-    !MIDDLE_ARCHS.includes(id)
-  ) {
+  if (normalizedEntry.isMiddle && !MIDDLE_ARCHS.includes(id)) {
     MIDDLE_ARCHS.push(id);
   } else if (!normalizedEntry.isMiddle) {
     const idx = MIDDLE_ARCHS.indexOf(id);

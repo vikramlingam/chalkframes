@@ -239,6 +239,20 @@ function setupManim() {
   else note("Manim not installed (optional). Install with: bun run setup:manim");
 }
 
+function checkSoundtracks() {
+  const soundtrackDir = path.join(ROOT, "studio-web", "public", "soundtracks");
+  const tracks = [
+    "quiet-reflection.mp3",
+    "ambient-drift.mp3",
+    "minimal-clarity.mp3",
+    "gentle-pulse.mp3",
+    "deliberate-thought.mp3",
+  ];
+  const missing = tracks.filter((t) => !fs.existsSync(path.join(soundtrackDir, t)));
+  if (missing.length === 0) ok("Background soundtracks verified (5 CC0 public domain tracks)");
+  else note(`Missing soundtrack files: ${missing.join(", ")}`);
+}
+
 if (!QUIET) console.log("Chalk Frames setup" + (CHECK ? " (check only)" : ""));
 checkTools();
 buildPackages();
@@ -247,6 +261,7 @@ await setupWeights();
 setupChrome();
 setupEnvFile();
 setupManim();
+checkSoundtracks();
 
 if (problems.length > 0) {
   console.error(

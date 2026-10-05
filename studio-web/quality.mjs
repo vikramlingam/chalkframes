@@ -72,7 +72,6 @@ import {
   VISUAL_CATALOG,
   archetypes,
   ARCHETYPE_FAMILY,
-  MIDDLE_ARCHS,
   MANIM_ARCHETYPES,
   ARCHETYPE_ALIASES,
   registerArchetype,
@@ -124,11 +123,12 @@ function planManimScene({ scene, archetype, index, lastIndex, enabled, count, ma
   return { ok: true, brief, beats, fallback };
 }
 
+export const MIDDLE_ARCHS = VISUAL_CATALOG.filter((a) => a.isMiddle).map((a) => a.id);
+
 export {
   VISUAL_CATALOG,
   archetypes,
   ARCHETYPE_FAMILY,
-  MIDDLE_ARCHS,
   ARCHETYPE_ALIASES,
   registerArchetype,
   formatCatalogForPrompt,
@@ -228,7 +228,10 @@ function chooseArchetype({ requested, suggested, previous, window = 2, archetype
 
   if (suggested && clearsWindow(suggested)) return suggested;
 
-  const candidates = shuffled(MIDDLE_ARCHS, rng);
+  const candidates = shuffled(
+    MIDDLE_ARCHS.filter((candidate) => !MANIM_ARCHETYPES.includes(candidate)),
+    rng,
+  );
   const freshFamily = candidates.find((candidate) => clearsWindow(candidate));
   if (freshFamily) return freshFamily;
   return candidates.find((candidate) => !recentArchetypes.includes(candidate)) ?? candidates[0];
