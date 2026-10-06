@@ -63,10 +63,10 @@ def run(scene, theme, brief, budget, beat_frames):
         return Arrow(plane.c2p(0, 0), plane.c2p(x, y), buff=0, color=color, stroke_width=7, max_tip_length_to_length_ratio=0.25)
 
     show_basis = brief.get("showBasis", True) is not False
-    i_hat = arrow(1, 0, theme.accent)
-    j_hat = arrow(0, 1, theme.accent_alt)
+    i_hat = arrow(1, 0, getattr(theme, "green", theme.accent))
+    j_hat = arrow(0, 1, getattr(theme, "red", theme.accent_alt))
     vec = _vec(brief.get("vector"), [1.0, 1.0])
-    v_arrow = arrow(vec[0], vec[1], theme.text)
+    v_arrow = arrow(vec[0], vec[1], getattr(theme, "yellow", theme.text))
 
     stages = [("grid", 2), ("vectors", 2), ("transform", 4)]
     proj = brief.get("projectOnto")

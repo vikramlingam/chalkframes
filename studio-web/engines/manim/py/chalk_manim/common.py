@@ -51,3 +51,20 @@ def run_stage(budget, frames, *animations):
         budget.hold(frames - anim)
     else:
         budget.hold(frames)
+
+
+def math_text(theme, text, size=0.45, color=None):
+    """3b1b mathematical text formatted with mono font and thematic color."""
+    c = color or theme.text
+    t = Text(clean(text, 70), font=theme.mono, color=c).scale(size)
+    fit(t, config.frame_width * 0.8)
+    return t
+
+
+def accent_box(theme, mobject, color=None, buff=0.12):
+    """3b1b surrounding highlight box with rounded corners."""
+    from manim import SurroundingRectangle
+
+    c = color or getattr(theme, "yellow", theme.accent)
+    return SurroundingRectangle(mobject, color=c, buff=buff, stroke_width=2.5, corner_radius=0.1)
+

@@ -52,10 +52,24 @@ export function toSolidHex(value, backgroundHex = "#000000", fallback = "#ffffff
   return toHex(rgb.map((channel, i) => channel * alpha + bg[i] * (1 - alpha)));
 }
 
+export const DEFAULT_3B1B_PALETTE = {
+  blue: "#58c4dd",
+  teal: "#5cd0b3",
+  green: "#83c167",
+  yellow: "#ffff00",
+  gold: "#f3ac3c",
+  red: "#fc6255",
+  maroon: "#c55f73",
+  purple: "#9a72ac",
+};
+
 /** Sanitize every string colour in a palette so Python only ever sees `#rrggbb`. */
 export function sanitizePalette(palette) {
-  const source = palette && typeof palette === "object" ? palette : {};
-  const background = toSolidHex(source.background, "#000000", "#000000");
+  const source = {
+    ...DEFAULT_3B1B_PALETTE,
+    ...(palette && typeof palette === "object" ? palette : {}),
+  };
+  const background = toSolidHex(source.background || "#0e1117", "#000000", "#000000");
   const out = {};
   for (const [key, value] of Object.entries(source)) {
     if (typeof value !== "string") continue; // flags such as isDark are not colours

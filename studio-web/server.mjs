@@ -1355,11 +1355,76 @@ ${
 - Pick the primitive by what the beat shows: a changing curve or area -> "manim-function-plot"; a matrix or basis change, rotation, shear or projection -> "manim-vector-transform"; layers of a network or a graph/tree traversal -> "manim-network-topology".`
 }
 
-MANIM MATH-ANIMATION RULES (archetypes whose id starts with "manim-"):
+3BLUE1BROWN MATHEMATICAL ANIMATION RULES (archetypes whose id starts with "manim-"):
 - The "engine" field of a manim scene is "manim"; ${isManimOnly ? "all scenes are manim." : "every other scene uses html-gsap."}
 - You write DATA, never code. Every manim scene needs: "manimData" (exact fields from its payload hint), "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined), and "fallbackArchetype" (an HTML archetype that conveys the same idea) with "fallbackPayload".
 - Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".
-- Example manim scene: { "id": "scene3-slope", "engine": "manim", "archetype": "manim-function-plot", "theme": "dark", "title": "The slope of a curve", "manimData": { "title": "Slope at a point", "expr": "x^2 - 2*x", "xRange": [-2, 4], "tangentAt": 1.5 }, "beats": ["A curve rises and falls.", "At one point its steepness is the slope.", "That slope is the derivative."], "fallbackArchetype": "bento-metric-grid", "fallbackPayload": { "bentoData": { "metrics": [{ "label": "Slope", "value": 1, "unit": "", "hero": true }] } } }
+
+3B1B DESIGN PRINCIPLE 1 — "TRANSFORM, DON'T REPLACE":
+- Ground every explanation in visual and geometric continuity. Never jump between disjoint concepts.
+- Morph curves smoothly (use "expr" and "expr2" in manim-function-plot), warp coordinate planes continuously under matrix multiplication (manim-vector-transform), stretch eigenvectors along their invariant directions (manim-eigen-decomposition), and trace forward/backward autograd pulses (manim-backprop-chain).
+
+3B1B DESIGN PRINCIPLE 2 — 3-STAGE PEDAGOGICAL BEAT CADENCE:
+Every Manim scene's "beats" array must tell a 3-part visual story:
+- Beat 1 (Anchor): Establish the coordinate frame or initial baseline state (e.g. "Consider our standard 2D Cartesian plane with unit basis vectors.").
+- Beat 2 (Mechanism): Apply the mathematical transformation, slide the tangent line, or execute the algorithmic step (e.g. "Applying this matrix warps the entire grid, shearing space to the right.").
+- Beat 3 (Insight/Invariant): Highlight what stayed constant or state the decisive geometric takeaway (e.g. "Notice how vectors on the horizontal axis remain completely untouched.").
+
+3B1B DESIGN PRINCIPLE 3 — COLOR GRAMMAR & VISUAL SEMANTICS:
+- Blue / Cyan (#58C4DD): Primary functions f(x), input vectors, baseline coordinate axes.
+- Green (#83C167): Primary basis vector i-hat, positive probability states, ground truth.
+- Red / Maroon (#FC6255, #C55F73): Secondary basis vector j-hat, residual errors, decision boundaries, cost loss.
+- Yellow / Gold (#FFFF00, #F3AC3C): Active tangent slopes, key attention highlights, eigenvalues lambda, transformed vectors.
+- Purple / Teal (#9A72AC, #5CD0B3): Latent projections, transformer attention blocks, orthogonal components.
+
+3B1B PRIMITIVE REPERTORY (Pick the precise archetype for the mathematical concept):
+- Calculus, slopes, integrals, limits -> "manim-function-plot" (expr, tangentAt, area, expr2)
+- Matrices, 2D coordinate warps, linear maps -> "manim-vector-transform" (matrix, vector, projectOnto, showBasis)
+- Invariant directions, spectral decomposition -> "manim-eigen-decomposition" (eigenvalues: [2.0, 0.7])
+- Projections, dot & cross products -> "manim-dot-cross-product" (mode: "dot"|"cross", vectorA, vectorB)
+- Basis changes & coordinate transforms -> "manim-basis-change" (basis1, basis2)
+- Optimization & gradient descent -> "manim-gradient-descent-3d" (steps, momentum)
+- Neural networks & forward pulses -> "manim-network-topology" (layers: [3, 5, 4, 2])
+- Transformer blocks, attention, residual skip -> "manim-transformer-block" (highlight: "attention"|"ffn"|"residual")
+- KV Cache token inference -> "manim-kv-cache" (promptTokens, generatedTokens)
+- Computational graph & chain rule -> "manim-backprop-chain" (nodeNames)
+- Probability & Bayes updating -> "manim-bayes-theorem" (prior, likelihoodTrue, likelihoodFalse)
+- Monte Carlo sampling -> "manim-monte-carlo-pi" (pointCount, targetRatio)
+- Markov chains & state transitions -> "manim-markov-chain" (states, transitions)
+
+3B1B SCENE EXAMPLES:
+- Example 1 (Calculus / Derivative morph):
+  {
+    "id": "scene3-derivative",
+    "engine": "manim",
+    "archetype": "manim-function-plot",
+    "theme": "dark",
+    "title": "Rate of Change and Tangent Slope",
+    "manimData": { "title": "Tangent and Derivative", "expr": "x^2 - 2*x", "xRange": [-2, 4], "tangentAt": 1.5, "expr2": "2*x - 2" },
+    "beats": [
+      "A continuous parabola bends across our Cartesian coordinate plane.",
+      "At x = 1.5, the local tangent line measures its instantaneous rate of change.",
+      "As we trace all points, the tangent slopes assemble into a new linear function: the derivative."
+    ],
+    "fallbackArchetype": "bento-metric-grid",
+    "fallbackPayload": { "bentoData": { "metrics": [{ "label": "Derivative at 1.5", "value": 1, "unit": "", "hero": true }] } }
+  }
+- Example 2 (Linear Algebra / Matrix shear):
+  {
+    "id": "scene4-matrix-shear",
+    "engine": "manim",
+    "archetype": "manim-vector-transform",
+    "theme": "dark",
+    "title": "Matrix Multiplication as Space Warp",
+    "manimData": { "title": "Shear Transformation", "matrix": [[1, 1], [0, 1]], "vector": [1, 2], "showBasis": true },
+    "beats": [
+      "Every linear transformation is entirely determined by where it lands basis vectors i-hat and j-hat.",
+      "When our matrix acts on space, the coordinate grid lines slide horizontally into a uniform shear.",
+      "The yellow sample vector glides along with the warped grid, ending at its exact computed coordinates."
+    ],
+    "fallbackArchetype": "vector-cluster-graph",
+    "fallbackPayload": { "clusters": [{ "name": "Basis", "value": "Shear" }] }
+  }
 `
     : ""
 }

@@ -98,7 +98,7 @@ def run(scene, theme, brief, budget, beat_frames):
         tips=False,
     ).shift([0, -0.35, 0])
     segs = _segments(f, x0, x1, (y0, y1))
-    curve = _curve(axes, f, segs, theme.accent)
+    curve = _curve(axes, f, segs, getattr(theme, "blue", theme.accent))
     label = Text("f(x) = " + clean(brief.get("expr", "x"), 40), font=theme.mono, color=theme.muted)
     label.scale(0.4)
     fit(label, fw * 0.8)
@@ -129,8 +129,8 @@ def run(scene, theme, brief, budget, beat_frames):
             half = (x1 - x0) * 0.18
             p0 = axes.c2p(xt - half, f(xt) - slope * half)
             p1 = axes.c2p(xt + half, f(xt) + slope * half)
-            tangent = Line(p0, p1, color=theme.accent_alt, stroke_width=4)
-            dot = Dot(axes.c2p(xt, f(xt)), color=theme.text, radius=0.09)
+            tangent = Line(p0, p1, color=getattr(theme, "gold", theme.accent_alt), stroke_width=4)
+            dot = Dot(axes.c2p(xt, f(xt)), color=getattr(theme, "yellow", theme.text), radius=0.09)
             keep.add(tangent, dot)
             run_stage(budget, n, Create(tangent), FadeIn(dot))
         elif name == "area":
@@ -138,13 +138,13 @@ def run(scene, theme, brief, budget, beat_frames):
             shade = axes.get_area(
                 axes.plot(f, x_range=[max(a, x0), min(b, x1)]),
                 x_range=[max(a, x0), min(b, x1)],
-                color=theme.accent,
-                opacity=0.28,
+                color=getattr(theme, "teal", theme.accent),
+                opacity=0.32,
             )
             keep.add(shade)
             run_stage(budget, n, FadeIn(shade))
         elif name == "evolve":
             segs2 = _segments(f2, x0, x1, (y0, y1))
-            curve2 = _curve(axes, f2, segs2, theme.accent_alt)
+            curve2 = _curve(axes, f2, segs2, getattr(theme, "gold", theme.accent_alt))
             run_stage(budget, n, FadeOut(keep), ReplacementTransform(curve, curve2))
     budget.fill()

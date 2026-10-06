@@ -17,16 +17,61 @@ _RGB_RE = re.compile(
 )
 _HEX_RE = re.compile(r"^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$", re.IGNORECASE)
 
+# 3Blue1Brown (3b1b) canonical color constants
+BLUE_C = "#58C4DD"
+BLUE_D = "#29ABCA"
+BLUE_E = "#1C758A"
+
+TEAL_C = "#5CD0B3"
+TEAL_D = "#55C1A7"
+TEAL_E = "#49A88F"
+
+GREEN_C = "#83C167"
+GREEN_D = "#77B05D"
+GREEN_E = "#699C52"
+
+YELLOW_C = "#FFFF00"
+YELLOW_D = "#F4D345"
+YELLOW_E = "#E8C11C"
+
+GOLD_C = "#F3AC3C"
+GOLD_D = "#E1A158"
+GOLD_E = "#C78D46"
+
+RED_C = "#FC6255"
+RED_D = "#E65A4C"
+RED_E = "#CF5044"
+
+MAROON_C = "#C55F73"
+MAROON_D = "#A24D61"
+MAROON_E = "#94424F"
+
+PURPLE_C = "#9A72AC"
+PURPLE_D = "#715582"
+PURPLE_E = "#644172"
+
+DARK_SLATE = "#0E1117"
+LIGHT_GREY = "#ECEFF4"
+
 DEFAULT_PALETTE = {
-    "background": "#09090d",
-    "text": "#f4f4f7",
+    "background": DARK_SLATE,
+    "text": LIGHT_GREY,
     "textMuted": "#9898ab",
     "muted": "#888899",
-    "accent": "#8b5cf6",
-    "accentDark": "#a78bfa",
+    "accent": BLUE_C,
+    "accentDark": BLUE_D,
     "accentText": "#ffffff",
-    "card": "#13131c",
-    "border": "#20202e",
+    "card": "#181b24",
+    "border": "#2e3440",
+    # 3Blue1Brown signature palette tokens
+    "blue": BLUE_C,
+    "teal": TEAL_C,
+    "green": GREEN_C,
+    "yellow": YELLOW_C,
+    "gold": GOLD_C,
+    "red": RED_C,
+    "maroon": MAROON_C,
+    "purple": PURPLE_C,
 }
 
 
@@ -107,6 +152,17 @@ class Theme:
         self.accent_text = tone("accentText")
         self.card = tone("card")
         self.border = tone("border")
+
+        # 3Blue1Brown canonical colors
+        self.blue = tone("blue")
+        self.teal = tone("teal")
+        self.green = tone("green")
+        self.yellow = tone("yellow")
+        self.gold = tone("gold")
+        self.red = tone("red")
+        self.maroon = tone("maroon")
+        self.purple = tone("purple")
+
         f = fonts or {}
         self.font = f.get("sans") or "Helvetica Neue"
         self.mono = f.get("mono") or "Menlo"

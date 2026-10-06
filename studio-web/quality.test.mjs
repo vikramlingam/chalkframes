@@ -18,8 +18,10 @@ import {
   formatCatalogForPrompt,
   buildSceneHtmlAndChoreography,
   getArchetypeScopedCss,
+  buildDirectorPrompt,
 } from "./server.mjs";
 import { formatCompactMetric } from "./renderers.mjs";
+import { DEFAULT_3B1B_PALETTE, sanitizePalette } from "./engines/manim/planner.mjs";
 
 const timing = [
   { id: "scene1-hook", role: "hook" },
@@ -1340,4 +1342,41 @@ test("Input validation and catalog formatting respect all three engine options",
   const timingManim = getSceneTimingStructure(30, 42, { engineMode: "manim" });
   assert.ok(timingManim[0].suggestedArchetypes.every((a) => a.startsWith("manim-")));
   assert.ok(timingManim[1].suggestedArchetypes.every((a) => a.startsWith("manim-")));
+});
+
+test("3Blue1Brown rules and palette are integrated into Manim planning and prompts", () => {
+  // 1. Verify 3b1b canonical palette defaults in planner.mjs
+  assert.equal(DEFAULT_3B1B_PALETTE.blue, "#58c4dd");
+  assert.equal(DEFAULT_3B1B_PALETTE.green, "#83c167");
+  assert.equal(DEFAULT_3B1B_PALETTE.yellow, "#ffff00");
+  assert.equal(DEFAULT_3B1B_PALETTE.red, "#fc6255");
+  assert.equal(DEFAULT_3B1B_PALETTE.teal, "#5cd0b3");
+  assert.equal(DEFAULT_3B1B_PALETTE.gold, "#f3ac3c");
+  assert.equal(DEFAULT_3B1B_PALETTE.maroon, "#c55f73");
+  assert.equal(DEFAULT_3B1B_PALETTE.purple, "#9a72ac");
+
+  const clean = sanitizePalette({});
+  assert.equal(clean.blue, "#58c4dd");
+  assert.equal(clean.green, "#83c167");
+  assert.equal(clean.yellow, "#ffff00");
+  assert.equal(clean.background, "#0e1117");
+
+  // 2. Verify director prompt contains 3b1b mathematical rules when Manim is active
+  const promptManim = buildDirectorPrompt({
+    topic: "Calculus and Linear Algebra",
+    timingStructure: [{ id: "s1", duration: 5, maxWords: 15, role: "hook" }],
+    actualSceneCount: 1,
+    actualDurationSec: 5,
+    manimEnabled: true,
+    engineMode: "manim",
+  });
+
+  assert.ok(promptManim.includes("3BLUE1BROWN MATHEMATICAL ANIMATION RULES"));
+  assert.ok(promptManim.includes("TRANSFORM, DON'T REPLACE"));
+  assert.ok(promptManim.includes("3-STAGE PEDAGOGICAL BEAT CADENCE"));
+  assert.ok(promptManim.includes("COLOR GRAMMAR & VISUAL SEMANTICS"));
+  assert.ok(promptManim.includes("#58C4DD")); // 3b1b Blue
+  assert.ok(promptManim.includes("#83C167")); // 3b1b Green
+  assert.ok(promptManim.includes("#FC6255")); // 3b1b Red
+  assert.ok(promptManim.includes("#FFFF00")); // 3b1b Yellow
 });

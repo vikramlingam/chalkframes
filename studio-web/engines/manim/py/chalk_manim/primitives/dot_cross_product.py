@@ -48,11 +48,11 @@ def run(scene, theme, brief, budget, beat_frames):
     p_a = [center[0] + ax, center[1] + ay, 0]
     p_b = [center[0] + bx, center[1] + by, 0]
 
-    arr_a = Arrow(center, p_a, color=theme.accent, stroke_width=4, buff=0)
-    arr_b = Arrow(center, p_b, color=theme.accent_alt, stroke_width=4, buff=0)
+    arr_a = Arrow(center, p_a, color=getattr(theme, "blue", theme.accent), stroke_width=4, buff=0)
+    arr_b = Arrow(center, p_b, color=getattr(theme, "green", theme.accent_alt), stroke_width=4, buff=0)
 
-    lbl_a = Text("Vector A", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.26).next_to(p_a, UP + RIGHT, buff=0.08)
-    lbl_b = Text("Vector B", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.26).next_to(p_b, UP, buff=0.08)
+    lbl_a = Text("Vector A", font=theme.mono, weight="BOLD", color=getattr(theme, "blue", theme.accent)).scale(0.26).next_to(p_a, UP + RIGHT, buff=0.08)
+    lbl_b = Text("Vector B", font=theme.mono, weight="BOLD", color=getattr(theme, "green", theme.accent_alt)).scale(0.26).next_to(p_b, UP, buff=0.08)
 
     # Dot Product Projection calculations
     # proj_a(b) = (a . b / |a|^2) * a
@@ -62,15 +62,15 @@ def run(scene, theme, brief, budget, beat_frames):
     p_proj = [center[0] + scalar_proj * ax, center[1] + scalar_proj * ay, 0]
 
     drop_line = DashedLine(p_b, p_proj, stroke_width=2, stroke_color=theme.muted)
-    proj_line = Line(center, p_proj, stroke_width=5, stroke_color=theme.accent_alt)
-    proj_lbl = Text(f"Proj_A(B) = |B|cosθ (A·B = {dot_val:.2f})", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.24).next_to(p_proj, UP + RIGHT, buff=0.1)
+    proj_line = Line(center, p_proj, stroke_width=5, stroke_color=getattr(theme, "yellow", theme.accent_alt))
+    proj_lbl = Text(f"Proj_A(B) = |B|cosθ (A·B = {dot_val:.2f})", font=theme.mono, weight="BOLD", color=getattr(theme, "yellow", theme.accent_alt)).scale(0.24).next_to(p_proj, UP + RIGHT, buff=0.1)
 
     # Cross product parallelogram area
     # p_sum = center + A + B
     p_sum = [center[0] + ax + bx, center[1] + ay + by, 0]
     cross_val = abs(ax * by - ay * bx)
-    poly = Polygon(center, p_a, p_sum, p_b, stroke_width=2, stroke_color=theme.accent_alt, fill_color=theme.accent_alt, fill_opacity=0.25)
-    cross_lbl = Text(f"Area = |A × B| = {cross_val:.2f}", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.26).move_to([(center[0] + p_sum[0]) / 2, (center[1] + p_sum[1]) / 2, 0])
+    poly = Polygon(center, p_a, p_sum, p_b, stroke_width=2, stroke_color=getattr(theme, "teal", theme.accent_alt), fill_color=getattr(theme, "teal", theme.accent_alt), fill_opacity=0.25)
+    cross_lbl = Text(f"Area = |A × B| = {cross_val:.2f}", font=theme.mono, weight="BOLD", color=getattr(theme, "teal", theme.accent_alt)).scale(0.26).move_to([(center[0] + p_sum[0]) / 2, (center[1] + p_sum[1]) / 2, 0])
 
     badge_bg = RoundedRectangle(corner_radius=0.1, width=4.8, height=0.5, stroke_width=2, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([0, 1.9, 0])
     badge_title = "Dot Product: Scalar Projection" if mode == "dot" else "Cross Product: Oriented Area"
