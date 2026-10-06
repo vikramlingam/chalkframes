@@ -793,6 +793,46 @@ export const VISUAL_CATALOG = [
       'manimData: { title, priorA: 0.35, likelihoodBGivenA: 0.8 }, beats: ["sentence 1", ...], fallbackArchetype: "confusion-matrix"',
     aliases: ["bayes-rule", "conditional-probability", "bayesian-update"],
   },
+  {
+    id: "carousel-3d-showcase",
+    family: "carousel",
+    isMiddle: true,
+    description:
+      "Spatial cylindrical 3D carousel with revolving cards, depth scaling, glowing badges, and smooth orbital velocity sweep. Perfect for multi-feature highlights, product showcases, and ecosystem tours.",
+    payloadHint: "carouselData: { items: [{ badge, title, desc, tag }] }",
+    aliases: [
+      "3d-carousel",
+      "cylindrical-carousel",
+      "card-carousel",
+      "spatial-carousel",
+      "feature-carousel",
+    ],
+  },
+  {
+    id: "3d-motion-hero",
+    family: "spatial-3d",
+    isMiddle: true,
+    description:
+      "Procedural 3D crystal polyhedron with orbiting particle matrix, dynamic specular rim lighting, depth fog, and cinematic typography reveal.",
+    payloadHint: "hero3dData: { mainTitle, subTitle, badge, geometryStyle }",
+    aliases: [
+      "3d-hero",
+      "webgl-hero",
+      "procedural-3d",
+      "3d-reveal",
+      "threejs-hero",
+      "crystal-hero",
+    ],
+  },
+  {
+    id: "code-slice-reveal",
+    family: "code",
+    isMiddle: true,
+    description:
+      "Cinematic 3D flipping cell matrix and dual-pane syntax diff terminal with token highlights, animated line reveals, and status indicators.",
+    payloadHint: "sliceData: { filename, language, lines: [string], diffTag, output }",
+    aliases: ["code-slice", "syntax-slice", "diff-reveal", "code-matrix", "terminal-slice"],
+  },
 ];
 
 /** Set of all allowed archetype IDs. */
@@ -864,14 +904,109 @@ export function registerArchetype(entryOrId, maybeOptions = {}) {
   }
 }
 
+const CATEGORY_ORDER = [
+  {
+    name: "3D SPATIAL MOTION & PROCEDURAL REVEALS",
+    description: "Crystalline geometry, 3D polyhedrons, particle matrices, depth lighting",
+    matches: (item) => item.family === "spatial-3d" || item.id === "isometric-stack",
+  },
+  {
+    name: "3D CAROUSELS & ORBITAL SHOWCASES",
+    description: "Revolving cylindrical 3D cards, orbiting satellites, interactive app showcases",
+    matches: (item) =>
+      item.family === "carousel" || item.family === "radial" || item.id === "mobile-mockup",
+  },
+  {
+    name: "CINEMATIC CODE, TERMINALS & SYNTAX DIFFS",
+    description: "3D flipping code cells, live syntax diffs, developer CLI terminals, tool schemas",
+    matches: (item) =>
+      item.family === "code" ||
+      item.id === "code-terminal" ||
+      item.id === "tool-calling-schema" ||
+      item.id === "interactive-diff",
+  },
+  {
+    name: "QUANTITATIVE METRICS, BENCHMARKS & CHARTS",
+    description:
+      "Glowing circular KPI rings, massive number spotlights, multi-metric telemetry grids, sparklines, radar charts, Sankey flows",
+    matches: (item) => item.family === "numeric",
+  },
+  {
+    name: "DISTRIBUTED SYSTEM ARCHITECTURES & WORKFLOWS",
+    description:
+      "Service meshes, DAG task pipelines, event buses, data lineage, vector clusters, database shards, step pipelines, flowcharts",
+    matches: (item) => item.family === "diagram",
+  },
+  {
+    name: "FULL-BLEED TYPOGRAPHY & MANIFESTO TAKEOVERS",
+    description:
+      "Ultra-bold full-bleed word-slam text, giant display kinetic typography, editorial quote callouts",
+    matches: (item) => item.family === "typographic",
+  },
+  {
+    name: "HEAD-TO-HEAD COMPARISONS & GRIDS",
+    description:
+      "Legacy friction vs modern solution comparisons, bento feature grids, kanban sprints, cohort retention",
+    matches: (item) => item.family === "comparison" || item.family === "grid",
+  },
+  {
+    name: "LIVE ACTIVITY STREAMS, CHATS & REASONING LOGS",
+    description:
+      "Realtime activity feeds, AI dialogue streams, autonomous agent scratchpads, audit streams",
+    matches: (item) => item.family === "feed",
+  },
+  {
+    name: "TITLE OPENERS & ACTIONABLE OUTROS",
+    description:
+      "Editorial title card with friction opener, and closing takeaway summary with call-to-action",
+    matches: (item) => item.family === "title",
+  },
+  {
+    name: "MATHEMATICAL & ALGORITHMIC ANIMATIONS (MANIM ENGINE)",
+    description:
+      "3Blue1Brown style continuous function plots, vector transformations, neural network topologies, calculus curves, probability simulations",
+    matches: (item) => item.engine === "manim",
+  },
+];
+
 /**
- * Formats all registered archetypes dynamically into the director prompt.
+ * Formats all registered archetypes dynamically into categorized visual menus for the director prompt.
  */
-export function formatCatalogForPrompt({ manim = true } = {}) {
-  return VISUAL_CATALOG.filter((item) => manim || item.engine !== "manim")
-    .map((item) => {
+export function formatCatalogForPrompt({ manim = true, engineMode = "combined" } = {}) {
+  const isManimOnly = engineMode === "manim";
+  const isHtmlOnly = engineMode === "html" || (!manim && !isManimOnly);
+
+  const eligible = VISUAL_CATALOG.filter((item) => {
+    if (isManimOnly) return item.engine === "manim";
+    if (isHtmlOnly) return item.engine !== "manim";
+    return manim || item.engine !== "manim";
+  });
+  const assigned = new Set();
+  const sections = [];
+
+  for (const cat of CATEGORY_ORDER) {
+    if (isHtmlOnly && cat.name.includes("MANIM")) continue;
+    const items = eligible.filter((item) => !assigned.has(item.id) && cat.matches(item));
+    if (items.length === 0) continue;
+    for (const item of items) assigned.add(item.id);
+
+    const lines = items.map((item) => {
       const hint = item.payloadHint ? ` (${item.payloadHint})` : "";
       return `   - "${item.id}": ${item.description}${hint}`;
-    })
-    .join("\n");
+    });
+
+    sections.push(`📁 ${cat.name} — ${cat.description}:\n${lines.join("\n")}`);
+  }
+
+  // Any remaining custom or dynamically registered items
+  const remaining = eligible.filter((item) => !assigned.has(item.id));
+  if (remaining.length > 0) {
+    const lines = remaining.map((item) => {
+      const hint = item.payloadHint ? ` (${item.payloadHint})` : "";
+      return `   - "${item.id}": ${item.description}${hint}`;
+    });
+    sections.push(`📁 ADDITIONAL VISUAL ARCHETYPES:\n${lines.join("\n")}`);
+  }
+
+  return sections.join("\n\n");
 }

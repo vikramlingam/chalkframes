@@ -23,7 +23,8 @@
     "lint": "oxlint studio-web",
     "lint:fix": "oxlint --fix studio-web",
     "format": "oxfmt studio-web",
-    "format:check": "oxfmt --check studio-web"
+    "format:check": "oxfmt --check studio-web",
+    "import:block": "node scripts/import-hyperframes-block.mjs"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",

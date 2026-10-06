@@ -81,6 +81,8 @@ import {
   validateManimBrief,
   validateBeats,
   inferManimPrimitive,
+  createDefaultManimBrief,
+  MANIM_PRIMITIVE_IDS,
   DEFAULT_FALLBACK,
 } from "./engines/manim/schema.mjs";
 import { degradeScene } from "./engines/manim/degrade.mjs";
@@ -191,6 +193,7 @@ function planManimScene({
   run,
   maxShare = MANIM_MAX_SHARE,
   maxConsecutive = MANIM_MAX_CONSECUTIVE,
+  engineMode = "combined",
 }) {
   const requested = strictArchetype(scene.fallbackArchetype);
   const fallbackOk =
@@ -201,21 +204,40 @@ function planManimScene({
   const fallback = fallbackOk ? requested : DEFAULT_FALLBACK[archetype] || "bento-metric-grid";
   const no = (reason) => ({ ok: false, reason, fallback });
   if (!enabled) return no("Manim engine unavailable");
-  if (index === 0 || index === lastIndex) return no("hook and outro must be html-gsap");
-  if (count >= max) return no(`Manim share capped at ${Math.round(maxShare * 100)}%`);
-  if (run >= maxConsecutive) return no("too many consecutive Manim scenes");
-  if (!fallbackOk) return no("missing or invalid fallbackArchetype");
+
+  if (engineMode !== "manim") {
+    if (index === 0 || index === lastIndex) return no("hook and outro must be html-gsap");
+    if (count >= max) return no(`Manim share capped at ${Math.round(maxShare * 100)}%`);
+    if (run >= maxConsecutive) return no("too many consecutive Manim scenes");
+    if (!fallbackOk) return no("missing or invalid fallbackArchetype");
+  }
+
   let beats;
   let brief;
   try {
     beats = validateBeats(scene.beats);
   } catch (err) {
-    return no(err.message);
+    if (engineMode === "manim") {
+      const parts = (scene.voiceover || scene.title || "Mathematical visualization.")
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      beats =
+        parts.length > 0
+          ? parts.slice(0, 6)
+          : [scene.voiceover || scene.title || "Mathematical visualization."];
+    } else {
+      return no(err.message);
+    }
   }
   try {
     brief = validateManimBrief(archetype, scene.manimData);
   } catch (err) {
-    return no(`invalid manimData: ${err.message}`);
+    if (engineMode === "manim") {
+      brief = createDefaultManimBrief(archetype, scene.title);
+    } else {
+      return no(`invalid manimData: ${err.message}`);
+    }
   }
   return { ok: true, brief, beats, fallback };
 }
@@ -298,30 +320,44 @@ function shuffled(list, rng) {
  * Choose the archetype for one middle scene.
  *
  * Precedence:
- *   1. The director's valid pick, whenever it doesn't immediately repeat the preceding scene.
+ *   1. The director's valid pick, whenever it clears both the archetype window
+ *      AND the family window (prevents visually monotonous sequences even when
+ *      the director picks technically distinct archetypes from the same look family).
  *   2. The timing's suggested archetype, when it clears the window.
  *   3. Seeded rotation over eligible middle archetypes avoiding recent look repeats.
+ *
+ * Manim primitives bypass the family window because their visual gate
+ * (share cap, max-consecutive, brief + fallback validation) runs separately.
  */
 function chooseArchetype({ requested, suggested, previous, window = 2, archetypeWindow = 3, rng }) {
   const lastArchetype = previous[previous.length - 1];
-  // If the director made a valid selection that doesn't immediately repeat the preceding scene, honour it!
-  if (requested && requested !== lastArchetype) {
-    return requested;
-  }
-  // A valid Manim primitive is never rotated away: the Manim gate (share cap, max 2 in a
-  // row, brief + fallback validation) decides, and logs why when it degrades one.
-  if (requested && MANIM_ARCHETYPES.includes(requested)) {
-    return requested;
-  }
-
+  const lastFamily = familyOf(lastArchetype);
   const recentArchetypes = previous.slice(-Math.max(window, archetypeWindow));
   const recentFamilies = new Set(previous.slice(-window).map(familyOf));
+
   const clearsWindow = (candidate) =>
     candidate !== null &&
     candidate !== "hook" &&
     candidate !== "outro" &&
     !recentArchetypes.includes(candidate) &&
     !recentFamilies.has(familyOf(candidate));
+
+  // A valid Manim primitive is never rotated away: the Manim gate (share cap, max 2 in a
+  // row, brief + fallback validation) decides, and logs why when it degrades one.
+  if (requested && MANIM_ARCHETYPES.includes(requested)) {
+    return requested;
+  }
+
+  // The director's valid pick is honoured only when it also clears the family
+  // diversity window — not just the exact-archetype de-dupe.
+  if (requested && clearsWindow(requested)) {
+    return requested;
+  }
+  // If it doesn't clear the full window, but clears the exact archetype window AND
+  // doesn't immediately repeat the preceding scene's family, honour it as well.
+  if (requested && !recentArchetypes.includes(requested) && familyOf(requested) !== lastFamily) {
+    return requested;
+  }
 
   if (suggested && clearsWindow(suggested)) return suggested;
 
@@ -348,7 +384,11 @@ function safeTextFields(value) {
 }
 
 // The director owns prose, never filenames, IDs, arbitrary DOM markup or bar geometry.
-export function validateStoryboard(value, timing, { manimEnabled = false, ...options } = {}) {
+export function validateStoryboard(
+  value,
+  timing,
+  { manimEnabled = false, engineMode = "combined", ...options } = {},
+) {
   if (
     !value ||
     typeof value !== "object" ||
@@ -358,6 +398,10 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
     throw new Error(`Director returned an invalid storyboard: expected ${timing.length} scenes`);
   if (typeof value.productName !== "string" || !value.productName.trim())
     throw new Error("Director returned an invalid product name");
+
+  const isManimOnly = engineMode === "manim";
+  const isHtmlOnly = engineMode === "html";
+  const effectiveManimEnabled = isHtmlOnly ? false : isManimOnly ? true : manimEnabled;
 
   // Resilient scene count: truncate if LLM returned too many, pad with fallbacks if too few.
   // Long educational prompts occasionally produce N±1 scenes due to token budget limits.
@@ -382,10 +426,16 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
   const rng = makeRng(hashSeed(`${value.productName}|${rawScenes.length}|${seedEntropy}`));
 
   const scenes = [];
-  const mathTopic = isMathematicalStoryboard(value, { manimEnabled, ...options });
-  const maxAllowed = mathTopic ? MANIM_MATH_MAX_SHARE : MANIM_MAX_SHARE;
-  const maxConsecutive = mathTopic ? MANIM_MATH_MAX_CONSECUTIVE : MANIM_MAX_CONSECUTIVE;
-  const manimMax = Math.floor(rawScenes.length * maxAllowed);
+  const mathTopic =
+    isManimOnly ||
+    isMathematicalStoryboard(value, { manimEnabled: effectiveManimEnabled, ...options });
+  const maxAllowed = isManimOnly ? 1.0 : mathTopic ? MANIM_MATH_MAX_SHARE : MANIM_MAX_SHARE;
+  const maxConsecutive = isManimOnly
+    ? rawScenes.length
+    : mathTopic
+      ? MANIM_MATH_MAX_CONSECUTIVE
+      : MANIM_MAX_CONSECUTIVE;
+  const manimMax = isManimOnly ? rawScenes.length : Math.floor(rawScenes.length * maxAllowed);
   let manimCount = 0;
   let manimRun = 0;
   for (let index = 0; index < rawScenes.length; index++) {
@@ -512,7 +562,13 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
     // Honour an explicit `engine: "manim"` even when the archetype name is missing or not a
     // manim-* id: recover the primitive from the shape of manimData (never override a valid
     // director choice just because one field was named inconsistently).
-    if (
+    if (isManimOnly) {
+      scene.engine = "manim";
+      if (!MANIM_ARCHETYPES.includes(strictArchetype(scene.archetype))) {
+        const inferred = inferManimPrimitive(scene.manimData);
+        scene.archetype = inferred || MANIM_PRIMITIVE_IDS[index % MANIM_PRIMITIVE_IDS.length];
+      }
+    } else if (
       String(scene.engine || "").toLowerCase() === "manim" &&
       !MANIM_ARCHETYPES.includes(strictArchetype(scene.archetype))
     ) {
@@ -524,7 +580,15 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
         );
     }
     let resolvedArch = normalizeArchetype(scene.archetype);
-    if (index > 0 && index < rawScenes.length - 1) {
+    if (isManimOnly) {
+      if (!MANIM_ARCHETYPES.includes(resolvedArch)) {
+        resolvedArch = MANIM_PRIMITIVE_IDS[index % MANIM_PRIMITIVE_IDS.length];
+      }
+    } else if (isHtmlOnly) {
+      if (MANIM_ARCHETYPES.includes(resolvedArch)) {
+        resolvedArch = DEFAULT_FALLBACK[resolvedArch] || "bento-metric-grid";
+      }
+    } else if (index > 0 && index < rawScenes.length - 1) {
       const requested = strictArchetype(scene.archetype);
       resolvedArch = chooseArchetype({
         requested: scene.archetype === "features" ? null : requested,
@@ -592,6 +656,9 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
       "cohortData",
       "dashboardData",
       "abData",
+      "carouselData",
+      "hero3dData",
+      "sliceData",
     ]) {
       const field = scene[key];
       if (
@@ -610,6 +677,7 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
       scene.kineticData?.words,
       scene.diffData?.linesLeft,
       scene.diffData?.linesRight,
+      scene.sliceData?.lines,
     ]) {
       if (
         field !== undefined &&
@@ -655,6 +723,7 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
       scene.sankeyData?.streams,
       scene.cohortData?.cohorts,
       scene.dashboardData?.metrics,
+      scene.carouselData?.items,
     ]) {
       if (list !== undefined && !Array.isArray(list)) {
         throw new Error(`Director scene ${index + 1} has invalid list`);
@@ -674,68 +743,106 @@ export function validateStoryboard(value, timing, { manimEnabled = false, ...opt
     )
       throw new Error(`Director scene ${index + 1} has invalid chart heights`);
 
-    let finalArchetype =
-      index === 0
-        ? scene.archetype
-          ? normalizeArchetype(scene.archetype)
-          : "hook"
-        : index === timing.length - 1
+    let finalArchetype;
+    if (isManimOnly) {
+      if (scene.archetype && MANIM_ARCHETYPES.includes(normalizeArchetype(scene.archetype))) {
+        finalArchetype = normalizeArchetype(scene.archetype);
+      } else if (index === 0) {
+        finalArchetype = "manim-function-plot";
+      } else if (index === timing.length - 1) {
+        finalArchetype = "manim-network-topology";
+      } else {
+        finalArchetype = resolvedArch;
+      }
+      scene.engine = "manim";
+    } else if (isHtmlOnly) {
+      finalArchetype =
+        index === 0
+          ? scene.archetype && !MANIM_ARCHETYPES.includes(normalizeArchetype(scene.archetype))
+            ? normalizeArchetype(scene.archetype)
+            : "hook"
+          : index === timing.length - 1
+            ? scene.archetype && !MANIM_ARCHETYPES.includes(normalizeArchetype(scene.archetype))
+              ? normalizeArchetype(scene.archetype)
+              : "outro"
+            : MANIM_ARCHETYPES.includes(resolvedArch)
+              ? DEFAULT_FALLBACK[resolvedArch] || "bento-metric-grid"
+              : resolvedArch;
+      scene.engine = "html-gsap";
+    } else {
+      finalArchetype =
+        index === 0
           ? scene.archetype
             ? normalizeArchetype(scene.archetype)
-            : "outro"
-          : resolvedArch;
+            : "hook"
+          : index === timing.length - 1
+            ? scene.archetype
+              ? normalizeArchetype(scene.archetype)
+              : "outro"
+            : resolvedArch;
+    }
 
     // Intelligent domain-aware fallbacks so every archetype renders with high fidelity
-    let enrichedScene = { ...scene, engine: "html-gsap" };
+    let enrichedScene = { ...scene, engine: isManimOnly ? "manim" : "html-gsap" };
 
     // Manim routing gate: keep the engine only when every rule passes; otherwise swap to
     // the fallback archetype *before* enrichment so the fallback gets a full payload.
     let manimClean = null;
-    if (MANIM_ARCHETYPES.includes(finalArchetype)) {
+    if (MANIM_ARCHETYPES.includes(finalArchetype) && !isHtmlOnly) {
       const plan = planManimScene({
         scene,
         archetype: finalArchetype,
         index,
         lastIndex: rawScenes.length - 1,
-        enabled: manimEnabled,
+        enabled: effectiveManimEnabled,
         count: manimCount,
         max: manimMax,
         run: manimRun,
         maxShare: maxAllowed,
         maxConsecutive,
+        engineMode,
       });
       let twin = null;
       if (plan.ok) {
         // Narration is exactly the beats, so audio and animation cannot drift apart.
         scene.voiceover = plan.beats.join(" ");
-        try {
-          // Pre-build the fully enriched HTML twin so a runtime Manim failure can swap
-          // to it instantly (same escaping + default payloads as any normal scene).
-          twin = validateStoryboard(
-            {
-              productName: value.productName,
-              seed: 0,
-              scenes: [
-                { archetype: "hook", title: "-", voiceover: "-" },
-                degradeScene({ ...scene, fallbackArchetype: plan.fallback }, "prebuilt twin"),
-                { archetype: "outro", title: "-", voiceover: "-" },
+        if (!isManimOnly) {
+          try {
+            // Pre-build the fully enriched HTML twin so a runtime Manim failure can swap
+            // to it instantly (same escaping + default payloads as any normal scene).
+            twin = validateStoryboard(
+              {
+                productName: value.productName,
+                seed: 0,
+                scenes: [
+                  { archetype: "hook", title: "-", voiceover: "-" },
+                  degradeScene({ ...scene, fallbackArchetype: plan.fallback }, "prebuilt twin"),
+                  { archetype: "outro", title: "-", voiceover: "-" },
+                ],
+              },
+              [
+                { id: "twin-a", role: "hook" },
+                { id: "twin-b", role: "middle" },
+                { id: "twin-c", role: "outro" },
               ],
-            },
-            [
-              { id: "twin-a", role: "hook" },
-              { id: "twin-b", role: "middle" },
-              { id: "twin-c", role: "outro" },
-            ],
-          ).scenes[1];
-        } catch (err) {
-          plan.ok = false;
-          plan.reason = `fallback scene invalid: ${err.message}`;
+              { engineMode: "html" },
+            ).scenes[1];
+          } catch (err) {
+            plan.ok = false;
+            plan.reason = `fallback scene invalid: ${err.message}`;
+          }
         }
       }
       if (plan.ok) {
         manimClean = { manimData: plan.brief, beats: plan.beats, fallbackScene: twin };
         enrichedScene.engine = "manim";
         enrichedScene.fallbackArchetype = plan.fallback;
+      } else if (isManimOnly) {
+        // In pure Manim mode, never degrade to HTML
+        const fallbackBrief = createDefaultManimBrief(finalArchetype, scene.title);
+        const fallbackBeats = [scene.voiceover || scene.title || "Mathematical visualization."];
+        manimClean = { manimData: fallbackBrief, beats: fallbackBeats, fallbackScene: null };
+        enrichedScene.engine = "manim";
       } else {
         console.warn(`[DEGRADE REASON: Scene ${index + 1}: ${plan.reason}] -> ${plan.fallback}`);
         enrichedScene = degradeScene({ ...scene, fallbackArchetype: plan.fallback }, plan.reason);
@@ -773,6 +880,9 @@ export function validateProductionInput(payload) {
   const duration = Number(payload.duration ?? 30);
   if (!Number.isFinite(duration) || duration < 15 || duration > 600)
     throw new Error("Duration must be between 15 and 600 seconds");
+  const engineMode = ["manim", "html", "combined"].includes(payload.engineMode)
+    ? payload.engineMode
+    : "combined";
   if (
     payload.sourcePdf !== undefined &&
     payload.sourcePdf !== null &&
@@ -805,7 +915,7 @@ export function validateProductionInput(payload) {
     throw new Error("Provide a topic, PDF, website URL, or written brief");
   if (typeof payload.apiKey !== "string" || !payload.apiKey.trim())
     throw new Error("An OpenRouter API key is required to create a source-grounded video");
-  return { ...payload, duration };
+  return { ...payload, duration, engineMode };
 }
 
 export function validateTopicInput(payload) {
@@ -817,7 +927,10 @@ export function validateTopicInput(payload) {
   const duration = Number(payload.duration ?? 60);
   if (!Number.isFinite(duration) || duration < 15 || duration > 600)
     throw new Error("Duration must be between 15 and 600 seconds");
+  const engineMode = ["manim", "html", "combined"].includes(payload.engineMode)
+    ? payload.engineMode
+    : "combined";
   if (typeof payload.apiKey !== "string" || !payload.apiKey.trim())
     throw new Error("An OpenRouter API key is required to draft a topic script");
-  return { ...payload, duration, topic: payload.topic.trim() };
+  return { ...payload, duration, topic: payload.topic.trim(), engineMode };
 }

@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewIcon = document.getElementById("previewIcon");
 
   const formatPills = document.querySelectorAll("#formatPills .pill-btn");
+  const enginePills = document.querySelectorAll("#enginePills .pill-btn");
+  const engineHint = document.getElementById("engineHint");
   const durationPills = document.querySelectorAll("#durationPills .pill-btn");
   const durationSlider = document.getElementById("durationSlider");
   const durationDisplay = document.getElementById("durationDisplay");
@@ -51,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // State
   let currentFormat = "landscape";
+  let currentEngine = "combined";
   let currentDuration = 30;
   let currentSourceType = "topic";
   let currentPdfBase64 = null;
@@ -132,6 +135,27 @@ document.addEventListener("DOMContentLoaded", () => {
       formatPills.forEach((p) => p.classList.remove("active"));
       pill.classList.add("active");
       currentFormat = pill.dataset.format;
+    });
+  });
+
+  // 2b. Engine Selector (Manim, HTML, Combined)
+  enginePills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      enginePills.forEach((p) => p.classList.remove("active"));
+      pill.classList.add("active");
+      currentEngine = pill.dataset.engine;
+      if (engineHint) {
+        if (currentEngine === "manim") {
+          engineHint.textContent =
+            "Only Manim: 100% of scenes rendered as mathematical Python animations via Manim";
+        } else if (currentEngine === "html") {
+          engineHint.textContent =
+            "Only HTML: 100% of scenes rendered as rich HTML5 + GSAP motion graphics & 3D canvases";
+        } else {
+          engineHint.textContent =
+            "Combined: AI dynamically routes mathematical explainers to Manim and UI/systems to HTML";
+        }
+      }
     });
   });
 
@@ -508,6 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
           musicEngine,
           paletteKey,
           customColors,
+          engineMode: currentEngine,
           sourceTopic,
           topicStyle,
           sourceUrl,

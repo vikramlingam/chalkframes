@@ -119,6 +119,66 @@
             </div>
           </div>
 
+          <!-- Rendering Engine Selector Row -->
+          <div
+            class="option-block engine-block"
+            style="
+              margin-bottom: 24px;
+              padding-bottom: 22px;
+              border-bottom: 1px solid var(--border-subtle);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                margin-bottom: 8px;
+              "
+            >
+              <label class="control-label" style="margin-bottom: 0">Rendering Engine</label>
+              <span
+                class="field-hint"
+                id="engineHint"
+                style="font-size: 11px; color: var(--text-muted)"
+                >Combined: AI dynamically routes mathematical explainers to Manim and UI/systems to
+                HTML</span
+              >
+            </div>
+            <div class="pill-group" id="enginePills">
+              <button
+                type="button"
+                class="pill-btn"
+                data-engine="manim"
+                title="Pure 100% Manim mathematical and programmatic animation (Python)"
+              >
+                <span class="pill-icon">∑</span>
+                <span class="pill-title">Only Manim</span>
+                <span class="pill-sub">Pure Math &amp; Code (Python)</span>
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                data-engine="html"
+                title="Pure 100% HTML &amp; GSAP motion graphics and 3D scenes"
+              >
+                <span class="pill-icon">⚡</span>
+                <span class="pill-title">Only HTML</span>
+                <span class="pill-sub">Motion &amp; 3D (GSAP/CSS)</span>
+              </button>
+              <button
+                type="button"
+                class="pill-btn active"
+                data-engine="combined"
+                title="Combined intelligent hybrid routing (Manim + HTML)"
+              >
+                <span class="pill-icon">✦</span>
+                <span class="pill-title">Combined</span>
+                <span class="pill-sub">Intelligent Hybrid (Best)</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Format & Timeframe Row -->
           <div class="options-grid">
             <!-- Aspect Ratio Selector -->
@@ -416,6 +476,9 @@
                       </option>
                       <option value="documentary">
                         Cinematic Documentary (Story-driven, milestones, quotes)
+                      </option>
+                      <option value="product-showcase">
+                        Spatial 3D & Product Showcase (3D hero, spatial carousels, code reveals)
                       </option>
                     </select>
                   </div>

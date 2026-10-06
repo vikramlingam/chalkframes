@@ -503,3 +503,118 @@ export function beatFrames(beats, total) {
   for (let k = 0; k < missing; k++) out[order[k][1]]++;
   return out;
 }
+
+/** Generates a safe, fully valid default brief for any Manim primitive. */
+export function createDefaultManimBrief(primitive, title = "") {
+  const displayTitle = (title && typeof title === "string" ? title.trim() : "").slice(0, 60);
+  switch (primitive) {
+    case "manim-function-plot":
+      return { title: displayTitle || "Function Plot", expr: "x^2 - 2*x", xRange: [-3, 3] };
+    case "manim-vector-transform":
+      return {
+        title: displayTitle || "Linear Transformation",
+        matrix: [
+          [1.5, 0.5],
+          [0.2, 1.2],
+        ],
+      };
+    case "manim-network-topology":
+      return { title: displayTitle || "Neural Network", layers: [3, 4, 2] };
+    case "manim-transformer-block":
+      return { title: displayTitle || "Transformer Attention", highlight: "attention" };
+    case "manim-kv-cache":
+      return {
+        title: displayTitle || "KV Cache Context",
+        promptTokens: ["A", "B", "C"],
+        generatedTokens: ["D"],
+      };
+    case "manim-positional-rope":
+      return { title: displayTitle || "Rotary Embedding", angle1: 30, angle2: 75 };
+    case "manim-token-unembedding":
+      return {
+        title: displayTitle || "Token Logits",
+        topTokens: ["alpha", "beta", "gamma"],
+        topLogits: [3.2, 2.1, 1.0],
+      };
+    case "manim-residual-stream":
+      return {
+        title: displayTitle || "Residual Stream",
+        stages: ["Input", "Attention", "MLP", "Output"],
+      };
+    case "manim-temperature-softmax":
+      return {
+        title: displayTitle || "Softmax Temperature",
+        logits: [2.0, 1.0, 0.5],
+        temperature: 0.7,
+      };
+    case "manim-gradient-descent-3d":
+      return {
+        title: displayTitle || "Gradient Descent",
+        steps: 5,
+        learningRate: 0.1,
+        momentum: 0.8,
+      };
+    case "manim-backprop-chain":
+      return {
+        title: displayTitle || "Backpropagation",
+        nodeNames: ["Loss", "Output", "Hidden", "Input"],
+      };
+    case "manim-convolution-kernel":
+      return { title: displayTitle || "Convolution Kernel", kernelSize: 3 };
+    case "manim-svd-transform":
+      return { title: displayTitle || "SVD Decomposition", sigma: [3.0, 1.5] };
+    case "manim-latent-manifold":
+      return { title: displayTitle || "Latent Manifold", interpolationSteps: 4 };
+    case "manim-eigen-decomposition":
+      return { title: displayTitle || "Eigen Decomposition", eigenvalues: [2.0, 0.5] };
+    case "manim-activation-functions":
+      return { title: displayTitle || "Activation Function", functionType: "relu" };
+    case "manim-dot-cross-product":
+      return {
+        title: displayTitle || "Vector Operations",
+        mode: "dot",
+        vectorA: [2, 1],
+        vectorB: [1, 2],
+      };
+    case "manim-hyperplane-separator":
+      return { title: displayTitle || "Hyperplane Decision Boundary", marginWidth: 0.8 };
+    case "manim-basis-change":
+      return {
+        title: displayTitle || "Change of Basis",
+        basis1: [
+          [1, 0],
+          [0, 1],
+        ],
+        basis2: [
+          [1, 1],
+          [0, 1],
+        ],
+      };
+    case "manim-sorting-visualizer":
+      return {
+        title: displayTitle || "Sorting Visualizer",
+        array: [5, 2, 8, 1, 4],
+        algorithm: "quicksort",
+      };
+    case "manim-monte-carlo-pi":
+      return { title: displayTitle || "Monte Carlo Pi", pointCount: 200 };
+    case "manim-markov-chain":
+      return {
+        title: displayTitle || "Markov Chain",
+        states: ["State A", "State B"],
+        transitions: [
+          [0.7, 0.3],
+          [0.4, 0.6],
+        ],
+      };
+    case "manim-bayes-theorem":
+      return {
+        title: displayTitle || "Bayesian Inference",
+        priorA: 0.05,
+        likelihoodBGivenA: 0.9,
+        likelihoodBGivenNotA: 0.1,
+      };
+    default:
+      return { title: displayTitle || "Function Plot", expr: "x^2", xRange: [-3, 3] };
+  }
+}

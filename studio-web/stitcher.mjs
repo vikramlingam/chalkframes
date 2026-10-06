@@ -361,8 +361,8 @@ export async function muxMasterVideo({
   });
   filters.push(
     mixLabels.length === 1
-      ? "[vo]anull[aout]"
-      : `${mixLabels.join("")}amix=inputs=${mixLabels.length}:duration=first:normalize=0:dropout_transition=0[aout]`,
+      ? "[vo]alimiter=limit=0.95:level=true[aout]"
+      : `${mixLabels.join("")}amix=inputs=${mixLabels.length}:duration=first:normalize=0:dropout_transition=0,alimiter=limit=0.95:level=true[aout]`,
   );
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   await runFfmpeg([

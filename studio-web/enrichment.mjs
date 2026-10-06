@@ -660,6 +660,38 @@ Object.assign(BUILDERS, {
       significant: true,
     },
   }),
+  "carousel-3d-showcase": (s, t, cap) =>
+    has(s.carouselData?.items)
+      ? null
+      : {
+          carouselData: {
+            items: four.map((k) => ({
+              badge: `0${k + 1}`,
+              title: say(s, "step", k),
+              desc: cap(k) || say(s, "caption", k),
+              tag: say(s, "state", k),
+            })),
+          },
+        },
+  "3d-motion-hero": (s, t, cap) => ({
+    hero3dData: {
+      mainTitle: t || say(s, "metric", 0),
+      subTitle: s.subtitle || cap(0) || say(s, "target", 0),
+      badge: say(s, "index", 0),
+      geometryStyle: "polyhedron",
+      ...(s.hero3dData || {}),
+    },
+  }),
+  "code-slice-reveal": (s, t, cap) => ({
+    sliceData: {
+      filename: "pipeline.ts",
+      language: "TypeScript",
+      diffTag: "FEATURE",
+      lines: four.map((k) => cap(k) || say(s, "step", k)),
+      output: cap(4) || say(s, "state", 0),
+      ...(s.sliceData || {}),
+    },
+  }),
 });
 
 /** Returns a copy of `scene` whose archetype payload is guaranteed non-empty. */

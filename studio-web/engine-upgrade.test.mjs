@@ -368,3 +368,45 @@ test("Batch 3: all 15 Technical Product, UX, and Quantitative HTML archetypes re
     }
   }
 });
+
+test("Batch 4: Spatial 3D and Cinematic Code archetypes render cleanly in landscape and portrait", () => {
+  const newArchetypes = ["carousel-3d-showcase", "3d-motion-hero", "code-slice-reveal"];
+
+  for (const id of newArchetypes) {
+    assert.ok(ARCHETYPE_RENDERERS[id], `Renderer for ${id} must be registered`);
+
+    for (const isPortrait of [false, true]) {
+      const scene = {
+        id: `test-${id}`,
+        archetype: id,
+        title: "Spatial Motion and Code Systems",
+        subtitle: "Next generation 3D projection and syntax execution.",
+        voiceover: "Exploring spatial carousels and code structures.",
+      };
+
+      const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+        scene,
+        1,
+        5,
+        10.5,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+
+      assert.ok(innerHtml.length > 100, `${id} innerHtml must not be trivial`);
+      assert.ok(innerHtml.includes("scene-inner"), `${id} must contain .scene-inner`);
+      assert.ok(gsapChoreography.includes("tl."), `${id} must register tweens on tl`);
+
+      const css = getArchetypeScopedCss(
+        scene,
+        isPortrait ? 1080 : 1920,
+        isPortrait ? 1920 : 1080,
+        isPortrait,
+        PALETTE,
+      );
+      assert.ok(css.includes(`[data-composition-id="${scene.id}"]`), `${id} CSS must be scoped`);
+    }
+  }
+});

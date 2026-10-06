@@ -9,6 +9,7 @@ import {
   normalizeArchetype,
   auditAndDegradeManimScenes,
   isMathematicalStoryboard,
+  ARCHETYPE_FAMILY,
 } from "./quality.mjs";
 import {
   getSceneTimingStructure,
@@ -418,6 +419,78 @@ test("normalizeArchetype maps diverse LLM keywords to correct non-default archet
   assert.equal(normalizeArchetype("orbital-network"), "radial-orbit");
   assert.equal(normalizeArchetype("bash-command-terminal"), "code-terminal");
   assert.equal(normalizeArchetype("gauge-counter"), "kpi-counter-ring");
+  assert.equal(normalizeArchetype("3d-carousel"), "carousel-3d-showcase");
+  assert.equal(normalizeArchetype("cylindrical-carousel"), "carousel-3d-showcase");
+  assert.equal(normalizeArchetype("3d-hero"), "3d-motion-hero");
+  assert.equal(normalizeArchetype("webgl-hero"), "3d-motion-hero");
+  assert.equal(normalizeArchetype("code-slice"), "code-slice-reveal");
+  assert.equal(normalizeArchetype("diff-reveal"), "code-slice-reveal");
+});
+
+test("new spatial 3D, carousel, and code slice archetypes validate cleanly and diversify properly", () => {
+  // Spatial-3d family archetypes are separated by different families to respect family diversity
+  const customTiming = [
+    { id: "scene1-hook", role: "hook" },
+    { id: "scene2-hero3d", role: "feature" },
+    { id: "scene3-code", role: "feature" },
+    { id: "scene4-carousel", role: "feature" },
+    { id: "scene5-kpi", role: "feature" },
+    { id: "scene6-outro", role: "outro" },
+  ];
+  const customStoryboard = {
+    productName: "Spatial Intelligence",
+    scenes: [
+      { id: "s1", archetype: "hook", title: "Intro", voiceover: "Welcome to spatial compute." },
+      {
+        id: "s2",
+        archetype: "3d-motion-hero",
+        title: "3D Core",
+        voiceover: "Geometric architecture.",
+      },
+      {
+        id: "s3",
+        archetype: "code-slice-reveal",
+        title: "Execution",
+        voiceover: "Under the hood code slice.",
+      },
+      {
+        id: "s4",
+        archetype: "carousel-3d-showcase",
+        title: "Feature Ring",
+        voiceover: "Orbiting feature modules.",
+      },
+      {
+        id: "s5",
+        archetype: "kpi-counter-ring",
+        title: "Throughput",
+        voiceover: "Key performance metrics.",
+      },
+      { id: "s6", archetype: "outro", title: "Conclusion", voiceover: "Build with us today." },
+    ],
+  };
+
+  const result = validateStoryboard(customStoryboard, customTiming);
+  assert.equal(result.scenes.length, 6);
+  assert.equal(result.scenes[1].archetype, "3d-motion-hero");
+  assert.equal(result.scenes[2].archetype, "code-slice-reveal");
+  assert.equal(result.scenes[3].archetype, "carousel-3d-showcase");
+  assert.ok(result.scenes[1].hero3dData.mainTitle);
+  assert.ok(result.scenes[2].sliceData.lines.length >= 3);
+  assert.ok(result.scenes[3].carouselData.items.length >= 3);
+
+  // Consecutive scene archetypes AND families must be distinct
+  for (let i = 1; i < result.scenes.length; i++) {
+    assert.notEqual(result.scenes[i].archetype, result.scenes[i - 1].archetype);
+  }
+  // Family diversity: no two consecutive middle scenes share a family
+  const middleFamilies = result.scenes.slice(1, -1).map((s) => ARCHETYPE_FAMILY[s.archetype]);
+  for (let i = 1; i < middleFamilies.length; i++) {
+    assert.notEqual(
+      middleFamilies[i],
+      middleFamilies[i - 1],
+      `Middle scenes ${i} and ${i + 1} must not share family "${middleFamilies[i]}"`,
+    );
+  }
 });
 
 test("getSceneTimingStructure generates diverse non-repetitive narrative beats across durations and seeds", () => {
@@ -924,4 +997,347 @@ test("dynamic Manim thresholds: math topics allow up to 65% share and 3 consecut
   // General topic caps at 40% (max 2 scenes) and max 2 consecutive
   assert.equal(generalEngines.filter((e) => e === "manim").length, 2);
   assert.equal(generalEngines[3], "html-gsap"); // 3rd manim was degraded
+});
+
+test("visual variety is enforced across multiple product domains and distinct visual families", () => {
+  const testPalette = {
+    background: "#0b0d14",
+    text: "#f8fafc",
+    accent: "#6366f1",
+    card: "#131722",
+    border: "#1f2638",
+  };
+
+  const domains = [
+    {
+      topic: "Autonomous Robotics & Vision",
+      suggested: [
+        "kinetic-impact",
+        "3d-motion-hero",
+        "carousel-3d-showcase",
+        "microservice-mesh",
+        "code-slice-reveal",
+      ],
+    },
+    {
+      topic: "Cloud Data Pipeline & Sharding",
+      suggested: [
+        "bento-metric-grid",
+        "database-shard-map",
+        "event-bus-pubsub",
+        "data-lineage-flow",
+        "stat-spotlight",
+      ],
+    },
+  ];
+
+  for (const { topic, suggested } of domains) {
+    const timing = [
+      { id: "s1", role: "hook", suggestedArchetype: "hook" },
+      ...suggested.map((arch, idx) => ({
+        id: `s${idx + 2}`,
+        role: "feature",
+        suggestedArchetype: arch,
+      })),
+      { id: `s${suggested.length + 2}`, role: "outro", suggestedArchetype: "outro" },
+    ];
+
+    const inputBoard = {
+      productName: topic,
+      seed: topic,
+      scenes: [
+        { id: "s1", archetype: "hook", title: `${topic} Hook`, voiceover: "Opening overview." },
+        ...suggested.map((arch, idx) => ({
+          id: `s${idx + 2}`,
+          archetype: arch,
+          title: `Milestone ${idx + 1}`,
+          voiceover: `Deep dive explanation for stage ${idx + 1}.`,
+        })),
+        {
+          id: `s${suggested.length + 2}`,
+          archetype: "outro",
+          title: "Conclusion",
+          voiceover: "Wrap up and takeaways.",
+        },
+      ],
+    };
+
+    const validated = validateStoryboard(inputBoard, timing);
+
+    // 1. Verify every scene gets a non-null, recognized archetype
+    assert.equal(validated.scenes.length, timing.length);
+
+    // 2. Verify no two consecutive scenes repeat the same archetype
+    for (let i = 1; i < validated.scenes.length; i++) {
+      const prevArch = validated.scenes[i - 1].archetype;
+      const currArch = validated.scenes[i].archetype;
+      assert.notEqual(
+        currArch,
+        prevArch,
+        `Scene ${i + 1} (${currArch}) must not repeat scene ${i} (${prevArch})`,
+      );
+    }
+
+    // 3. Verify visual family diversity: middle scenes cover multiple distinct families
+    const middleArchs = validated.scenes.slice(1, -1).map((s) => s.archetype);
+    const uniqueArchs = new Set(middleArchs);
+    assert.equal(
+      uniqueArchs.size,
+      middleArchs.length,
+      "All middle scenes in this sequence must be unique",
+    );
+
+    // 4. Verify each scene builds cleanly in landscape and portrait
+    for (const scene of validated.scenes) {
+      for (const isPortrait of [false, true]) {
+        const { innerHtml, gsapChoreography } = buildSceneHtmlAndChoreography(
+          scene,
+          1,
+          4,
+          8.0,
+          isPortrait ? 1080 : 1920,
+          isPortrait ? 1920 : 1080,
+          isPortrait,
+          testPalette,
+        );
+        assert.ok(innerHtml.length > 50, `${scene.archetype} HTML must render`);
+        assert.ok(gsapChoreography.length > 20, `${scene.archetype} GSAP must have choreography`);
+      }
+    }
+  }
+});
+
+test("Engine Mode: Only Manim renders 100% Manim frames across all scenes including hook and outro", () => {
+  const timing5 = [
+    { id: "s1", role: "hook" },
+    { id: "s2", role: "middle" },
+    { id: "s3", role: "middle" },
+    { id: "s4", role: "middle" },
+    { id: "s5", role: "outro" },
+  ];
+
+  // Director output might have mixed archetypes or generic ones
+  const rawMixed = {
+    productName: "Calculus & Linear Algebra",
+    scenes: [
+      {
+        id: "s1",
+        archetype: "manim-function-plot",
+        title: "Derivative Slope",
+        voiceover: "Visualizing the rate of change.",
+      },
+      {
+        id: "s2",
+        archetype: "split-comparison",
+        title: "Matrix Comparison",
+        voiceover: "Transforming vectors.",
+      },
+      {
+        id: "s3",
+        archetype: "manim-transformer-block",
+        title: "Attention Mechanism",
+        voiceover: "Softmax attention scores.",
+      },
+      {
+        id: "s4",
+        archetype: "features-cards",
+        title: "Eigenvectors",
+        voiceover: "Invariant directions.",
+      },
+      {
+        id: "s5",
+        archetype: "outro",
+        title: "Conclusion",
+        voiceover: "Summary of geometric intuition.",
+      },
+    ],
+  };
+
+  const validated = validateStoryboard(rawMixed, timing5, {
+    manimEnabled: true,
+    engineMode: "manim",
+  });
+
+  assert.equal(validated.scenes.length, 5);
+
+  // 1. Every single scene must have engine === 'manim'
+  for (const [idx, scene] of validated.scenes.entries()) {
+    assert.equal(
+      scene.engine,
+      "manim",
+      `Scene ${idx + 1} must use engine: 'manim' in Only Manim mode`,
+    );
+    assert.ok(
+      scene.archetype.startsWith("manim-"),
+      `Scene ${idx + 1} archetype (${scene.archetype}) must be a manim-* primitive`,
+    );
+    assert.ok(
+      scene.manimData && typeof scene.manimData === "object",
+      `Scene ${idx + 1} must contain valid manimData`,
+    );
+    assert.ok(
+      Array.isArray(scene.beats) && scene.beats.length > 0,
+      `Scene ${idx + 1} must contain valid beats`,
+    );
+  }
+
+  // 2. Both hook (first) and outro (last) are Manim scenes
+  assert.equal(validated.scenes[0].engine, "manim");
+  assert.equal(validated.scenes[4].engine, "manim");
+});
+
+test("Engine Mode: Only HTML renders 100% HTML frames and converts any Manim primitives to HTML", () => {
+  const timing4 = [
+    { id: "s1", role: "hook" },
+    { id: "s2", role: "middle" },
+    { id: "s3", role: "middle" },
+    { id: "s4", role: "outro" },
+  ];
+
+  const rawWithManim = {
+    productName: "SaaS Cloud Platform",
+    scenes: [
+      {
+        id: "s1",
+        archetype: "hook",
+        title: "Platform Hook",
+        voiceover: "Welcome to modern cloud orchestration.",
+      },
+      {
+        id: "s2",
+        archetype: "manim-vector-transform",
+        title: "Vector Transform",
+        voiceover: "Linear transformations.",
+      },
+      {
+        id: "s3",
+        archetype: "manim-transformer-block",
+        title: "Attention Block",
+        voiceover: "Deep attention layers.",
+      },
+      {
+        id: "s4",
+        archetype: "outro",
+        title: "Get Started",
+        voiceover: "Deploy your first cluster today.",
+      },
+    ],
+  };
+
+  const validated = validateStoryboard(rawWithManim, timing4, {
+    manimEnabled: true, // Even if Manim is enabled on system, Only HTML must strictly produce HTML
+    engineMode: "html",
+  });
+
+  assert.equal(validated.scenes.length, 4);
+
+  // 1. Every single scene must have engine === 'html-gsap'
+  for (const [idx, scene] of validated.scenes.entries()) {
+    assert.equal(
+      scene.engine,
+      "html-gsap",
+      `Scene ${idx + 1} must use engine: 'html-gsap' in Only HTML mode`,
+    );
+    assert.ok(
+      !scene.archetype.startsWith("manim-"),
+      `Scene ${idx + 1} archetype (${scene.archetype}) must NOT be a manim primitive`,
+    );
+    assert.equal(scene.manimData, undefined, `Scene ${idx + 1} must not contain manimData`);
+  }
+});
+
+test("Engine Mode: Combined mode routes mathematically according to hybrid policy", () => {
+  const timing4 = [
+    { id: "s1", role: "hook" },
+    { id: "s2", role: "middle" },
+    { id: "s3", role: "middle" },
+    { id: "s4", role: "outro" },
+  ];
+
+  const rawStoryboard = {
+    productName: "Math Foundation",
+    scenes: [
+      { id: "s1", archetype: "hook", title: "Hook", voiceover: "Introduction." },
+      {
+        id: "s2",
+        archetype: "manim-function-plot",
+        title: "Calculus",
+        voiceover: "Slope of curve.",
+        beats: ["A curve rises and falls.", "The slope is the derivative."],
+        fallbackArchetype: "bento-metric-grid",
+        manimData: { title: "Slope", expr: "x^2", xRange: [-2, 2] },
+      },
+      {
+        id: "s3",
+        archetype: "features-cards",
+        title: "Features",
+        voiceover: "Modern features.",
+      },
+      { id: "s4", archetype: "outro", title: "Outro", voiceover: "Conclusion." },
+    ],
+  };
+
+  const validated = validateStoryboard(rawStoryboard, timing4, {
+    manimEnabled: true,
+    engineMode: "combined",
+  });
+
+  assert.equal(validated.scenes[0].engine, "html-gsap");
+  assert.equal(validated.scenes[1].engine, "manim");
+  assert.equal(validated.scenes[2].engine, "html-gsap");
+  assert.equal(validated.scenes[3].engine, "html-gsap");
+});
+
+test("Input validation and catalog formatting respect all three engine options", () => {
+  // 1. validateProductionInput
+  const payloadManim = validateProductionInput({
+    apiKey: "test-key",
+    duration: 30,
+    sourceTopic: "Math",
+    engineMode: "manim",
+  });
+  assert.equal(payloadManim.engineMode, "manim");
+
+  const payloadHtml = validateProductionInput({
+    apiKey: "test-key",
+    duration: 30,
+    sourceTopic: "SaaS",
+    engineMode: "html",
+  });
+  assert.equal(payloadHtml.engineMode, "html");
+
+  const payloadCombined = validateProductionInput({
+    apiKey: "test-key",
+    duration: 30,
+    sourceTopic: "AI",
+    engineMode: "combined",
+  });
+  assert.equal(payloadCombined.engineMode, "combined");
+
+  const payloadDefault = validateProductionInput({
+    apiKey: "test-key",
+    duration: 30,
+    sourceTopic: "AI",
+  });
+  assert.equal(payloadDefault.engineMode, "combined");
+
+  // 2. formatCatalogForPrompt
+  const catManimOnly = formatCatalogForPrompt({ engineMode: "manim" });
+  assert.ok(catManimOnly.includes("manim-function-plot"));
+  assert.ok(!catManimOnly.includes("hook"));
+  assert.ok(!catManimOnly.includes("carousel-3d-showcase"));
+
+  const catHtmlOnly = formatCatalogForPrompt({ engineMode: "html" });
+  assert.ok(!catHtmlOnly.includes("manim-function-plot"));
+  assert.ok(catHtmlOnly.includes("3d-motion-hero"));
+  assert.ok(catHtmlOnly.includes("carousel-3d-showcase"));
+
+  const catCombined = formatCatalogForPrompt({ manim: true, engineMode: "combined" });
+  assert.ok(catCombined.includes("manim-function-plot"));
+  assert.ok(catCombined.includes("3d-motion-hero"));
+
+  // 3. getSceneTimingStructure recommendations in Only Manim mode
+  const timingManim = getSceneTimingStructure(30, 42, { engineMode: "manim" });
+  assert.ok(timingManim[0].suggestedArchetypes.every((a) => a.startsWith("manim-")));
+  assert.ok(timingManim[1].suggestedArchetypes.every((a) => a.startsWith("manim-")));
 });

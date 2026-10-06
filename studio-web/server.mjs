@@ -528,94 +528,124 @@ const MODELS = [
 // 18 distinct narrative beats for middle scenes with semantic narrative intent
 const MIDDLE_THEME_POOL = [
   {
-    role: "paradigm",
-    title: "Mental Model & Core Paradigm",
-    narrativeIntent: "Explain the fundamental shift or mental model",
+    role: "spatial3d",
+    title: "3D Spatial Architecture & Core Engine",
+    narrativeIntent: "Showcase the fundamental architecture using procedural 3D motion",
+    suggestedArchetypes: ["3d-motion-hero", "isometric-stack", "vector-cluster-graph"],
   },
   {
-    role: "mechanism",
-    title: "System Execution & Logic Flow",
-    narrativeIntent: "Illustrate step-by-step mechanisms and algorithmic flow",
-  },
-  {
-    role: "impact",
-    title: "Quantitative Performance Multipliers",
-    narrativeIntent: "Highlight quantitative benchmarks and tangible performance leaps",
+    role: "carousel",
+    title: "Multi-Feature Showcase & Ecosystem",
+    narrativeIntent: "Highlight multi-feature capabilities in an orbiting revolving carousel",
+    suggestedArchetypes: ["carousel-3d-showcase", "radial-orbit", "bento-metric-grid"],
   },
   {
     role: "code",
     title: "Developer Walkthrough & CLI Execution",
     narrativeIntent: "Walk through developer interfaces, syntax, or commands",
-  },
-  {
-    role: "contrast",
-    title: "Comparative Analysis: Old vs Modern",
-    narrativeIntent: "Contrast legacy friction against the modern paradigm",
-  },
-  {
-    role: "ecosystem",
-    title: "Autonomous Orchestration Engine",
-    narrativeIntent: "Showcase the interconnected ecosystem or node topology",
-  },
-  {
-    role: "architecture",
-    title: "3D Layered Infrastructure Stack",
-    narrativeIntent: "Break down the architectural stack and layer responsibilities",
-  },
-  {
-    role: "milestones",
-    title: "Production Deployment Patterns",
-    narrativeIntent: "Walk through lifecycle stages or deployment milestones",
-  },
-  {
-    role: "telemetry",
-    title: "Live Streaming & Event Verification",
-    narrativeIntent: "Demonstrate realtime activity stream and event processing",
+    suggestedArchetypes: ["code-slice-reveal", "code-terminal", "interactive-diff"],
   },
   {
     role: "metrics",
     title: "Quantitative Benchmarks & Throughput",
     narrativeIntent: "Display comparative throughput metrics or growth numbers",
+    suggestedArchetypes: ["kpi-counter-ring", "stat-spotlight", "multi-metric-dashboard"],
+  },
+  {
+    role: "paradigm",
+    title: "Mental Model & Core Paradigm",
+    narrativeIntent: "Explain the fundamental shift or mental model",
+    suggestedArchetypes: ["3d-motion-hero", "vector-cluster-graph", "kinetic-impact"],
+  },
+  {
+    role: "mechanism",
+    title: "System Execution & Logic Flow",
+    narrativeIntent: "Illustrate step-by-step mechanisms and algorithmic flow",
+    suggestedArchetypes: ["flowchart-process", "step-ladder", "step-progression"],
+  },
+  {
+    role: "impact",
+    title: "Quantitative Performance Multipliers",
+    narrativeIntent: "Highlight quantitative benchmarks and tangible performance leaps",
+    suggestedArchetypes: ["kinetic-impact", "kinetic-text", "stat-spotlight"],
+  },
+  {
+    role: "contrast",
+    title: "Comparative Analysis: Old vs Modern",
+    narrativeIntent: "Contrast legacy friction against the modern paradigm",
+    suggestedArchetypes: ["split-comparison", "interactive-diff", "ab-test-confidence"],
+  },
+  {
+    role: "ecosystem",
+    title: "Autonomous Orchestration Engine",
+    narrativeIntent: "Showcase the interconnected ecosystem or node topology",
+    suggestedArchetypes: ["carousel-3d-showcase", "radial-orbit", "microservice-mesh"],
+  },
+  {
+    role: "architecture",
+    title: "3D Layered Infrastructure Stack",
+    narrativeIntent: "Break down the architectural stack and layer responsibilities",
+    suggestedArchetypes: ["3d-motion-hero", "isometric-stack", "architecture-pipeline"],
+  },
+  {
+    role: "milestones",
+    title: "Production Deployment Patterns",
+    narrativeIntent: "Walk through lifecycle stages or deployment milestones",
+    suggestedArchetypes: ["step-ladder", "step-progression", "changelog-timeline"],
+  },
+  {
+    role: "telemetry",
+    title: "Live Streaming & Event Verification",
+    narrativeIntent: "Demonstrate realtime activity stream and event processing",
+    suggestedArchetypes: ["live-feed", "agent-scratchpad", "chat-exchange"],
   },
   {
     role: "pillars",
     title: "Three Modular Architectural Pillars",
     narrativeIntent: "Present the core architectural pillars and modular design",
+    suggestedArchetypes: ["carousel-3d-showcase", "isometric-stack", "bento-grid"],
   },
   {
     role: "comparison",
     title: "Comparative Old vs Modern Paradigms",
     narrativeIntent: "Direct head-to-head comparison of approaches",
+    suggestedArchetypes: ["split-comparison", "interactive-diff", "ab-test-confidence"],
   },
   {
     role: "axiom",
     title: "Key Principles & Architectural Axioms",
     narrativeIntent: "Emphasize a core philosophical principle or architectural axiom",
+    suggestedArchetypes: ["quote-callout", "kinetic-impact", "stat-spotlight"],
   },
   {
     role: "dialogue",
     title: "Autonomous Agent State Negotiation",
     narrativeIntent: "Display simulated agent conversation or message exchange",
+    suggestedArchetypes: ["chat-exchange", "agent-scratchpad", "live-feed"],
   },
   {
     role: "mobile",
     title: "Mobile & Realtime Interactive Experience",
     narrativeIntent: "Showcase the responsive app interface or mobile UX",
+    suggestedArchetypes: ["mobile-mockup", "carousel-3d-showcase"],
   },
   {
     role: "velocity",
     title: "Execution Speed & Latency Gains",
     narrativeIntent: "Focus on speedups, latency reduction, and velocity",
+    suggestedArchetypes: ["stat-spotlight", "kpi-counter-ring", "quantile-distribution"],
   },
   {
     role: "pipeline",
     title: "End-to-End Orchestration Nodes",
     narrativeIntent: "Illustrate the multi-node data or processing pipeline",
+    suggestedArchetypes: ["architecture-pipeline", "dag-pipeline", "rag-retrieval-pipeline"],
   },
   {
     role: "features",
     title: "Core Capabilities & Feature Matrix",
     narrativeIntent: "Showcase core capabilities and modular features",
+    suggestedArchetypes: ["carousel-3d-showcase", "bento-grid", "features-cards"],
   },
 ];
 
@@ -665,13 +695,44 @@ function selectDiverseMiddleThemes(needed, rng) {
 
 // Calculate Scene Breakdown based on requested total seconds (15s up to 10m / 600s)
 // Pacing calibrated so visual beats change every 12 to 25 seconds, keeping long videos dynamic.
-export function getSceneTimingStructure(totalSeconds, seed) {
+export function getSceneTimingStructure(totalSeconds, seed, options = {}) {
+  const actualSeed = typeof seed === "object" && seed !== null ? undefined : seed;
+  const actualOptions = typeof seed === "object" && seed !== null ? seed : options;
+  const isManimOnly = actualOptions?.engineMode === "manim";
   const sec = Math.max(15, Math.min(600, Math.round(totalSeconds)));
-  const seedEntropy = seed !== undefined ? seed : process.env.NODE_ENV === "test" ? 0 : Date.now();
+  const seedEntropy =
+    actualSeed !== undefined ? actualSeed : process.env.NODE_ENV === "test" ? 0 : Date.now();
   const rng = makeTimingRng(seedEntropy);
 
+  const adjustForManim = (list) => {
+    if (!isManimOnly) return list;
+    const manimPicks = [
+      "manim-function-plot",
+      "manim-vector-transform",
+      "manim-network-topology",
+      "manim-transformer-block",
+      "manim-gradient-descent-3d",
+      "manim-eigen-decomposition",
+      "manim-monte-carlo-pi",
+      "manim-markov-chain",
+      "manim-bayes-theorem",
+      "manim-latent-manifold",
+      "manim-positional-rope",
+      "manim-kv-cache",
+    ];
+    return list.map((item, idx) => {
+      const p1 = manimPicks[(idx * 2) % manimPicks.length];
+      const p2 = manimPicks[(idx * 2 + 1) % manimPicks.length];
+      return {
+        ...item,
+        suggestedArchetypes: [p1, p2],
+        suggestedArchetype: p1,
+      };
+    });
+  };
+
   if (sec <= 20) {
-    return [
+    return adjustForManim([
       {
         id: "scene1-hook",
         role: "hook",
@@ -679,6 +740,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: Math.round(sec * 0.45 * 2.3),
         chapterTitle: "Hook & Friction",
         narrativeIntent: "Hook the audience and present the core problem or tension",
+        suggestedArchetypes: ["hook", "kinetic-impact", "3d-motion-hero"],
+        suggestedArchetype: "hook",
       },
       {
         id: "scene2-outro",
@@ -687,12 +750,14 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: Math.round(sec * 0.55 * 2.3),
         chapterTitle: "Solution & Action",
         narrativeIntent: "Deliver the resolution, key takeaways, and call to action",
+        suggestedArchetypes: ["outro", "quote-callout"],
+        suggestedArchetype: "outro",
       },
-    ];
+    ]);
   }
   if (sec <= 35) {
     const middleThemes = selectDiverseMiddleThemes(2, rng);
-    return [
+    return adjustForManim([
       {
         id: "scene1-hook",
         role: "hook",
@@ -700,6 +765,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: 16,
         chapterTitle: "Workflow Friction",
         narrativeIntent: "Introduce the problem space and core friction",
+        suggestedArchetypes: ["hook", "kinetic-impact", "3d-motion-hero"],
+        suggestedArchetype: "hook",
       },
       {
         id: `scene2-${middleThemes[0].role}`,
@@ -708,6 +775,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: 18,
         chapterTitle: middleThemes[0].title,
         narrativeIntent: middleThemes[0].narrativeIntent,
+        suggestedArchetypes: middleThemes[0].suggestedArchetypes || [middleThemes[0].role],
+        suggestedArchetype: middleThemes[0].suggestedArchetypes?.[0] || middleThemes[0].role,
       },
       {
         id: `scene3-${middleThemes[1].role}`,
@@ -716,6 +785,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: 19,
         chapterTitle: middleThemes[1].title,
         narrativeIntent: middleThemes[1].narrativeIntent,
+        suggestedArchetypes: middleThemes[1].suggestedArchetypes || [middleThemes[1].role],
+        suggestedArchetype: middleThemes[1].suggestedArchetypes?.[0] || middleThemes[1].role,
       },
       {
         id: "scene4-outro",
@@ -724,14 +795,16 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: 15,
         chapterTitle: "Actionable Next Steps",
         narrativeIntent: "Summarize the value and present actionable next steps",
+        suggestedArchetypes: ["outro", "quote-callout"],
+        suggestedArchetype: "outro",
       },
-    ];
+    ]);
   }
   if (sec <= 75) {
     const sceneDur = parseFloat((sec / 5).toFixed(1));
     const words = Math.round(sceneDur * 2.2);
     const middleThemes = selectDiverseMiddleThemes(3, rng);
-    return [
+    return adjustForManim([
       {
         id: "scene1-hook",
         role: "hook",
@@ -739,6 +812,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: words,
         chapterTitle: "Workflow Friction",
         narrativeIntent: "Introduce the topic and highlight the core friction or question",
+        suggestedArchetypes: ["hook", "kinetic-impact", "3d-motion-hero"],
+        suggestedArchetype: "hook",
       },
       ...middleThemes.map((th, idx) => ({
         id: `scene${idx + 2}-${th.role}`,
@@ -747,6 +822,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: words,
         chapterTitle: th.title,
         narrativeIntent: th.narrativeIntent,
+        suggestedArchetypes: th.suggestedArchetypes || [th.role],
+        suggestedArchetype: th.suggestedArchetypes?.[0] || th.role,
       })),
       {
         id: "scene5-outro",
@@ -755,8 +832,10 @@ export function getSceneTimingStructure(totalSeconds, seed) {
         maxWords: words,
         chapterTitle: "Actionable Summary",
         narrativeIntent: "Conclude with core takeaways and call to action",
+        suggestedArchetypes: ["outro", "quote-callout"],
+        suggestedArchetype: "outro",
       },
-    ];
+    ]);
   }
 
   // Multi-minute educational explainer (up to 10 minutes / 600 seconds)
@@ -777,7 +856,7 @@ export function getSceneTimingStructure(totalSeconds, seed) {
   const sceneDuration = sec / chapterCount;
   const wordsPerScene = Math.max(14, Math.round(sceneDuration * 2.2));
 
-  return [
+  return adjustForManim([
     {
       id: "scene1-hook",
       role: "hook",
@@ -785,6 +864,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
       maxWords: wordsPerScene,
       chapterTitle: "Introduction & The Core Friction",
       narrativeIntent: "Hook the audience and establish the central problem or subject",
+      suggestedArchetypes: ["hook", "kinetic-impact", "3d-motion-hero"],
+      suggestedArchetype: "hook",
     },
     ...middleThemes.map((th, idx) => ({
       id: `scene${idx + 2}-${th.role}`,
@@ -793,6 +874,8 @@ export function getSceneTimingStructure(totalSeconds, seed) {
       maxWords: wordsPerScene,
       chapterTitle: th.title,
       narrativeIntent: th.narrativeIntent,
+      suggestedArchetypes: th.suggestedArchetypes || [th.role],
+      suggestedArchetype: th.suggestedArchetypes?.[0] || th.role,
     })),
     {
       id: `scene${chapterCount}-outro`,
@@ -801,8 +884,10 @@ export function getSceneTimingStructure(totalSeconds, seed) {
       maxWords: wordsPerScene,
       chapterTitle: "Conclusion & Actionable Next Steps",
       narrativeIntent: "Synthesize the insights and prompt the next steps",
+      suggestedArchetypes: ["outro", "quote-callout"],
+      suggestedArchetype: "outro",
     },
-  ];
+  ]);
 }
 
 // PDF Text Extractor
@@ -1107,6 +1192,10 @@ export async function synthesizeTopicScript({
       "Foundational educational pedagogy, building systematically from basic intuition to deeper principles.",
     documentary:
       "Cinematic documentary narrative with historical milestones, key discoveries, and profound takeaways.",
+    "product-showcase":
+      "High-energy product launch & spatial showcase with 3D hero reveals, revolving feature carousels, and architectural breakdowns.",
+    "spatial-3d":
+      "Futuristic spatial visual presentation featuring 3D geometric projections, revolving cylindrical carousels, and code slice reveals.",
   };
   const chosenStyle = styleDescriptions[topicStyle] || styleDescriptions.explainer;
 
@@ -1192,9 +1281,14 @@ export function buildDirectorPrompt({
   isPortrait = false,
   isEducational = false,
   manimEnabled = false,
+  engineMode = "combined",
   timingStructure = [],
 } = {}) {
   const actualSceneCount = sceneCount || timingStructure.length || 5;
+  const isManimOnly = engineMode === "manim";
+  const isHtmlOnly = engineMode === "html";
+  const effectiveManimEnabled = isHtmlOnly ? false : isManimOnly ? true : manimEnabled;
+
   return `YOU ARE AN ADAPTIVE VIDEO DIRECTOR.
 Your goal is to turn any input (raw topic, markdown doc, product URL, script, or technical PDF) into a compelling, frame-accurate motion video storyboard.
 
@@ -1205,109 +1299,64 @@ CONSTRAINTS:
 1. Total Target Duration: ${duration} seconds across ${actualSceneCount} distinct visual chapters/scenes.
 2. Aspect Ratio: ${isPortrait ? "9:16 Portrait (Mobile / Reels / Shorts 1080x1920)" : "16:9 Landscape (YouTube 1920x1080)"}.
 3. Tone: ${isEducational ? "Articulate, deeply informative, engaging, and clear for curious viewers." : "Minimalist, refined, quiet confidence."} NO hype words. NO buzzwords. NO em dashes.
-4. Spoken Narration: Every scene must deliver natural, compelling spoken voiceover narration matching its target word count.
-5. VISUAL VARIETY (CRITICAL): Rotate across archetypes. Consecutive scenes MUST NOT use the same archetype! Every visual chapter must have a distinct structure. Select the best-fitting archetype from the catalog to convey each chapter's narrative beat. Do NOT default to "features" or "features-cards".
-6. CRITICAL VISUAL DIVERSITY RULE:
-   a. The standard "eyebrow dot + centered serif title + rounded card below" layout pattern is FORBIDDEN more than once across the entire video.
-   b. Every video MUST include at least one "kinetic-impact" scene — pure full-bleed word-slam typography with NO cards, NO eyebrow, NO subtitles.
-   c. Every video MUST include at least one edge-to-edge interactive diagram — choose from: "vector-cluster-graph", "terminal-flow", or "stat-spotlight".
-   d. Vary density and scale: alternate between oversized focal elements ("kinetic-impact", "stat-spotlight", "kpi-counter-ring") and detailed multi-element canvases ("bento-metric-grid", "terminal-flow", "vector-cluster-graph").
-7. DYNAMIC THEME RHYTHM (CRITICAL): Never make all scenes the same theme. Alternate themes for visual breathing room (e.g., Open with 'light', transition to 'dark' for the architecture/vector traversal, and close on 'light'). Supported themes: "dark" | "light" | "accent".
-8. WORKFLOW BEATS & SPATIAL RHYTHM: Avoid center-locking every scene. When comparing remote vs local workflows or architectures (like Scene 2), prioritize "terminal-flow" or step pipelines over static side-by-side bullet cards. Alternate between asymmetric split canvases (vector-cluster-graph, terminal-flow), multi-metric grids (bento-metric-grid), and focused editorial layouts.
-9. NEGATIVE CONSTRAINT: Do not wrap every visual concept inside a centered rounded white card.
+4. Spoken Narration: Every scene must deliver natural, compelling spoken voiceover narration matching its target word count (15 to 35 words per scene).
+5. FULL CREATIVE AUTHORITY (CRITICAL):
+   - You have complete freedom and authority to select the most compelling and accurate visual archetype from the catalog for every single scene.
+   - Nothing is forced and nothing is forbidden. You are NOT required to include any specific archetype, and you are NOT restricted to any narrow subset.
+   - Choose what best illuminates the specific topic, whether that is a 3D procedural motion hero, a 3D cylindrical carousel, a syntax diff terminal, a dynamic architecture diagram, an interactive vector graph, a metric spotlight, or a bold typographic statement.
+6. VISUAL VARIETY & MOTION DIVERSITY (CRITICAL):
+   - Never repeat the same archetype two scenes in a row.
+   - Vary the look and layout across scenes. Avoid repeating the same visual structure or family consecutively.
+   - Alternate visual rhythm and scale: balance oversized focal moments with rich structural or quantitative canvases.
+7. DYNAMIC THEME RHYTHM:
+   - Alternate themes ("dark" | "light" | "accent") across scenes to provide visual contrast and pacing.
 
-STEP 1: DETECT THE INTENT AND GENRE
-Analyze the input to identify its primary communication goal:
+STEP 1: DETECT THE INTENT AND STORY ARC
+Analyze the input to craft a clear, engaging narrative arc:
+- Hook & Problem: Ground the audience in the tension, bottleneck, or core question.
+- Breakthrough & Mental Model: Introduce the core architecture, mental model, or mechanism.
+- Deep Dive & Mechanics: Explore how it actually operates (3D spatial models, interactive flows, code diffs, data pipelines).
+- Proof & Quantitative Evidence: Validate with benchmarks, throughput, metrics, or comparisons.
+- Resolution & Next Steps: Synthesize takeaways and provide a clear call to action.
 
-1. PRODUCT & SAAS EXPLAINER:
-   - Purpose: Introduce a tool or platform, demonstrate workflows, and prove user value.
-   - Narrative Arc:
-     * Hook: The friction, bottleneck, or painful status quo.
-     * Value Proposition: The high-level product breakthrough and core promise.
-     * The Engine / Workflow: How it actually works (app UI, terminal flows, tool schemas).
-     * Proof & Advantage: Side-by-side comparison, benchmarks, or quantifiable ROI.
-     * Actionable Outro: Next steps, trial CTA, or ecosystem integration.
-   - Recommended Archetypes:
-     * Hooks & Headlines: 'kinetic-impact', 'hook'.
-     * Product & Workflows: 'browser-devtools', 'tool-calling-schema', 'mobile-mockup', 'kanban-sprint', 'interactive-diff'.
-     * Systems & Integrations: 'rag-retrieval-pipeline', 'data-lineage-flow', 'step-progression'.
-     * Metrics & Value: 'multi-metric-dashboard', 'split-comparison', 'bento-grid'.
-     * CTA: 'outro'.
-
-2. COMPANY VISION & MARKET PITCH:
-   - Purpose: Articulate a market shift, business model, strategic moat, or traction.
-   - Narrative Arc:
-     * Hook: The macroeconomic or technological shift happening right now.
-     * Strategic Premise: Why existing paradigms fail at scale.
-     * Platform & Moat: Architecture of the solution and network effects.
-     * Traction & Proof: Retention cohorts, unit economics, or capability radar.
-     * Synthesis: The long-term vision and closing mandate.
-   - Recommended Archetypes:
-     * Story & Themes: 'kinetic-impact', 'quote-callout', 'hook'.
-     * Scale & Operations: 'microservice-mesh', 'sankey-cost-flow', 'architecture-pipeline'.
-     * Proof & Growth: 'cohort-retention-grid', 'radar-capability', 'eval-benchmark-matrix', 'stat-spotlight'.
-     * Synthesis: 'outro'.
-
-3. TECHNICAL SYSTEMS & ENGINEERING EXPLAINER:
-   - Purpose: Break down software infrastructure, distributed systems, compilers, or protocols.
-   - Narrative Arc:
-     * Problem / Constraint: Scale bottlenecks, latency limits, or distributed hazards.
-     * Topology: High-level map of interacting components.
-     * Internal Mechanics: Data flow, state transitions, or memory layouts.
-     * Failure & Edge Cases: Circuit breakers, partition tolerance, or rate limits.
-     * Takeaway: The engineering trade-offs and operational best practices.
-   - Recommended Archetypes:
-     * Infrastructure: 'microservice-mesh', 'database-shard-map', 'dag-pipeline', 'event-bus-pubsub'.
-     * Runtime & Memory: 'memory-layout-stack', 'compiler-ast', 'raft-consensus'.
-     * Resilience: 'circuit-breaker-status', 'rate-limiter-bucket', 'audit-log-stream'.
-     * Telemetry: 'quantile-distribution', 'confusion-matrix', 'terminal-flow'.
-
-4. MATHEMATICAL, ALGORITHMIC & SCIENTIFIC BEATS (Engine: 'manim'):
-   - Purpose: Illuminate continuous calculus, linear algebra, vector spaces, or deep learning mechanics.
-   - Narrative Arc:
-     * Visual Intuition: Physical or geometric metaphor of the problem.
-     * Dynamic Math: Transforming curves, vectors, or weight matrices.
-     * Algorithmic Step: Sorting, backprop flow, or sampling convergence.
-     * Synthesis: How the formal math drives the real-world outcome.
-   - Recommended Archetypes:
-     * Transformers & DL: 'manim-transformer-block', 'manim-kv-cache', 'manim-positional-rope', 'manim-token-unembedding', 'manim-residual-stream'.
-     * Optimization: 'manim-gradient-descent-3d', 'manim-function-plot', 'manim-activation-functions', 'manim-backprop-chain'.
-     * Linear Algebra: 'manim-vector-transform', 'manim-basis-change', 'manim-svd-transform', 'manim-eigen-decomposition', 'manim-dot-cross-product'.
-     * Probability & Search: 'manim-monte-carlo-pi', 'manim-markov-chain', 'manim-bayes-theorem', 'manim-latent-manifold', 'manim-sorting-visualizer'.
-
-   PROBABILITY, COMBINATORICS & SAMPLING (Prefer Manim):
-   - Probability growth curves, S-curves, distributions: 'manim-function-plot'.
-   - Sampling simulations, random trials, Monte Carlo runs: 'manim-monte-carlo-pi'.
-   - Conditional probability, Bayes partitions, Venn areas: 'manim-bayes-theorem'.
-   - Pair connections, state graphs, network transitions: 'manim-network-topology', 'manim-markov-chain'.
-
-   AVOID USING HTML FOR PURE MATH:
-   - Do NOT use 'terminal-flow' to print math formulas. Use 'manim-function-plot' or 'manim-bayes-theorem'.
-   - Do NOT use 'live-feed' or 'chat-exchange' to simulate math experiments. Use 'manim-monte-carlo-pi'.
-
----
-
-STEP 2: ENFORCE RHYTHM AND MOTION RULES
-- NEVER repeat the same archetype two scenes in a row.
-- Alternate visual density: Follow high-density structural scenes (e.g. 'microservice-mesh' or 'manim-kv-cache') with clean, high-impact cards (e.g. 'split-comparison', 'stat-spotlight', or 'quote-callout').
-- Reserve 'manim' strictly for beats where geometry, vectors, or continuous curves ARE the explanation. Do not use Manim for static UI cards or generic lists.
-- For product explainers, ensure at least one scene showcases actual operational workflow or interface mechanics ('browser-devtools', 'terminal-flow', 'tool-calling-schema', or 'interactive-diff').
-- Keep narration concise: between 15 and 35 words per scene to let animations breathe and prevent visual rushing.
+${
+  isManimOnly
+    ? `STEP 2: ENGINE SELECTION RULE (STRICT MODE: ONLY MANIM)
+- You MUST set "engine": "manim" on EVERY single scene from Scene 1 to Scene ${actualSceneCount}.
+- You MUST select a "manim-*" archetype from the catalog below for EVERY scene.
+- Do NOT use "html-gsap" engine or HTML archetypes for any scene.
+- Every scene needs: "manimData" (exact fields from its payload hint) and "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined).
+- Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".`
+    : isHtmlOnly
+      ? `STEP 2: ENGINE SELECTION RULE (STRICT MODE: ONLY HTML)
+- You MUST set "engine": "html-gsap" on EVERY single scene from Scene 1 to Scene ${actualSceneCount}.
+- Choose from the HTML visual archetypes in the catalog below.
+- Do NOT use "manim" engine or any "manim-*" archetypes.`
+      : `STEP 2: ENGINE SELECTION RULE
+- MATHEMATICAL, GEOMETRIC & ALGORITHMIC EXPLAINERS (Engine: 'manim'):
+  If a beat explains a continuous function curve, rate of change, geometric transformation, vector field, coordinate projection, neural network manifold, or probability simulation, set "engine": "manim" and choose a "manim-*" archetype.
+- ALL OTHER SCENES (Engine: 'html-gsap'):
+  For software systems, 3D motion heroes, carousels, code diffs, interfaces, pipelines, and metrics, set "engine": "html-gsap". The first and last scene are always "html-gsap".`
+}
 
 Choose from these ${VISUAL_CATALOG.length} available archetypes:
-${formatCatalogForPrompt({ manim: manimEnabled })}
+${formatCatalogForPrompt({ manim: effectiveManimEnabled, engineMode })}
 ${
-  manimEnabled
+  effectiveManimEnabled
     ? `
 ENGINE ROUTING RULE (applies to every scene; set "engine" explicitly on every scene):
-Categorize each scene's narrative purpose, then assign its engine:
+${
+  isManimOnly
+    ? `- Every single scene must use "engine": "manim" and a "manim-*" archetype.`
+    : `Categorize each scene's narrative purpose, then assign its engine:
 - If a beat explains a continuous function curve, rate of change, geometric transformation, vector field, coordinate projection, or graph traversal, you MUST set "engine": "manim" and choose a "manim-*" archetype.
 - For deep mathematical, calculus, linear algebra, and probability explainers, allocate 50% to 65% of the middle scenes to "engine": "manim" (about ${Math.max(1, Math.round((actualSceneCount - 2) * 0.5))} to ${Math.max(1, Math.floor(actualSceneCount * 0.65))} of the ${Math.max(0, actualSceneCount - 2)} middle scenes here), up to 3 in a row. For general software / product explainers, allocate 25% to 40% (never more than 2 in a row).
 - Use "engine": "html-gsap" for hooks, outros, high-level architectures, comparisons, and KPI metrics. The first and last scene are always "html-gsap".
-- Pick the primitive by what the beat shows: a changing curve or area -> "manim-function-plot"; a matrix or basis change, rotation, shear or projection -> "manim-vector-transform"; layers of a network or a graph/tree traversal -> "manim-network-topology".
+- Pick the primitive by what the beat shows: a changing curve or area -> "manim-function-plot"; a matrix or basis change, rotation, shear or projection -> "manim-vector-transform"; layers of a network or a graph/tree traversal -> "manim-network-topology".`
+}
 
 MANIM MATH-ANIMATION RULES (archetypes whose id starts with "manim-"):
-- The "engine" field of a manim scene is "manim"; every other scene uses "html-gsap".
+- The "engine" field of a manim scene is "manim"; ${isManimOnly ? "all scenes are manim." : "every other scene uses html-gsap."}
 - You write DATA, never code. Every manim scene needs: "manimData" (exact fields from its payload hint), "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined), and "fallbackArchetype" (an HTML archetype that conveys the same idea) with "fallbackPayload".
 - Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".
 - Example manim scene: { "id": "scene3-slope", "engine": "manim", "archetype": "manim-function-plot", "theme": "dark", "title": "The slope of a curve", "manimData": { "title": "Slope at a point", "expr": "x^2 - 2*x", "xRange": [-2, 4], "tangentAt": 1.5 }, "beats": ["A curve rises and falls.", "At one point its steepness is the slope.", "That slope is the derivative."], "fallbackArchetype": "bento-metric-grid", "fallbackPayload": { "bentoData": { "metrics": [{ "label": "Slope", "value": 1, "unit": "", "hero": true }] } } }
@@ -1315,7 +1364,17 @@ MANIM MATH-ANIMATION RULES (archetypes whose id starts with "manim-"):
     : ""
 }
 Timing & Chapter Breakdown:
-${timingStructure.map((t, idx) => `Chapter ${idx + 1} (${t.id}): ~${t.duration}s (~${t.maxWords} words) — Narrative Beat: ${t.chapterTitle || t.role}${t.narrativeIntent ? ` (${t.narrativeIntent})` : ""}`).join("\n")}
+${timingStructure
+  .map((t, idx) => {
+    const rec =
+      Array.isArray(t.suggestedArchetypes) && t.suggestedArchetypes.length > 0
+        ? ` (Recommended Visuals: ${t.suggestedArchetypes.map((a) => `"${a}"`).join(", ")})`
+        : t.suggestedArchetype
+          ? ` (Recommended Visuals: "${t.suggestedArchetype}")`
+          : "";
+    return `Chapter ${idx + 1} (${t.id}): ~${t.duration}s (~${t.maxWords} words) — Narrative Beat: ${t.chapterTitle || t.role}${t.narrativeIntent ? ` (${t.narrativeIntent})` : ""}${rec}`;
+  })
+  .join("\n")}
 
 MANDATORY REQUIREMENTS FOR EVERY SCENE:
 Every single scene (from Scene 1 to Scene ${actualSceneCount}) MUST ALWAYS include:
@@ -1451,6 +1510,7 @@ async function directStoryboard({
   format,
   timingStructure: providedTiming,
   manimEnabled = false,
+  engineMode = "combined",
 }) {
   let context = "";
   if (sourceUrl) {
@@ -1464,7 +1524,8 @@ async function directStoryboard({
     context = `Script / Brief:\n${sourceScript}`;
   }
 
-  const timingStructure = providedTiming || getSceneTimingStructure(duration);
+  const timingStructure =
+    providedTiming || getSceneTimingStructure(duration, undefined, { engineMode });
   const sceneCount = timingStructure.length;
   const isPortrait = format === "portrait";
 
@@ -1476,6 +1537,7 @@ async function directStoryboard({
     isPortrait,
     isEducational,
     manimEnabled,
+    engineMode,
     timingStructure,
   });
 
@@ -1929,6 +1991,7 @@ async function runProductionPipeline(jobId, payload) {
     customColors = null,
     // Must be a SOUNDTRACK_MAP key (or "none")
     musicEngine = "quiet-reflection",
+    engineMode = "combined",
   } = payload;
 
   const projectDir = path.join(PROJECTS_DIR, `prod-${jobId}`);
@@ -2010,7 +2073,7 @@ async function runProductionPipeline(jobId, payload) {
     broadcastEvent(jobId, {
       node: "ingest",
       status: "complete",
-      message: `Source configured (${isPortrait ? "9:16 Portrait" : "16:9 Landscape"}, ${duration}s${sourcePdf ? " · PDF" : ""}${sourceTopic ? " · Topic" : ""})`,
+      message: `Source configured (${isPortrait ? "9:16 Portrait" : "16:9 Landscape"}, ${duration}s · Engine: ${engineMode.toUpperCase()}${sourcePdf ? " · PDF" : ""}${sourceTopic ? " · Topic" : ""})`,
     });
 
     // 02: Director
@@ -2019,10 +2082,16 @@ async function runProductionPipeline(jobId, payload) {
       status: "active",
       message: `Directing scene choreography using ${model}`,
     });
-    const timingStructure = getSceneTimingStructure(duration);
+    const timingStructure = getSceneTimingStructure(duration, undefined, { engineMode });
     // Probed once per process; when false, Manim is never offered to the director and any
     // Manim scene that slips through is degraded to its HTML fallback by validateStoryboard.
     const manimCapability = await checkManimCapability();
+    if (engineMode === "manim" && !manimCapability.ok) {
+      throw new Error(
+        `Only Manim mode selected, but Manim is unavailable: ${manimCapability.reasons.join("; ") || "check Python installation"}`,
+      );
+    }
+    const isManimEnabled = engineMode === "html" ? false : manimCapability.ok;
     const rawStoryboard = await directStoryboard({
       apiKey,
       model,
@@ -2033,7 +2102,8 @@ async function runProductionPipeline(jobId, payload) {
       duration,
       format,
       timingStructure,
-      manimEnabled: manimCapability.ok,
+      manimEnabled: isManimEnabled,
+      engineMode,
     });
     // Dual archetype audit: RAW (director output) vs NORMALIZED (post quality.mjs).
     // The delta between these two lines reveals whether validateStoryboard /
@@ -2054,7 +2124,8 @@ async function runProductionPipeline(jobId, payload) {
       ),
     );
     const storyboard = validateStoryboard(rawStoryboard, timingStructure, {
-      manimEnabled: manimCapability.ok,
+      manimEnabled: isManimEnabled,
+      engineMode,
       topic: sourceTopic || sourceScript || sourcePdfName,
     });
     for (const [idx, s] of storyboard.scenes.entries()) {
@@ -2227,6 +2298,55 @@ async function runProductionPipeline(jobId, payload) {
         console.warn(
           `[DEGRADE REASON: Scene ${i + 1}: ${manimErr.kind || "error"}: ${manimErr.message}]`,
         );
+        if (engineMode === "manim") {
+          // In Only Manim mode, retry once with a safe mathematical curve primitive to preserve pure Manim output
+          fs.rmSync(sceneWork, { recursive: true, force: true });
+          fs.mkdirSync(sceneWork, { recursive: true });
+          try {
+            const safePlan = {
+              primitive: "manim-function-plot",
+              brief: {
+                title: scene.title || "Mathematical Analysis",
+                expr: "x^2 - 2*x",
+                xRange: [-3, 3],
+              },
+              palette: sanitizePalette(resolveScenePalette(scene, activePalette)),
+              fonts: manimCapability.fonts,
+              totalFrames: scene.totalFrames,
+              beatFrames: beatFrames(
+                scene.beats || [scene.voiceover || scene.title || "Mathematical analysis."],
+                scene.totalFrames,
+              ),
+              width: compWidth,
+              height: compHeight,
+              fps: FPS,
+              outputPath: rawPath,
+              mediaDir: path.join(sceneWork, "media"),
+            };
+            await runManimScene({
+              plan: safePlan,
+              workDir: sceneWork,
+              python: manimCapability.python,
+              timeoutMs: Number(process.env.MANIM_TIMEOUT_MS) || undefined,
+            });
+            await normalizeManimClip({
+              inputPath: rawPath,
+              outputPath: outPath,
+              totalFrames: scene.totalFrames,
+              width: compWidth,
+              height: compHeight,
+              label: `Scene ${i + 1} (manim-function-plot safe fallback)`,
+            });
+            segmentPaths[i] = outPath;
+            fs.rmSync(sceneWork, { recursive: true, force: true });
+            continue;
+          } catch (retryErr) {
+            fs.rmSync(sceneWork, { recursive: true, force: true });
+            throw new Error(
+              `Only Manim mode: Scene ${i + 1} Manim render failed: ${retryErr.message}`,
+            );
+          }
+        }
         storyboard.scenes[i] = degradeScene(scene, manimErr.message);
         fs.rmSync(sceneWork, { recursive: true, force: true });
         broadcastEvent(jobId, {

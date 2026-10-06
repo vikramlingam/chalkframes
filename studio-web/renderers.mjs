@@ -4823,3 +4823,360 @@ registerArchetypeRenderer("ab-test-confidence", {
     [data-composition-id="${scene.id}"] .ab-significance-chip { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 30px; background: rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.3); font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 800; color: #4ade80; }
   `,
 });
+
+// 58. Carousel 3D Showcase
+registerArchetypeRenderer("carousel-3d-showcase", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 50% 35%, ${activePalette.accent}16 0%, transparent 65%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawItems = scene.carouselData?.items;
+    const items =
+      Array.isArray(rawItems) && rawItems.length > 0
+        ? rawItems.slice(0, 6)
+        : [
+            {
+              badge: "01",
+              title: "Modular System",
+              desc: "Decoupled pipeline layers",
+              tag: "FOUNDATION",
+            },
+            {
+              badge: "02",
+              title: "Dynamic Scaling",
+              desc: "Adaptive throughput rates",
+              tag: "OPTIMIZATION",
+            },
+            {
+              badge: "03",
+              title: "Consistent State",
+              desc: "Reproducible execution passes",
+              tag: "INTEGRITY",
+            },
+            {
+              badge: "04",
+              title: "Instant Visuals",
+              desc: "Continuous composition rendering",
+              tag: "EFFICIENCY",
+            },
+          ];
+
+    const count = items.length;
+    const radius = isPortrait ? 260 : 380;
+    const cardsHtml = items
+      .map((item, idx) => {
+        const theta = (idx * 360) / count;
+        return `
+          <div class="c3d-card" style="transform: rotateY(${theta}deg) translateZ(${radius}px);">
+            <div class="c3d-card-inner">
+              <div class="c3d-card-header">
+                <span class="c3d-badge">${h(item.badge || `0${idx + 1}`)}</span>
+                <span class="c3d-tag">${h(item.tag || "ACTIVE")}</span>
+              </div>
+              <h3 class="c3d-card-title">${h(item.title || "Feature")}</h3>
+              <p class="c3d-card-desc">${h(item.desc || "")}</p>
+              <div class="c3d-glow-bar"></div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    const pace = scheduleStepProgression("tl", 'scope.querySelectorAll(".c3d-card")', sDur, {
+      accent: activePalette.accent,
+    });
+
+    return {
+      innerHtml: `
+        <div class="scene-inner c3d-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "FEATURE SHOWCASE")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "42px" : "56px"}">${h(scene.title)}</h1>
+          <div class="c3d-viewport">
+            <div class="c3d-ring">
+              ${cardsHtml}
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelectorAll(".c3d-card"), { opacity: 0, scale: 0.7, duration: 0.7, stagger: 0.1 }, 0.45);
+        tl.to(scope.querySelector(".c3d-ring"), { rotationY: -360, duration: Math.max(3, Number(sDur) - 1.2), ease: "power1.inOut" }, 0.8);
+        ${pace}
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .c3d-stage { justify-content: center; align-items: center; text-align: center; overflow: hidden; }
+    [data-composition-id="${scene.id}"] .c3d-viewport { width: 100%; height: ${isPortrait ? "480px" : "420px"}; margin-top: ${isPortrait ? "20px" : "36px"}; display: flex; justify-content: center; align-items: center; perspective: 1200px; transform-style: preserve-3d; }
+    [data-composition-id="${scene.id}"] .c3d-ring { position: relative; width: ${isPortrait ? "260px" : "320px"}; height: ${isPortrait ? "320px" : "340px"}; transform-style: preserve-3d; }
+    [data-composition-id="${scene.id}"] .c3d-card { position: absolute; inset: 0; transform-style: preserve-3d; backface-visibility: hidden; border-radius: 20px; background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; padding: 24px; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; }
+    [data-composition-id="${scene.id}"] .c3d-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    [data-composition-id="${scene.id}"] .c3d-badge { font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 900; color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .c3d-tag { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; background: ${activePalette.border}44; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+    [data-composition-id="${scene.id}"] .c3d-card-title { font-family: "JetBrains Mono", monospace; font-size: 19px; font-weight: 800; color: ${activePalette.text}; margin-bottom: 8px; }
+    [data-composition-id="${scene.id}"] .c3d-card-desc { font-family: "JetBrains Mono", monospace; font-size: 13px; color: ${activePalette.textMuted || "#aaa"}; line-height: 1.5; }
+    [data-composition-id="${scene.id}"] .c3d-glow-bar { width: 100%; height: 3px; border-radius: 2px; background: ${activePalette.accent}; opacity: 0.6; margin-top: 14px; }
+  `,
+});
+
+// 59. 3D Motion Hero
+registerArchetypeRenderer("3d-motion-hero", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(ellipse at 50% 50%, ${activePalette.accent}24 0%, #060913 70%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawHero = scene.hero3dData;
+    const title = rawHero?.mainTitle || scene.title;
+    const sub = rawHero?.subTitle || scene.subtitle || "";
+    const badge = rawHero?.badge || "SPATIAL VIEW";
+    const canvasId = `hero3d-canvas-s${i + 1}`;
+
+    return {
+      innerHtml: `
+        <div class="scene-inner hero3d-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || badge)}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title hero3d-title" style="font-size: ${isPortrait ? "44px" : "62px"}">${h(title)}</h1>
+          ${sub ? `<p class="hero3d-sub">${h(sub)}</p>` : ""}
+          <div class="hero3d-canvas-wrap">
+            <canvas id="${canvasId}" class="hero3d-canvas" width="${isPortrait ? 600 : 780}" height="${isPortrait ? 500 : 420}"></canvas>
+            <div class="hero3d-halo"></div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, scale: 0.92, duration: 0.7 }, 0.35);
+        if (scope.querySelector(".hero3d-sub")) {
+          tl.from(scope.querySelector(".hero3d-sub"), { opacity: 0, y: 14, duration: 0.5 }, 0.5);
+        }
+        tl.from(scope.querySelector(".hero3d-canvas-wrap"), { opacity: 0, scale: 0.8, duration: 0.8 }, 0.4);
+
+        (function () {
+          const cvs = scope.querySelector("#${canvasId}");
+          if (!cvs) return;
+          const ctx = cvs.getContext("2d");
+          if (!ctx) return;
+          const W = cvs.width;
+          const H = cvs.height;
+          const cx = W / 2;
+          const cy = H / 2;
+          const R = ${isPortrait ? 130 : 160};
+          const accent = "${activePalette.accent}";
+
+          const phi = (1 + Math.sqrt(5)) / 2;
+          const baseVerts = [
+            [-1,  phi, 0], [ 1,  phi, 0], [-1, -phi, 0], [ 1, -phi, 0],
+            [0, -1,  phi], [0,  1,  phi], [0, -1, -phi], [0,  1, -phi],
+            [ phi, 0, -1], [ phi, 0,  1], [-phi, 0, -1], [-phi, 0,  1]
+          ].map(v => {
+            const len = Math.hypot(v[0], v[1], v[2]);
+            return [v[0] / len * R, v[1] / len * R, v[2] / len * R];
+          });
+
+          const edges = [
+            [0,1],[0,5],[0,7],[0,10],[0,11],
+            [1,5],[1,7],[1,8],[1,9],
+            [2,3],[2,4],[2,6],[2,10],[2,11],
+            [3,4],[3,6],[3,8],[3,9],
+            [4,5],[4,9],[4,11],
+            [5,9],[5,11],
+            [6,7],[6,8],[6,10],
+            [7,8],[7,10],
+            [8,9],[10,11]
+          ];
+
+          function renderFrame(timeSec) {
+            ctx.clearRect(0, 0, W, H);
+            const angX = timeSec * 0.6;
+            const angY = timeSec * 0.85;
+            const cosX = Math.cos(angX), sinX = Math.sin(angX);
+            const cosY = Math.cos(angY), sinY = Math.sin(angY);
+
+            const proj = baseVerts.map(v => {
+              const x1 = v[0] * cosY + v[2] * sinY;
+              const z1 = -v[0] * sinY + v[2] * cosY;
+              const y2 = v[1] * cosX - z1 * sinX;
+              const z2 = v[1] * sinX + z1 * cosX;
+              const fov = 450;
+              const scale = fov / (fov + z2);
+              return { x: cx + x1 * scale, y: cy + y2 * scale, z: z2, s: scale };
+            });
+
+            ctx.lineWidth = 2;
+            edges.forEach(([a, b]) => {
+              const pA = proj[a];
+              const pB = proj[b];
+              const avgZ = (pA.z + pB.z) / 2;
+              const alpha = Math.max(0.15, Math.min(0.9, (avgZ + R) / (2 * R)));
+              ctx.strokeStyle = accent;
+              ctx.globalAlpha = alpha;
+              ctx.beginPath();
+              ctx.moveTo(pA.x, pA.y);
+              ctx.lineTo(pB.x, pB.y);
+              ctx.stroke();
+            });
+
+            proj.forEach(p => {
+              ctx.globalAlpha = Math.max(0.4, p.s);
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 4 * p.s, 0, Math.PI * 2);
+              ctx.fill();
+            });
+
+            const pCount = 14;
+            for (let k = 0; k < pCount; k++) {
+              const pAng = (k / pCount) * Math.PI * 2 + timeSec * 1.2;
+              const pRad = R * 1.5;
+              const px = Math.cos(pAng) * pRad;
+              const pz = Math.sin(pAng) * pRad;
+              const py = Math.sin(pAng * 2) * (R * 0.4);
+              const px1 = px * cosY + pz * sinY;
+              const pz1 = -px * sinY + pz * cosY;
+              const py2 = py * cosX - pz1 * sinX;
+              const pz2 = py * sinX + pz1 * cosX;
+              const scale = 450 / (450 + pz2);
+              const screenX = cx + px1 * scale;
+              const screenY = cy + py2 * scale;
+              ctx.globalAlpha = Math.max(0.2, Math.min(0.85, (pz2 + R) / (2 * R)));
+              ctx.fillStyle = accent;
+              ctx.beginPath();
+              ctx.arc(screenX, screenY, 3 * scale, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+          }
+
+          renderFrame(0);
+          tl.to({ t: 0 }, {
+            t: ${Number(sDur)},
+            duration: ${Number(sDur)},
+            ease: "none",
+            onUpdate: function () {
+              renderFrame(tl.time());
+            }
+          }, 0);
+        })();
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .hero3d-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .hero3d-title { max-width: min(1000px, 90vw); margin-bottom: 8px; }
+    [data-composition-id="${scene.id}"] .hero3d-sub { font-family: "JetBrains Mono", monospace; font-size: 16px; color: ${activePalette.textMuted || "#888"}; margin-bottom: 16px; }
+    [data-composition-id="${scene.id}"] .hero3d-canvas-wrap { position: relative; display: flex; justify-content: center; align-items: center; margin-top: ${isPortrait ? "16px" : "20px"}; }
+    [data-composition-id="${scene.id}"] .hero3d-canvas { position: relative; z-index: 2; border-radius: 20px; }
+    [data-composition-id="${scene.id}"] .hero3d-halo { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, ${activePalette.accent}20 0%, transparent 70%); pointer-events: none; z-index: 1; }
+  `,
+});
+
+// 60. Code Slice Reveal
+registerArchetypeRenderer("code-slice-reveal", {
+  getBackground: ({ activePalette }) =>
+    `background: radial-gradient(circle at 75% 25%, ${activePalette.accent}14 0%, transparent 60%), ${activePalette.background};`,
+  renderHtml: ({ scene, i, isPortrait, h }) => {
+    const rawSlice = scene.sliceData;
+    const filename = rawSlice?.filename || "pipeline.ts";
+    const language = rawSlice?.language || "TypeScript";
+    const diffTag = rawSlice?.diffTag || "FEATURE";
+    const rawLines =
+      Array.isArray(rawSlice?.lines) && rawSlice.lines.length > 0
+        ? rawSlice.lines
+        : [
+            "export async function processFrame(seq: number): Promise<Buffer> {",
+            "  const render = await orchestrator.execute(seq);",
+            "  validateInvariant(render.status === 'READY');",
+            "  return streamCodec.encode(render.buffer);",
+          ];
+    const output = rawSlice?.output || "Pipeline state verified (0 errors)";
+
+    const formattedLines = rawLines
+      .map((line, idx) => {
+        const prefix = idx === 1 ? "+" : idx === 2 ? "+" : " ";
+        const lineClass = prefix === "+" ? "diff-add" : "diff-ctx";
+        return `
+        <div class="code-line ${lineClass}">
+          <span class="line-num">${idx + 1}</span>
+          <span class="line-prefix">${prefix}</span>
+          <span class="line-code">${highlightCodeTokens(line)}</span>
+        </div>
+      `;
+      })
+      .join("");
+
+    return {
+      innerHtml: `
+        <div class="scene-inner code-slice-stage">
+          <div id="s${i + 1}-eyebrow" class="eyebrow"><span class="eyebrow-dot"></span><span>${h(scene.eyebrow || "SYNTAX MATRIX")}</span></div>
+          <h1 id="s${i + 1}-title" class="editorial-title" style="font-size: ${isPortrait ? "42px" : "56px"}">${h(scene.title)}</h1>
+          <div class="code-slice-grid">
+            <div class="code-editor-pane">
+              <div class="editor-header">
+                <div class="editor-dots">
+                  <span class="dot dot-r"></span>
+                  <span class="dot dot-y"></span>
+                  <span class="dot dot-g"></span>
+                </div>
+                <div class="editor-tab">
+                  <span class="tab-icon">📄</span>
+                  <span class="tab-name">${h(filename)}</span>
+                </div>
+                <span class="diff-badge">${h(diffTag)}</span>
+              </div>
+              <div class="editor-body">
+                ${formattedLines}
+              </div>
+            </div>
+            <div class="code-terminal-pane">
+              <div class="terminal-header">
+                <span class="term-pulse"></span>
+                <span class="term-title">RUNTIME CONSOLE · ${h(language)}</span>
+              </div>
+              <div class="terminal-body">
+                <div class="term-row"><span class="term-prompt">$</span> <span>bun test --filter pipeline</span></div>
+                <div class="term-row term-pass"><span>✔</span> <span>${h(output)}</span></div>
+                <div class="term-row term-meta"><span>→</span> <span>Latency: 18ms · Allocation: verified</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 16, duration: 0.5 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 22, duration: 0.6 }, 0.35);
+        tl.from(scope.querySelector(".code-editor-pane"), { opacity: 0, y: 24, duration: 0.7 }, 0.45);
+        tl.from(scope.querySelectorAll(".code-line"), { opacity: 0, x: -14, stagger: 0.1, duration: 0.4 }, 0.65);
+        tl.from(scope.querySelector(".code-terminal-pane"), { opacity: 0, y: 20, duration: 0.5 }, 0.85);
+        tl.from(scope.querySelectorAll(".term-row"), { opacity: 0, y: 10, stagger: 0.12, duration: 0.35 }, 1.05);
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .code-slice-stage { justify-content: center; align-items: center; text-align: center; }
+    [data-composition-id="${scene.id}"] .code-slice-grid { width: min(1180px, 88vw); margin-top: ${isPortrait ? "20px" : "36px"}; display: flex; flex-direction: column; gap: 20px; text-align: left; }
+    [data-composition-id="${scene.id}"] .code-editor-pane { background: ${activePalette.card}; border: 1.5px solid ${activePalette.border}; border-radius: 18px; overflow: hidden; box-shadow: 0 16px 45px rgba(0,0,0,0.45); }
+    [data-composition-id="${scene.id}"] .editor-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; background: rgba(0,0,0,0.25); border-bottom: 1px solid ${activePalette.border}; }
+    [data-composition-id="${scene.id}"] .editor-dots { display: flex; gap: 8px; }
+    [data-composition-id="${scene.id}"] .editor-dots .dot { width: 11px; height: 11px; border-radius: 50%; }
+    [data-composition-id="${scene.id}"] .dot-r { background: #ff5f56; }
+    [data-composition-id="${scene.id}"] .dot-y { background: #ffbd2e; }
+    [data-composition-id="${scene.id}"] .dot-g { background: #27c93f; }
+    [data-composition-id="${scene.id}"] .editor-tab { display: flex; align-items: center; gap: 8px; font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .diff-badge { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 800; color: #4ade80; background: rgba(74, 222, 128, 0.15); padding: 3px 8px; border-radius: 6px; }
+    [data-composition-id="${scene.id}"] .editor-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; }
+    [data-composition-id="${scene.id}"] .code-line { display: flex; align-items: center; gap: 14px; font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "13px" : "15px"}; }
+    [data-composition-id="${scene.id}"] .diff-add { background: rgba(74, 222, 128, 0.08); border-radius: 4px; }
+    [data-composition-id="${scene.id}"] .line-num { font-size: 12px; color: ${activePalette.textMuted || "#666"}; width: 22px; text-align: right; user-select: none; }
+    [data-composition-id="${scene.id}"] .line-prefix { font-size: 13px; font-weight: 800; width: 12px; }
+    [data-composition-id="${scene.id}"] .diff-add .line-prefix { color: #4ade80; }
+    [data-composition-id="${scene.id}"] .line-code { color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .code-terminal-pane { background: #070913; border: 1.5px solid ${activePalette.border}; border-radius: 16px; padding: 16px 20px; }
+    [data-composition-id="${scene.id}"] .terminal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 800; color: ${activePalette.textMuted || "#888"}; }
+    [data-composition-id="${scene.id}"] .term-pulse { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+    [data-composition-id="${scene.id}"] .terminal-body { display: flex; flex-direction: column; gap: 6px; font-family: "JetBrains Mono", monospace; font-size: 13px; }
+    [data-composition-id="${scene.id}"] .term-row { display: flex; gap: 10px; color: ${activePalette.textMuted || "#bbb"}; }
+    [data-composition-id="${scene.id}"] .term-prompt { color: ${activePalette.accent}; font-weight: 800; }
+    [data-composition-id="${scene.id}"] .term-pass { color: #4ade80; font-weight: 800; }
+    [data-composition-id="${scene.id}"] .term-meta { color: ${activePalette.textMuted || "#666"}; font-size: 12px; }
+  `,
+});
