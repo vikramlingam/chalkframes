@@ -19,6 +19,10 @@ import {
   buildSceneHtmlAndChoreography,
   getArchetypeScopedCss,
   buildDirectorPrompt,
+  parseStoryboardYamlOrJson,
+  parseStoryboardJson,
+  formatStoryboardYaml,
+  formatStoryboardMarkdown,
 } from "./server.mjs";
 import { formatCompactMetric } from "./renderers.mjs";
 import { DEFAULT_3B1B_PALETTE, sanitizePalette } from "./engines/manim/planner.mjs";
@@ -1379,4 +1383,204 @@ test("3Blue1Brown rules and palette are integrated into Manim planning and promp
   assert.ok(promptManim.includes("#83C167")); // 3b1b Green
   assert.ok(promptManim.includes("#FC6255")); // 3b1b Red
   assert.ok(promptManim.includes("#FFFF00")); // 3b1b Yellow
+});
+
+test("YAML-based storyboard routing parses pure YAML, folded blocks, and Hyperframes manifests", () => {
+  const pureYaml = `
+version: "2.0"
+productName: "Neural Vectors"
+durationSeconds: 15
+aspectRatio: "16:9"
+scenes:
+  - id: "scene1-intro"
+    engine: "manim"
+    archetype: "manim-vector-field"
+    theme: "dark"
+    transition: "crossfade"
+    title: "Vector Fields & Eigenvalues"
+    subtitle: "Understanding transformations in 2D"
+    voiceover: >
+      Every linear transformation stretches or rotates space.
+      Notice how eigenvectors remain along their span while eigenvalues scale them.
+    math_expressions:
+      - "A \\\\mathbf{v} = \\\\lambda \\\\mathbf{v}"
+      - "\\\\det(A - \\\\lambda I) = 0"
+  - id: "scene2-stats"
+    engine: "html-gsap"
+    archetype: "metric-stat"
+    theme: "dark"
+    transition: "slide"
+    title: "Convergence Rates"
+    value: "99.8%"
+    label: "Accuracy across benchmark manifolds"
+    voiceover: >
+      With higher dimensional approximations, convergence reaches
+      near-perfection in milliseconds.
+`;
+
+  const parsed = parseStoryboardYamlOrJson(pureYaml);
+  assert.equal(parsed.productName, "Neural Vectors");
+  assert.equal(parsed.version, "2.0");
+  assert.equal(parsed.scenes.length, 2);
+
+  const scene1 = parsed.scenes[0];
+  assert.equal(scene1.id, "scene1-intro");
+  assert.equal(scene1.engine, "manim");
+  assert.equal(scene1.archetype, "manim-vector-field");
+  assert.equal(scene1.transition, "crossfade");
+  assert.ok(scene1.voiceover.includes("Every linear transformation"));
+  assert.ok(scene1.voiceover.includes("eigenvalues scale them"));
+  assert.equal(scene1.math_expressions.length, 2);
+
+  const scene2 = parsed.scenes[1];
+  assert.equal(scene2.engine, "html-gsap");
+  assert.equal(scene2.archetype, "metric-stat");
+  assert.equal(scene2.value, "99.8%");
+
+  // Backwards compatibility check: parseStoryboardJson delegates transparently
+  const delegated = parseStoryboardJson(pureYaml);
+  assert.equal(delegated.productName, "Neural Vectors");
+  assert.equal(delegated.scenes.length, 2);
+});
+
+test("YAML parser supports Markdown code fences and normalizes Hyperframes 'frames' keyword", () => {
+  const fencedHyperframesYaml = `
+\`\`\`yaml
+version: "1.0"
+title: "Quantum Superposition"
+frames:
+  - id: "frame-1"
+    engine: "manim"
+    archetype: "manim-wave-function"
+    duration_s: 6.5
+    transition_in: "crossfade"
+    title_text: "Wave Collapse"
+    voiceover: "When observed, quantum states collapse instantaneously into a single eigenstate."
+    formula: "\\\\psi(x, t)"
+\`\`\`
+`;
+
+  const parsed = parseStoryboardYamlOrJson(fencedHyperframesYaml);
+  assert.equal(parsed.productName, "Quantum Superposition");
+  assert.ok(Array.isArray(parsed.scenes));
+  assert.equal(parsed.scenes.length, 1);
+
+  const frame = parsed.scenes[0];
+  assert.equal(frame.id, "frame-1");
+  assert.equal(frame.engine, "manim");
+  assert.equal(frame.archetype, "manim-wave-function");
+  assert.equal(frame.duration, 6.5);
+  assert.equal(frame.transition, "crossfade");
+  assert.equal(frame.title, "Wave Collapse");
+  assert.equal(frame.formula, "\\psi(x, t)");
+});
+
+test("YAML manifest serializer generates valid canonical YAML and Markdown documentation", () => {
+  const sampleStoryboard = {
+    version: "2.0",
+    productName: "Chalk Studio Pro",
+    durationSeconds: 12,
+    aspectRatio: "16:9",
+    scenes: [
+      {
+        id: "intro-frame",
+        engine: "html-gsap",
+        archetype: "hook",
+        theme: "dark",
+        transition: "fade",
+        title: "Deterministic Engine",
+        subtitle: "Zero jitter frame capture",
+        voiceover: "Chalk Frames captures HTML and Manim frame-by-frame with zero jitter.",
+      },
+      {
+        id: "math-frame",
+        engine: "manim",
+        archetype: "manim-fourier-series",
+        theme: "dark",
+        transition: "crossfade",
+        title: "Harmonic Synthesis",
+        voiceover: "Any periodic function can be decomposed into a sum of sines and cosines.",
+        formulas: ["f(x) = \\\\sum c_n e^{i n x}"],
+      },
+    ],
+  };
+
+  const yamlOutput = formatStoryboardYaml(sampleStoryboard);
+  assert.ok(yamlOutput.includes("2.0"));
+  assert.ok(yamlOutput.includes("Chalk Studio Pro"));
+  assert.ok(yamlOutput.includes("scenes:"));
+  assert.ok(yamlOutput.includes("manim-fourier-series"));
+
+  // Round-trip parse test: ensure serialized YAML parses cleanly back
+  const roundTripped = parseStoryboardYamlOrJson(yamlOutput);
+  assert.equal(roundTripped.productName, sampleStoryboard.productName);
+  assert.equal(roundTripped.scenes.length, 2);
+  assert.equal(roundTripped.scenes[1].engine, "manim");
+
+  const mdOutput = formatStoryboardMarkdown(sampleStoryboard);
+  assert.ok(mdOutput.startsWith("---"));
+  assert.ok(mdOutput.includes('title: "Chalk Studio Pro"'));
+  assert.ok(mdOutput.includes("## Scene 1: Deterministic Engine"));
+  assert.ok(mdOutput.includes("## Scene 2: Harmonic Synthesis"));
+  assert.ok(mdOutput.includes("**Engine**: `manim`"));
+});
+
+test("Hyperframes 18-token design contract and ambient glow are injected into scoped CSS", () => {
+  const scene = {
+    id: "test-scene-1",
+    archetype: "features-cards",
+    theme: "dark",
+    title: "Tokens",
+    features: [{ title: "Token 1", description: "Desc" }],
+  };
+  const activePalette = {
+    background: "#0e1117",
+    text: "#ffffff",
+    textMuted: "#a0a5b5",
+    border: "#232738",
+    accent: "#6366f1",
+    accent2: "#38bdf8",
+    accent3: "#f43f5e",
+  };
+
+  const css = getArchetypeScopedCss(scene, 1920, 1080, false, activePalette);
+
+  // Assert all 18 tokens from the Hyperframes theme contract
+  assert.ok(css.includes("--bg:"), "Missing --bg token");
+  assert.ok(css.includes("--fg:"), "Missing --fg token");
+  assert.ok(css.includes("--muted:"), "Missing --muted token");
+  assert.ok(css.includes("--surface:"), "Missing --surface token");
+  assert.ok(css.includes("--border:"), "Missing --border token");
+  assert.ok(css.includes("--brand:"), "Missing --brand token");
+  assert.ok(css.includes("--accent:"), "Missing --accent token");
+  assert.ok(css.includes("--accent-2:"), "Missing --accent-2 token");
+  assert.ok(css.includes("--font-display:"), "Missing --font-display token");
+  assert.ok(css.includes("--font-body:"), "Missing --font-body token");
+  assert.ok(css.includes("--font-mono:"), "Missing --font-mono token");
+  assert.ok(css.includes("--radius:"), "Missing --radius token");
+  assert.ok(css.includes("--space-1:"), "Missing --space-1 token");
+  assert.ok(css.includes("--space-2:"), "Missing --space-2 token");
+  assert.ok(css.includes("--space-3:"), "Missing --space-3 token");
+  assert.ok(css.includes("--dur-beat:"), "Missing --dur-beat token");
+  assert.ok(css.includes("--ease-standard:"), "Missing --ease-standard token");
+  assert.ok(css.includes("--ease-emphasis:"), "Missing --ease-emphasis token");
+
+  // Assert ambient radial lighting overlay
+  assert.ok(css.includes("radial-gradient"), "Missing ambient radial lighting glow");
+});
+
+test("Director prompt instructs LLM to produce structured YAML storyboard format", () => {
+  const prompt = buildDirectorPrompt({
+    topic: "Building Distributed Systems",
+    timingStructure: [{ id: "s1", duration: 6, maxWords: 18, role: "hook" }],
+    actualSceneCount: 1,
+    actualDurationSec: 6,
+    manimEnabled: true,
+    engineMode: "combined",
+  });
+
+  assert.ok(prompt.includes("STORYBOARD YAML SPECIFICATION"));
+  assert.ok(prompt.includes("scenes:"));
+  assert.ok(prompt.includes("voiceover: >"));
+  assert.ok(prompt.includes("engine:"));
 });

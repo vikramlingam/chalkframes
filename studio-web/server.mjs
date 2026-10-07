@@ -10,6 +10,7 @@ import { randomBytes } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import https from "node:https";
 import { isIP } from "node:net";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import {
   parseVideoRange,
   validateStoryboard,
@@ -1124,42 +1125,186 @@ export function repairJsonText(input) {
   return out.join("");
 }
 
-export function parseStoryboardJson(raw) {
+/**
+ * Universal Storyboard parser: parses YAML (the Hyperframes canonical standard)
+ * or JSON (with repair heuristics), normalizing frames/scenes, engine routing,
+ * and visual payloads.
+ */
+export function parseStoryboardYamlOrJson(raw) {
   if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
   let text = raw.trim();
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (fenced) text = fenced[1].trim();
-  else text = text.replace(/^```(?:json)?\s*/i, "");
 
+  // Strip markdown code fences (```yaml, ```json, or generic ```)
+  const fenced = text.match(/```(?:yaml|json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced) {
+    text = fenced[1].trim();
+  } else {
+    text = text
+      .replace(/^```(?:yaml|json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+  }
+
+  // Normalize smart quotes so both YAML and JSON parsers receive standard delimiters
+  text = text.replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'");
+
+  function normalizeParsedStoryboard(obj) {
+    if (!obj || typeof obj !== "object") return null;
+    if (Array.isArray(obj.frames) && !Array.isArray(obj.scenes)) {
+      obj.scenes = obj.frames;
+    }
+    if (obj.title && !obj.productName) {
+      obj.productName = obj.title;
+    }
+    if (obj.product_name && !obj.productName) {
+      obj.productName = obj.product_name;
+    }
+    if (Array.isArray(obj.scenes)) {
+      obj.scenes = obj.scenes.map((scene, idx) => {
+        if (!scene || typeof scene !== "object") return scene;
+        const s = { ...scene };
+        if (s.title_text && !s.title) s.title = s.title_text;
+        if (s.duration_s !== undefined && s.duration === undefined) s.duration = s.duration_s;
+        if (s.transition_in && !s.transition) s.transition = s.transition_in;
+        if (!s.id) s.id = `scene-${idx + 1}`;
+        return s;
+      });
+      return obj;
+    }
+    return null;
+  }
+
+  // 1. Primary path: YAML parser (handles both valid YAML and strict JSON)
+  try {
+    const parsed = parseYaml(text);
+    const normalized = normalizeParsedStoryboard(parsed);
+    if (normalized) return normalized;
+  } catch {
+    // Proceed to JSON / repair heuristics
+  }
+
+  // 2. JSON extraction and repair path
   const start = text.indexOf("{");
-  if (start === -1) throw new Error("Director returned invalid JSON: no JSON object found");
-  text = text.slice(start);
-
-  let firstError;
-  try {
-    // Fast path: a clean object, ignoring any trailing prose.
-    const end = text.lastIndexOf("}");
-    return JSON.parse(end > 0 ? text.slice(0, end + 1) : text);
-  } catch (err) {
-    firstError = err;
-  }
-  try {
-    return JSON.parse(repairJsonText(text));
-  } catch {}
-
-  // Last resort for token-limit cutoffs: drop the broken tail back to an earlier complete element.
-  let cut = text.length;
-  for (let attempt = 0; attempt < 60; attempt++) {
-    cut = Math.max(text.lastIndexOf("}", cut - 1), text.lastIndexOf("]", cut - 1));
-    if (cut <= 0) break;
+  if (start !== -1) {
+    const jsonCandidate = text.slice(start);
+    let firstError;
     try {
-      const parsed = JSON.parse(repairJsonText(text.slice(0, cut + 1)));
-      if (parsed && Array.isArray(parsed.scenes) && parsed.scenes.length) return parsed;
+      const end = jsonCandidate.lastIndexOf("}");
+      const parsed = JSON.parse(end > 0 ? jsonCandidate.slice(0, end + 1) : jsonCandidate);
+      const normalized = normalizeParsedStoryboard(parsed);
+      if (normalized) return normalized;
+    } catch (err) {
+      firstError = err;
+    }
+
+    try {
+      const parsed = JSON.parse(repairJsonText(jsonCandidate));
+      const normalized = normalizeParsedStoryboard(parsed);
+      if (normalized) return normalized;
     } catch {}
+
+    // Last resort for cutoffs:
+    let cut = jsonCandidate.length;
+    for (let attempt = 0; attempt < 60; attempt++) {
+      cut = Math.max(
+        jsonCandidate.lastIndexOf("}", cut - 1),
+        jsonCandidate.lastIndexOf("]", cut - 1),
+      );
+      if (cut <= 0) break;
+      try {
+        const parsed = JSON.parse(repairJsonText(jsonCandidate.slice(0, cut + 1)));
+        const normalized = normalizeParsedStoryboard(parsed);
+        if (normalized) return normalized;
+      } catch {}
+    }
+    const error = new Error(
+      `Director returned invalid JSON: ${firstError?.message || "unparseable"}`,
+    );
+    error.rawText = text;
+    throw error;
   }
-  const error = new Error(`Director returned invalid JSON: ${firstError.message}`);
+
+  const error = new Error("Director returned invalid JSON: no valid YAML or JSON storyboard found");
   error.rawText = text;
   throw error;
+}
+
+export const parseStoryboardJson = parseStoryboardYamlOrJson;
+
+export function formatStoryboardYaml(storyboard) {
+  if (!storyboard || typeof storyboard !== "object") return "";
+  const cleaned = {
+    version: "2.0",
+    productName: storyboard.productName || "Untitled Video",
+    domain: storyboard.domain || "General",
+    engineMode: storyboard.engineMode || "combined",
+    format: storyboard.format || "1920x1080",
+    theme: storyboard.theme || "dark",
+    palette: storyboard.palette || "obsidian",
+    scenes: (storyboard.scenes || []).map((s, idx) => {
+      const item = {
+        id: s.id || `scene${idx + 1}`,
+        engine: s.engine || "html-gsap",
+        archetype: s.archetype || "features-cards",
+        theme: s.theme || "dark",
+        title: s.title || "",
+        eyebrow: s.eyebrow || "",
+        voiceover: s.voiceover || "",
+        transition: s.transition || "crossfade",
+      };
+      if (s.duration) item.duration = s.duration;
+      if (s.manimData) item.manimData = s.manimData;
+      if (s.beats) item.beats = s.beats;
+      if (s.fallbackArchetype) item.fallbackArchetype = s.fallbackArchetype;
+      if (s.fallbackPayload) item.fallbackPayload = s.fallbackPayload;
+      if (s.impactData) item.impactData = s.impactData;
+      if (s.spotlightData) item.spotlightData = s.spotlightData;
+      if (s.flowData) item.flowData = s.flowData;
+      if (s.kpiData) item.kpiData = s.kpiData;
+      if (s.stackData) item.stackData = s.stackData;
+      if (s.stepData) item.stepData = s.stepData;
+      if (s.feedData) item.feedData = s.feedData;
+      if (s.orbitData) item.orbitData = s.orbitData;
+      if (s.mockupData) item.mockupData = s.mockupData;
+      if (s.diffData) item.diffData = s.diffData;
+      if (s.chatData) item.chatData = s.chatData;
+      if (s.pills) item.pills = s.pills;
+      if (s.cta) item.cta = s.cta;
+      return item;
+    }),
+  };
+  return stringifyYaml(cleaned, { indent: 2, lineWidth: 120 });
+}
+
+export function formatStoryboardMarkdown(storyboard) {
+  if (!storyboard || typeof storyboard !== "object") return "";
+  const title = String(storyboard.productName || "Untitled Video").replace(/"/g, '\\"');
+  const lines = [
+    "---",
+    `title: "${title}"`,
+    `productName: "${title}"`,
+    `format: ${storyboard.format || "1920x1080"}`,
+    `engine: ${storyboard.engineMode || "combined"}`,
+    `theme: ${storyboard.theme || "dark"}`,
+    `message: "${title}"`,
+    `domain: "${String(storyboard.domain || "").replace(/"/g, '\\"')}"`,
+    "---",
+    "",
+  ];
+
+  for (const [idx, s] of (storyboard.scenes || []).entries()) {
+    lines.push(`## Scene ${idx + 1}: ${s.title || s.id}`);
+    lines.push(`- **ID**: \`${s.id}\``);
+    lines.push(`- **Engine**: \`${s.engine || "html-gsap"}\``);
+    lines.push(`- **Archetype**: \`${s.archetype || "features-cards"}\``);
+    lines.push(`- **Transition**: \`${s.transition || "crossfade"}\``);
+    lines.push(`- **Theme**: \`${s.theme || "dark"}\``);
+    if (s.duration) lines.push(`- **Duration**: ${s.duration}s`);
+    lines.push("");
+    lines.push(`> **Voiceover:** ${s.voiceover || ""}`);
+    lines.push("");
+  }
+  return lines.join("\n");
 }
 
 // OpenRouter Topic Script Synthesizer (Generates structured script for any subject in human knowledge)
@@ -1451,116 +1596,129 @@ Every single scene (from Scene 1 to Scene ${actualSceneCount}) MUST ALWAYS inclu
 6. "eyebrow": Short 1-3 word category / milestone tag
 7. The matching visual data payload for its archetype (e.g. kineticData, flowData, kpiData, codeDemo, diffData, clusters, stats, etc.). Do not output dummy properties for unrelated archetypes.
 
-Respond ONLY with valid JSON matching this schema:
-{
-  "productName": "Topic or Product Name",
-  "domain": "Domain or Field Badge",
-  "scenes": [
-    {
-      "id": "scene1-hook",
-      "engine": "html-gsap",
-      "archetype": "kinetic-impact",
-      "theme": "dark",
-      "eyebrow": "Hook",
-      "title": "Context Is King",
-      "voiceover": "Modern large language models live and die by how efficiently they process their context window.",
-      "impactData": {
-        "lines": ["CONTEXT IS", "THE NEW RAM"],
-        "accent": "RAM",
-        "tag": "Inference Bottleneck"
-      }
-    },
-    {
-      "id": "scene2-budget",
-      "engine": "html-gsap",
-      "archetype": "prompt-budget-canvas",
-      "theme": "light",
-      "eyebrow": "Tokens & Context",
-      "title": "Allocating the Prompt Budget",
-      "voiceover": "Every prompt competes for finite context tokens across system instructions, retrieved documents, and conversation history.",
-      "budgetData": {
-        "totalTokens": 8192,
-        "segments": [
-          { "label": "System Prompt", "tokens": 512, "color": "var(--accent)" },
-          { "label": "RAG Context", "tokens": 4096, "color": "var(--text)" },
-          { "label": "Chat History", "tokens": 2048, "color": "var(--border)" },
-          { "label": "Output Headroom", "tokens": 1536, "color": "var(--card)" }
-        ]
-      }
-    },
-    {
-      "id": "scene3-kvcache",
-      "engine": "manim",
-      "archetype": "manim-kv-cache",
-      "theme": "dark",
-      "eyebrow": "Cache Growth & Memory",
-      "title": "Key-Value Cache Expansion",
-      "voiceover": "As the model generates each subsequent token, past key and value projections are cached in GPU memory to prevent redundant recomputation.",
-      "manimData": {
-        "title": "KV Cache Ingestion",
-        "promptTokens": ["Deep", "Seek", "V3"],
-        "generatedTokens": ["generates", "tokens", "fast"]
-      },
-      "beats": [
-        "Past key and value vectors are stored in memory.",
-        "New tokens attend to the cache without recomputing previous tokens.",
-        "Memory bandwidth becomes the primary inference bottleneck."
-      ],
-      "fallbackArchetype": "step-progression",
-      "fallbackPayload": {
-        "stepData": {
-          "steps": [
-            { "label": "Prompt Ingestion", "detail": "Precompute K and V matrices" },
-            { "label": "Cache Allocation", "detail": "Lock attention states into HBM" },
-            { "label": "Autoregressive Step", "detail": "Append new token state dynamically" }
-          ]
-        }
-      }
-    },
-    {
-      "id": "scene4-rope",
-      "engine": "manim",
-      "archetype": "manim-positional-rope",
-      "theme": "dark",
-      "eyebrow": "Attention & Geometry",
-      "title": "Rotary Positional Embeddings",
-      "voiceover": "Rotary embeddings encode token order geometrically by rotating query and key vector pairs across complex frequency planes.",
-      "manimData": {
-        "title": "RoPE Vector Rotation",
-        "angle1": 30,
-        "angle2": 75
-      },
-      "beats": [
-        "Tokens gain position information via 2D rotation angles.",
-        "Relative distance is preserved as inner products decay smoothly.",
-        "Attention mechanisms naturally distinguish nearby context."
-      ],
-      "fallbackArchetype": "vector-cluster-graph",
-      "fallbackPayload": {
-        "clusters": [
-          { "name": "Query Plane", "nodeCount": 8, "active": true },
-          { "name": "Key Target", "nodeCount": 6, "active": false }
-        ],
-        "stats": {
-          "metric": "RoPE Geometry",
-          "latency": "Relative Encoding"
-        }
-      }
-    },
-    {
-      "id": "scene${actualSceneCount}-outro",
-      "engine": "html-gsap",
-      "archetype": "outro",
-      "theme": "accent",
-      "eyebrow": "Takeaway",
-      "title": "Engineered for Efficiency",
-      "subtitle": "Master the geometry and memory of modern transformer inference.",
-      "voiceover": "Optimizing memory layout and positional geometry unlocks the next frontier of high-throughput language models.",
-      "pills": ["Prompt Budgets", "KV Caching", "Rotary Geometry"],
-      "cta": "Explore Inference Architectures"
-    }
-  ]
-}`;
+STORYBOARD YAML SPECIFICATION:
+Respond with a clean, structured YAML document (enclosed in \`\`\`yaml ... \`\`\`) matching this schema:
+version: "2.0"
+productName: "Topic or Product Name"
+domain: "Domain or Field Badge"
+engineMode: "${engineMode}"
+scenes:
+  - id: "scene1-hook"
+    engine: "html-gsap"
+    archetype: "kinetic-impact"
+    theme: "dark"
+    eyebrow: "Hook"
+    title: "Context Is King"
+    voiceover: >
+      Modern large language models live and die by how efficiently they process their context window.
+    transition: "crossfade"
+    impactData:
+      lines:
+        - "CONTEXT IS"
+        - "THE NEW RAM"
+      accent: "RAM"
+      tag: "Inference Bottleneck"
+  - id: "scene2-budget"
+    engine: "html-gsap"
+    archetype: "prompt-budget-canvas"
+    theme: "light"
+    eyebrow: "Tokens & Context"
+    title: "Allocating the Prompt Budget"
+    voiceover: >
+      Every prompt competes for finite context tokens across system instructions, retrieved documents, and conversation history.
+    transition: "blur-crossfade"
+    budgetData:
+      totalTokens: 8192
+      segments:
+        - label: "System Prompt"
+          tokens: 512
+          color: "var(--accent)"
+        - label: "RAG Context"
+          tokens: 4096
+          color: "var(--text)"
+        - label: "Chat History"
+          tokens: 2048
+          color: "var(--border)"
+        - label: "Output Headroom"
+          tokens: 1536
+          color: "var(--card)"
+  - id: "scene3-kvcache"
+    engine: "manim"
+    archetype: "manim-kv-cache"
+    theme: "dark"
+    eyebrow: "Cache Growth & Memory"
+    title: "Key-Value Cache Expansion"
+    voiceover: >
+      As the model generates each subsequent token, past key and value projections are cached in GPU memory to prevent redundant recomputation.
+    transition: "crossfade"
+    manimData:
+      title: "KV Cache Ingestion"
+      promptTokens:
+        - "Deep"
+        - "Seek"
+        - "V3"
+      generatedTokens:
+        - "generates"
+        - "tokens"
+        - "fast"
+    beats:
+      - "Past key and value vectors are stored in memory."
+      - "New tokens attend to the cache without recomputing previous tokens."
+      - "Memory bandwidth becomes the primary inference bottleneck."
+    fallbackArchetype: "step-progression"
+    fallbackPayload:
+      stepData:
+        steps:
+          - label: "Prompt Ingestion"
+            detail: "Precompute K and V matrices"
+          - label: "Cache Allocation"
+            detail: "Lock attention states into HBM"
+          - label: "Autoregressive Step"
+            detail: "Append new token state dynamically"
+  - id: "scene4-rope"
+    engine: "manim"
+    archetype: "manim-positional-rope"
+    theme: "dark"
+    eyebrow: "Attention & Geometry"
+    title: "Rotary Positional Embeddings"
+    voiceover: >
+      Rotary embeddings encode token order geometrically by rotating query and key vector pairs across complex frequency planes.
+    transition: "crossfade"
+    manimData:
+      title: "RoPE Vector Rotation"
+      angle1: 30
+      angle2: 75
+    beats:
+      - "Tokens gain position information via 2D rotation angles."
+      - "Relative distance is preserved as inner products decay smoothly."
+      - "Attention mechanisms naturally distinguish nearby context."
+    fallbackArchetype: "vector-cluster-graph"
+    fallbackPayload:
+      clusters:
+        - name: "Query Plane"
+          nodeCount: 8
+          active: true
+        - name: "Key Target"
+          nodeCount: 6
+          active: false
+      stats:
+        metric: "RoPE Geometry"
+        latency: "Relative Encoding"
+  - id: "scene${actualSceneCount}-outro"
+    engine: "html-gsap"
+    archetype: "outro"
+    theme: "accent"
+    eyebrow: "Takeaway"
+    title: "Engineered for Efficiency"
+    subtitle: "Master the geometry and memory of modern transformer inference."
+    voiceover: >
+      Optimizing memory layout and positional geometry unlocks the next frontier of high-throughput language models.
+    transition: "blur-crossfade"
+    pills:
+      - "Prompt Budgets"
+      - "KV Caching"
+      - "Rotary Geometry"
+    cta: "Explore Inference Architectures"`;
 }
 
 // OpenRouter Storyboard Director
@@ -1625,7 +1783,6 @@ async function directStoryboard({
       body: JSON.stringify({
         model: model || "anthropic/claude-sonnet-5.5",
         messages,
-        response_format: { type: "json_object" },
         temperature: messages.length > 2 ? 0 : 0.6,
         top_p: 0.9,
         presence_penalty: messages.length > 2 ? 0 : 0.3,
@@ -1644,35 +1801,36 @@ async function directStoryboard({
   const maxTokens = Math.min(16000, Math.max(8192, sceneCount * 250));
   const rawContent = await callDirector(
     [
-      { role: "system", content: "You are an autonomous JSON-only video design director." },
+      {
+        role: "system",
+        content:
+          "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
+      },
       { role: "user", content: prompt },
     ],
     maxTokens,
   );
   try {
-    return parseStoryboardJson(rawContent);
+    return parseStoryboardYamlOrJson(rawContent);
   } catch (err) {
     if (typeof rawContent !== "string" || !rawContent.trim()) throw err;
-    // One-shot self-repair: send the malformed JSON and the parse error back to the model.
-    console.warn(`[DIRECTOR JSON REPAIR] ${err.message}; requesting one repair pass`);
-    const posMatch = /position (\d+)/.exec(err.message);
-    const position = posMatch ? Number(posMatch[1]) : null;
+    console.warn(`[DIRECTOR STORYBOARD REPAIR] ${err.message}; requesting one repair pass`);
     const repaired = await callDirector(
       [
         {
           role: "system",
           content:
-            "You fix malformed JSON. Reply with only the corrected, valid JSON object. No commentary, no code fences. Preserve all content.",
+            "You fix malformed YAML or JSON storyboards. Reply with only the corrected, valid YAML specification. No commentary, no explanation. Preserve all content.",
         },
         {
           role: "user",
-          content: `This JSON failed to parse: ${err.message}${position !== null ? ` (error near character ${position})` : ""}.\n\nMalformed JSON:\n${rawContent.slice(0, 60000)}`,
+          content: `This storyboard specification failed to parse: ${err.message}.\n\nRaw storyboard:\n${rawContent.slice(0, 60000)}`,
         },
-        { role: "user", content: "Return the fixed JSON only." },
+        { role: "user", content: "Return the fixed YAML only." },
       ],
       maxTokens,
     );
-    return parseStoryboardJson(repaired);
+    return parseStoryboardYamlOrJson(repaired);
   }
 }
 
@@ -1810,9 +1968,54 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
       })
     : "";
 
+  const surfaceBg = isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.03)";
+  const borderColor =
+    effectivePalette.border || (isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.1)");
+  const brandColor = effectivePalette.accent || "#6366f1";
+  const accentColor = effectivePalette.accent2 || effectivePalette.accent || "#38bdf8";
+  const accent2Color = effectivePalette.accent3 || "#f43f5e";
+  const textMuted =
+    effectivePalette.textMuted || (isDark ? "rgba(255, 255, 255, 0.65)" : "rgba(0, 0, 0, 0.6)");
+
   return `
-    [data-composition-id="${scene.id}"] { position: absolute; inset: 0; width: ${compWidth}px; height: ${compHeight}px; ${bgStyle} overflow: hidden; color: ${effectivePalette.text}; }
-    [data-composition-id="${scene.id}"] .scene-inner { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: ${isPortrait ? "flex-start" : "center"}; align-items: center; padding: ${isPortrait ? "130px 48px 120px" : "60px 100px"}; text-align: center; box-sizing: border-box; transform-origin: center center; }
+    [data-composition-id="${scene.id}"] {
+      /* Hyperframes 18-Token Design Contract */
+      --bg: ${isDark ? "#0b0d14" : effectivePalette.background};
+      --fg: ${isDark ? "#f3f4f8" : effectivePalette.text};
+      --muted: ${textMuted};
+      --surface: ${surfaceBg};
+      --border: ${borderColor};
+      --brand: ${brandColor};
+      --accent: ${accentColor};
+      --accent-2: ${accent2Color};
+      --font-display: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", monospace;
+      --radius: ${isPortrait ? "24px" : "18px"};
+      --space-1: 8px;
+      --space-2: 16px;
+      --space-3: 32px;
+      --dur-beat: 0.4s;
+      --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-emphasis: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      position: absolute;
+      inset: 0;
+      width: ${compWidth}px;
+      height: ${compHeight}px;
+      ${bgStyle}
+      overflow: hidden;
+      color: var(--fg);
+    }
+    [data-composition-id="${scene.id}"]::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 20%, ${isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 255, 255, 0.6)"} 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    [data-composition-id="${scene.id}"] .scene-inner { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: ${isPortrait ? "flex-start" : "center"}; align-items: center; padding: ${isPortrait ? "130px 48px 120px" : "60px 100px"}; text-align: center; box-sizing: border-box; transform-origin: center center; position: relative; z-index: 1; }
 
     /* Split-Stage Hero Layout (Left Narrative / Right Graphic) */
     [data-composition-id="${scene.id}"] .split-hero-layout { width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 60px 100px; box-sizing: border-box; text-align: left; }
@@ -2214,6 +2417,28 @@ async function runProductionPipeline(jobId, payload) {
       ),
     );
     console.log("---------------------------------------------------");
+
+    // Persist canonical YAML storyboard and manifests (matching Hyperframes structure)
+    try {
+      fs.writeFileSync(
+        path.join(projectDir, "storyboard.json"),
+        JSON.stringify(storyboard, null, 2),
+        "utf8",
+      );
+      fs.writeFileSync(
+        path.join(projectDir, "storyboard.yaml"),
+        formatStoryboardYaml(storyboard),
+        "utf8",
+      );
+      fs.writeFileSync(
+        path.join(projectDir, "STORYBOARD.md"),
+        formatStoryboardMarkdown(storyboard),
+        "utf8",
+      );
+    } catch (saveErr) {
+      console.warn(`[MANIFEST] Failed to persist storyboard manifests: ${saveErr.message}`);
+    }
+
     broadcastEvent(jobId, {
       node: "narrative",
       status: "complete",
