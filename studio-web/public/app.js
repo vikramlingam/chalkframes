@@ -562,6 +562,10 @@ document.addEventListener("DOMContentLoaded", () => {
             setNodeState(payload.node, payload.status);
           }
 
+          if (payload.node === "composition" && payload.storyboard) {
+            renderFilmstrip(payload.storyboard, `prod-${jobId}`);
+          }
+
           // Production Complete
           if (payload.node === "complete" && payload.status === "complete") {
             nodes.forEach((n) => {
@@ -584,16 +588,21 @@ document.addEventListener("DOMContentLoaded", () => {
               downloadLink.setAttribute("download", `${jobId}.mp4`);
 
               // Adapt aspect ratio of player
+              videoTheatre.classList.remove("portrait", "square");
               if (format === "portrait") {
                 videoTheatre.classList.add("portrait");
-              } else {
-                videoTheatre.classList.remove("portrait");
+              } else if (format === "square") {
+                videoTheatre.classList.add("square");
               }
 
-              videoMetaText.textContent = `${payload.resolution || (format === "portrait" ? "1080x1920" : "1920x1080")} · 30 fps · Stereo · ${payload.duration || duration + "s"}`;
+              videoMetaText.textContent = `${payload.resolution || (format === "portrait" ? "1080x1920" : format === "square" ? "1080x1080" : "1920x1080")} · 30 fps · Stereo · ${payload.duration || duration + "s"}`;
               cinemaPanel.classList.remove("hidden");
               cinemaPanel.scrollIntoView({ behavior: "smooth" });
               playerVideo.play().catch(() => {});
+            }
+
+            if (payload.storyboard) {
+              renderFilmstrip(payload.storyboard, payload.projectId || `prod-${jobId}`);
             }
 
             activeEventSource.close();
@@ -623,4 +632,75 @@ document.addEventListener("DOMContentLoaded", () => {
       liveStatusText.textContent = "Standby";
     }
   });
+
+  const escapeHtml = (str) =>
+    String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  function renderFilmstrip(storyboard, currentProjId) {
+    const filmstripSection = document.getElementById("filmstripSection");
+    const filmstripTrack = document.getElementById("filmstripTrack");
+    const filmstripSceneCount = document.getElementById("filmstripSceneCount");
+    if (!filmstripSection || !filmstripTrack || !storyboard?.scenes) return;
+
+    filmstripSection.style.display = "flex";
+    filmstripSceneCount.textContent = `${storyboard.scenes.length} Scenes`;
+    filmstripTrack.innerHTML = "";
+
+    storyboard.scenes.forEach((scene, idx) => {
+      const card = document.createElement("div");
+      card.className = "filmstrip-card";
+      const dur = typeof scene.duration === "number" ? scene.duration.toFixed(1) + "s" : "~5s";
+      card.innerHTML = `
+        <div class="filmstrip-card-top">
+          <span class="filmstrip-index">SCENE ${String(idx + 1).padStart(2, "0")}</span>
+          <span class="filmstrip-archetype">${escapeHtml(scene.archetype || "html")}</span>
+        </div>
+        <div class="filmstrip-card-title">${escapeHtml(scene.title || "Untitled Scene")}</div>
+        <div class="filmstrip-card-narration">${escapeHtml(scene.narration || "")}</div>
+        <div class="filmstrip-card-footer">
+          <span class="filmstrip-duration">⏱ ${dur}</span>
+          <button type="button" class="btn-rerender" data-index="${idx}">Tweak Scene</button>
+        </div>
+      `;
+
+      const rerenderBtn = card.querySelector(".btn-rerender");
+      rerenderBtn.addEventListener("click", async () => {
+        const newNarration = prompt(
+          "Edit voiceover narration for this scene:",
+          scene.narration || "",
+        );
+        if (newNarration === null) return;
+        rerenderBtn.textContent = "Rendering...";
+        rerenderBtn.disabled = true;
+        try {
+          const res = await fetch(`/api/projects/${currentProjId}/rerender-scene`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sceneIndex: idx, newNarration }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Re-render failed");
+          if (data.videoUrl) {
+            playerVideo.src = data.videoUrl;
+            playerVideo.play().catch(() => {});
+          }
+          rerenderBtn.textContent = "Updated ✓";
+          setTimeout(() => {
+            rerenderBtn.textContent = "Tweak Scene";
+            rerenderBtn.disabled = false;
+          }, 2000);
+        } catch (err) {
+          alert("Failed to re-render scene: " + err.message);
+          rerenderBtn.textContent = "Tweak Scene";
+          rerenderBtn.disabled = false;
+        }
+      });
+
+      filmstripTrack.appendChild(card);
+    });
+  }
 });

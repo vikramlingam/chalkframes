@@ -10,6 +10,7 @@ import {
   synthesizeFallbackNumber,
   NEUTRAL_TOKENS,
 } from "./fallbackText.mjs";
+import { harmonizePalette } from "./color-contrast.mjs";
 
 export { synthesizeFallbackText };
 
@@ -74,33 +75,39 @@ export function highlightCodeTokens(line) {
 export function resolveScenePalette(scene, basePalette = {}) {
   const theme = scene?.theme;
   if (theme === "dark") {
-    return {
-      ...basePalette,
-      background: "#0b0d14",
-      card: "#141724",
-      border: "rgba(255, 255, 255, 0.12)",
-      text: "#f3f4f8",
-      textMuted: "#9ca3af",
-      muted: "#9ca3af",
-      accent: basePalette.accent || "#6366f1",
-      glow: "rgba(99, 102, 241, 0.35)",
-      isDark: true,
-    };
+    return harmonizePalette(
+      {
+        ...basePalette,
+        background: "#0b0d14",
+        card: "#141724",
+        border: "rgba(255, 255, 255, 0.12)",
+        text: "#f3f4f8",
+        textMuted: "#9ca3af",
+        muted: "#9ca3af",
+        accent: basePalette.accent || "#6366f1",
+        glow: "rgba(99, 102, 241, 0.35)",
+        isDark: true,
+      },
+      true,
+    );
   }
   if (theme === "accent") {
-    return {
-      ...basePalette,
-      background: basePalette.accent ? `${basePalette.accent}14` : "#f0f4ff",
-      card: "#ffffff",
-      border: basePalette.accent ? `${basePalette.accent}33` : "rgba(0,0,0,0.1)",
-      text: basePalette.text || "#111827",
-      textMuted: basePalette.textMuted || "#4b5563",
-      muted: basePalette.muted || "#6b7280",
-      accent: basePalette.accent || "#6366f1",
-      isAccent: true,
-    };
+    return harmonizePalette(
+      {
+        ...basePalette,
+        background: basePalette.accent ? `${basePalette.accent}14` : "#f0f4ff",
+        card: "#ffffff",
+        border: basePalette.accent ? `${basePalette.accent}33` : "rgba(0,0,0,0.1)",
+        text: basePalette.text || "#111827",
+        textMuted: basePalette.textMuted || "#4b5563",
+        muted: basePalette.muted || "#6b7280",
+        accent: basePalette.accent || "#6366f1",
+        isAccent: true,
+      },
+      false,
+    );
   }
-  return basePalette;
+  return harmonizePalette(basePalette, Boolean(basePalette.isDark));
 }
 
 export function formatCompactMetric(val) {
@@ -202,9 +209,9 @@ registerArchetypeRenderer("outro", {
         </div>
       `,
       gsapChoreography: `
-        tl.from(scope.querySelector("#s${i + 1}-card"), { opacity: 0, y: 40, scale: 0.96, duration: 0.7, ease: "power4.out" }, 0.2);
-        tl.from(scope.querySelectorAll(".pill-feature"), { opacity: 0, y: 15, stagger: 0.1, duration: 0.4 }, 0.8);
-        tl.from(scope.querySelector(".cta-button"), { opacity: 0, scale: 0.95, duration: 0.5 }, 1.3);
+        tl.from(scope.querySelector("#s${i + 1}-card"), { opacity: 0, y: 40, scale: 0.95, duration: 0.7, ease: "back.out(1.15)" }, 0.2);
+        tl.from(scope.querySelectorAll(".pill-feature"), { opacity: 0, y: 15, scale: 0.95, stagger: 0.1, duration: 0.45, ease: "back.out(1.15)" }, 0.8);
+        tl.from(scope.querySelector(".cta-button"), { opacity: 0, scale: 0.92, duration: 0.5, ease: "back.out(1.2)" }, 1.3);
       `,
     };
   },
@@ -689,7 +696,7 @@ registerArchetypeRenderer("live-feed", {
         tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 15, duration: 0.4 }, 0.2);
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 20, duration: 0.5 }, 0.4);
         scope.querySelectorAll(".feed-item-pill").forEach((f, idx) => {
-          tl.from(f, { opacity: 0, y: 30, scale: 0.96, duration: 0.5, ease: "power4.out" }, 0.7 + (idx * 0.22));
+          tl.from(f, { opacity: 0, y: 30, scale: 0.96, duration: 0.5, ease: "back.out(1.15)" }, 0.7 + (idx * 0.22));
         });
       `,
     };
@@ -1808,8 +1815,8 @@ export const renderDefaultCards = {
       gsapChoreography: `
         tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 15, duration: 0.4 }, 0.2);
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 20, duration: 0.5 }, 0.4);
-        tl.from(scope.querySelector("#s${i + 1}-card-a"), { opacity: 0, y: 30, duration: 0.5 }, 0.7);
-        tl.from(scope.querySelector("#s${i + 1}-card-b"), { opacity: 0, y: 30, duration: 0.5 }, 0.9);
+        tl.from(scope.querySelector("#s${i + 1}-card-a"), { opacity: 0, y: 35, scale: 0.95, duration: 0.55, ease: "back.out(1.15)" }, 0.7);
+        tl.from(scope.querySelector("#s${i + 1}-card-b"), { opacity: 0, y: 35, scale: 0.95, duration: 0.55, ease: "back.out(1.15)" }, 0.9);
         const words = scope.querySelectorAll(".typed-word");
         words.forEach((w, idx) => { tl.to(w, { opacity: 1, duration: 0.04 }, 1.2 + (idx * 0.12)); });
         scope.querySelectorAll(".note-item").forEach((n) => { tl.to(n, { opacity: 0.55, y: 0, duration: 0.4 }, 2.0); });
@@ -1879,7 +1886,7 @@ registerArchetypeRenderer("bento-metric-grid", {
       gsapChoreography: `
         tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 20, duration: 0.5 }, 0.2);
         tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 25, duration: 0.6 }, 0.4);
-        tl.from(scope.querySelectorAll(".bento-tile"), { opacity: 0, y: 30, scale: 0.96, stagger: 0.08, duration: 0.55, ease: "power3.out" }, 0.5);
+        tl.from(scope.querySelectorAll(".bento-tile"), { opacity: 0, y: 30, scale: 0.94, stagger: 0.08, duration: 0.55, ease: "back.out(1.15)" }, 0.5);
         ${scheduleStepProgression("tl", 'scope.querySelectorAll(".bento-tile")', sDur, { accent: activePalette.accent })}
         tl.fromTo(scope.querySelectorAll(".bento-border"), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, stagger: 0.1, duration: 0.6, ease: "power2.inOut" }, 0.7);
         tl.from(scope.querySelectorAll(".bento-value"), {
@@ -5178,5 +5185,174 @@ registerArchetypeRenderer("code-slice-reveal", {
     [data-composition-id="${scene.id}"] .term-prompt { color: ${activePalette.accent}; font-weight: 800; }
     [data-composition-id="${scene.id}"] .term-pass { color: #4ade80; font-weight: 800; }
     [data-composition-id="${scene.id}"] .term-meta { color: ${activePalette.textMuted || "#666"}; font-size: 12px; }
+  `,
+});
+
+// Split Stage Hero — cinematic split product showcase with real screenshot viewport and vector UI fallback.
+registerArchetypeRenderer("split-stage-hero", {
+  getBackground: ({ activePalette, scene }) =>
+    scene?.theme === "dark" || activePalette?.isDark
+      ? `background: radial-gradient(ellipse at 80% 30%, ${activePalette.accent}25 0%, transparent 60%), radial-gradient(circle at 20% 80%, ${activePalette.accent}12 0%, transparent 50%), #080a10;`
+      : `background: radial-gradient(ellipse at 75% 30%, ${activePalette.accent}18 0%, transparent 60%), linear-gradient(135deg, ${activePalette.card} 0%, ${activePalette.background} 100%);`,
+  renderHtml: ({ scene, i, isPortrait, h, sDur, activePalette }) => {
+    const rawHighlights = scene.heroData?.highlights || scene.pills;
+    const highlights = (
+      Array.isArray(rawHighlights) && rawHighlights.length
+        ? rawHighlights
+        : [
+            { text: synthesizeFallbackText(scene, "feature", 0) },
+            { text: synthesizeFallbackText(scene, "feature", 1) },
+            { text: synthesizeFallbackText(scene, "feature", 2) },
+          ]
+    ).slice(0, 3);
+
+    const highlightsHtml = highlights
+      .map((item, idx) => {
+        const text = typeof item === "string" ? item : item?.text || "";
+        return `
+          <div class="split-pill split-pill-${idx}">
+            <span class="split-pill-dot"></span>
+            <span class="split-pill-text">${h(text)}</span>
+          </div>`;
+      })
+      .join("\n");
+
+    const appTitle = scene.heroData?.appTitle || scene.title || "Product Workspace";
+    const appUrl = scene.heroData?.url || scene.eyebrow || "https://platform.io/app";
+    const screenshotUrl = scene.screenshotPath || scene.heroData?.screenshotUrl;
+
+    const mockupContentHtml = screenshotUrl
+      ? `<div class="mockup-viewport">
+           <img src="${screenshotUrl}" class="mockup-screenshot-img" alt="Product Live View" />
+         </div>`
+      : `<div class="mockup-vector-ui">
+           <div class="mockup-top-nav">
+             <div class="mockup-brand"><span class="brand-glyph">✦</span><span>${h(appTitle)}</span></div>
+             <div class="mockup-nav-links">
+               <span class="mockup-link active">Overview</span>
+               <span class="mockup-link">Analytics</span>
+               <span class="mockup-link">Engine</span>
+             </div>
+             <div class="mockup-status-badge">CONNECTED</div>
+           </div>
+           <div class="mockup-body-grid">
+             <div class="mockup-card-primary">
+               <span class="mockup-label">REAL-TIME PIPELINE</span>
+               <div class="mockup-big-val">99.98%</div>
+               <div class="mockup-chart-bars">
+                 <div class="m-bar" style="height: 45%;"></div>
+                 <div class="m-bar" style="height: 70%;"></div>
+                 <div class="m-bar" style="height: 60%;"></div>
+                 <div class="m-bar" style="height: 85%;"></div>
+                 <div class="m-bar m-bar-hi" style="height: 100%;"></div>
+               </div>
+             </div>
+             <div class="mockup-card-secondary">
+               <span class="mockup-label">EXECUTION LATENCY</span>
+               <div class="mockup-small-val">12.4ms</div>
+               <div class="mockup-stream-line"><span class="dot-green"></span><span>Streaming 120 fps</span></div>
+               <div class="mockup-stream-line"><span class="dot-blue"></span><span>Model weights synced</span></div>
+             </div>
+           </div>
+         </div>`;
+
+    const animDur = Math.max(1, sDur - 1.6);
+    return {
+      innerHtml: `
+        <div class="scene-inner split-stage-wrapper">
+          <div class="split-hero-container">
+            <div class="split-hero-copy">
+              <div id="s${i + 1}-eyebrow" class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>${h(scene.eyebrow || "PRODUCT OVERVIEW")}</span>
+              </div>
+              <h1 id="s${i + 1}-title" class="editorial-title split-hero-title" style="font-size: ${isPortrait ? "48px" : "64px"}; color: ${activePalette.text};">${h(scene.title)}</h1>
+              <p id="s${i + 1}-subtitle" class="editorial-subtitle split-hero-subtitle">${h(scene.subtitle || scene.narration || "")}</p>
+              <div id="s${i + 1}-pills" class="split-pills-row">
+                ${highlightsHtml}
+              </div>
+            </div>
+            <div class="split-hero-visual">
+              <div id="s${i + 1}-mockup" class="browser-mockup-frame">
+                <div class="browser-header">
+                  <div class="browser-dots">
+                    <span class="b-dot b-dot-r"></span>
+                    <span class="b-dot b-dot-y"></span>
+                    <span class="b-dot b-dot-g"></span>
+                  </div>
+                  <div class="browser-address-bar">
+                    <span class="lock-icon">🔒</span>
+                    <span class="browser-url">${h(appUrl)}</span>
+                  </div>
+                  <div class="browser-action-icon">⋯</div>
+                </div>
+                <div class="browser-screen">
+                  ${mockupContentHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      gsapChoreography: `
+        tl.from(scope.querySelector("#s${i + 1}-eyebrow"), { opacity: 0, y: 18, duration: 0.45 }, 0.2);
+        tl.from(scope.querySelector("#s${i + 1}-title"), { opacity: 0, y: 26, duration: 0.6, ease: "power3.out" }, 0.35);
+        tl.from(scope.querySelector("#s${i + 1}-subtitle"), { opacity: 0, y: 20, duration: 0.55 }, 0.55);
+        tl.from(scope.querySelectorAll(".split-pill"), { opacity: 0, y: 15, scale: 0.95, stagger: 0.1, duration: 0.45, ease: "back.out(1.15)" }, 0.7);
+        tl.from(scope.querySelector("#s${i + 1}-mockup"), { opacity: 0, y: 50, scale: 0.92, duration: 0.75, ease: "back.out(1.15)" }, 0.4);
+        ${
+          screenshotUrl
+            ? `const scrImg = scope.querySelector(".mockup-screenshot-img");
+               if (scrImg) {
+                 tl.fromTo(scrImg, { y: 0 }, { y: -65, duration: ${animDur}, ease: "power1.inOut" }, 1.2);
+               }`
+            : `tl.from(scope.querySelectorAll(".mockup-card-primary, .mockup-card-secondary"), { opacity: 0, y: 20, stagger: 0.15, duration: 0.5, ease: "back.out(1.15)" }, 0.85);
+               tl.fromTo(scope.querySelectorAll(".m-bar"), { scaleY: 0, transformOrigin: "bottom" }, { scaleY: 1, stagger: 0.08, duration: 0.6, ease: "power2.out" }, 1.1);`
+        }
+      `,
+    };
+  },
+  renderCss: ({ scene, isPortrait, activePalette }) => `
+    [data-composition-id="${scene.id}"] .split-stage-wrapper { justify-content: center; align-items: center; width: 100%; height: 100%; padding: ${isPortrait ? "80px 36px" : "60px 80px"}; }
+    [data-composition-id="${scene.id}"] .split-hero-container { display: flex; flex-direction: ${isPortrait ? "column" : "row"}; align-items: center; justify-content: space-between; gap: ${isPortrait ? "36px" : "54px"}; width: 100%; max-width: 1720px; }
+    [data-composition-id="${scene.id}"] .split-hero-copy { flex: 1; display: flex; flex-direction: column; align-items: ${isPortrait ? "center" : "flex-start"}; text-align: ${isPortrait ? "center" : "left"}; }
+    [data-composition-id="${scene.id}"] .split-hero-title { font-size: ${isPortrait ? "50px" : "64px"}; text-align: ${isPortrait ? "center" : "left"}; max-width: 760px; line-height: 1.15; }
+    [data-composition-id="${scene.id}"] .split-hero-subtitle { font-size: ${isPortrait ? "24px" : "28px"}; text-align: ${isPortrait ? "center" : "left"}; max-width: 700px; margin-top: 16px; color: ${activePalette.textMuted || activePalette.muted}; }
+    [data-composition-id="${scene.id}"] .split-pills-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; justify-content: ${isPortrait ? "center" : "flex-start"}; }
+    [data-composition-id="${scene.id}"] .split-pill { display: flex; align-items: center; gap: 10px; background: ${activePalette.card || "rgba(255,255,255,0.06)"}; border: 1.5px solid ${activePalette.border || "rgba(255,255,255,0.14)"}; padding: 10px 18px; border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+    [data-composition-id="${scene.id}"] .split-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: ${activePalette.accent}; box-shadow: 0 0 8px ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .split-pill-text { font-family: "Plus Jakarta Sans", sans-serif; font-size: 16px; font-weight: 600; color: ${activePalette.text}; }
+    [data-composition-id="${scene.id}"] .split-hero-visual { flex: ${isPortrait ? "none" : "1.2"}; width: ${isPortrait ? "100%" : "auto"}; max-width: ${isPortrait ? "680px" : "900px"}; display: flex; justify-content: center; }
+    [data-composition-id="${scene.id}"] .browser-mockup-frame { width: 100%; background: #0c0f17; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.15); box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06); overflow: hidden; transform: perspective(1000px) rotateY(-2deg) rotateX(2deg); }
+    [data-composition-id="${scene.id}"] .browser-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #131722; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    [data-composition-id="${scene.id}"] .browser-dots { display: flex; gap: 8px; }
+    [data-composition-id="${scene.id}"] .b-dot { width: 12px; height: 12px; border-radius: 50%; }
+    [data-composition-id="${scene.id}"] .b-dot-r { background: #ff5f56; }
+    [data-composition-id="${scene.id}"] .b-dot-y { background: #ffbd2e; }
+    [data-composition-id="${scene.id}"] .b-dot-g { background: #27c93f; }
+    [data-composition-id="${scene.id}"] .browser-address-bar { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 5px 16px; border-radius: 8px; font-family: "JetBrains Mono", monospace; font-size: 13px; color: ${activePalette.textMuted || "#999"}; min-width: 260px; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    [data-composition-id="${scene.id}"] .lock-icon { font-size: 11px; }
+    [data-composition-id="${scene.id}"] .browser-action-icon { color: #666; font-size: 18px; }
+    [data-composition-id="${scene.id}"] .browser-screen { height: ${isPortrait ? "360px" : "480px"}; overflow: hidden; background: #070911; position: relative; }
+    [data-composition-id="${scene.id}"] .mockup-viewport { width: 100%; height: 100%; overflow: hidden; position: relative; }
+    [data-composition-id="${scene.id}"] .mockup-screenshot-img { width: 100%; height: auto; min-height: 100%; display: block; object-fit: cover; object-position: top; }
+    [data-composition-id="${scene.id}"] .mockup-vector-ui { padding: 24px; display: flex; flex-direction: column; gap: 20px; height: 100%; box-sizing: border-box; }
+    [data-composition-id="${scene.id}"] .mockup-top-nav { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    [data-composition-id="${scene.id}"] .mockup-brand { display: flex; align-items: center; gap: 8px; font-family: "Plus Jakarta Sans", sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
+    [data-composition-id="${scene.id}"] .brand-glyph { color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .mockup-nav-links { display: flex; gap: 16px; font-size: 13px; color: #888; font-weight: 600; }
+    [data-composition-id="${scene.id}"] .mockup-link.active { color: ${activePalette.accent}; }
+    [data-composition-id="${scene.id}"] .mockup-status-badge { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 800; color: #4ade80; background: rgba(74,222,128,0.12); padding: 3px 10px; border-radius: 999px; }
+    [data-composition-id="${scene.id}"] .mockup-body-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; flex: 1; }
+    [data-composition-id="${scene.id}"] .mockup-card-primary, [data-composition-id="${scene.id}"] .mockup-card-secondary { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; }
+    [data-composition-id="${scene.id}"] .mockup-label { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; color: #888; letter-spacing: 0.08em; }
+    [data-composition-id="${scene.id}"] .mockup-big-val { font-size: 40px; font-weight: 800; color: #fff; line-height: 1.1; margin: 8px 0; }
+    [data-composition-id="${scene.id}"] .mockup-small-val { font-size: 28px; font-weight: 800; color: ${activePalette.accent}; line-height: 1.1; margin: 6px 0; }
+    [data-composition-id="${scene.id}"] .mockup-chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 60px; }
+    [data-composition-id="${scene.id}"] .m-bar { flex: 1; background: rgba(255,255,255,0.12); border-radius: 4px 4px 0 0; }
+    [data-composition-id="${scene.id}"] .m-bar-hi { background: ${activePalette.accent}; box-shadow: 0 0 12px ${activePalette.accent}88; }
+    [data-composition-id="${scene.id}"] .mockup-stream-line { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #bbb; }
+    [data-composition-id="${scene.id}"] .dot-green { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+    [data-composition-id="${scene.id}"] .dot-blue { width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; }
   `,
 });

@@ -40,34 +40,35 @@ def run(scene, theme, brief, budget, beat_frames):
     center = [0, -0.2, 0]
 
     # Coordinate axes
-    ax_x = Line([center[0] - r * 1.3, center[1], 0], [center[0] + r * 1.3, center[1], 0], stroke_width=2, color=theme.border)
-    ax_y = Line([center[0], center[1] - r * 1.3, 0], [center[0], center[1] + r * 1.3, 0], stroke_width=2, color=theme.border)
-    circle = Circle(radius=r, stroke_width=2, stroke_color=theme.border, stroke_opacity=0.6).move_to(center)
+    axis_col = getattr(theme, "axis", theme.border)
+    ax_x = Line([center[0] - r * 1.3, center[1], 0], [center[0] + r * 1.3, center[1], 0], stroke_width=3.5, color=axis_col)
+    ax_y = Line([center[0], center[1] - r * 1.3, 0], [center[0], center[1] + r * 1.3, 0], stroke_width=3.5, color=axis_col)
+    circle = Circle(radius=r, stroke_width=3.5, stroke_color=getattr(theme, "grid", theme.border), stroke_opacity=0.85).move_to(center)
 
     # Initial baseline vectors (aligned near horizontal)
-    v1_init = Arrow(center, [center[0] + r * 0.95, center[1], 0], color=theme.accent, stroke_width=4, buff=0)
-    v2_init = Arrow(center, [center[0] + r * 0.95, center[1], 0], color=theme.accent_alt, stroke_width=4, buff=0)
+    v1_init = Arrow(center, [center[0] + r * 0.95, center[1], 0], color=theme.accent, stroke_width=5.5, buff=0)
+    v2_init = Arrow(center, [center[0] + r * 0.95, center[1], 0], color=theme.accent_alt, stroke_width=5.5, buff=0)
 
     # Target rotated vectors
     p1 = [center[0] + r * 0.95 * math.cos(rad1), center[1] + r * 0.95 * math.sin(rad1), 0]
     p2 = [center[0] + r * 0.95 * math.cos(rad2), center[1] + r * 0.95 * math.sin(rad2), 0]
 
-    v1_rot = Arrow(center, p1, color=theme.accent, stroke_width=4, buff=0)
-    v2_rot = Arrow(center, p2, color=theme.accent_alt, stroke_width=4, buff=0)
+    v1_rot = Arrow(center, p1, color=theme.accent, stroke_width=5.5, buff=0)
+    v2_rot = Arrow(center, p2, color=theme.accent_alt, stroke_width=5.5, buff=0)
 
-    lbl1 = Text(f"q (m*θ = {int(ang1_deg)}°)", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.32).next_to(p1, UP + RIGHT, buff=0.15)
-    lbl2 = Text(f"k (n*θ = {int(ang2_deg)}°)", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.32).next_to(p2, UP + RIGHT, buff=0.15)
+    lbl1 = Text(f"q (mθ = {int(ang1_deg)}°)", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.44).next_to(p1, UP + RIGHT, buff=0.15)
+    lbl2 = Text(f"k (nθ = {int(ang2_deg)}°)", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.44).next_to(p2, UP + RIGHT, buff=0.15)
 
     # Relative angle arc
     start_ang = min(rad1, rad2)
     diff_ang = abs(rad2 - rad1)
-    arc = Arc(radius=r * 0.45, start_angle=start_ang, angle=diff_ang, arc_center=center, color=theme.accent, stroke_width=3)
-    arc_lbl = Text(f"Δθ = {delta_deg}°", font=theme.mono, color=theme.text, weight="BOLD").scale(0.3).next_to(arc, RIGHT, buff=0.1)
+    arc = Arc(radius=r * 0.45, start_angle=start_ang, angle=diff_ang, arc_center=center, color=theme.accent, stroke_width=4.5)
+    arc_lbl = Text(f"Δθ = {delta_deg}°", font=theme.mono, color=theme.text, weight="BOLD").scale(0.42).next_to(arc, RIGHT, buff=0.15)
 
     # Invariant dot-product banner
-    banner_bg = RoundedRectangle(corner_radius=0.1, width=5.2, height=0.55, stroke_width=2, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([0, -r * 1.25, 0])
-    banner_txt = Text(f"<R_m q, R_n k> = g(q, k, (m-n)θ)", font=theme.mono, weight="BOLD", color=theme.text).scale(0.28).move_to(banner_bg.get_center())
-    fit(banner_txt, 4.8)
+    banner_bg = RoundedRectangle(corner_radius=0.14, width=5.6, height=0.68, stroke_width=3, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=0.98).move_to([0, -r * 1.25, 0])
+    banner_txt = Text(f"⟨R_m q, R_n k⟩ = g(q, k, (m-n)θ)", font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).move_to(banner_bg.get_center())
+    fit(banner_txt, 5.2)
     banner = VGroup(banner_bg, banner_txt)
 
     stages = 3

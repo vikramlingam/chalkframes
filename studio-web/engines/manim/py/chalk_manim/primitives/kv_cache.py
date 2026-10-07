@@ -28,8 +28,8 @@ def run(scene, theme, brief, budget, beat_frames):
     total_tokens = len(all_tokens)
 
     fw, fh = config.frame_width, config.frame_height
-    col_w = min(fw * 0.72 / max(total_tokens, 1), 1.35)
-    row_h = 0.55
+    col_w = min(fw * 0.72 / max(total_tokens, 1), 1.45)
+    row_h = 0.72
     start_x = -((total_tokens - 1) * col_w) / 2
 
     # Top row: Tokens
@@ -38,22 +38,23 @@ def run(scene, theme, brief, budget, beat_frames):
         x = start_x + idx * col_w
         is_prompt = idx < len(prompt)
         bg = RoundedRectangle(
-            corner_radius=0.08,
+            corner_radius=0.12,
             width=col_w * 0.88,
             height=row_h,
-            stroke_width=2,
-            stroke_color=theme.border,
+            stroke_width=3,
+            stroke_color=theme.accent if not is_prompt else theme.border,
             fill_color=theme.card if is_prompt else theme.background,
             fill_opacity=1,
-        ).move_to([x, 1.4, 0])
-        t = Text(tok, font=theme.font, weight="BOLD", color=theme.text if is_prompt else theme.accent).scale(0.32)
-        fit(t, col_w * 0.8, row_h * 0.7)
+        ).move_to([x, 1.5, 0])
+        t = Text(tok, font=theme.font, weight="BOLD", color=theme.text if is_prompt else theme.accent).scale(0.42)
+        fit(t, col_w * 0.8, row_h * 0.75)
         t.move_to(bg.get_center())
         token_mobs.append(VGroup(bg, t))
 
     # K Cache and V Cache rows
-    k_label = Text("K-Cache", font=theme.mono, weight="BOLD", color=theme.muted).scale(0.28).move_to([-fw * 0.4, 0.4, 0])
-    v_label = Text("V-Cache", font=theme.mono, weight="BOLD", color=theme.muted).scale(0.28).move_to([-fw * 0.4, -0.4, 0])
+    axis_col = getattr(theme, "axis", theme.muted)
+    k_label = Text("K-Cache", font=theme.mono, weight="BOLD", color=axis_col).scale(0.44).move_to([-fw * 0.38, 0.45, 0])
+    v_label = Text("V-Cache", font=theme.mono, weight="BOLD", color=axis_col).scale(0.44).move_to([-fw * 0.38, -0.45, 0])
 
     k_cells = []
     v_cells = []
@@ -64,28 +65,28 @@ def run(scene, theme, brief, budget, beat_frames):
         k_box = Rectangle(
             width=col_w * 0.88,
             height=row_h,
-            stroke_width=2,
+            stroke_width=3,
             stroke_color=theme.accent_alt if is_prompt else theme.border,
             fill_color=theme.card,
             fill_opacity=1,
-        ).move_to([x, 0.4, 0])
-        k_txt = Text(f"k_{idx}", font=theme.mono, color=theme.accent if not is_prompt else theme.text).scale(0.28)
+        ).move_to([x, 0.45, 0])
+        k_txt = Text(f"k_{idx}", font=theme.mono, weight="BOLD", color=theme.accent if not is_prompt else theme.text).scale(0.38)
         k_cells.append(VGroup(k_box, k_txt.move_to(k_box.get_center())))
 
         v_box = Rectangle(
             width=col_w * 0.88,
             height=row_h,
-            stroke_width=2,
+            stroke_width=3,
             stroke_color=theme.accent_alt if is_prompt else theme.border,
             fill_color=theme.card,
             fill_opacity=1,
-        ).move_to([x, -0.4, 0])
-        v_txt = Text(f"v_{idx}", font=theme.mono, color=theme.accent if not is_prompt else theme.text).scale(0.28)
+        ).move_to([x, -0.45, 0])
+        v_txt = Text(f"v_{idx}", font=theme.mono, weight="BOLD", color=theme.accent if not is_prompt else theme.text).scale(0.38)
         v_cells.append(VGroup(v_box, v_txt.move_to(v_box.get_center())))
 
     # Efficiency badge at the bottom
-    badge_bg = RoundedRectangle(corner_radius=0.1, width=3.4, height=0.5, stroke_width=2, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=1).move_to([0, -1.5, 0])
-    badge_txt = Text("O(1) Step: Recompute = 0", font=theme.mono, weight="BOLD", color=theme.accent_text).scale(0.28).move_to(badge_bg.get_center())
+    badge_bg = RoundedRectangle(corner_radius=0.14, width=4.6, height=0.68, stroke_width=3, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=0.98).move_to([0, -1.6, 0])
+    badge_txt = Text("O(1) Step: Recompute = 0", font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).move_to(badge_bg.get_center())
     badge = VGroup(badge_bg, badge_txt)
 
     stages = 2 + len(generated)

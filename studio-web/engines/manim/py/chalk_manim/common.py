@@ -23,13 +23,14 @@ def fit(mobject, max_width=None, max_height=None):
 
 def title_text(theme, text):
     t = Text(clean(text, 60), font=theme.font, weight="BOLD", color=theme.text)
-    t.scale(0.7)
-    fit(t, config.frame_width * 0.86)
-    return t.to_edge(UP, buff=0.35)
+    t.scale(0.72)
+    fit(t, config.frame_width * 0.88)
+    return t.to_edge(UP, buff=0.32)
 
 
-def caption_text(theme, text, size=0.42):
-    t = Text(clean(text, 70), font=theme.font, color=theme.muted).scale(size)
+def caption_text(theme, text, size=0.48):
+    c = getattr(theme, "blue", theme.accent)
+    t = Text(clean(text, 70), font=theme.font, weight="BOLD", color=c).scale(size)
     fit(t, config.frame_width * 0.86)
     return t.to_edge(DOWN, buff=0.35)
 
@@ -53,18 +54,40 @@ def run_stage(budget, frames, *animations):
         budget.hold(frames)
 
 
-def math_text(theme, text, size=0.45, color=None):
+def math_text(theme, text, size=0.50, color=None):
     """3b1b mathematical text formatted with mono font and thematic color."""
     c = color or theme.text
-    t = Text(clean(text, 70), font=theme.mono, color=c).scale(size)
+    t = Text(clean(text, 70), font=theme.mono, weight="BOLD", color=c).scale(size)
     fit(t, config.frame_width * 0.8)
     return t
 
 
-def accent_box(theme, mobject, color=None, buff=0.12):
-    """3b1b surrounding highlight box with rounded corners."""
+def accent_box(theme, mobject, color=None, buff=0.14):
+    """3b1b surrounding highlight box with rounded corners and high-visibility stroke."""
     from manim import SurroundingRectangle
 
     c = color or getattr(theme, "yellow", theme.accent)
-    return SurroundingRectangle(mobject, color=c, buff=buff, stroke_width=2.5, corner_radius=0.1)
+    return SurroundingRectangle(mobject, color=c, buff=buff, stroke_width=3.5, corner_radius=0.12)
+
+
+def info_badge(theme, text, pos=None, width=None, height=0.72, font_size=0.40, color=None):
+    """Crisp, high-contrast 3b1b information badge with readable bold typography."""
+    from manim import RoundedRectangle, VGroup
+
+    c = color or theme.text
+    txt = Text(clean(text, 55), font=theme.mono, weight="BOLD", color=c).scale(font_size)
+    w = max(width or (txt.width + 0.65), 3.4)
+    bg = RoundedRectangle(
+        corner_radius=0.14,
+        width=w,
+        height=height,
+        stroke_width=3.0,
+        stroke_color=getattr(theme, "accent", theme.border),
+        fill_color=theme.card,
+        fill_opacity=0.98,
+    )
+    if pos is not None:
+        bg.move_to(pos)
+    txt.move_to(bg.get_center())
+    return VGroup(bg, txt)
 

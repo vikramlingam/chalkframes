@@ -51,17 +51,17 @@ def run(scene, theme, brief, budget, beat_frames):
     for i, name in enumerate(layer_names):
         y = start_y + (n - 1 - i) * (box_h + gap)
         box = RoundedRectangle(
-            corner_radius=0.12,
+            corner_radius=0.14,
             width=box_w,
             height=box_h,
-            stroke_width=2.5,
+            stroke_width=3.5,
             stroke_color=theme.border,
             fill_color=theme.card,
             fill_opacity=1.0,
         ).move_to([0, y, 0])
 
-        txt = Text(name, font=theme.font, weight="BOLD", color=theme.text).scale(0.35)
-        fit(txt, box_w * 0.88, box_h * 0.7)
+        txt = Text(name, font=theme.font, weight="BOLD", color=theme.text).scale(0.42)
+        fit(txt, box_w * 0.88, box_h * 0.75)
         txt.move_to(box.get_center())
 
         boxes.append(box)
@@ -73,27 +73,27 @@ def run(scene, theme, brief, budget, beat_frames):
                 start=[0, y - box_h / 2, 0],
                 end=[0, next_y + box_h / 2, 0],
                 buff=0.04,
-                stroke_width=2,
+                stroke_width=3.5,
                 max_tip_length_to_length_ratio=0.25,
-                color=theme.muted,
+                color=getattr(theme, "axis", theme.muted),
             )
             arrows.append(arr)
 
     # Residual skip connection bypassing layer 1 (Attention) into layer 2 (Add & Norm)
-    skip_x = box_w / 2 + 0.65
+    skip_x = box_w / 2 + 0.75
     y_pre = boxes[0].get_center()[1]
     y_norm = boxes[2].get_center()[1] if n >= 3 else boxes[-1].get_center()[1]
 
     skip_path = VGroup(
-        Line([box_w / 2, y_pre, 0], [skip_x, y_pre, 0], color=theme.accent, stroke_width=2.5),
-        Line([skip_x, y_pre, 0], [skip_x, y_norm, 0], color=theme.accent, stroke_width=2.5),
-        Arrow([skip_x, y_norm, 0], [box_w / 2, y_norm, 0], color=theme.accent, stroke_width=2.5, buff=0),
+        Line([box_w / 2, y_pre, 0], [skip_x, y_pre, 0], color=theme.accent, stroke_width=4.5),
+        Line([skip_x, y_pre, 0], [skip_x, y_norm, 0], color=theme.accent, stroke_width=4.5),
+        Arrow([skip_x, y_norm, 0], [box_w / 2, y_norm, 0], color=theme.accent, stroke_width=4.5, buff=0),
     )
     skip_badge = VGroup(
-        Circle(radius=0.18, color=theme.accent, fill_color=theme.background, fill_opacity=1, stroke_width=2).move_to([skip_x, (y_pre + y_norm) / 2, 0]),
-        Text("+", font=theme.font, color=theme.accent, weight="BOLD").scale(0.3).move_to([skip_x, (y_pre + y_norm) / 2, 0]),
+        Circle(radius=0.24, color=theme.accent, fill_color=theme.background, fill_opacity=1, stroke_width=3).move_to([skip_x, (y_pre + y_norm) / 2, 0]),
+        Text("+", font=theme.font, color=theme.accent, weight="BOLD").scale(0.42).move_to([skip_x, (y_pre + y_norm) / 2, 0]),
     )
-    pulse_dot = Dot([skip_x, y_pre, 0], radius=0.12, color=theme.accent_alt)
+    pulse_dot = Dot([skip_x, y_pre, 0], radius=0.18, color=theme.accent_alt)
 
     # Frame budget stages
     stages = 3

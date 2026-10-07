@@ -192,9 +192,9 @@ function childEnv() {
   return env;
 }
 
-const PUBLIC_DIR = path.join(ROOT_DIR, "studio-web", "public");
-const RENDERS_DIR = path.join(ROOT_DIR, "studio-web", "renders");
-const PROJECTS_DIR = path.join(ROOT_DIR, "projects");
+export const PUBLIC_DIR = path.join(ROOT_DIR, "studio-web", "public");
+export const RENDERS_DIR = path.join(ROOT_DIR, "studio-web", "renders");
+export const PROJECTS_DIR = path.join(ROOT_DIR, "projects");
 
 if (!fs.existsSync(RENDERS_DIR)) fs.mkdirSync(RENDERS_DIR, { recursive: true });
 if (!fs.existsSync(PROJECTS_DIR)) fs.mkdirSync(PROJECTS_DIR, { recursive: true });
@@ -527,7 +527,7 @@ const MODELS = [
 // Calculate Scene Breakdown based on requested total seconds (15s up to 10m / 600s)
 // Pacing calibrated so visual beats change every 12 to 25 seconds, keeping long videos dynamic.
 // 18 distinct narrative beats for middle scenes with semantic narrative intent
-const MIDDLE_THEME_POOL = [
+export const MIDDLE_THEME_POOL = [
   {
     role: "spatial3d",
     title: "3D Spatial Architecture & Core Engine",
@@ -647,6 +647,100 @@ const MIDDLE_THEME_POOL = [
     title: "Core Capabilities & Feature Matrix",
     narrativeIntent: "Showcase core capabilities and modular features",
     suggestedArchetypes: ["carousel-3d-showcase", "bento-grid", "features-cards"],
+  },
+  {
+    role: "mesh",
+    title: "Microservice Topology & Event Bus",
+    narrativeIntent: "Showcase distributed node mesh and pub/sub message routing",
+    suggestedArchetypes: ["microservice-mesh", "event-bus-pubsub", "architecture-pipeline"],
+  },
+  {
+    role: "storage",
+    title: "Database Sharding & Memory Layout",
+    narrativeIntent: "Illustrate database partitions, memory buffers, and consistency",
+    suggestedArchetypes: ["database-shard-map", "memory-layout-stack", "raft-consensus"],
+  },
+  {
+    role: "dag",
+    title: "DAG Task Dependency & Execution",
+    narrativeIntent: "Visualize topological task execution and distributed flows",
+    suggestedArchetypes: ["dag-pipeline", "architecture-pipeline", "flowchart-process"],
+  },
+  {
+    role: "ast",
+    title: "Syntax Trees & Tool Orchestration",
+    narrativeIntent: "Explore compiler AST graphs and structured tool execution",
+    suggestedArchetypes: ["compiler-ast", "tool-calling-schema", "security-threat-model"],
+  },
+  {
+    role: "git",
+    title: "Branch Topology & Rebase Workflows",
+    narrativeIntent: "Illustrate branch histories, commits, and code lifecycles",
+    suggestedArchetypes: ["git-branch-graph", "code-terminal", "interactive-diff"],
+  },
+  {
+    role: "devtools",
+    title: "Runtime Inspection & Performance Profiling",
+    narrativeIntent: "Demonstrate browser console metrics, network waterfalls, and audit streams",
+    suggestedArchetypes: ["browser-devtools", "terminal-flow", "eval-benchmark-matrix"],
+  },
+  {
+    role: "resilience",
+    title: "Circuit Breakers & Rate Limiting",
+    narrativeIntent: "Highlight failure recovery, leaky buckets, and token limiters",
+    suggestedArchetypes: [
+      "circuit-breaker-status",
+      "rate-limiter-bucket",
+      "audit-compliance-trail",
+    ],
+  },
+  {
+    role: "rag",
+    title: "Retrieval Augmentation & Vector Search",
+    narrativeIntent: "Explore multi-stage document chunking, embeddings, and context reranking",
+    suggestedArchetypes: ["rag-retrieval-pipeline", "vector-cluster-graph", "prompt-budget-canvas"],
+  },
+  {
+    role: "similarity",
+    title: "High-Dimensional Vector Projections",
+    narrativeIntent: "Display cosine similarity spaces and semantic clustering",
+    suggestedArchetypes: [
+      "embedding-similarity-space",
+      "vector-cluster-graph",
+      "context-window-gauge",
+    ],
+  },
+  {
+    role: "analytics",
+    title: "Multidimensional Analytics & Flow",
+    narrativeIntent: "Illustrate quantitative trends with radar charts and Sankey allocations",
+    suggestedArchetypes: ["radar-chart", "sankey-diagram", "data-graph"],
+  },
+  {
+    role: "matrix",
+    title: "Density Heatmaps & Performance Grids",
+    narrativeIntent: "Display correlation density and cohort retention patterns",
+    suggestedArchetypes: [
+      "matrix-density-heatmap",
+      "eval-benchmark-matrix",
+      "cohort-retention-heatmap",
+    ],
+  },
+  {
+    role: "sprint",
+    title: "Engineering Roadmap & Kanban Cadence",
+    narrativeIntent: "Trace milestone execution and delivery timelines",
+    suggestedArchetypes: ["kanban-sprint", "changelog-timeline", "step-ladder"],
+  },
+  {
+    role: "security",
+    title: "Threat Modeling & Attack Surfaces",
+    narrativeIntent: "Map vulnerability vectors, firewalls, and audit trails",
+    suggestedArchetypes: [
+      "security-threat-model",
+      "audit-compliance-trail",
+      "circuit-breaker-status",
+    ],
   },
 ];
 
@@ -1027,6 +1121,245 @@ async function fetchSiteSnippet(rawUrl) {
   throw new Error("Website redirected too many times");
 }
 
+let _puppeteerLoader = null;
+async function getPuppeteerInstance() {
+  if (_puppeteerLoader) return _puppeteerLoader;
+  try {
+    const requireFromProducer = createRequire(
+      path.join(ROOT_DIR, "packages", "producer", "package.json"),
+    );
+    _puppeteerLoader = requireFromProducer("puppeteer");
+    return _puppeteerLoader;
+  } catch {
+    const mod = await import("puppeteer");
+    _puppeteerLoader = mod.default || mod;
+    return _puppeteerLoader;
+  }
+}
+
+/**
+ * Capture a live desktop screenshot of a validated public URL into target outputPath.
+ * Falls back safely to false if network or headless browser encounters an issue.
+ */
+export async function captureUrlScreenshot(rawUrl, outputPath) {
+  try {
+    const validatedUrl = assertPublicHttpUrl(rawUrl).href;
+    const puppeteer = await getPuppeteerInstance();
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+      ],
+    });
+    try {
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.25 });
+      await page.goto(validatedUrl, { waitUntil: "networkidle2", timeout: 12000 }).catch(() => {});
+      if (outputPath) {
+        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+        await page.screenshot({ path: outputPath, type: "png" });
+      }
+      return true;
+    } finally {
+      await browser.close().catch(() => {});
+    }
+  } catch (err) {
+    console.warn(`[Screenshot Capture] Fallback to vector mockup (${err.message})`);
+    return false;
+  }
+}
+
+/**
+ * Build contextual multi-track SFX cues matching scene archetypes and visual peaks.
+ * Track 2: Transitions (Whooshes, Opening Typing)
+ * Track 3: Archetype Accents (Sub-bass Impacts, Pops, Clicks, Sparkles, Outro Chime)
+ */
+export function buildContextualSfxCues({
+  storyboard,
+  sceneStartTimes = [],
+  _sceneDurations = [],
+  sfxDir,
+}) {
+  const cues = [];
+  const scenes = storyboard?.scenes || [];
+  if (scenes.length === 0) return cues;
+
+  const resolvePath = (filename) => {
+    if (!sfxDir) return filename;
+    return path.join(sfxDir, filename);
+  };
+
+  // 1. Scene 0 Hook: Opening tactile typing and sub-bass impact
+  cues.push({
+    id: "sfx-open-typing",
+    name: "typing.mp3",
+    path: resolvePath("typing.mp3"),
+    webSrc: "assets/sfx/typing.mp3",
+    start: 0.1,
+    duration: 1.2,
+    volume: 0.28,
+    trackIndex: 2,
+    role: "open-typing",
+  });
+
+  cues.push({
+    id: "sfx-hook-impact",
+    name: "impact-bass-1.mp3",
+    path: resolvePath("impact-bass-1.mp3"),
+    webSrc: "assets/sfx/impact-bass-1.mp3",
+    start: 0.35,
+    duration: 1.0,
+    volume: 0.32,
+    trackIndex: 3,
+    role: "hook-impact",
+  });
+
+  // 2. Archetype-specific accent cues for each scene
+  for (let i = 0; i < scenes.length; i++) {
+    const scene = scenes[i];
+    const sStart = sceneStartTimes[i] ?? i * 5.0;
+    const arch = String(scene.archetype || "").toLowerCase();
+
+    if (
+      arch === "stat-spotlight" ||
+      arch === "kinetic-impact" ||
+      arch === "hero-canvas" ||
+      arch === "split-stage-hero" ||
+      arch === "kpi-counter-ring"
+    ) {
+      if (i > 0) {
+        cues.push({
+          id: `sfx-impact-${i + 1}`,
+          name: "impact-bass-2.mp3",
+          path: resolvePath("impact-bass-2.mp3"),
+          webSrc: "assets/sfx/impact-bass-2.mp3",
+          start: Number((sStart + 0.35).toFixed(2)),
+          duration: 1.0,
+          volume: 0.3,
+          trackIndex: 3,
+          role: "stat-impact",
+        });
+      }
+    } else if (
+      arch.includes("terminal") ||
+      arch.includes("code") ||
+      arch.includes("diff") ||
+      arch === "browser-devtools" ||
+      arch === "tool-calling-schema"
+    ) {
+      cues.push({
+        id: `sfx-click-${i + 1}`,
+        name: "click.mp3",
+        path: resolvePath("click.mp3"),
+        webSrc: "assets/sfx/click.mp3",
+        start: Number((sStart + 0.45).toFixed(2)),
+        duration: 0.4,
+        volume: 0.28,
+        trackIndex: 3,
+        role: "code-click",
+      });
+    } else if (
+      arch.includes("card") ||
+      arch.includes("ladder") ||
+      arch.includes("feed") ||
+      arch.includes("bento") ||
+      arch.includes("grid") ||
+      arch.includes("matrix") ||
+      arch.includes("flow") ||
+      arch.includes("kanban")
+    ) {
+      cues.push({
+        id: `sfx-pop-${i + 1}`,
+        name: "pop.mp3",
+        path: resolvePath("pop.mp3"),
+        webSrc: "assets/sfx/pop.mp3",
+        start: Number((sStart + 0.6).toFixed(2)),
+        duration: 0.4,
+        volume: 0.25,
+        trackIndex: 3,
+        role: "card-pop",
+      });
+    } else if (
+      arch.includes("orbit") ||
+      arch.includes("graph") ||
+      arch.includes("mesh") ||
+      arch.includes("stack") ||
+      arch.includes("carousel") ||
+      arch.includes("spatial") ||
+      arch.includes("vector")
+    ) {
+      cues.push({
+        id: `sfx-sparkle-${i + 1}`,
+        name: "sparkle.mp3",
+        path: resolvePath("sparkle.mp3"),
+        webSrc: "assets/sfx/sparkle.mp3",
+        start: Number((sStart + 0.55).toFixed(2)),
+        duration: 0.8,
+        volume: 0.25,
+        trackIndex: 3,
+        role: "sparkle",
+      });
+    } else if (
+      arch.includes("tradeoff") ||
+      arch.includes("friction") ||
+      arch.includes("timeline")
+    ) {
+      cues.push({
+        id: `sfx-click-soft-${i + 1}`,
+        name: "click-soft.mp3",
+        path: resolvePath("click-soft.mp3"),
+        webSrc: "assets/sfx/click-soft.mp3",
+        start: Number((sStart + 0.45).toFixed(2)),
+        duration: 0.5,
+        volume: 0.25,
+        trackIndex: 3,
+        role: "soft-accent",
+      });
+    }
+  }
+
+  // 3. Scene Seam Transitions (Whooshes)
+  for (let sIdx = 0; sIdx < scenes.length - 1; sIdx++) {
+    const nextStart = sceneStartTimes[sIdx + 1] ?? (sIdx + 1) * 5.0;
+    if (nextStart > 1.2) {
+      const wStart = Math.max(1.0, nextStart - 0.25);
+      cues.push({
+        id: `sfx-whoosh-${sIdx + 1}`,
+        name: "whoosh-short.mp3",
+        path: resolvePath("whoosh-short.mp3"),
+        webSrc: "assets/sfx/whoosh-short.mp3",
+        start: Number(wStart.toFixed(2)),
+        duration: 0.45,
+        volume: 0.32,
+        trackIndex: 2,
+        role: "scene-transition",
+      });
+    }
+  }
+
+  // 4. Outro Scene Finale (Chime)
+  if (scenes.length >= 2) {
+    const outroIdx = scenes.length - 1;
+    const outroStart = sceneStartTimes[outroIdx] ?? outroIdx * 5.0;
+    cues.push({
+      id: "sfx-chime-outro",
+      name: "chime.mp3",
+      path: resolvePath("chime.mp3"),
+      webSrc: "assets/sfx/chime.mp3",
+      start: Number((outroStart + 0.25).toFixed(2)),
+      duration: 1.5,
+      volume: 0.38,
+      trackIndex: 3,
+      role: "outro-finale",
+    });
+  }
+
+  return cues.sort((a, b) => a.start - b.start);
+}
+
 const JSON_SIMPLE_ESCAPES = new Set(['"', "\\", "/", "b", "f", "n", "r", "t"]);
 
 /**
@@ -1126,15 +1459,17 @@ export function repairJsonText(input) {
 }
 
 /**
- * Universal Storyboard parser: parses YAML (the Hyperframes canonical standard)
- * or JSON (with repair heuristics), normalizing frames/scenes, engine routing,
- * and visual payloads.
+ * Pre-processes and heals LLM YAML output:
+ * - Strips code fences and conversational preamble
+ * - Converts tabs to spaces (YAML forbids tabs for indentation)
+ * - Normalizes smart quotes
+ * - Quotes unquoted scalar values that contain colons (e.g. title: Architecture: The Engine)
  */
-export function parseStoryboardYamlOrJson(raw) {
-  if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
-  let text = raw.trim();
+export function sanitizeYamlText(input) {
+  if (typeof input !== "string") return "";
+  let text = input.trim();
 
-  // Strip markdown code fences (```yaml, ```json, or generic ```)
+  // 1. Strip markdown code fences (```yaml, ```json, or generic ```)
   const fenced = text.match(/```(?:yaml|json)?\s*([\s\S]*?)\s*```/i);
   if (fenced) {
     text = fenced[1].trim();
@@ -1145,8 +1480,109 @@ export function parseStoryboardYamlOrJson(raw) {
       .trim();
   }
 
-  // Normalize smart quotes so both YAML and JSON parsers receive standard delimiters
+  // 2. Normalize smart quotes
   text = text.replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'");
+
+  // 3. Replace tabs with 2 spaces (YAML forbids hard tabs for indentation)
+  text = text.replace(/\t/g, "  ");
+
+  // 4. Strip conversational preamble before first root key if not code-fenced
+  const rootKeyMatch = text.match(
+    /^(?:version|productName|product_name|title|domain|engineMode|engine_mode|scenes|frames):/m,
+  );
+  if (rootKeyMatch && rootKeyMatch.index > 0) {
+    const before = text.slice(0, rootKeyMatch.index);
+    if (!before.includes(":\n") && !before.includes(": ")) {
+      text = text.slice(rootKeyMatch.index);
+    }
+  }
+
+  // 5. Fix unquoted scalar values containing colons (e.g. title: Architecture: Multi-Head Attention)
+  const lines = text.split("\n");
+  const cleanedLines = lines.map((line) => {
+    const kvMatch = line.match(/^(\s*[a-zA-Z0-9_-]+:\s*)([^\s"'>|[{].*)$/);
+    if (kvMatch) {
+      const prefix = kvMatch[1];
+      const val = kvMatch[2].trim();
+      if (val.includes(": ") && !val.startsWith('"') && !val.startsWith("'")) {
+        const safeVal = JSON.stringify(val);
+        return `${prefix}${safeVal}`;
+      }
+    }
+    return line;
+  });
+  return cleanedLines.join("\n");
+}
+
+/**
+ * Resilient line-by-line block extractor that parses scenes structurally
+ * if strict YAML and JSON parsers fail. Guarantees orchestration never crashes.
+ */
+function extractStoryboardFromLines(text) {
+  if (typeof text !== "string") return null;
+  const lines = text.split("\n");
+  const scenes = [];
+  let currentScene = null;
+  let productName = "Explainer Video";
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const prodMatch = trimmed.match(/^(?:productName|product_name|title):\s*["']?([^"'\n]+)["']?/i);
+    if (prodMatch && !currentScene) {
+      productName = prodMatch[1].trim();
+      continue;
+    }
+
+    const sceneStart = trimmed.match(/^-\s*id:\s*["']?([a-zA-Z0-9_-]+)["']?/i);
+    if (sceneStart) {
+      if (currentScene) scenes.push(currentScene);
+      currentScene = { id: sceneStart[1] };
+      continue;
+    }
+
+    if (currentScene) {
+      const archMatch = trimmed.match(/^archetype:\s*["']?([a-zA-Z0-9_-]+)["']?/i);
+      if (archMatch) currentScene.archetype = archMatch[1];
+
+      const engMatch = trimmed.match(/^engine:\s*["']?([a-zA-Z0-9_-]+)["']?/i);
+      if (engMatch) currentScene.engine = engMatch[1];
+
+      const titleMatch = trimmed.match(/^title:\s*["']?([^"'\n]+)["']?/i);
+      if (titleMatch) currentScene.title = titleMatch[1];
+
+      const voMatch = trimmed.match(/^voiceover:\s*(?:>|\|)?\s*["']?([^"'\n]+)?["']?/i);
+      if (voMatch && voMatch[1]) currentScene.voiceover = voMatch[1];
+      else if (trimmed.startsWith("voiceover:")) currentScene.voiceover = "";
+      else if (currentScene.voiceover !== undefined && trimmed && !trimmed.includes(":")) {
+        currentScene.voiceover += (currentScene.voiceover ? " " : "") + trimmed;
+      }
+    }
+  }
+  if (currentScene) scenes.push(currentScene);
+
+  if (scenes.length > 0) {
+    return {
+      version: "2.0",
+      productName,
+      scenes: scenes.map((s, idx) => ({
+        id: s.id || `scene-${idx + 1}`,
+        archetype: s.archetype || "features-cards",
+        title: s.title || `Scene ${idx + 1}`,
+        voiceover: s.voiceover || `Understanding ${s.title || `Scene ${idx + 1}`}.`,
+      })),
+    };
+  }
+  return null;
+}
+
+/**
+ * Universal Storyboard parser: parses YAML (the Hyperframes canonical standard)
+ * or JSON (with repair heuristics), normalizing frames/scenes, engine routing,
+ * and visual payloads. Includes multi-tier syntax healing so orchestration never fails.
+ */
+export function parseStoryboardYamlOrJson(raw) {
+  if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
+  const cleanedYaml = sanitizeYamlText(raw);
 
   function normalizeParsedStoryboard(obj) {
     if (!obj || typeof obj !== "object") return null;
@@ -1174,28 +1610,33 @@ export function parseStoryboardYamlOrJson(raw) {
     return null;
   }
 
-  // 1. Primary path: YAML parser (handles both valid YAML and strict JSON)
+  // 1. Primary path: Sanitized YAML parser (handles standard YAML and strict JSON)
   try {
-    const parsed = parseYaml(text);
+    const parsed = parseYaml(cleanedYaml);
     const normalized = normalizeParsedStoryboard(parsed);
     if (normalized) return normalized;
-  } catch {
-    // Proceed to JSON / repair heuristics
-  }
+  } catch {}
 
-  // 2. JSON extraction and repair path
-  const start = text.indexOf("{");
+  // 2. Secondary path: Direct raw YAML parse attempt
+  try {
+    let unformatted = raw.trim();
+    const fenced = unformatted.match(/```(?:yaml|json)?\s*([\s\S]*?)\s*```/i);
+    if (fenced) unformatted = fenced[1].trim();
+    const parsed = parseYaml(unformatted);
+    const normalized = normalizeParsedStoryboard(parsed);
+    if (normalized) return normalized;
+  } catch {}
+
+  // 3. Tertiary path: JSON extraction and repair path
+  const start = raw.indexOf("{");
   if (start !== -1) {
-    const jsonCandidate = text.slice(start);
-    let firstError;
+    const jsonCandidate = raw.slice(start);
     try {
       const end = jsonCandidate.lastIndexOf("}");
       const parsed = JSON.parse(end > 0 ? jsonCandidate.slice(0, end + 1) : jsonCandidate);
       const normalized = normalizeParsedStoryboard(parsed);
       if (normalized) return normalized;
-    } catch (err) {
-      firstError = err;
-    }
+    } catch {}
 
     try {
       const parsed = JSON.parse(repairJsonText(jsonCandidate));
@@ -1217,15 +1658,17 @@ export function parseStoryboardYamlOrJson(raw) {
         if (normalized) return normalized;
       } catch {}
     }
-    const error = new Error(
-      `Director returned invalid JSON: ${firstError?.message || "unparseable"}`,
-    );
-    error.rawText = text;
-    throw error;
+  }
+
+  // 4. Quaternary path: Resilient structural block extractor
+  const recovered = extractStoryboardFromLines(cleanedYaml || raw);
+  if (recovered && Array.isArray(recovered.scenes) && recovered.scenes.length > 0) {
+    const normalized = normalizeParsedStoryboard(recovered);
+    if (normalized) return normalized;
   }
 
   const error = new Error("Director returned invalid JSON: no valid YAML or JSON storyboard found");
-  error.rawText = text;
+  error.rawText = raw;
   throw error;
 }
 
@@ -1327,6 +1770,12 @@ export async function synthesizeTopicScript({
   const timingStructure = getSceneTimingStructure(duration);
   const totalScenes = timingStructure.length;
   const isPortrait = format === "portrait";
+  const isSquare = format === "square";
+  const aspectDesc = isSquare
+    ? "1:1 Square (Social / Feed 1080x1080)"
+    : isPortrait
+      ? "9:16 Vertical (Mobile / Shorts / Reels 1080x1920)"
+      : "16:9 Landscape (YouTube / Desktop 1920x1080)";
 
   const styleDescriptions = {
     explainer:
@@ -1353,7 +1802,7 @@ TOPIC / SUBJECT:
 TARGET SPECS:
 - Target Duration: ${duration} seconds
 - Total Scenes / Chapters: ${totalScenes}
-- Aspect Ratio: ${isPortrait ? "9:16 Vertical (Mobile / Shorts / Reels 1080x1920)" : "16:9 Landscape (YouTube / Desktop 1920x1080)"}
+- Aspect Ratio: ${aspectDesc}
 - Presentation Style: ${chosenStyle}
 
 CHAPTER PACING STRUCTURE:
@@ -1424,6 +1873,7 @@ export function buildDirectorPrompt({
   duration = 60,
   sceneCount = 5,
   isPortrait = false,
+  format = undefined,
   isEducational = false,
   manimEnabled = false,
   engineMode = "combined",
@@ -1433,6 +1883,13 @@ export function buildDirectorPrompt({
   const isManimOnly = engineMode === "manim";
   const isHtmlOnly = engineMode === "html";
   const effectiveManimEnabled = isHtmlOnly ? false : isManimOnly ? true : manimEnabled;
+  const isSquare = format === "square";
+  const effectiveIsPortrait = format === "portrait" || isPortrait;
+  const aspectDesc = isSquare
+    ? "1:1 Square (Feed / Social 1080x1080)"
+    : effectiveIsPortrait
+      ? "9:16 Portrait (Mobile / Reels / Shorts 1080x1920)"
+      : "16:9 Landscape (YouTube 1920x1080)";
 
   return `YOU ARE AN ADAPTIVE VIDEO DIRECTOR.
 Your goal is to turn any input (raw topic, markdown doc, product URL, script, or technical PDF) into a compelling, frame-accurate motion video storyboard.
@@ -1442,7 +1899,7 @@ ${context}
 
 CONSTRAINTS:
 1. Total Target Duration: ${duration} seconds across ${actualSceneCount} distinct visual chapters/scenes.
-2. Aspect Ratio: ${isPortrait ? "9:16 Portrait (Mobile / Reels / Shorts 1080x1920)" : "16:9 Landscape (YouTube 1920x1080)"}.
+2. Aspect Ratio: ${aspectDesc}.
 3. Tone: ${isEducational ? "Articulate, deeply informative, engaging, and clear for curious viewers." : "Minimalist, refined, quiet confidence."} NO hype words. NO buzzwords. NO em dashes.
 4. Spoken Narration: Every scene must deliver natural, compelling spoken voiceover narration matching its target word count (15 to 35 words per scene).
 5. FULL CREATIVE AUTHORITY (CRITICAL):
@@ -1589,12 +2046,27 @@ ${timingStructure
 MANDATORY REQUIREMENTS FOR EVERY SCENE:
 Every single scene (from Scene 1 to Scene ${actualSceneCount}) MUST ALWAYS include:
 1. "id": Exact scene ID matching the breakdown (e.g. "scene1-hook", "scene2-paradigm", etc.)
-2. "archetype": The chosen archetype name
+2. "archetype": The chosen archetype name (DO NOT repeat the same archetype consecutively)
 3. "theme": "dark" | "light" | "accent" (set "dark" on at least 1-2 scenes for technical deep-dives or visual contrast)
-4. "title": Punchy 2-5 word visual scene headline
-5. "voiceover": Compelling spoken voiceover narration calibrated to the chapter target words
-6. "eyebrow": Short 1-3 word category / milestone tag
+4. "title": Punchy 2-5 word visual scene headline (in double quotes)
+5. "voiceover": Compelling spoken voiceover narration calibrated to the chapter target words (using multiline folded scalar ">")
+6. "eyebrow": Short 1-3 word category / milestone tag (in double quotes)
 7. The matching visual data payload for its archetype (e.g. kineticData, flowData, kpiData, codeDemo, diffData, clusters, stats, etc.). Do not output dummy properties for unrelated archetypes.
+
+VISUAL DIVERSITY & REPERTORY RULES (CRITICAL):
+- Never repeat the same archetype across different scenes in the same video.
+- Match visual archetypes directly to the subject domain:
+  * Distributed Systems / Infrastructure: "microservice-mesh", "architecture-pipeline", "database-shard-map", "event-bus-pubsub", "raft-consensus"
+  * Developer Tools / Workflows: "code-terminal", "interactive-diff", "code-slice-reveal", "git-branch-graph", "browser-devtools", "compiler-ast"
+  * Quantitative Performance & Benchmarks: "stat-spotlight", "kpi-counter-ring", "eval-benchmark-matrix", "bento-metric-grid", "data-graph", "radar-chart"
+  * AI Architectures & Embeddings: "vector-cluster-graph", "embedding-similarity-space", "prompt-budget-canvas", "agent-scratchpad", "tool-calling-schema"
+  * High-Impact Statements: "kinetic-impact", "3d-motion-hero", "carousel-3d-showcase", "quote-callout", "kinetic-text"
+  * Continuous Mathematical Curves & Algorithmic Geometry (Manim): "manim-function-plot", "manim-vector-transform", "manim-eigen-decomposition", "manim-gradient-descent-3d", "manim-bayes-theorem", "manim-sorting-visualizer"
+
+YAML SYNTAX RULES (CRITICAL FOR PARSING):
+1. Wrap all title, subtitle, eyebrow, and product name values in DOUBLE QUOTES (e.g. title: "Architecture: The Distributed Core"). Unquoted colons cause syntax errors.
+2. Use multiline folded scalars (voiceover: >) for voiceover narration.
+3. Use exactly 2 spaces per indentation level. NEVER use tab characters.
 
 STORYBOARD YAML SPECIFICATION:
 Respond with a clean, structured YAML document (enclosed in \`\`\`yaml ... \`\`\`) matching this schema:
@@ -1758,6 +2230,7 @@ async function directStoryboard({
     duration,
     sceneCount,
     isPortrait,
+    format,
     isEducational,
     manimEnabled,
     engineMode,
@@ -1941,14 +2414,21 @@ export function buildSceneHtmlAndChoreography(
 }
 
 // Scoped CSS for all archetypes with tailored Mobile Portrait (1080x1920) and Landscape (1920x1080) specs
-export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, activePalette) {
+export function getArchetypeScopedCss(
+  scene = {},
+  compWidth = 1920,
+  compHeight = 1080,
+  isPortrait = false,
+  activePalette = PALETTES["braun-industrial"],
+) {
   const defaultArch = "features-cards";
-  const arch = scene.archetype || defaultArch;
+  const arch = scene?.archetype || defaultArch;
+  const sceneId = scene?.id || "scene";
   const renderer =
     ARCHETYPE_RENDERERS[arch] || ARCHETYPE_RENDERERS["features-cards"] || renderDefaultCards;
 
   const effectivePalette = resolveScenePalette(scene, activePalette);
-  const isDark = scene.theme === "dark";
+  const isDark = Boolean(effectivePalette.isDark || scene?.theme === "dark");
 
   let bgStyle = renderer?.getBackground
     ? renderer.getBackground({ isPortrait, activePalette: effectivePalette, scene })
@@ -1978,12 +2458,15 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
     effectivePalette.textMuted || (isDark ? "rgba(255, 255, 255, 0.65)" : "rgba(0, 0, 0, 0.6)");
 
   return `
-    [data-composition-id="${scene.id}"] {
+    [data-composition-id="${sceneId}"] {
       /* Hyperframes 18-Token Design Contract */
       --bg: ${isDark ? "#0b0d14" : effectivePalette.background};
       --fg: ${isDark ? "#f3f4f8" : effectivePalette.text};
       --muted: ${textMuted};
       --surface: ${surfaceBg};
+      --card: ${effectivePalette.card};
+      --card-text: ${effectivePalette.cardText};
+      --card-text-muted: ${effectivePalette.cardTextMuted};
       --border: ${borderColor};
       --brand: ${brandColor};
       --accent: ${accentColor};
@@ -1998,6 +2481,9 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
       --dur-beat: 0.4s;
       --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
       --ease-emphasis: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
+      --ease-snappy: cubic-bezier(0.18, 1.25, 0.4, 1);
+      --ease-heavy: cubic-bezier(0.25, 1, 0.5, 1);
 
       position: absolute;
       inset: 0;
@@ -2007,7 +2493,7 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
       overflow: hidden;
       color: var(--fg);
     }
-    [data-composition-id="${scene.id}"]::before {
+    [data-composition-id="${sceneId}"]::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -2015,121 +2501,206 @@ export function getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, 
       pointer-events: none;
       z-index: 0;
     }
-    [data-composition-id="${scene.id}"] .scene-inner { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: ${isPortrait ? "flex-start" : "center"}; align-items: center; padding: ${isPortrait ? "130px 48px 120px" : "60px 100px"}; text-align: center; box-sizing: border-box; transform-origin: center center; position: relative; z-index: 1; }
+    [data-composition-id="${sceneId}"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 60%, ${isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.06)"} 100%),
+                  radial-gradient(circle at 85% 15%, ${effectivePalette.accent}14 0%, transparent 45%),
+                  radial-gradient(circle at 15% 85%, ${effectivePalette.accent2 || effectivePalette.accent}10 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    [data-composition-id="${sceneId}"] .scene-inner { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: ${isPortrait ? "flex-start" : "center"}; align-items: center; padding: ${isPortrait ? "130px 48px 120px" : compWidth === compHeight ? "80px 60px" : "60px 100px"}; text-align: center; box-sizing: border-box; transform-origin: center center; position: relative; z-index: 1; }
 
     /* Split-Stage Hero Layout (Left Narrative / Right Graphic) */
-    [data-composition-id="${scene.id}"] .split-hero-layout { width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 60px 100px; box-sizing: border-box; text-align: left; }
-    [data-composition-id="${scene.id}"] .split-col-left { flex: 0 0 42%; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-    [data-composition-id="${scene.id}"] .split-hero-title { font-family: "Playfair Display", serif; font-size: 64px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: ${effectivePalette.text}; margin-top: 12px; }
-    [data-composition-id="${scene.id}"] .split-hero-sub { font-size: 24px; color: ${effectivePalette.textMuted || effectivePalette.text}; line-height: 1.5; margin-top: 18px; max-width: 580px; }
-    [data-composition-id="${scene.id}"] .split-hero-badge { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; background: ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}; border: 1px solid ${effectivePalette.border}; padding: 8px 20px; border-radius: 30px; font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 600; color: ${effectivePalette.accent}; }
-    [data-composition-id="${scene.id}"] .split-col-right { flex: 0 0 54%; display: flex; align-items: center; justify-content: center; }
+    [data-composition-id="${sceneId}"] .split-hero-layout { width: 100%; height: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 60px 100px; box-sizing: border-box; text-align: left; }
+    [data-composition-id="${sceneId}"] .split-col-left { flex: 0 0 42%; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+    [data-composition-id="${sceneId}"] .split-hero-title { font-family: "Plus Jakarta Sans", "Playfair Display", serif; font-size: 64px; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; color: ${effectivePalette.text}; margin-top: 12px; }
+    [data-composition-id="${sceneId}"] .split-hero-sub { font-size: 24px; color: ${effectivePalette.textMuted || effectivePalette.text}; line-height: 1.5; margin-top: 18px; max-width: 580px; }
+    [data-composition-id="${sceneId}"] .split-hero-badge { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; background: ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}; border: 1px solid ${effectivePalette.border}; padding: 8px 20px; border-radius: 30px; font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 600; color: ${effectivePalette.accent}; }
+    [data-composition-id="${sceneId}"] .split-col-right { flex: 0 0 54%; display: flex; align-items: center; justify-content: center; }
 
     /* Full-Bleed Showcase Canvas */
-    [data-composition-id="${scene.id}"] .fullbleed-layout { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 40px 80px; box-sizing: border-box; text-align: left; }
-    [data-composition-id="${scene.id}"] .top-nav-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid ${effectivePalette.border}; margin-bottom: 28px; width: 100%; }
-    [data-composition-id="${scene.id}"] .nav-left { display: flex; align-items: center; gap: 14px; }
-    [data-composition-id="${scene.id}"] .nav-badge { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 700; color: ${effectivePalette.accent}; letter-spacing: 0.08em; text-transform: uppercase; }
-    [data-composition-id="${scene.id}"] .nav-sep { color: ${effectivePalette.border}; font-weight: 300; font-size: 18px; }
-    [data-composition-id="${scene.id}"] .nav-title { font-family: "Playfair Display", serif; font-size: 28px; font-weight: 700; color: ${effectivePalette.text}; }
-    [data-composition-id="${scene.id}"] .nav-status-pill { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 600; color: ${effectivePalette.textMuted || effectivePalette.text}; background: ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}; border: 1px solid ${effectivePalette.border}; padding: 6px 16px; border-radius: 20px; }
-    [data-composition-id="${scene.id}"] .showcase-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+    [data-composition-id="${sceneId}"] .fullbleed-layout { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 40px 80px; box-sizing: border-box; text-align: left; }
+    [data-composition-id="${sceneId}"] .top-nav-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid ${effectivePalette.border}; margin-bottom: 28px; width: 100%; }
+    [data-composition-id="${sceneId}"] .nav-left { display: flex; align-items: center; gap: 14px; }
+    [data-composition-id="${sceneId}"] .nav-badge { font-family: "JetBrains Mono", monospace; font-size: 15px; font-weight: 700; color: ${effectivePalette.accent}; letter-spacing: 0.08em; text-transform: uppercase; }
+    [data-composition-id="${sceneId}"] .nav-sep { color: ${effectivePalette.border}; font-weight: 300; font-size: 18px; }
+    [data-composition-id="${sceneId}"] .nav-title { font-family: "Plus Jakarta Sans", "Playfair Display", serif; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: ${effectivePalette.text}; }
+    [data-composition-id="${sceneId}"] .nav-status-pill { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 600; color: ${effectivePalette.textMuted || effectivePalette.text}; background: ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}; border: 1px solid ${effectivePalette.border}; padding: 6px 16px; border-radius: 20px; }
+    [data-composition-id="${sceneId}"] .showcase-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
 
     /* Full-bleed element adjustments */
-    [data-composition-id="${scene.id}"] .terminal-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; }
-    [data-composition-id="${scene.id}"] .flow-fullbleed { max-width: 1600px; width: 100%; margin-top: 0; }
-    [data-composition-id="${scene.id}"] .diff-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; }
-    [data-composition-id="${scene.id}"] .chart-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; height: 580px; }
-    [data-composition-id="${scene.id}"] .quote-split { max-width: 760px; margin-top: 0; }
-    [data-composition-id="${scene.id}"] .ladder-split { max-width: 760px; margin-top: 0; }
-    [data-composition-id="${scene.id}"] .live-feed-split { max-width: 760px; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .terminal-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .flow-fullbleed { max-width: 1600px; width: 100%; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .diff-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .chart-fullbleed { max-width: 1560px; width: 100%; margin-top: 0; height: 580px; }
+    [data-composition-id="${sceneId}"] .quote-split { max-width: 760px; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .ladder-split { max-width: 760px; margin-top: 0; }
+    [data-composition-id="${sceneId}"] .live-feed-split { max-width: 760px; margin-top: 0; }
 
-    [data-composition-id="${scene.id}"] .eyebrow { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "22px" : "18px"}; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: ${effectivePalette.textMuted || effectivePalette.text}; margin-bottom: ${isPortrait ? "14px" : "20px"}; display: flex; align-items: center; gap: 12px; }
-    [data-composition-id="${scene.id}"] .eyebrow-dot { width: 10px; height: 10px; border-radius: 50%; background-color: ${effectivePalette.accent}; box-shadow: 0 0 12px ${effectivePalette.accent}; }
-    [data-composition-id="${scene.id}"] .editorial-title { font-family: "Playfair Display", serif; font-size: ${isPortrait ? "76px" : "88px"}; font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; color: ${effectivePalette.text}; text-align: center; max-width: ${isPortrait ? "940px" : "1400px"}; }
-    [data-composition-id="${scene.id}"] .brand-dot { color: ${effectivePalette.accent}; }
-    [data-composition-id="${scene.id}"] .cursor-blink { display: inline-block; width: 4px; height: 0.9em; background: ${effectivePalette.text}; margin-left: 8px; vertical-align: -0.05em; }
-    [data-composition-id="${scene.id}"] .editorial-subtitle { font-size: ${isPortrait ? "30px" : "30px"}; font-weight: 400; color: ${effectivePalette.muted}; line-height: 1.45; margin-top: 18px; text-align: center; max-width: ${isPortrait ? "880px" : "900px"}; }
-    [data-composition-id="${scene.id}"] .friction-box { margin-top: 40px; background: ${effectivePalette.card}; border: 1px solid ${effectivePalette.border}; border-radius: 16px; padding: 22px 40px; box-shadow: ${isDark ? "0 12px 32px rgba(0,0,0,0.4)" : "0 12px 32px rgba(0,0,0,0.04)"}; display: flex; align-items: center; gap: 16px; }
-    [data-composition-id="${scene.id}"] .keyboard-badge { background: ${isDark ? "#1c202d" : "#ece8df"}; border: 1px solid ${isDark ? "#2e3447" : "#dcd7cc"}; border-radius: 8px; padding: 8px 16px; font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 600; color: ${isDark ? "#f3f4f8" : "#3b3935"}; }
-    [data-composition-id="${scene.id}"] .friction-text { font-family: "JetBrains Mono", monospace; font-size: 22px; color: ${effectivePalette.textMuted || effectivePalette.text}; }
+    [data-composition-id="${sceneId}"] .eyebrow { font-family: "JetBrains Mono", monospace; font-size: ${isPortrait ? "22px" : "18px"}; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: ${effectivePalette.textMuted || effectivePalette.text}; margin-bottom: ${isPortrait ? "14px" : "20px"}; display: flex; align-items: center; gap: 12px; }
+    [data-composition-id="${sceneId}"] .eyebrow-dot { width: 10px; height: 10px; border-radius: 50%; background-color: ${effectivePalette.accent}; box-shadow: 0 0 12px ${effectivePalette.accent}; }
+    [data-composition-id="${sceneId}"] .editorial-title { font-family: "Plus Jakarta Sans", "Playfair Display", serif; font-size: ${isPortrait ? "76px" : "88px"}; font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; color: ${effectivePalette.text}; text-align: center; max-width: ${isPortrait ? "940px" : "1400px"}; }
+    [data-composition-id="${sceneId}"] .brand-dot { color: ${effectivePalette.accent}; }
+    [data-composition-id="${sceneId}"] .cursor-blink { display: inline-block; width: 4px; height: 0.9em; background: ${effectivePalette.text}; margin-left: 8px; vertical-align: -0.05em; }
+    [data-composition-id="${sceneId}"] .editorial-subtitle { font-size: ${isPortrait ? "30px" : "30px"}; font-weight: 400; color: ${effectivePalette.muted}; line-height: 1.45; margin-top: 18px; text-align: center; max-width: ${isPortrait ? "880px" : "900px"}; }
+    [data-composition-id="${sceneId}"] .friction-box { margin-top: 40px; background: ${effectivePalette.card}; border: 1px solid ${effectivePalette.border}; border-radius: 16px; padding: 22px 40px; box-shadow: ${isDark ? "0 12px 32px rgba(0,0,0,0.4)" : "0 12px 32px rgba(0,0,0,0.04)"}; display: flex; align-items: center; gap: 16px; }
+    [data-composition-id="${sceneId}"] .keyboard-badge { background: ${isDark ? "#1c202d" : "#ece8df"}; border: 1px solid ${isDark ? "#2e3447" : "#dcd7cc"}; border-radius: 8px; padding: 8px 16px; font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 600; color: ${isDark ? "#f3f4f8" : "#3b3935"}; }
+    [data-composition-id="${sceneId}"] .friction-text { font-family: "JetBrains Mono", monospace; font-size: 22px; color: ${effectivePalette.textMuted || effectivePalette.text}; }
 
     /* Archetype-Specific Scoped CSS */
     ${customCss}
 
-    ${
-      isDark
-        ? `
-    /* Deep Obsidian Dark Theme Overrides */
-    [data-composition-id="${scene.id}"] { background: #0b0d14; color: #f3f4f8; }
-    [data-composition-id="${scene.id}"] .editorial-title,
-    [data-composition-id="${scene.id}"] .split-hero-title,
-    [data-composition-id="${scene.id}"] .nav-title,
-    [data-composition-id="${scene.id}"] .bento-value,
-    [data-composition-id="${scene.id}"] .bento-label,
-    [data-composition-id="${scene.id}"] .quote-text,
-    [data-composition-id="${scene.id}"] .feature-card h3,
-    [data-composition-id="${scene.id}"] .step-title,
-    [data-composition-id="${scene.id}"] .flow-node-title,
-    [data-composition-id="${scene.id}"] .chart-title { color: #f3f4f8 !important; }
+    /* =========================================================================
+     * WCAG 2.1 Contrast Armor & Deep Obsidian Dark Theme Overrides
+     * Guaranteed Legibility Across All Themes & Cards
+     * ========================================================================= */
 
-    [data-composition-id="${scene.id}"] .editorial-subtitle,
-    [data-composition-id="${scene.id}"] .split-hero-sub,
-    [data-composition-id="${scene.id}"] .eyebrow,
-    [data-composition-id="${scene.id}"] .friction-text,
-    [data-composition-id="${scene.id}"] .bento-detail,
-    [data-composition-id="${scene.id}"] .feed-sub,
-    [data-composition-id="${scene.id}"] .flow-node-desc,
-    [data-composition-id="${scene.id}"] .quote-author,
-    [data-composition-id="${scene.id}"] .nav-status-pill { color: #9ca3af !important; }
-
-    [data-composition-id="${scene.id}"] .bento-tile,
-    [data-composition-id="${scene.id}"] .feature-card,
-    [data-composition-id="${scene.id}"] .step-card,
-    [data-composition-id="${scene.id}"] .feed-item-pill,
-    [data-composition-id="${scene.id}"] .iso-slab,
-    [data-composition-id="${scene.id}"] .pipe-node,
-    [data-composition-id="${scene.id}"] .flow-node,
-    [data-composition-id="${scene.id}"] .diff-pane,
-    [data-composition-id="${scene.id}"] .chart-wrapper,
-    [data-composition-id="${scene.id}"] .quote-card,
-    [data-composition-id="${scene.id}"] .outro-card {
-      background: #141724 !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5) !important;
+    /* 1. Scene-Level Typography (Outside Cards) */
+    [data-composition-id="${sceneId}"] .editorial-title,
+    [data-composition-id="${sceneId}"] .split-hero-title,
+    [data-composition-id="${sceneId}"] .nav-title {
+      color: ${effectivePalette.text} !important;
+    }
+    [data-composition-id="${sceneId}"] .editorial-subtitle,
+    [data-composition-id="${sceneId}"] .split-hero-sub,
+    [data-composition-id="${sceneId}"] .eyebrow {
+      color: ${effectivePalette.textMuted} !important;
     }
 
-    [data-composition-id="${scene.id}"] .pill-feature {
-      background: #0b0d14 !important;
-      border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      color: #f3f4f8 !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    /* 2. Universal Card Surfaces Across All Archetypes */
+    [data-composition-id="${sceneId}"] .bento-tile,
+    [data-composition-id="${sceneId}"] .feature-card,
+    [data-composition-id="${sceneId}"] .step-card,
+    [data-composition-id="${sceneId}"] .feed-item-pill,
+    [data-composition-id="${sceneId}"] .iso-slab,
+    [data-composition-id="${sceneId}"] .pipe-node,
+    [data-composition-id="${sceneId}"] .flow-node,
+    [data-composition-id="${sceneId}"] .diff-pane,
+    [data-composition-id="${sceneId}"] .chart-wrapper,
+    [data-composition-id="${sceneId}"] .quote-card,
+    [data-composition-id="${sceneId}"] .outro-card,
+    [data-composition-id="${sceneId}"] .rag-stage-card,
+    [data-composition-id="${sceneId}"] .agent-step-card,
+    [data-composition-id="${sceneId}"] .ess-polar-space,
+    [data-composition-id="${sceneId}"] .ess-rank-row,
+    [data-composition-id="${sceneId}"] .tcs-left-card,
+    [data-composition-id="${sceneId}"] .tcs-right-card,
+    [data-composition-id="${sceneId}"] .ebm-bench-card,
+    [data-composition-id="${sceneId}"] .dlf-stage-col,
+    [data-composition-id="${sceneId}"] .msm-node-card,
+    [data-composition-id="${sceneId}"] .dsm-shard-card,
+    [data-composition-id="${sceneId}"] .mls-col,
+    [data-composition-id="${sceneId}"] .dag-node-card,
+    [data-composition-id="${sceneId}"] .ebp-event-card,
+    [data-composition-id="${sceneId}"] .ast-branch-card,
+    [data-composition-id="${sceneId}"] .raft-node-card,
+    [data-composition-id="${sceneId}"] .git-commit-node,
+    [data-composition-id="${sceneId}"] .threat-card,
+    [data-composition-id="${sceneId}"] .kanban-card,
+    [data-composition-id="${sceneId}"] .cl-card,
+    [data-composition-id="${sceneId}"] .circuit-state-card,
+    [data-composition-id="${sceneId}"] .limiter-bucket-card,
+    [data-composition-id="${sceneId}"] .limiter-metric-tile,
+    [data-composition-id="${sceneId}"] .audit-table-wrap,
+    [data-composition-id="${sceneId}"] .orbit-satellite,
+    [data-composition-id="${sceneId}"] .orbit-center-node,
+    [data-composition-id="${sceneId}"] .metric-hero-box,
+    [data-composition-id="${sceneId}"] .mockup-card-primary,
+    [data-composition-id="${sceneId}"] .mockup-card-secondary {
+      background: var(--card) !important;
+      border: 1px solid ${effectivePalette.border} !important;
+      color: var(--card-text) !important;
+      ${effectivePalette.cardIsDark ? "box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5) !important;" : "box-shadow: 0 16px 40px rgba(0, 0, 0, 0.05) !important;"}
     }
 
-    [data-composition-id="${scene.id}"] .cta-button {
+    /* 3. Primary Headings, Metrics & Labels inside Cards -> STRICT cardText */
+    [data-composition-id="${sceneId}"] .feature-card .card-title,
+    [data-composition-id="${sceneId}"] .feature-card h3,
+    [data-composition-id="${sceneId}"] .bento-tile .bento-value,
+    [data-composition-id="${sceneId}"] .bento-tile .bento-label,
+    [data-composition-id="${sceneId}"] .step-card .step-title,
+    [data-composition-id="${sceneId}"] .flow-node .flow-node-title,
+    [data-composition-id="${sceneId}"] .chart-wrapper .chart-title,
+    [data-composition-id="${sceneId}"] .quote-card .quote-text,
+    [data-composition-id="${sceneId}"] .outro-card h1,
+    [data-composition-id="${sceneId}"] .outro-card h2,
+    [data-composition-id="${sceneId}"] .orb-center-title,
+    [data-composition-id="${sceneId}"] .sat-label,
+    [data-composition-id="${sceneId}"] .mockup-card-primary .mockup-big-val,
+    [data-composition-id="${sceneId}"] .mockup-card-secondary .mockup-small-val {
+      color: var(--card-text) !important;
+    }
+
+    /* 4. Paragraphs, Bullets, and Body Text inside Cards -> STRICT cardText */
+    [data-composition-id="${sceneId}"] .feature-card .email-body,
+    [data-composition-id="${sceneId}"] .feature-card .note-item,
+    [data-composition-id="${sceneId}"] .step-card .step-desc,
+    [data-composition-id="${sceneId}"] .flow-node .flow-node-desc,
+    [data-composition-id="${sceneId}"] .sat-desc,
+    [data-composition-id="${sceneId}"] .feed-text,
+    [data-composition-id="${sceneId}"] .quote-author {
+      color: var(--card-text) !important;
+    }
+
+    /* 5. Subtitles & Secondary Details inside Cards -> STRICT cardTextMuted (minimum 4.5:1 ratio) */
+    [data-composition-id="${sceneId}"] .bento-tile .bento-detail,
+    [data-composition-id="${sceneId}"] .chart-wrapper .chart-subtitle,
+    [data-composition-id="${sceneId}"] .orb-center-sub,
+    [data-composition-id="${sceneId}"] .feed-sub,
+    [data-composition-id="${sceneId}"] .flow-node-desc,
+    [data-composition-id="${sceneId}"] .nav-status-pill,
+    [data-composition-id="${sceneId}"] .friction-text {
+      color: var(--card-text-muted) !important;
+    }
+
+    /* 6. Embedded Dark Terminal / DevTools Shells (Always Dark Phosphor Console) */
+    [data-composition-id="${sceneId}"] .terminal-card,
+    [data-composition-id="${sceneId}"] .tf-terminal,
+    [data-composition-id="${sceneId}"] .code-terminal-pane,
+    [data-composition-id="${sceneId}"] .chat-stream-card,
+    [data-composition-id="${sceneId}"] .browser-mockup-frame {
+      background: #0d0f17 !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      color: #f1f5f9 !important;
+    }
+    [data-composition-id="${sceneId}"] .terminal-card *,
+    [data-composition-id="${sceneId}"] .tf-terminal .tf-cmd,
+    [data-composition-id="${sceneId}"] .tf-terminal .tf-line,
+    [data-composition-id="${sceneId}"] .code-terminal-pane .term-code-line,
+    [data-composition-id="${sceneId}"] .chat-stream-card .chat-bubble {
+      color: #f1f5f9;
+    }
+
+    /* 7. Badges, Pills & Accent Buttons */
+    [data-composition-id="${sceneId}"] .cta-button {
       background: ${effectivePalette.accent} !important;
-      color: #ffffff !important;
+      color: ${effectivePalette.accentText || "#ffffff"} !important;
       border: 1px solid rgba(255, 255, 255, 0.2) !important;
       box-shadow: 0 12px 36px ${effectivePalette.accent}55 !important;
     }
-
-    [data-composition-id="${scene.id}"] .feed-tag,
-    [data-composition-id="${scene.id}"] .step-badge,
-    [data-composition-id="${scene.id}"] .node-badge,
-    [data-composition-id="${scene.id}"] .flow-node-badge,
-    [data-composition-id="${scene.id}"] .card-badge,
-    [data-composition-id="${scene.id}"] .note-icon,
-    [data-composition-id="${scene.id}"] .kinetic-pill {
-      background: rgba(255, 255, 255, 0.08) !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
-      color: #f3f4f8 !important;
+    [data-composition-id="${sceneId}"] .pill-feature {
+      background: ${effectivePalette.card} !important;
+      border: 1px solid ${effectivePalette.border} !important;
+      color: ${effectivePalette.cardText} !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
     }
-    `
-        : ""
+    [data-composition-id="${sceneId}"] .feed-tag,
+    [data-composition-id="${sceneId}"] .step-badge,
+    [data-composition-id="${sceneId}"] .node-badge,
+    [data-composition-id="${sceneId}"] .flow-node-badge,
+    [data-composition-id="${sceneId}"] .card-badge,
+    [data-composition-id="${sceneId}"] .note-icon,
+    [data-composition-id="${sceneId}"] .kinetic-pill {
+      background: ${effectivePalette.cardIsDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"} !important;
+      border: 1px solid ${effectivePalette.border} !important;
+      color: ${effectivePalette.cardText} !important;
     }
 
     /* Portrait stacks */
-    [data-composition-id="${scene.id}"] .portrait-stack { display: flex; flex-direction: column; gap: 24px; max-width: 920px; width: 100%; }
+    [data-composition-id="${sceneId}"] .portrait-stack { display: flex; flex-direction: column; gap: 24px; max-width: 920px; width: 100%; }
   `;
 }
 
@@ -2150,10 +2721,10 @@ function buildSegmentHtml({ scene, durationSec, compWidth, compHeight, activePal
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { margin: 0; width: ${compWidth}px; height: ${compHeight}px; overflow: hidden; background-color: ${activePalette.background}; color: ${activePalette.text}; font-family: "Inter", sans-serif; }
+      html, body { margin: 0; width: ${compWidth}px; height: ${compHeight}px; overflow: hidden; background-color: ${activePalette.background}; color: ${activePalette.text}; font-family: "Plus Jakarta Sans", "Inter", sans-serif; }
       #root { position: relative; width: ${compWidth}px; height: ${compHeight}px; background: ${activePalette.background}; overflow: hidden; }
       .scene { position: absolute; inset: 0; width: ${compWidth}px; height: ${compHeight}px; }
     </style>
@@ -2268,9 +2839,10 @@ async function runProductionPipeline(jobId, payload) {
   const sfxDir = path.join(assetsDir, "sfx");
 
   let completed = false;
+  const isSquare = format === "square";
   const isPortrait = format === "portrait";
-  const compWidth = isPortrait ? 1080 : 1920;
-  const compHeight = isPortrait ? 1920 : 1080;
+  const compWidth = isSquare ? 1080 : isPortrait ? 1080 : 1920;
+  const compHeight = isSquare ? 1080 : isPortrait ? 1920 : 1080;
 
   try {
     // Only accept CSS hex colours in custom palettes: arbitrary CSS here would
@@ -2338,10 +2910,27 @@ async function runProductionPipeline(jobId, payload) {
     }
 
     await new Promise((r) => setTimeout(r, 400));
+    let capturedScreenshotRel = null;
+    if (sourceUrl && typeof sourceUrl === "string" && sourceUrl.trim()) {
+      const captureDir = path.join(assetsDir, "capture");
+      fs.mkdirSync(captureDir, { recursive: true });
+      const screenshotAbs = path.join(captureDir, "screenshot.png");
+      broadcastEvent(jobId, {
+        node: "ingest",
+        status: "active",
+        message: `Capturing desktop viewport screenshot of ${sourceUrl.trim()}...`,
+      });
+      const captured = await captureUrlScreenshot(sourceUrl.trim(), screenshotAbs);
+      if (captured && fs.existsSync(screenshotAbs)) {
+        const base64Data = fs.readFileSync(screenshotAbs).toString("base64");
+        capturedScreenshotRel = `data:image/png;base64,${base64Data}`;
+      }
+    }
+
     broadcastEvent(jobId, {
       node: "ingest",
       status: "complete",
-      message: `Source configured (${isPortrait ? "9:16 Portrait" : "16:9 Landscape"}, ${duration}s · Engine: ${engineMode.toUpperCase()}${sourcePdf ? " · PDF" : ""}${sourceTopic ? " · Topic" : ""})`,
+      message: `Source configured (${isSquare ? "1:1 Square" : isPortrait ? "9:16 Portrait" : "16:9 Landscape"}, ${duration}s · Engine: ${engineMode.toUpperCase()}${sourcePdf ? " · PDF" : ""}${sourceTopic ? " · Topic" : ""})`,
     });
 
     // 02: Director
@@ -2676,12 +3265,15 @@ async function runProductionPipeline(jobId, payload) {
     broadcastEvent(jobId, {
       node: "composition",
       status: "active",
-      message: `Authoring ${isPortrait ? "portrait" : "landscape"} motion layouts`,
+      message: `Authoring ${isSquare ? "square" : isPortrait ? "portrait" : "landscape"} motion layouts`,
     });
 
     // Generate Scene HTML files (Archetype-Driven). Manim scenes already have a clip.
     for (let i = 0; i < storyboard.scenes.length; i++) {
       const scene = storyboard.scenes[i];
+      if (capturedScreenshotRel && !scene.screenshotPath) {
+        scene.screenshotPath = capturedScreenshotRel;
+      }
       if (scene.engine === "manim") continue;
       const sDur = sceneDurations[i];
 
@@ -2717,7 +3309,24 @@ async function runProductionPipeline(jobId, payload) {
         // Server-side scene length, exposed to archetype choreography (a bare sDur used
         // to be a ReferenceError that aborted the script before the timeline registered).
         const sDur = ${sDur};
-        ${i > 0 ? (isPortrait ? `tl.from(scope, { y: 160, opacity: 0, duration: 0.5, ease: "power4.out" }, 0);` : `tl.from(scope, { x: 220, opacity: 0, duration: 0.5, ease: "power4.out" }, 0);`) : `tl.from(scope, { opacity: 0, duration: 0.4 }, 0);`}
+        ${i > 0 ? (isPortrait ? `tl.from(scope, { y: 120, opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.55, ease: "power3.out" }, 0);` : `tl.from(scope, { opacity: 0, scale: 0.96, filter: "blur(6px)", duration: 0.55, ease: "power3.out" }, 0);`) : `tl.from(scope, { opacity: 0, scale: 0.98, filter: "blur(4px)", duration: 0.45, ease: "power2.out" }, 0);`}
+        // Continuous cinematic camera drift across the entire scene narration
+        const innerStage = scope.querySelector(".scene-inner, .split-hero-layout, .fullbleed-layout");
+        if (innerStage) {
+          tl.to(innerStage, { scale: 1.025, ease: "none", duration: sDur }, 0);
+        }
+        // Continuous headline cursor blink
+        const cursorEl = scope.querySelector(".cursor-blink");
+        if (cursorEl) {
+          const blinkRepeats = Math.max(1, Math.floor(sDur / 0.8));
+          tl.to(cursorEl, { opacity: 0, duration: 0.4, repeat: blinkRepeats * 2, yoyo: true, ease: "steps(1)" }, 0.2);
+        }
+        // Continuous eyebrow accent dot pulse
+        const eyeDot = scope.querySelector(".eyebrow-dot");
+        if (eyeDot) {
+          const pulseRepeats = Math.max(1, Math.floor(sDur / 1.6));
+          tl.to(eyeDot, { scale: 1.35, opacity: 0.7, duration: 0.8, repeat: pulseRepeats * 2, yoyo: true, ease: "sine.inOut" }, 0.3);
+        }
         // Archetype choreography is isolated: if one tween throws (null selector, bad
         // value) the entrance/exit timeline below still registers and the scene stays visible.
         try {
@@ -2725,7 +3334,7 @@ async function runProductionPipeline(jobId, payload) {
         } catch (choreographyError) {
           console.warn("[Chalk Frames] choreography error in ${scene.id}:", choreographyError);
         }
-        ${i < storyboard.scenes.length - 1 ? (isPortrait ? `tl.to(scope, { y: -160, opacity: 0, duration: 0.45, ease: "power4.in" }, ${sDur - 0.45});` : `tl.to(scope, { x: -220, opacity: 0, duration: 0.45, ease: "power4.in" }, ${sDur - 0.45});`) : ``}
+        ${i < storyboard.scenes.length - 1 ? (isPortrait ? `tl.to(scope, { y: -80, opacity: 0, scale: 0.98, filter: "blur(4px)", duration: 0.45, ease: "power3.in" }, ${sDur - 0.45});` : `tl.to(scope, { opacity: 0, scale: 1.03, filter: "blur(6px)", duration: 0.45, ease: "power3.inOut" }, ${sDur - 0.45});`) : ``}
         window.__timelines = window.__timelines || {};
         window.__timelines["${scene.id}"] = tl;
       })();
@@ -2754,26 +3363,24 @@ async function runProductionPipeline(jobId, payload) {
       })
       .join("\n      ");
 
-    // Dynamic non-overlapping whooshes on track 2 for scene seams
-    const whooshAudioHtml = [];
-    for (let sIdx = 0; sIdx < storyboard.scenes.length - 1; sIdx++) {
-      const wStart = Math.max(1.8, sceneStartTimes[sIdx + 1] - 0.3);
-      whooshAudioHtml.push(
-        `<audio id="sfx-whoosh-${sIdx + 1}" class="clip" src="assets/sfx/whoosh.mp3" data-start="${wStart.toFixed(2)}" data-duration="0.57" data-track-index="2" data-volume="0.40"></audio>`,
-      );
-    }
+    // Contextual multi-track SFX cues matching scene archetypes and visual peaks
+    const contextualSfx = buildContextualSfxCues({
+      storyboard,
+      sceneStartTimes,
+      sceneDurations,
+      sfxDir,
+    });
+    const activeSfxCues = contextualSfx.filter((c) => {
+      const p = path.join(sfxDir, c.name);
+      return fs.existsSync(p);
+    });
 
-    // Dynamic non-overlapping chimes on track 3 for reveal & outro
-    const chimeAudioHtml = [
-      `<audio id="sfx-chime-reveal" class="clip" src="assets/sfx/chime.mp3" data-start="${(sceneStartTimes[1] + 0.2).toFixed(2)}" data-duration="1.5" data-track-index="3" data-volume="0.40"></audio>`,
-    ];
-    if (storyboard.scenes.length >= 4) {
-      const outroIdx = storyboard.scenes.length - 1;
-      const outroChimeStart = (sceneStartTimes[outroIdx] + 0.2).toFixed(2);
-      chimeAudioHtml.push(
-        `<audio id="sfx-chime-outro" class="clip" src="assets/sfx/chime.mp3" data-start="${outroChimeStart}" data-duration="1.5" data-track-index="3" data-volume="0.40"></audio>`,
-      );
-    }
+    const sfxAudioHtml = activeSfxCues
+      .map(
+        (c) =>
+          `<audio id="${c.id}" class="clip" src="${c.webSrc}" data-start="${c.start.toFixed(2)}" data-duration="${c.duration.toFixed(2)}" data-track-index="${c.trackIndex}" data-volume="${c.volume.toFixed(2)}"></audio>`,
+      )
+      .join("\n      ");
 
     const masterHtml = `<!doctype html>
 <html lang="en">
@@ -2784,10 +3391,10 @@ async function runProductionPipeline(jobId, payload) {
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { margin: 0; width: ${compWidth}px; height: ${compHeight}px; overflow: hidden; background-color: ${activePalette.background}; color: ${activePalette.text}; font-family: "Inter", sans-serif; }
+      html, body { margin: 0; width: ${compWidth}px; height: ${compHeight}px; overflow: hidden; background-color: ${activePalette.background}; color: ${activePalette.text}; font-family: "Plus Jakarta Sans", "Inter", sans-serif; }
       #root { position: relative; width: ${compWidth}px; height: ${compHeight}px; background: ${activePalette.background}; overflow: hidden; }
       .scene { position: absolute; inset: 0; width: ${compWidth}px; height: ${compHeight}px; }
     </style>
@@ -2796,9 +3403,7 @@ async function runProductionPipeline(jobId, payload) {
     <div id="root" data-composition-id="main" data-start="0" data-duration="${totalCalculatedDuration.toFixed(2)}" data-width="${compWidth}" data-height="${compHeight}">
       ${musicEngine !== "none" ? `<audio id="bgm" class="clip" src="assets/bgm.wav" data-start="0" data-duration="${totalCalculatedDuration.toFixed(2)}" data-track-index="0" data-volume="0.30"></audio>` : ""}
       ${audioTagsHtml}
-      <audio id="sfx-typing" class="clip" src="assets/sfx/typing.mp3" data-start="0.1" data-duration="1.5" data-track-index="2" data-volume="0.35"></audio>
-      ${whooshAudioHtml.join("\n      ")}
-      ${chimeAudioHtml.join("\n      ")}
+      ${sfxAudioHtml}
 
       ${sceneDivsHtml}
     </div>
@@ -2815,6 +3420,19 @@ async function runProductionPipeline(jobId, payload) {
       node: "composition",
       status: "complete",
       message: `Layout master assembled (${compWidth}x${compHeight}, ${totalCalculatedDuration.toFixed(1)}s)`,
+      storyboard: {
+        productName: storyboard.productName,
+        scenes: storyboard.scenes.map((s, idx) => ({
+          id: s.id,
+          index: idx,
+          archetype: s.archetype,
+          title: s.title,
+          narration: s.voiceover || s.narration || "",
+          duration: sceneDurations[idx],
+          startTime: sceneStartTimes[idx],
+          engine: s.engine || "html",
+        })),
+      },
     });
 
     // 05: Validation Gate
@@ -2923,29 +3541,11 @@ async function runProductionPipeline(jobId, payload) {
       outputWavPath: masterAudioPath,
       leadIn: 0.3,
     });
-    // Same cues the single-pass master used: typing at open, whooshes on seams, chimes.
-    const sfxCues = [{ path: path.join(sfxDir, "typing.mp3"), start: 0.1, volume: 0.35 }];
-    for (let sIdx = 0; sIdx < storyboard.scenes.length - 1; sIdx++) {
-      sfxCues.push({
-        path: path.join(sfxDir, "whoosh.mp3"),
-        start: Math.max(1.8, sceneStartTimes[sIdx + 1] - 0.3),
-        volume: 0.4,
-      });
-    }
-    if (storyboard.scenes.length > 1) {
-      sfxCues.push({
-        path: path.join(sfxDir, "chime.mp3"),
-        start: sceneStartTimes[1] + 0.2,
-        volume: 0.4,
-      });
-    }
-    if (storyboard.scenes.length >= 4) {
-      sfxCues.push({
-        path: path.join(sfxDir, "chime.mp3"),
-        start: sceneStartTimes[storyboard.scenes.length - 1] + 0.2,
-        volume: 0.4,
-      });
-    }
+    const sfxCues = activeSfxCues.map((c) => ({
+      path: path.join(sfxDir, c.name),
+      start: c.start,
+      volume: c.volume,
+    }));
     await muxMasterVideo({
       videoPath: stitchedVideoPath,
       audioPath: masterAudioPath,
@@ -2957,7 +3557,14 @@ async function runProductionPipeline(jobId, payload) {
 
     if (fs.existsSync(outputMp4Path) && fs.statSync(outputMp4Path).size > 0) {
       completed = true;
-      fs.rmSync(segDir, { recursive: true, force: true });
+      try {
+        const segEntries = fs.readdirSync(segDir, { withFileTypes: true });
+        for (const entry of segEntries) {
+          if (entry.isDirectory() && entry.name.startsWith("html_")) {
+            fs.rmSync(path.join(segDir, entry.name), { recursive: true, force: true });
+          }
+        }
+      } catch {}
       broadcastEvent(jobId, {
         node: "complete",
         status: "complete",
@@ -2965,6 +3572,20 @@ async function runProductionPipeline(jobId, payload) {
         videoUrl: `/renders/${outputMp4Name}`,
         duration: `${totalCalculatedDuration.toFixed(1)}s`,
         resolution: `${compWidth}x${compHeight}`,
+        projectId: `prod-${jobId}`,
+        storyboard: {
+          productName: storyboard.productName,
+          scenes: storyboard.scenes.map((s, idx) => ({
+            id: s.id,
+            index: idx,
+            archetype: s.archetype,
+            title: s.title,
+            narration: s.voiceover || s.narration || "",
+            duration: sceneDurations[idx],
+            startTime: sceneStartTimes[idx],
+            engine: s.engine || "html",
+          })),
+        },
       });
     } else {
       throw new Error("Render failed: final video was not produced");
@@ -3000,6 +3621,241 @@ async function runProductionPipeline(jobId, payload) {
       fs.rmSync(path.join(RENDERS_DIR, `${jobId}.mp4`), { force: true });
     }
   }
+}
+
+/**
+ * Re-render a single scene in an existing project (instant re-render).
+ * Updates storyboard.json, compositions/${scene.id}.html, re-synthesizes voiceover if modified,
+ * re-renders single scene video segment and re-stitches master MP4 in seconds.
+ */
+export async function rerenderSingleScene({
+  projectId,
+  sceneIndex,
+  newNarration,
+  newArchetype,
+  newTitle,
+}) {
+  const safeProjId = String(projectId || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  const projDirName = safeProjId.startsWith("prod-") ? safeProjId : `prod-${safeProjId}`;
+  const projectDir = path.join(PROJECTS_DIR, projDirName);
+  if (!fs.existsSync(projectDir)) {
+    throw new Error(`Project directory not found: ${projDirName}`);
+  }
+
+  const storyboardPath = path.join(projectDir, "storyboard.json");
+  if (!fs.existsSync(storyboardPath)) {
+    throw new Error("Project storyboard.json not found");
+  }
+
+  const storyboard = JSON.parse(fs.readFileSync(storyboardPath, "utf8"));
+  const idx = Number(sceneIndex);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= (storyboard.scenes?.length || 0)) {
+    throw new Error(
+      `Invalid sceneIndex: ${sceneIndex} (project has ${storyboard.scenes?.length || 0} scenes)`,
+    );
+  }
+
+  const scene = storyboard.scenes[idx];
+  const assetsDir = path.join(projectDir, "assets");
+  const compDir = path.join(projectDir, "compositions");
+  const segDir = path.join(projectDir, "segments");
+  const sfxDir = path.join(assetsDir, "sfx");
+  const segName = (i) => String(i + 1).padStart(2, "0");
+
+  const hfBin =
+    (fs.existsSync(LOCAL_CLI) &&
+    fs.existsSync(path.join(ROOT_DIR, "packages", "cli", "dist", "cli.js"))
+      ? LOCAL_CLI
+      : null) ||
+    resolveBin("chalkframes") ||
+    requireBin("chalkframes", "run `bun run setup`");
+  const procEnv = childEnv();
+
+  // 1. Update narration / TTS if provided
+  if (
+    typeof newNarration === "string" &&
+    newNarration.trim() &&
+    newNarration.trim() !== scene.voiceover
+  ) {
+    scene.voiceover = newNarration.trim();
+    const voPath = path.join(assetsDir, `vo-scene${idx + 1}.wav`);
+    try {
+      await execFileAsync(hfBin, ["tts", scene.voiceover, "-o", voPath], {
+        env: procEnv,
+        maxBuffer: 16 * 1024 * 1024,
+      });
+      const newDur = getWavDurationFast(voPath);
+      if (newDur && Number.isFinite(newDur)) {
+        scene.duration = Math.max(3.5, parseFloat((newDur + 0.6).toFixed(1)));
+      }
+    } catch (ttsErr) {
+      console.warn(`[SingleSceneRerender] TTS regeneration failed (${ttsErr.message})`);
+    }
+  }
+
+  // 2. Update archetype or title if provided
+  if (typeof newArchetype === "string" && newArchetype.trim()) {
+    scene.archetype = newArchetype.trim().toLowerCase();
+  }
+  if (typeof newTitle === "string" && newTitle.trim()) {
+    scene.title = newTitle.trim();
+  }
+
+  // Save updated storyboard
+  fs.writeFileSync(storyboardPath, JSON.stringify(storyboard, null, 2));
+
+  // 3. Re-generate scene HTML & GSAP
+  const format = storyboard.format || "landscape";
+  const isSquare = format === "square";
+  const isPortrait = format === "portrait";
+  const compWidth = isSquare ? 1080 : isPortrait ? 1080 : 1920;
+  const compHeight = isSquare ? 1080 : isPortrait ? 1920 : 1080;
+  const activePalette = PALETTES[storyboard.paletteKey] || PALETTES["braun-industrial"];
+  const sDur = scene.duration || 5.0;
+
+  const { innerHtml } = buildSceneHtmlAndChoreography(
+    scene,
+    idx,
+    storyboard.scenes.length,
+    sDur,
+    compWidth,
+    compHeight,
+    isPortrait,
+    activePalette,
+  );
+  const scopedCss = getArchetypeScopedCss(scene, compWidth, compHeight, isPortrait, activePalette);
+
+  const sceneFileContent = `<template id="${scene.id}-template">
+  <div data-composition-id="${scene.id}" data-theme="${scene.theme || "light"}" class="theme-${scene.theme || "light"}" data-width="${compWidth}" data-height="${compHeight}" data-duration="${sDur}">
+    ${innerHtml}
+    <style>
+      ${scopedCss}
+    </style>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        const scope = document.querySelector('[data-composition-id="${scene.id}"]');
+        if (!scope) return;
+        const sDur = ${sDur};
+        ${idx > 0 ? (isPortrait ? `tl.from(scope, { y: 120, opacity: 0, scale: 0.97, filter: "blur(6px)", duration: 0.55, ease: "power3.out" }, 0);` : `tl.from(scope, { opacity: 0, scale: 0.96, filter: "blur(6px)", duration: 0.55, ease: "power3.out" }, 0);`) : `tl.from(scope, { opacity: 0, scale: 0.98, filter: "blur(4px)", duration: 0.45, ease: "power2.out" }, 0);`}
+        const innerStage = scope.querySelector(".scene-inner, .split-hero-layout, .fullbleed-layout");
+        if (innerStage) {
+          tl.to(innerStage, { scale: 1.025, ease: "none", duration: sDur }, 0);
+        }
+        window.__timelines = window.__timelines || {};
+        window.__timelines["${scene.id}"] = tl;
+      })();
+    </script>
+  </div>
+</template>`;
+  fs.writeFileSync(path.join(compDir, `${scene.id}.html`), sceneFileContent);
+
+  // 4. Re-render this single scene segment and re-stitch if segments exist
+  let videoUpdated = false;
+  const rawJobId = projDirName.replace(/^prod-/, "");
+  const outputMp4Name = `${rawJobId}.mp4`;
+  const outputMp4Path = path.join(RENDERS_DIR, outputMp4Name);
+
+  if (fs.existsSync(segDir)) {
+    const sceneProject = path.join(segDir, `html_rerender_${segName(idx)}`);
+    const rawPath = path.join(sceneProject, "raw.mp4");
+    const outPath = path.join(segDir, `scene_${segName(idx)}.mp4`);
+    try {
+      fs.mkdirSync(path.join(sceneProject, "compositions"), { recursive: true });
+      fs.copyFileSync(
+        path.join(compDir, `${scene.id}.html`),
+        path.join(sceneProject, "compositions", `${scene.id}.html`),
+      );
+      fs.writeFileSync(
+        path.join(sceneProject, "index.html"),
+        buildSegmentHtml({
+          scene,
+          durationSec: sDur,
+          compWidth,
+          compHeight,
+          activePalette,
+        }),
+      );
+      await renderHtmlSegment({
+        hfBin,
+        projectPath: sceneProject,
+        outputPath: rawPath,
+        env: procEnv,
+        onProgress: () => {},
+      });
+      const frames = computeSceneFrames(sDur);
+      await normalizeSegment({
+        inputPath: rawPath,
+        outputPath: outPath,
+        totalFrames: frames,
+        width: compWidth,
+        height: compHeight,
+      });
+
+      const segmentPaths = storyboard.scenes.map((_, i) =>
+        path.join(segDir, `scene_${segName(i)}.mp4`),
+      );
+      if (segmentPaths.every((p) => fs.existsSync(p))) {
+        const stitchedVideoPath = path.join(segDir, "video.mp4");
+        const masterAudioPath = path.join(segDir, "master-vo.wav");
+        const bgmPath = path.join(assetsDir, "bgm.wav");
+
+        await concatenateSegments({ segmentPaths, outputVideoPath: stitchedVideoPath });
+        const sceneDurations = storyboard.scenes.map((s) => s.duration || 5.0);
+        await assembleMasterAudio({
+          sceneWavPaths: storyboard.scenes.map((_, i) =>
+            path.join(assetsDir, `vo-scene${i + 1}.wav`),
+          ),
+          expectedDurations: sceneDurations,
+          outputWavPath: masterAudioPath,
+          leadIn: 0.3,
+        });
+
+        const sceneStartTimes = [0];
+        for (let i = 0; i < storyboard.scenes.length - 1; i++) {
+          sceneStartTimes.push(sceneStartTimes[i] + sceneDurations[i]);
+        }
+
+        const contextualCues = buildContextualSfxCues({
+          storyboard,
+          sceneStartTimes,
+          sceneDurations,
+          sfxDir,
+        });
+        const validSfx = contextualCues
+          .filter((c) => fs.existsSync(path.join(sfxDir, c.name)))
+          .map((c) => ({
+            path: path.join(sfxDir, c.name),
+            start: c.start,
+            volume: c.volume,
+          }));
+
+        await muxMasterVideo({
+          videoPath: stitchedVideoPath,
+          audioPath: masterAudioPath,
+          bgmPath: fs.existsSync(bgmPath) ? bgmPath : null,
+          bgmVolume: 0.3,
+          sfx: validSfx,
+          outputPath: outputMp4Path,
+        });
+        videoUpdated = true;
+      }
+    } catch (segErr) {
+      console.warn(`[SingleSceneRerender] Video re-render failed (${segErr.message})`);
+    } finally {
+      fs.rmSync(sceneProject, { recursive: true, force: true });
+    }
+  }
+
+  return {
+    success: true,
+    projectId: projDirName,
+    sceneIndex: idx,
+    scene,
+    videoUpdated,
+    videoUrl: `/renders/${outputMp4Name}?t=${Date.now()}`,
+    updatedAt: Date.now(),
+  };
 }
 
 // HTTP Server
@@ -3203,6 +4059,49 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ success: true, jobId }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/projects/:id/rerender-scene
+  const rerenderMatch = url.pathname.match(/^\/api\/projects\/([a-zA-Z0-9_-]+)\/rerender-scene$/);
+  if (rerenderMatch && req.method === "POST") {
+    const projectId = rerenderMatch[1];
+    const chunks = [];
+    let size = 0;
+    let rejected = false;
+
+    req.on("data", (chunk) => {
+      if (rejected) return;
+      size += chunk.length;
+      if (size > 100_000) {
+        rejected = true;
+        res.writeHead(413, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Payload too large" }));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+
+    req.on("end", async () => {
+      if (rejected) return;
+      try {
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        const result = await rerenderSingleScene({
+          projectId,
+          sceneIndex: body.sceneIndex,
+          newNarration: body.newNarration,
+          newArchetype: body.newArchetype,
+          newTitle: body.newTitle,
+        });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        const status = err.message?.includes("not found") ? 404 : 400;
+        res.writeHead(status, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: err.message }));
       }
     });

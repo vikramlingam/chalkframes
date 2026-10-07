@@ -225,7 +225,7 @@ test("parseStoryboardJson recovers from common LLM JSON anomalies", async () => 
   assert.throws(() => parseStoryboardJson("no json here"), /invalid JSON/);
 });
 
-test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t) => {
+test("api endpoints expose 10 designer palettes and 10 CC0 soundtracks", async (t) => {
   const base = await startServer(t);
 
   const palRes = await fetch(`${base}/api/palettes`);
@@ -263,7 +263,7 @@ test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t
   const soundRes = await fetch(`${base}/api/soundtracks`);
   assert.equal(soundRes.status, 200);
   const soundtracks = await soundRes.json();
-  assert.equal(soundtracks.length, 5);
+  assert.equal(soundtracks.length, 10);
 
   const requiredTracks = [
     "quiet-reflection",
@@ -271,6 +271,11 @@ test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t
     "minimal-clarity",
     "gentle-pulse",
     "deliberate-thought",
+    "gnossienne-clarity",
+    "clair-de-lune",
+    "chopin-nocturne-20",
+    "chopin-nocturne-19",
+    "chopin-nocturne-21",
   ];
   for (const trackId of requiredTracks) {
     const track = soundtracks.find((t) => t.id === trackId);
@@ -279,7 +284,7 @@ test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t
     assert.ok(track.license.includes("CC0") || track.license.includes("Public Domain"));
   }
 
-  // Verify all 5 CC0 tracks are distinct audio files with unique content (no duplicates)
+  // Verify all 10 CC0 tracks are distinct audio files with unique content (no duplicates)
   const crypto = await import("node:crypto");
   const fsPromises = await import("node:fs/promises");
   const hashes = new Set();
@@ -296,5 +301,5 @@ test("api endpoints expose 10 designer palettes and 5 CC0 soundtracks", async (t
   const cfg = await cfgRes.json();
   assert.ok(cfg.palettes);
   assert.ok(cfg.soundtracks);
-  assert.equal(cfg.soundtracks.length, 5);
+  assert.equal(cfg.soundtracks.length, 10);
 });

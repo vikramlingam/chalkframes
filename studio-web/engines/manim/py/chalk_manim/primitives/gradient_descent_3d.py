@@ -14,7 +14,7 @@ from manim import (
     config,
 )
 
-from ..common import clean, fit, run_stage, stage_frames, title_text
+from ..common import clean, fit, info_badge, run_stage, stage_frames, title_text
 
 
 def run(scene, theme, brief, budget, beat_frames):
@@ -30,13 +30,14 @@ def run(scene, theme, brief, budget, beat_frames):
     # Concentric loss contour ellipses
     contours = VGroup()
     contour_radii = [0.6, 1.2, 1.9, 2.7, 3.6]
+    contour_color = getattr(theme, "axis", "#6A7590")
     for r in contour_radii:
-        c = Circle(radius=r, stroke_width=1.5, stroke_color=theme.border, stroke_opacity=0.6).move_to(center)
+        c = Circle(radius=r, stroke_width=2.5, stroke_color=contour_color, stroke_opacity=0.85).move_to(center)
         c.stretch(1.35, 0)  # stretch horizontally into ellipse
         contours.add(c)
 
-    min_dot = Dot(center, radius=0.1, color=theme.accent)
-    min_lbl = Text("Loss Minimum", font=theme.mono, color=theme.muted).scale(0.24).next_to(min_dot, UP, buff=0.1)
+    min_dot = Dot(center, radius=0.16, color=getattr(theme, "gold", theme.accent))
+    min_lbl = Text("Loss Minimum", font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).next_to(min_dot, UP, buff=0.12)
 
     # Waypoints for descent trajectory
     # Starting high loss top-left
@@ -60,20 +61,18 @@ def run(scene, theme, brief, budget, beat_frames):
 
     # Path segments
     path_lines = VGroup()
-    dots = [Dot(start_pt, radius=0.12, color=theme.accent_alt)]
+    dots = [Dot(start_pt, radius=0.14, color=theme.accent_alt)]
     for i in range(len(waypoints) - 1):
         p_a, p_b = waypoints[i], waypoints[i + 1]
-        line = Line(p_a, p_b, stroke_width=3, color=theme.accent)
+        line = Line(p_a, p_b, stroke_width=4.5, color=getattr(theme, "yellow", theme.accent))
         path_lines.add(line)
-        dots.append(Dot(p_b, radius=0.08, color=theme.accent))
+        dots.append(Dot(p_b, radius=0.10, color=getattr(theme, "gold", theme.accent)))
 
-    particle = Dot(start_pt, radius=0.16, color=theme.accent)
+    particle = Dot(start_pt, radius=0.18, color=getattr(theme, "gold", theme.accent))
 
     # Info badge
     mode_text = "Optimizer: Momentum SGD" if has_momentum else "Optimizer: Vanilla SGD"
-    badge_bg = RoundedRectangle(corner_radius=0.1, width=3.8, height=0.5, stroke_width=1.5, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([-config.frame_width * 0.28, 1.6, 0])
-    badge_txt = Text(mode_text, font=theme.mono, weight="BOLD", color=theme.text).scale(0.26).move_to(badge_bg.get_center())
-    badge = VGroup(badge_bg, badge_txt)
+    badge = info_badge(theme, mode_text, pos=[-config.frame_width * 0.28, 1.6, 0], font_size=0.34)
 
     # Convergence pulse
     final_ring = Circle(radius=0.35, color=theme.accent, stroke_width=3).move_to(center)

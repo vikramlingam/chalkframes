@@ -94,15 +94,15 @@ def run(scene, theme, brief, budget, beat_frames):
         y_range=[y0, y1, max((y1 - y0) / 6, 0.1)],
         x_length=fw * 0.82,
         y_length=fh * 0.58,
-        axis_config={"color": theme.border, "stroke_width": 3, "include_ticks": True},
+        axis_config={"color": getattr(theme, "axis", "#8894ae"), "stroke_width": 3.5, "include_ticks": True},
         tips=False,
     ).shift([0, -0.35, 0])
     segs = _segments(f, x0, x1, (y0, y1))
-    curve = _curve(axes, f, segs, getattr(theme, "blue", theme.accent))
-    label = Text("f(x) = " + clean(brief.get("expr", "x"), 40), font=theme.mono, color=theme.muted)
-    label.scale(0.4)
+    curve = _curve(axes, f, segs, getattr(theme, "blue", theme.accent), width=6)
+    label = Text("f(x) = " + clean(brief.get("expr", "x"), 40), font=theme.mono, weight="BOLD", color=theme.text)
+    label.scale(0.48)
     fit(label, fw * 0.8)
-    label.move_to(axes.get_corner([-1, 1, 0]) + [label.width / 2 + 0.1, 0.25, 0])
+    label.move_to(axes.get_corner([-1, 1, 0]) + [label.width / 2 + 0.1, 0.28, 0])
 
     stages = [("axes", 3)]
     tx = brief.get("tangentAt")
@@ -129,8 +129,8 @@ def run(scene, theme, brief, budget, beat_frames):
             half = (x1 - x0) * 0.18
             p0 = axes.c2p(xt - half, f(xt) - slope * half)
             p1 = axes.c2p(xt + half, f(xt) + slope * half)
-            tangent = Line(p0, p1, color=getattr(theme, "gold", theme.accent_alt), stroke_width=4)
-            dot = Dot(axes.c2p(xt, f(xt)), color=getattr(theme, "yellow", theme.text), radius=0.09)
+            tangent = Line(p0, p1, color=getattr(theme, "gold", theme.accent_alt), stroke_width=5)
+            dot = Dot(axes.c2p(xt, f(xt)), color=getattr(theme, "yellow", theme.text), radius=0.14)
             keep.add(tangent, dot)
             run_stage(budget, n, Create(tangent), FadeIn(dot))
         elif name == "area":

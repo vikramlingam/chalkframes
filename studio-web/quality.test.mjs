@@ -23,6 +23,8 @@ import {
   parseStoryboardJson,
   formatStoryboardYaml,
   formatStoryboardMarkdown,
+  sanitizeYamlText,
+  MIDDLE_THEME_POOL,
 } from "./server.mjs";
 import { formatCompactMetric } from "./renderers.mjs";
 import { DEFAULT_3B1B_PALETTE, sanitizePalette } from "./engines/manim/planner.mjs";
@@ -1583,4 +1585,80 @@ test("Director prompt instructs LLM to produce structured YAML storyboard format
   assert.ok(prompt.includes("scenes:"));
   assert.ok(prompt.includes("voiceover: >"));
   assert.ok(prompt.includes("engine:"));
+});
+
+test("sanitizeYamlText handles tabs, unquoted colons, markdown fences and preamble", () => {
+  const dirtyYaml = `
+Here is your storyboard:
+\`\`\`yaml
+productName: "Chalk Engine"
+scenes:
+\t- id: s1
+\t  title: Architecture: Multi-Head Attention & KV Cache
+\t  archetype: split-stage-hero
+\t  engine: html
+\t  voiceover: Notice the query-key-value projections here: they scale quadratically.
+\`\`\`
+Hope this helps!`;
+
+  const cleaned = sanitizeYamlText(dirtyYaml);
+  assert.ok(!cleaned.includes("```"));
+  assert.ok(!cleaned.includes("Here is your storyboard:"));
+  assert.ok(!cleaned.includes("Hope this helps!"));
+  assert.ok(!cleaned.includes("\t"), "Tabs should be converted to spaces");
+  // Colons in scalar values should be safely auto-quoted
+  assert.ok(cleaned.includes('"Architecture: Multi-Head Attention & KV Cache"'));
+
+  const parsed = parseStoryboardYamlOrJson(dirtyYaml);
+  assert.equal(parsed.productName, "Chalk Engine");
+  assert.equal(parsed.scenes.length, 1);
+  assert.equal(parsed.scenes[0].id, "s1");
+  assert.equal(parsed.scenes[0].title, "Architecture: Multi-Head Attention & KV Cache");
+});
+
+test("parseStoryboardYamlOrJson recovers structurally even when YAML is corrupted", () => {
+  const malformedYaml = `
+productName: Fault Tolerant Engine
+scenes:
+  - id: s1
+    title: Unclosed "quote error
+    archetype: bento-metric-grid
+    engine: html
+    voiceover: System recovers gracefully from syntax anomalies.
+  - id: s2
+    title: Second Scene: Recovery
+    archetype: dag-flow
+    engine: html
+    voiceover: Processing continues seamlessly.
+`;
+
+  const parsed = parseStoryboardYamlOrJson(malformedYaml);
+  assert.equal(parsed.productName, "Fault Tolerant Engine");
+  assert.equal(parsed.scenes.length, 2);
+  assert.equal(parsed.scenes[0].archetype, "bento-metric-grid");
+  assert.equal(parsed.scenes[1].archetype, "dag-flow");
+});
+
+test("visual archetype diversity: MIDDLE_THEME_POOL provides comprehensive coverage", () => {
+  assert.ok(
+    MIDDLE_THEME_POOL.length >= 18,
+    `Pool has ${MIDDLE_THEME_POOL.length} roles, expected >= 18`,
+  );
+
+  const roles = new Set(MIDDLE_THEME_POOL.map((m) => m.role));
+  assert.ok(roles.has("dag"), "Missing dag role");
+  assert.ok(roles.has("rag"), "Missing rag role");
+  assert.ok(roles.has("mesh"), "Missing mesh role");
+  assert.ok(roles.has("storage"), "Missing storage role");
+  assert.ok(roles.has("resilience"), "Missing resilience role");
+  assert.ok(roles.has("security"), "Missing security role");
+  assert.ok(roles.has("analytics"), "Missing analytics role");
+  assert.ok(roles.has("matrix"), "Missing matrix role");
+
+  // Verify getSceneTimingStructure assigns distinct roles without repeats
+  const timing = getSceneTimingStructure(120, "landscape");
+  const middleScenes = timing.slice(1, -1);
+  const usedRoles = middleScenes.map((s) => s.role);
+  const uniqueRoles = new Set(usedRoles);
+  assert.equal(usedRoles.length, uniqueRoles.size, "Middle scene roles should not repeat");
 });

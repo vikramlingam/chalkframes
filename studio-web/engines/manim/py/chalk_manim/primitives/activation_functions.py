@@ -45,10 +45,11 @@ def run(scene, theme, brief, budget, beat_frames):
     scale_y = 1.2 if fn_type == "sigmoid" else 0.7
 
     # Coordinate axes
-    ax_x = Line([center[0] - 3.5, center[1], 0], [center[0] + 3.5, center[1], 0], stroke_width=1.5, stroke_color=theme.border)
-    ax_y = Line([center[0], center[1] - 2.0, 0], [center[0], center[1] + 2.2, 0], stroke_width=1.5, stroke_color=theme.border)
-    x_lbl = Text("x (pre-activation)", font=theme.mono, color=theme.muted).scale(0.22).next_to([center[0] + 3.4, center[1], 0], UP, buff=0.08)
-    y_lbl = Text("σ(x) (activation)", font=theme.mono, color=theme.muted).scale(0.22).next_to([center[0], center[1] + 2.1, 0], RIGHT, buff=0.08)
+    axis_col = getattr(theme, "axis", theme.border)
+    ax_x = Line([center[0] - 3.8, center[1], 0], [center[0] + 3.8, center[1], 0], stroke_width=3.5, stroke_color=axis_col)
+    ax_y = Line([center[0], center[1] - 2.0, 0], [center[0], center[1] + 2.4, 0], stroke_width=3.5, stroke_color=axis_col)
+    x_lbl = Text("x (pre-activation)", font=theme.mono, weight="BOLD", color=axis_col).scale(0.36).next_to([center[0] + 3.5, center[1], 0], UP, buff=0.1)
+    y_lbl = Text("σ(x) (activation)", font=theme.mono, weight="BOLD", color=axis_col).scale(0.36).next_to([center[0], center[1] + 2.3, 0], RIGHT, buff=0.1)
 
     # Plot curve
     pts = []
@@ -61,21 +62,21 @@ def run(scene, theme, brief, budget, beat_frames):
 
     curve = VGroup()
     for i in range(len(pts) - 1):
-        curve.add(Line(pts[i], pts[i + 1], stroke_width=3.5, stroke_color=theme.accent))
+        curve.add(Line(pts[i], pts[i + 1], stroke_width=6.0, stroke_color=theme.accent))
 
     # Animated probe dot moving along curve
     p_neg = pts[10]  # x = -3.0
     p_zero = pts[40] # x = 0.0
     p_pos = pts[65]  # x = +2.5
 
-    dot = Dot(p_neg, radius=0.12, color=theme.accent_alt)
-    dot_lbl1 = Text("Saturated / Inactive", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.22).next_to(p_neg, UP, buff=0.15)
-    dot_lbl2 = Text("Non-Linear Knee", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.22).next_to(p_zero, UP + RIGHT, buff=0.15)
-    dot_lbl3 = Text("Linear Propagation", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.22).next_to(p_pos, UP + RIGHT, buff=0.15)
+    dot = Dot(p_neg, radius=0.18, color=theme.accent_alt)
+    dot_lbl1 = Text("Saturated / Inactive", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.36).next_to(p_neg, UP, buff=0.18)
+    dot_lbl2 = Text("Non-Linear Knee", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.36).next_to(p_zero, UP + RIGHT, buff=0.18)
+    dot_lbl3 = Text("Linear Propagation", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.36).next_to(p_pos, UP + RIGHT, buff=0.18)
 
     # Top function badge
-    badge_bg = RoundedRectangle(corner_radius=0.1, width=4.4, height=0.5, stroke_width=2, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([0, 1.9, 0])
-    badge_txt = Text(f"Activation: {fn_type.upper()}(x)", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.28).move_to(badge_bg.get_center())
+    badge_bg = RoundedRectangle(corner_radius=0.14, width=5.0, height=0.68, stroke_width=3, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=0.98).move_to([0, 2.0, 0])
+    badge_txt = Text(f"Activation: {fn_type.upper()}(x)", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.38).move_to(badge_bg.get_center())
 
     stages = 3
     frames = stage_frames(budget.total, [3, 4, 3], beat_frames if beat_frames and len(beat_frames) == stages else None)

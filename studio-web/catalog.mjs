@@ -231,6 +231,15 @@ export const VISUAL_CATALOG = [
     aliases: ["split-device", "device-mockup", "dev-terminal", "terminal-preview"],
   },
   {
+    id: "split-stage-hero",
+    family: "device",
+    isMiddle: true,
+    description:
+      "EDGE-TO-EDGE split-stage product showcase. Left 45%: editorial headline, eyebrow badge, subtitle, and bullet highlight pills. Right 55%: sleek floating browser/desktop mockup frame displaying the real captured URL screenshot (or high-fidelity dark vector UI fallback) with ambient drop shadow and glass reflection. Perfect for product walk-throughs, landing pages, and SaaS explainers.",
+    payloadHint: "heroData: { appTitle: string, url?: string, highlights: [{ icon?, text }] }",
+    aliases: ["product-stage", "hero-split", "website-showcase", "split-hero"],
+  },
+  {
     id: "step-progression",
     family: "diagram",
     isMiddle: true,

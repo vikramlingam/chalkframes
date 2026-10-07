@@ -1,4 +1,4 @@
-// 5 CC0 Public Domain Background Soundtracks
+// 10 CC0 Public Domain Background Soundtracks
 // Released under Creative Commons Zero (CC0 1.0 Universal - Public Domain Dedication)
 // Zero copyright restrictions, safe for commercial, open-source, and offline distribution.
 
@@ -58,10 +58,65 @@ export const SOUNDTRACKS = [
     desc: "Cinematic soft drone with muted strings and peaceful resonance",
     bestFor: "Research paper breakdowns and technical deep dives",
   },
+  {
+    id: "gnossienne-clarity",
+    file: "gnossienne-clarity.mp3",
+    title: "Gnossienne No. 1",
+    name: "Gnossienne Clarity",
+    artist: "Erik Satie (perf. La Pianista)",
+    license: "Public Domain Mark / CC0",
+    genre: "Meditative solo classical piano, calm and reflective, zero beats",
+    desc: "Mystical, serene French impressionist piano with gentle pacing and no percussion",
+    bestFor: "Deep conceptual explainers, foundational ideas, and thoughtful tutorials",
+  },
+  {
+    id: "clair-de-lune",
+    file: "clair-de-lune.mp3",
+    title: "Clair de Lune (Suite bergamasque)",
+    name: "Clair de Lune",
+    artist: "Claude Debussy (perf. Laurens Goedhart)",
+    license: "Public Domain Mark / CC0",
+    genre: "Lyrical, peaceful classical impressionist piano, zero beats",
+    desc: "Famous tranquil piano nocturne with floating, soothing melodies and zero drums",
+    bestFor: "Product stories, visionary keynote recaps, and inspiring demonstrations",
+  },
+  {
+    id: "chopin-nocturne-20",
+    file: "chopin-nocturne-20.mp3",
+    title: "Nocturne No. 20 in C-sharp minor, B. 49",
+    name: "Nocturne Serenata",
+    artist: "Frédéric Chopin (perf. Frank Lévy, Musopen)",
+    license: "CC0 1.0 Universal / Public Domain",
+    genre: "Delicate, emotive solo piano, quiet and expressive, zero beats",
+    desc: "Gentle, deeply moving romantic piano melody with warm harmonic resonance",
+    bestFor: "Narrative case studies, user stories, and high-impact technical journeys",
+  },
+  {
+    id: "chopin-nocturne-19",
+    file: "chopin-nocturne-19.mp3",
+    title: "Nocturne No. 19 in E minor, Op. 72 No. 1",
+    name: "Midnight Solitude",
+    artist: "Frédéric Chopin (perf. Luke Faulkner, Musopen)",
+    license: "CC0 1.0 Universal / Public Domain",
+    genre: "Introspective atmospheric classical piano, zero beats",
+    desc: "Warm, resonant, contemplative piano with rich acoustic tone and zero drums",
+    bestFor: "Software architecture walkthroughs, system diagrams, and deep dives",
+  },
+  {
+    id: "chopin-nocturne-21",
+    file: "chopin-nocturne-21.mp3",
+    title: "Nocturne No. 21 in C minor, B. 108",
+    name: "Pastoral Reflection",
+    artist: "Frédéric Chopin (perf. Diana Hughes, Musopen)",
+    license: "CC0 1.0 Universal / Public Domain",
+    genre: "Peaceful, tender classical piano, zero beats",
+    desc: "Quiet, tender solo piano with soothing warmth and serene pacing",
+    bestFor: "Educational videos, mathematical overviews, and clean product guides",
+  },
 ];
 
 export const SOUNDTRACK_MAP = {
-  // 5 Flagship CC0 Soundtracks
+  // 10 Flagship CC0 Soundtracks
   ...Object.fromEntries(SOUNDTRACKS.map((t) => [t.id, t])),
 
   // Backward-compatible legacy aliases

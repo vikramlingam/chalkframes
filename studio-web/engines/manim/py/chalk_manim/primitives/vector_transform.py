@@ -54,8 +54,8 @@ def run(scene, theme, brief, budget, beat_frames):
         y_range=[-5, 5, 1],
         x_length=18 * unit,
         y_length=10 * unit,
-        background_line_style={"stroke_color": theme.border, "stroke_width": 2, "stroke_opacity": 0.9},
-        axis_config={"stroke_color": theme.muted, "stroke_width": 3},
+        background_line_style={"stroke_color": getattr(theme, "grid", "#2d3546"), "stroke_width": 2, "stroke_opacity": 0.85},
+        axis_config={"stroke_color": getattr(theme, "axis", "#8894ae"), "stroke_width": 3.5},
     )
     plane.shift([0, -0.2, 0])
 
@@ -78,8 +78,9 @@ def run(scene, theme, brief, budget, beat_frames):
     label = Text(
         "[ {:g} {:g} ; {:g} {:g} ]".format(m[0][0], m[0][1], m[1][0], m[1][1]),
         font=theme.mono,
-        color=theme.muted,
-    ).scale(0.4)
+        weight="BOLD",
+        color=theme.text,
+    ).scale(0.48)
     fit(label, config.frame_width * 0.5)
     label.to_corner([1, -1, 0], buff=0.35)
 

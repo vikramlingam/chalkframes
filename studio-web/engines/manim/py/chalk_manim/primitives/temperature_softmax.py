@@ -45,9 +45,9 @@ def run(scene, theme, brief, budget, beat_frames):
     p_target = _softmax(logits, target_temp)
 
     # 1. Temperature Header / Badge
-    temp_box = RoundedRectangle(corner_radius=0.1, width=3.8, height=0.55, stroke_width=2, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([0, 1.6, 0])
-    temp_init_txt = Text("Temperature T = 1.0", font=theme.mono, weight="BOLD", color=theme.text).scale(0.3).move_to(temp_box.get_center())
-    temp_target_txt = Text(f"Temperature T = {target_temp:.2f}", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.3).move_to(temp_box.get_center())
+    temp_box = RoundedRectangle(corner_radius=0.14, width=4.6, height=0.68, stroke_width=3, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=0.98).move_to([0, 1.8, 0])
+    temp_init_txt = Text("Baseline: Temperature T = 1.0", font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).move_to(temp_box.get_center())
+    temp_target_txt = Text(f"Scaled: Temperature T = {target_temp:.2f}", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.38).move_to(temp_box.get_center())
 
     # 2. Probability Bar Chart
     chart_w = min(fw * 0.72, 6.4)
@@ -57,38 +57,48 @@ def run(scene, theme, brief, budget, beat_frames):
     base_y = -1.2
     max_h = 2.2
 
+    axis_col = getattr(theme, "axis", theme.border)
+    base_line = Rectangle(width=chart_w + bar_w * 1.2, height=0.06, stroke_width=0, fill_color=axis_col, fill_opacity=0.9).move_to([start_x + (n - 1) * gap_x / 2, base_y - 0.03, 0])
+
     bars_base = []
     bars_target = []
+    val_labels_base = []
+    val_labels_target = []
     labels = []
 
     for i in range(n):
         x = start_x + i * gap_x
-        h1 = max(0.08, p_base[i] * max_h)
-        h2 = max(0.08, p_target[i] * max_h)
+        h1 = max(0.12, p_base[i] * max_h)
+        h2 = max(0.12, p_target[i] * max_h)
 
         b1 = Rectangle(
             width=bar_w,
             height=h1,
-            stroke_width=2,
-            stroke_color=theme.border,
-            fill_color=theme.accent_alt,
-            fill_opacity=0.75,
+            stroke_width=3,
+            stroke_color=theme.accent_alt,
+            fill_color=theme.card,
+            fill_opacity=0.9,
         ).move_to([x, base_y + h1 / 2, 0])
 
         is_max = p_target[i] == max(p_target)
         b2 = Rectangle(
             width=bar_w,
             height=h2,
-            stroke_width=2.5 if is_max else 2,
-            stroke_color=theme.accent if is_max else theme.border,
+            stroke_width=3.5 if is_max else 3,
+            stroke_color=theme.accent if is_max else axis_col,
             fill_color=theme.accent if is_max else theme.card,
-            fill_opacity=0.9 if is_max else 0.5,
+            fill_opacity=0.92 if is_max else 0.6,
         ).move_to([x, base_y + h2 / 2, 0])
 
-        lbl = Text(f"z_{i}={logits[i]:.1f}", font=theme.mono, color=theme.muted).scale(0.25).next_to([x, base_y, 0], DOWN, buff=0.15)
+        pct1 = Text(f"{int(round(p_base[i]*100))}%", font=theme.mono, weight="BOLD", color=theme.text).scale(0.36).next_to(b1, UP, buff=0.1)
+        pct2 = Text(f"{int(round(p_target[i]*100))}%", font=theme.mono, weight="BOLD", color=theme.accent if is_max else theme.text).scale(0.36).next_to(b2, UP, buff=0.1)
+
+        lbl = Text(f"z_{i}={logits[i]:.1f}", font=theme.mono, weight="BOLD", color=axis_col).scale(0.36).next_to([x, base_y, 0], DOWN, buff=0.18)
 
         bars_base.append(b1)
         bars_target.append(b2)
+        val_labels_base.append(pct1)
+        val_labels_target.append(pct2)
         labels.append(lbl)
 
     stages = 3
@@ -96,14 +106,14 @@ def run(scene, theme, brief, budget, beat_frames):
 
     scene.add(title_text(theme, title))
 
-    # Stage 1: Initial distribution at T = 1.0
-    run_stage(budget, frames[0], FadeIn(temp_box), FadeIn(temp_init_txt), *[FadeIn(b) for b in bars_base], *[FadeIn(l) for l in labels])
+    # Stage 1: Initial distribution at T = 1.0 with baseline axis and percentage tags
+    run_stage(budget, frames[0], FadeIn(temp_box), FadeIn(temp_init_txt), FadeIn(base_line), *[FadeIn(b) for b in bars_base], *[FadeIn(p) for p in val_labels_base], *[FadeIn(l) for l in labels])
 
     # Stage 2: Temperature parameter shifts to target_temp
     run_stage(budget, frames[1], temp_init_txt.animate.become(temp_target_txt))
 
-    # Stage 3: Bars morph dynamically to scaled distribution p_target
-    transforms = [bars_base[i].animate.become(bars_target[i]) for i in range(n)]
+    # Stage 3: Bars and percentages morph dynamically to scaled distribution p_target
+    transforms = [bars_base[i].animate.become(bars_target[i]) for i in range(n)] + [val_labels_base[i].animate.become(val_labels_target[i]) for i in range(n)]
     run_stage(budget, frames[2], *transforms)
 
     budget.fill()

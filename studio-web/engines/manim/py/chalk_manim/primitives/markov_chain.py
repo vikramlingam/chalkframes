@@ -29,26 +29,27 @@ def run(scene, theme, brief, budget, beat_frames):
 
     # 3 nodes in triangle layout
     center = [0, -0.4, 0]
-    r_node = 0.65
+    r_node = 0.85
     positions = [
-        [-2.2, -1.0, 0],
-        [2.2, -1.0, 0],
-        [0, 1.2, 0],
+        [-2.4, -0.9, 0],
+        [2.4, -0.9, 0],
+        [0, 1.4, 0],
     ]
 
     nodes = VGroup()
     labels = VGroup()
-    colors = [theme.accent, theme.accent_alt, theme.border]
+    vibrant_alt = getattr(theme, "yellow", "#F3AC3C")
+    colors = [theme.accent, theme.accent_alt, vibrant_alt]
 
     for i in range(3):
         c = Circle(
             radius=r_node,
-            stroke_width=3,
+            stroke_width=4,
             stroke_color=colors[i],
             fill_color=theme.card,
-            fill_opacity=0.95,
+            fill_opacity=0.98,
         ).move_to(positions[i])
-        txt = Text(states[i], font=theme.mono, weight="BOLD", color=theme.text).scale(0.22).move_to(positions[i])
+        txt = Text(states[i], font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).move_to(positions[i])
         nodes.add(c)
         labels.add(txt)
 
@@ -62,25 +63,25 @@ def run(scene, theme, brief, budget, beat_frames):
         uy = dy / dist
         start = [p1[0] + ux * r_node, p1[1] + uy * r_node, 0]
         end = [p2[0] - ux * r_node, p2[1] - uy * r_node, 0]
-        return Arrow(start, end, color=col, stroke_width=3, buff=0)
+        return Arrow(start, end, color=col, stroke_width=4.5, buff=0.06)
 
     arr01 = edge_arrow(positions[0], positions[1], theme.accent)
     arr12 = edge_arrow(positions[1], positions[2], theme.accent_alt)
-    arr20 = edge_arrow(positions[2], positions[0], theme.border)
+    arr20 = edge_arrow(positions[2], positions[0], vibrant_alt)
 
-    p01_lbl = Text("p=0.7", font=theme.mono, color=theme.accent).scale(0.2).next_to(arr01, [0, -1, 0], buff=0.1)
-    p12_lbl = Text("p=0.5", font=theme.mono, color=theme.accent_alt).scale(0.2).next_to(arr12, RIGHT, buff=0.1)
-    p20_lbl = Text("p=0.6", font=theme.mono, color=theme.text).scale(0.2).next_to(arr20, [-1, 0, 0], buff=0.1)
+    p01_lbl = Text("p=0.7", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.36).next_to(arr01, [0, -1, 0], buff=0.15)
+    p12_lbl = Text("p=0.5", font=theme.mono, weight="BOLD", color=theme.accent_alt).scale(0.36).next_to(arr12, RIGHT, buff=0.15)
+    p20_lbl = Text("p=0.6", font=theme.mono, weight="BOLD", color=vibrant_alt).scale(0.36).next_to(arr20, [-1, 0, 0], buff=0.15)
 
     arrows = VGroup(arr01, arr12, arr20)
     prob_labels = VGroup(p01_lbl, p12_lbl, p20_lbl)
 
     # Token moving from S0 -> S1 -> S2
-    token = Dot(positions[0], radius=0.14, color=theme.accent)
+    token = Dot(positions[0], radius=0.18, color=theme.accent)
 
-    badge_bg = RoundedRectangle(corner_radius=0.1, width=5.0, height=0.5, stroke_width=2, stroke_color=theme.border, fill_color=theme.card, fill_opacity=1).move_to([0, 2.0, 0])
-    badge_txt1 = Text("State Graph: Discrete Time Transitions", font=theme.mono, weight="BOLD", color=theme.text).scale(0.25).move_to(badge_bg.get_center())
-    badge_txt2 = Text("Transition Dynamics -> Stationary Vector π", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.25).move_to(badge_bg.get_center())
+    badge_bg = RoundedRectangle(corner_radius=0.14, width=5.4, height=0.68, stroke_width=3, stroke_color=theme.accent, fill_color=theme.card, fill_opacity=0.98).move_to([0, 2.2, 0])
+    badge_txt1 = Text("State Graph: Discrete Transitions", font=theme.mono, weight="BOLD", color=theme.text).scale(0.38).move_to(badge_bg.get_center())
+    badge_txt2 = Text("Stationary Distribution: π = π · P", font=theme.mono, weight="BOLD", color=theme.accent).scale(0.38).move_to(badge_bg.get_center())
 
     stages = 3
     frames = stage_frames(budget.total, [3, 4, 3], beat_frames if beat_frames and len(beat_frames) == stages else None)

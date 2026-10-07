@@ -195,6 +195,11 @@
                   <span class="pill-title">Portrait</span>
                   <span class="pill-sub">9:16 · Mobile / Reels</span>
                 </button>
+                <button type="button" class="pill-btn" data-format="square">
+                  <span class="pill-icon">◻</span>
+                  <span class="pill-title">Square</span>
+                  <span class="pill-sub">1:1 · Feed / Post</span>
+                </button>
               </div>
             </div>
 
@@ -344,6 +349,21 @@
                       </option>
                       <option value="deliberate-thought">
                         Deliberate Thought (Cinematic Soft Drone &amp; Strings)
+                      </option>
+                      <option value="gnossienne-clarity">
+                        Gnossienne Clarity (Gnossienne No. 1 - Satie Piano, Zero Beats)
+                      </option>
+                      <option value="clair-de-lune">
+                        Clair de Lune (Debussy Peaceful Impressionism, Zero Beats)
+                      </option>
+                      <option value="chopin-nocturne-20">
+                        Nocturne Serenata (Chopin Nocturne No. 20, Zero Beats)
+                      </option>
+                      <option value="chopin-nocturne-19">
+                        Midnight Solitude (Chopin Nocturne No. 19, Zero Beats)
+                      </option>
+                      <option value="chopin-nocturne-21">
+                        Pastoral Reflection (Chopin Nocturne No. 21, Zero Beats)
                       </option>
                     </optgroup>
                     <optgroup label="Options">
@@ -680,6 +700,20 @@
               <video id="playerVideo" controls playsinline preload="metadata">
                 Your browser does not support HTML5 video.
               </video>
+            </div>
+          </div>
+
+          <!-- Storyboard Filmstrip / Contact Sheet -->
+          <div class="filmstrip-section" id="filmstripSection" style="display: none">
+            <div class="filmstrip-header">
+              <div class="filmstrip-title-wrap">
+                <span class="filmstrip-kicker">CINEMATIC STORYBOARD</span>
+                <h3 class="filmstrip-heading">Scene Filmstrip &amp; Contact Sheet</h3>
+              </div>
+              <span class="filmstrip-count-badge" id="filmstripSceneCount">0 Scenes</span>
+            </div>
+            <div class="filmstrip-grid" id="filmstripTrack">
+              <!-- Dynamically populated scene cards with archetype tags and re-render controls -->
             </div>
           </div>
         </section>

@@ -659,6 +659,7 @@ export function validateStoryboard(
       "carouselData",
       "hero3dData",
       "sliceData",
+      "heroData",
     ]) {
       const field = scene[key];
       if (
@@ -915,7 +916,10 @@ export function validateProductionInput(payload) {
     throw new Error("Provide a topic, PDF, website URL, or written brief");
   if (typeof payload.apiKey !== "string" || !payload.apiKey.trim())
     throw new Error("An OpenRouter API key is required to create a source-grounded video");
-  return { ...payload, duration, engineMode };
+  const format = ["landscape", "portrait", "square"].includes(payload.format)
+    ? payload.format
+    : "landscape";
+  return { ...payload, duration, engineMode, format };
 }
 
 export function validateTopicInput(payload) {

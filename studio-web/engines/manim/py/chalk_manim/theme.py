@@ -61,8 +61,10 @@ DEFAULT_PALETTE = {
     "accent": BLUE_C,
     "accentDark": BLUE_D,
     "accentText": "#ffffff",
-    "card": "#181b24",
-    "border": "#2e3440",
+    "card": "#181d29",
+    "border": "#56627a",
+    "axis": "#8894ae",
+    "grid": "#2d3546",
     # 3Blue1Brown signature palette tokens
     "blue": BLUE_C,
     "teal": TEAL_C,
@@ -152,6 +154,8 @@ class Theme:
         self.accent_text = tone("accentText")
         self.card = tone("card")
         self.border = tone("border")
+        self.axis = tone("axis")
+        self.grid = tone("grid")
 
         # 3Blue1Brown canonical colors
         self.blue = tone("blue")

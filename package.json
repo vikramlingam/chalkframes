@@ -19,7 +19,7 @@
     "build:chalkframes-runtime": "bun run --filter @chalkframes/core build:chalkframes-runtime",
     "build:chalkframes-runtime:modular": "bun run --filter @chalkframes/core build:chalkframes-runtime:modular",
     "test": "bun run test:studio",
-    "test:studio": "node --test studio-web/quality.test.mjs studio-web/server.test.mjs studio-web/engine-upgrade.test.mjs studio-web/engines/manim/manim.test.mjs",
+    "test:studio": "node --test studio-web/quality.test.mjs studio-web/server.test.mjs studio-web/ideas-a-to-e.test.mjs studio-web/engine-upgrade.test.mjs studio-web/engines/manim/manim.test.mjs",
     "lint": "oxlint studio-web",
     "lint:fix": "oxlint --fix studio-web",
     "format": "oxfmt studio-web",
