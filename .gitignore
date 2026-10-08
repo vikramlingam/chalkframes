@@ -59,6 +59,7 @@ packages/producer/src/services/fontData.generated.ts
 npm-debug.log*
 tmp/
 .tmp/
+/soundtracks/
 coverage/
 .debug/
 

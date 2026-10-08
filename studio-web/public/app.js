@@ -151,6 +151,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 0b. Director model: show the exact OpenRouter id and copy it to the clipboard.
+  const copyModelBtn = document.getElementById("copyModelBtn");
+  const copyModelLabel = document.getElementById("copyModelLabel");
+  const modelIdText = document.getElementById("modelIdText");
+  const showModelId = () => {
+    if (modelIdText) modelIdText.textContent = modelSelect.value;
+  };
+  modelSelect.addEventListener("change", showModelId);
+  showModelId();
+
+  const copyText = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    // Fallback for non-secure origins: select and copy through a hidden textarea.
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    return ok;
+  };
+
+  if (copyModelBtn) {
+    copyModelBtn.addEventListener("click", async () => {
+      const id = modelSelect.value;
+      let ok = false;
+      try {
+        ok = await copyText(id);
+      } catch {
+        ok = false;
+      }
+      if (copyModelLabel) copyModelLabel.textContent = ok ? "Copied" : "Copy failed";
+      setTimeout(() => {
+        if (copyModelLabel) copyModelLabel.textContent = "Copy";
+      }, 1600);
+    });
+  }
+
   // 1. Restore API Key from localStorage
   const savedKey = localStorage.getItem("openrouter_api_key");
   if (savedKey) {

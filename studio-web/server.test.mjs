@@ -225,7 +225,7 @@ test("parseStoryboardJson recovers from common LLM JSON anomalies", async () => 
   assert.throws(() => parseStoryboardJson("no json here"), /invalid JSON/);
 });
 
-test("api endpoints expose 10 designer palettes and 10 CC0 soundtracks", async (t) => {
+test("api endpoints expose 10 designer palettes and 18 soundtracks (10 CC0 plus 8 supplied)", async (t) => {
   const base = await startServer(t);
 
   const palRes = await fetch(`${base}/api/palettes`);
@@ -263,7 +263,7 @@ test("api endpoints expose 10 designer palettes and 10 CC0 soundtracks", async (
   const soundRes = await fetch(`${base}/api/soundtracks`);
   assert.equal(soundRes.status, 200);
   const soundtracks = await soundRes.json();
-  assert.equal(soundtracks.length, 10);
+  assert.equal(soundtracks.length, 18);
 
   const requiredTracks = [
     "quiet-reflection",
@@ -284,7 +284,15 @@ test("api endpoints expose 10 designer palettes and 10 CC0 soundtracks", async (
     assert.ok(track.license.includes("CC0") || track.license.includes("Public Domain"));
   }
 
-  // Verify all 10 CC0 tracks are distinct audio files with unique content (no duplicates)
+  // Every track must state a licence. Only the original set is claimed to be CC0.
+  for (const track of soundtracks) {
+    assert.ok(
+      track.license && track.license.trim().length > 0,
+      `Track ${track.id} must state a licence`,
+    );
+  }
+
+  // Verify every track is a distinct audio file with unique content (no duplicates)
   const crypto = await import("node:crypto");
   const fsPromises = await import("node:fs/promises");
   const hashes = new Set();
@@ -301,5 +309,5 @@ test("api endpoints expose 10 designer palettes and 10 CC0 soundtracks", async (
   const cfg = await cfgRes.json();
   assert.ok(cfg.palettes);
   assert.ok(cfg.soundtracks);
-  assert.equal(cfg.soundtracks.length, 10);
+  assert.equal(cfg.soundtracks.length, 18);
 });

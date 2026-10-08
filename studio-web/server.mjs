@@ -456,73 +456,62 @@ const VOICES = [
 ];
 
 // Curated OpenRouter Models with real-time pricing
+// Curated OpenRouter models: current, moderately priced director models.
+// IDs and prices were checked against the live OpenRouter catalogue (per 1M tokens).
 const MODELS = [
   {
-    id: "anthropic/claude-sonnet-5.5",
-    name: "Claude Sonnet 5.5",
-    price: "$2.00 / $10.00 per 1M",
-    badge: "Flagship Director",
+    id: "anthropic/claude-haiku-5.5",
+    name: "Claude Haiku 5.5",
+    price: "$0.10 / $0.50 per 1M",
+    badge: "Fast & Reliable",
   },
   {
-    id: "openai/gpt-6.1-sol-pro",
-    name: "GPT-6.1 Sol Pro",
-    price: "$2.00 / $10.00 per 1M",
-    badge: "Premier Reasoning",
-  },
-  {
-    id: "openai/gpt-6.1-sol",
-    name: "GPT-6.1 Sol",
-    price: "$2.00 / $10.00 per 1M",
-    badge: "Autonomous Agent",
-  },
-  {
-    id: "x-ai/grok-4.6",
-    name: "Grok 4.6",
-    price: "$2.00 / $6.00 per 1M",
-    badge: "Frontier Scripting",
-  },
-  { id: "x-ai/grok-4.7", name: "Grok 4.7", price: "$2.00 / $6.00 per 1M", badge: "High Velocity" },
-  {
-    id: "deepseek/deepseek-chat-v3.1",
-    name: "DeepSeek V3.1",
-    price: "$0.25 / $0.95 per 1M",
-    badge: "Best Value",
-  },
-  {
-    id: "deepseek/deepseek-r1",
-    name: "DeepSeek R1",
-    price: "$0.70 / $2.50 per 1M",
-    badge: "Deep Logic",
-  },
-  {
-    id: "google/gemini-2.5-pro",
-    name: "Gemini 2.5 Pro",
-    price: "$1.25 / $10.00 per 1M",
-    badge: "Nuanced Design",
-  },
-  {
-    id: "google/gemini-2.5-flash",
-    name: "Gemini 2.5 Flash",
+    id: "google/gemini-3.5-flash-lite",
+    name: "Gemini 3.5 Flash Lite",
     price: "$0.30 / $2.50 per 1M",
     badge: "Fast Economy",
   },
   {
-    id: "openai/gpt-6-luna-pro",
-    name: "GPT-6 Luna Pro",
+    id: "google/gemini-3-flash-preview",
+    name: "Gemini 3 Flash Preview",
+    price: "$0.50 / $3.00 per 1M",
+    badge: "Balanced Speed",
+  },
+  {
+    id: "deepseek/deepseek-v4-pro",
+    name: "DeepSeek V4 Pro",
+    price: "$0.29 / $0.59 per 1M",
+    badge: "Best Value Reasoning",
+  },
+  {
+    id: "deepseek/deepseek-v3.2",
+    name: "DeepSeek V3.2",
+    price: "$0.26 / $0.42 per 1M",
+    badge: "Lowest Output Cost",
+  },
+  {
+    id: "qwen/qwen3.7-plus",
+    name: "Qwen 3.7 Plus",
+    price: "$0.32 / $1.28 per 1M",
+    badge: "Strong Structured Output",
+  },
+  {
+    id: "moonshotai/kimi-k2.6",
+    name: "Kimi K2.6",
+    price: "$0.44 / $2.45 per 1M",
+    badge: "Long Context",
+  },
+  {
+    id: "x-ai/grok-4.3",
+    name: "Grok 4.3",
+    price: "$1.25 / $2.50 per 1M",
+    badge: "High Velocity",
+  },
+  {
+    id: "openai/gpt-6-luna",
+    name: "GPT-6 Luna",
     price: "$0.10 / $0.50 per 1M",
     badge: "Ultra Budget",
-  },
-  {
-    id: "openai/gpt-4o",
-    name: "GPT-4o",
-    price: "$2.50 / $10.00 per 1M",
-    badge: "Production Standard",
-  },
-  {
-    id: "openai/gpt-4o-mini",
-    name: "GPT-4o Mini",
-    price: "$0.15 / $0.60 per 1M",
-    badge: "Lightweight",
   },
 ];
 
@@ -1818,7 +1807,7 @@ Format your response clearly as:
       "X-Title": "Studio One Production Suite",
     },
     body: JSON.stringify({
-      model: model || "anthropic/claude-sonnet-5.5",
+      model: model || "anthropic/claude-haiku-5.5",
       messages: [
         {
           role: "system",
@@ -2242,7 +2231,7 @@ async function directStoryboard({
         "X-Title": "Studio One Production Suite",
       },
       body: JSON.stringify({
-        model: model || "anthropic/claude-sonnet-5.5",
+        model: model || "anthropic/claude-haiku-5.5",
         messages,
         temperature: messages.length > 2 ? 0 : 0.6,
         top_p: 0.9,
@@ -2847,7 +2836,7 @@ function renderHtmlSegment({ hfBin, projectPath, outputPath, env, onProgress }) 
 async function runProductionPipeline(jobId, payload) {
   const {
     apiKey,
-    model = "anthropic/claude-sonnet-5.5",
+    model = "anthropic/claude-haiku-5.5",
     voice = "bm_george",
     sourceUrl = "",
     sourceScript = "",

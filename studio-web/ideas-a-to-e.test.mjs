@@ -25,6 +25,20 @@ import {
   harmonizePalette,
 } from "./color-contrast.mjs";
 import { SOUNDTRACKS, SOUNDTRACK_MAP } from "./soundtracks.mjs";
+
+// The original ten tracks are documented as CC0 / public domain. Supplied tracks are not.
+const ORIGINAL_CC0_IDS = [
+  "quiet-reflection",
+  "ambient-drift",
+  "minimal-clarity",
+  "gentle-pulse",
+  "deliberate-thought",
+  "gnossienne-clarity",
+  "clair-de-lune",
+  "chopin-nocturne-20",
+  "chopin-nocturne-19",
+  "chopin-nocturne-21",
+];
 import { PALETTES } from "./palettes.mjs";
 import { resolveScenePalette } from "./renderers.mjs";
 import crypto from "node:crypto";
@@ -715,8 +729,12 @@ test("Scoped CSS contrast armor: light cards never receive light text and dark c
   );
 });
 
-test("Soothing Soundtracks: 10 CC0 tracks registered with valid audio files, zero percussion, and unique hashes", () => {
-  assert.equal(SOUNDTRACKS.length, 10, "Must have exactly 10 flagship CC0 tracks");
+test("Soundtracks: every registered track has a valid audio file, a unique hash, and a stated licence", () => {
+  assert.equal(
+    SOUNDTRACKS.length,
+    18,
+    "Must have the 10 original tracks plus the 8 supplied tracks",
+  );
 
   const newSoothingIds = [
     "gnossienne-clarity",
@@ -754,10 +772,18 @@ test("Soothing Soundtracks: 10 CC0 tracks registered with valid audio files, zer
     seenHashes.add(hash);
 
     // 5. Check metadata
+    // Original tracks are documented CC0 / public domain. Supplied tracks must still state
+    // a licence; we do not claim a licence we have not verified.
     assert.ok(
-      track.license.includes("CC0") || track.license.includes("Public Domain"),
-      `Track ${track.id} must be CC0 / Public Domain`,
+      track.license && track.license.trim().length > 0,
+      `Track ${track.id} must state a licence`,
     );
+    if (ORIGINAL_CC0_IDS.includes(track.id)) {
+      assert.ok(
+        track.license.includes("CC0") || track.license.includes("Public Domain"),
+        `Track ${track.id} must be CC0 / Public Domain`,
+      );
+    }
   }
 
   // 6. Check that the 5 newly added tracks are strictly soothing instrumental with zero beats

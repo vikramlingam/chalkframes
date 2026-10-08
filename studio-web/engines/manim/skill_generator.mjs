@@ -71,8 +71,6 @@ def run(scene, theme, brief, budget, beats):
 ...`;
 }
 
-export const buildHermesSkillPrompt = buildManimSkillPrompt;
-
 /**
  * Selects an authentic, domain-tailored procedural Manim animation based on
  * the scene's semantic keywords and position in the storyboard.
@@ -398,8 +396,6 @@ export function generateProceduralManimCode({
 `;
 }
 
-export const generateProceduralHermesCode = generateProceduralManimCode;
-
 /**
  * Autonomously synthesizes bespoke Manim Python code for a specific scene using LLM,
  * falling back gracefully to domain-matching procedural code if offline.
@@ -410,7 +406,7 @@ export async function generateManimSkillCode({
   theme = "dark",
   beatCount = 3,
   apiKey,
-  model = "anthropic/claude-sonnet-5.5",
+  model = "anthropic/claude-haiku-5.5",
   sceneIndex = 0,
   totalScenes = 1,
 }) {
@@ -495,8 +491,6 @@ export async function generateManimSkillCode({
   }
 }
 
-export const generateHermesManimCode = generateManimSkillCode;
-
 /**
  * Self-healing repair loop: takes Python compiler / runtime traceback from Manim execution,
  * queries the LLM to inspect the syntax and API misuse, and returns the corrected code.
@@ -505,7 +499,7 @@ export async function repairManimSkillCode({
   code,
   error,
   apiKey,
-  model = "anthropic/claude-sonnet-5.5",
+  model = "anthropic/claude-haiku-5.5",
 }) {
   const effectiveKey =
     apiKey && apiKey !== "test-key"
@@ -571,5 +565,3 @@ def run(scene, theme, brief, budget, beats):
     return null;
   }
 }
-
-export const repairHermesManimCode = repairManimSkillCode;

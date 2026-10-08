@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
@@ -305,34 +305,33 @@
             <!-- Director model -->
             <div class="opt">
               <label for="modelSelect" class="field-label">Director model</label>
-              <div class="select-wrap">
-                <select id="modelSelect">
-                  <option value="anthropic/claude-sonnet-5.5" selected>
-                    Claude Sonnet 5.5 · $2.00 / $10.00 per 1M
-                  </option>
-                  <option value="openai/gpt-6.1-sol-pro">
-                    GPT-6.1 Sol Pro · $2.00 / $10.00 per 1M
-                  </option>
-                  <option value="openai/gpt-6.1-sol">GPT-6.1 Sol · $2.00 / $10.00 per 1M</option>
-                  <option value="x-ai/grok-4.6">Grok 4.6 · $2.00 / $6.00 per 1M</option>
-                  <option value="x-ai/grok-4.7">Grok 4.7 · $2.00 / $6.00 per 1M</option>
-                  <option value="deepseek/deepseek-chat-v3.1">
-                    DeepSeek V3.1 · $0.25 / $0.95 per 1M
-                  </option>
-                  <option value="deepseek/deepseek-r1">DeepSeek R1 · $0.70 / $2.50 per 1M</option>
-                  <option value="google/gemini-2.5-pro">
-                    Gemini 2.5 Pro · $1.25 / $10.00 per 1M
-                  </option>
-                  <option value="google/gemini-2.5-flash">
-                    Gemini 2.5 Flash · $0.30 / $2.50 per 1M
-                  </option>
-                  <option value="openai/gpt-6-luna-pro">
-                    GPT-6 Luna Pro · $0.10 / $0.50 per 1M
-                  </option>
-                  <option value="openai/gpt-4o">GPT-4o · $2.50 / $10.00 per 1M</option>
-                  <option value="openai/gpt-4o-mini">GPT-4o Mini · $0.15 / $0.60 per 1M</option>
-                </select>
+              <div class="inline-row">
+                <div class="select-wrap grow">
+                  <select id="modelSelect">
+                    <option value="anthropic/claude-haiku-5.5" selected>
+                      Claude Haiku 5.5 · $0.10 / $0.50
+                    </option>
+                    <option value="google/gemini-3.5-flash-lite">
+                      Gemini 3.5 Flash Lite · $0.30 / $2.50
+                    </option>
+                    <option value="google/gemini-3-flash-preview">
+                      Gemini 3 Flash Preview · $0.50 / $3.00
+                    </option>
+                    <option value="deepseek/deepseek-v4-pro">
+                      DeepSeek V4 Pro · $0.29 / $0.59
+                    </option>
+                    <option value="deepseek/deepseek-v3.2">DeepSeek V3.2 · $0.26 / $0.42</option>
+                    <option value="qwen/qwen3.7-plus">Qwen 3.7 Plus · $0.32 / $1.28</option>
+                    <option value="moonshotai/kimi-k2.6">Kimi K2.6 · $0.44 / $2.45</option>
+                    <option value="x-ai/grok-4.3">Grok 4.3 · $1.25 / $2.50</option>
+                    <option value="openai/gpt-6-luna">GPT-6 Luna · $0.10 / $0.50</option>
+                  </select>
+                </div>
+                <button type="button" id="copyModelBtn" class="sample-btn" title="Copy model name">
+                  <span id="copyModelLabel">Copy</span>
+                </button>
               </div>
+              <code class="model-id" id="modelIdText">anthropic/claude-haiku-5.5</code>
             </div>
 
             <!-- Voice actor -->
@@ -385,57 +384,30 @@
               </div>
             </div>
 
-            <!-- Soundtrack -->
+            <!-- Soundtrack: one flat list of every track -->
             <div class="opt">
               <label for="musicSelect" class="field-label">Soundtrack</label>
               <div class="inline-row">
                 <div class="select-wrap grow">
                   <select id="musicSelect">
-                    <optgroup label="CC0 public domain soundtracks">
-                      <option value="quiet-reflection" selected>
-                        Quiet Reflection (Soft Rhodes &amp; Lo-Fi Ambience)
-                      </option>
-                      <option value="ambient-drift">
-                        Ambient Drift (Slow Synth Pad &amp; Sub-Bass)
-                      </option>
-                      <option value="minimal-clarity">
-                        Minimal Clarity (Gymnopédie No. 1 - Satie Piano)
-                      </option>
-                      <option value="gentle-pulse">
-                        Gentle Pulse (Acoustic Guitar Pluck &amp; Downtempo)
-                      </option>
-                      <option value="deliberate-thought">
-                        Deliberate Thought (Cinematic Soft Drone &amp; Strings)
-                      </option>
-                      <option value="gnossienne-clarity">
-                        Gnossienne Clarity (Gnossienne No. 1 - Satie Piano, Zero Beats)
-                      </option>
-                      <option value="clair-de-lune">
-                        Clair de Lune (Debussy Peaceful Impressionism, Zero Beats)
-                      </option>
-                      <option value="chopin-nocturne-20">
-                        Nocturne Serenata (Chopin Nocturne No. 20, Zero Beats)
-                      </option>
-                      <option value="chopin-nocturne-19">
-                        Midnight Solitude (Chopin Nocturne No. 19, Zero Beats)
-                      </option>
-                      <option value="chopin-nocturne-21">
-                        Pastoral Reflection (Chopin Nocturne No. 21, Zero Beats)
-                      </option>
-                    </optgroup>
-                    <optgroup label="Options">
-                      <option value="none">No music (voiceover &amp; SFX only)</option>
-                    </optgroup>
-                    <optgroup label="Legacy tracks">
-                      <option value="soothing-ambient">
-                        Soothing Ambient (Gentle &amp; Warm Pulse)
-                      </option>
-                      <option value="modern-tech">Modern Tech (SaaS Kinetic Groove)</option>
-                      <option value="chill-lofi">Chill Horizon (Relaxed Electronic)</option>
-                      <option value="acoustic-warmth">
-                        Acoustic Warmth (Warm Acoustic &amp; Piano)
-                      </option>
-                    </optgroup>
+                    <option value="quiet-reflection">Quiet Reflection</option>
+                    <option value="ambient-drift">Ambient Drift</option>
+                    <option value="minimal-clarity">Minimal Clarity</option>
+                    <option value="gentle-pulse">Gentle Pulse</option>
+                    <option value="deliberate-thought">Deliberate Thought</option>
+                    <option value="gnossienne-clarity">Gnossienne Clarity</option>
+                    <option value="clair-de-lune">Clair de Lune</option>
+                    <option value="chopin-nocturne-20">Nocturne Serenata</option>
+                    <option value="chopin-nocturne-19">Midnight Solitude</option>
+                    <option value="chopin-nocturne-21">Pastoral Reflection</option>
+                    <option value="corporate-ambient">Corporate Ambient</option>
+                    <option value="light-melody">Light Melody</option>
+                    <option value="light-melody-1">Light Melody I</option>
+                    <option value="light-melody-2">Light Melody II</option>
+                    <option value="documentary-piano">Documentary Piano</option>
+                    <option value="inspirational-piano">Inspirational Piano</option>
+                    <option value="education-music">Education Music</option>
+                    <option value="hope-piano">Hope Piano</option>
                   </select>
                 </div>
                 <button
@@ -458,45 +430,21 @@
               <label for="paletteSelect" class="field-label">Color palette</label>
               <div class="select-wrap">
                 <select id="paletteSelect">
-                  <optgroup label="Designer palettes">
-                    <option value="braun-industrial" selected>
-                      Braun Industrial (Putty Paper &amp; Signal Amber)
-                    </option>
-                    <option value="tokyo-metro">Tokyo Metro (Obsidian &amp; Phosphor Mint)</option>
-                    <option value="broadside-editorial">
-                      Broadside Editorial (Newsprint &amp; Burnt Sienna)
-                    </option>
-                    <option value="swiss-international">
-                      Swiss International (Zurich Canvas &amp; Signal Vermilion)
-                    </option>
-                    <option value="nordic-fjord">
-                      Nordic Fjord (Arctic Navy &amp; Glacial Cyan)
-                    </option>
-                    <option value="risograph-studio">
-                      Risograph Studio (Soy Ink &amp; Fluoro Persimmon)
-                    </option>
-                    <option value="solarized-amber">
-                      Solarized Amber (Cathode Terminal &amp; Warm Amber)
-                    </option>
-                    <option value="kyoto-matcha">
-                      Kyoto Matcha (Soot Charcoal &amp; Matcha Green)
-                    </option>
-                    <option value="bauhaus-dessau">
-                      Bauhaus Dessau (Chalk Plaster &amp; Ultramarine)
-                    </option>
-                    <option value="monolith-titanium">
-                      Monolith Titanium (Monochrome &amp; Brushed Titanium)
-                    </option>
-                  </optgroup>
-                  <optgroup label="Legacy &amp; custom">
-                    <option value="warm-ivory">Warm Ivory (Editorial Vermilion)</option>
-                    <option value="midnight-velvet">
-                      Midnight Velvet (Deep Obsidian &amp; Violet)
-                    </option>
-                    <option value="cyber-slate">Cyber Slate (Dark Slate &amp; Cyan)</option>
-                    <option value="emerald-noir">Emerald Noir (Forest &amp; Mint)</option>
-                    <option value="custom">Custom palette</option>
-                  </optgroup>
+                  <option value="braun-industrial">Braun Industrial</option>
+                  <option value="tokyo-metro">Tokyo Metro</option>
+                  <option value="broadside-editorial">Broadside Editorial</option>
+                  <option value="swiss-international">Swiss International</option>
+                  <option value="nordic-fjord">Nordic Fjord</option>
+                  <option value="risograph-studio">Risograph Studio</option>
+                  <option value="solarized-amber">Solarized Amber</option>
+                  <option value="kyoto-matcha">Kyoto Matcha</option>
+                  <option value="bauhaus-dessau">Bauhaus Dessau</option>
+                  <option value="monolith-titanium">Monolith Titanium</option>
+                  <option value="warm-ivory">Warm Ivory</option>
+                  <option value="midnight-velvet">Midnight Velvet</option>
+                  <option value="cyber-slate">Cyber Slate</option>
+                  <option value="emerald-noir">Emerald Noir</option>
+                  <option value="custom">Custom palette</option>
                 </select>
               </div>
               <div class="custom-palette-row hidden" id="customPaletteRow">

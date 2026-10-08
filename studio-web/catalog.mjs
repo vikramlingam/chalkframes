@@ -558,14 +558,7 @@ export const VISUAL_CATALOG = [
       "MANIM SKILL. Autonomous 3Blue1Brown mathematical animation engine writing custom Python scene code. Enforces 'geometry before algebra' and 3-tier opacity layering. Generates tailored mathematical, geometric, algorithmic, and mechanical visualizations for any technical concept.",
     payloadHint:
       'manimData: { title, concept?: string, mathExpr?: string, code?: string }, beats: ["narration sentence", ...] (1-6), fallbackArchetype: "bento-metric-grid", fallbackPayload: { bentoData }',
-    aliases: [
-      "manim-custom",
-      "manim-code",
-      "manim-hermes",
-      "hermes-manim",
-      "manim-script",
-      "hermes-skill",
-    ],
+    aliases: ["manim-custom", "manim-code", "manim-script", "manim-python"],
   },
   {
     id: "manim-function-plot",
