@@ -63,35 +63,93 @@ document.addEventListener("DOMContentLoaded", () => {
   let isMusicSamplePlaying = false;
   const musicAudioPlayer = new Audio();
 
-  // Flowchart node mappings
-  const nodes = [
-    {
-      id: "ingest",
-      el: document.getElementById("node-ingest"),
-      conn: document.getElementById("conn-1"),
-    },
-    {
-      id: "narrative",
-      el: document.getElementById("node-narrative"),
-      conn: document.getElementById("conn-2"),
-    },
-    {
-      id: "audio",
-      el: document.getElementById("node-audio"),
-      conn: document.getElementById("conn-3"),
-    },
-    {
-      id: "composition",
-      el: document.getElementById("node-composition"),
-      conn: document.getElementById("conn-4"),
-    },
-    {
-      id: "validation",
-      el: document.getElementById("node-validation"),
-      conn: document.getElementById("conn-5"),
-    },
-    { id: "render", el: document.getElementById("node-render"), conn: null },
-  ];
+  // Engine-aware production line. Stage ids match the events the server broadcasts
+  // (ingest -> narrative -> audio -> composition -> validation -> render).
+  const FLOW_STAGES = {
+    ingest: { name: "Ingest", sub: "Read the source" },
+    narrative: { name: "Director", sub: "Write the storyboard" },
+    audio: { name: "Voice", sub: "Narrate & score" },
+    composition: { name: "Compose", sub: "Build every scene" },
+    validation: { name: "Quality gate", sub: "Contrast & timing" },
+    render: { name: "Master render", sub: "Frame capture & mux" },
+  };
+  const ENGINE_COMPOSE = {
+    manim: { name: "Manim render", sub: "3Blue1Brown maths clips" },
+    html: { name: "HTML motion", sub: "GSAP scene templates" },
+    combined: { name: "Manim + HTML", sub: "Route each scene" },
+  };
+  const ENGINE_LINE_TITLE = {
+    manim: "Manim pipeline: maths scenes rendered as Python animations",
+    html: "HTML pipeline: GSAP motion templates, no Python",
+    combined: "Combined pipeline: maths scenes to Manim, the rest to HTML",
+  };
+
+  let nodes = [];
+  function buildFlow(engine) {
+    const track = document.getElementById("flowTrack");
+    if (!track) return;
+    const compose = ENGINE_COMPOSE[engine] || ENGINE_COMPOSE.combined;
+    const order = [
+      ["ingest", FLOW_STAGES.ingest],
+      ["narrative", FLOW_STAGES.narrative],
+      ["audio", FLOW_STAGES.audio],
+      ["composition", compose],
+      ["validation", FLOW_STAGES.validation],
+      ["render", FLOW_STAGES.render],
+    ];
+    track.innerHTML = "";
+    nodes = [];
+    order.forEach(([id, meta], i) => {
+      const el = document.createElement("div");
+      el.className = "flow-node";
+      el.dataset.stage = id;
+      el.innerHTML = `
+        <div class="node-badge">${String(i + 1).padStart(2, "0")}</div>
+        <div class="node-dot"></div>
+        <div class="node-info">
+          <span class="node-name">${meta.name}</span>
+          <span class="node-sub">${meta.sub}</span>
+        </div>`;
+      track.appendChild(el);
+      let conn = null;
+      if (i < order.length - 1) {
+        conn = document.createElement("div");
+        conn.className = "flow-connector";
+        conn.innerHTML = '<div class="flow-pulse"></div>';
+        track.appendChild(conn);
+      }
+      nodes.push({ id, el, conn });
+    });
+    const title = document.getElementById("lineTitle");
+    if (title) title.textContent = ENGINE_LINE_TITLE[engine] || ENGINE_LINE_TITLE.combined;
+  }
+  buildFlow(currentEngine);
+
+  // 0. Light / dark theme toggle (persisted; the first-paint script in index.html applies it)
+  const themeToggle = document.getElementById("themeToggle");
+  const themeToggleLabel = document.getElementById("themeToggleLabel");
+  const applyTheme = (theme) => {
+    document.documentElement.setAttribute("data-theme", theme);
+    const isLight = theme === "light";
+    if (themeToggle) {
+      themeToggle.setAttribute("aria-checked", String(isLight));
+      themeToggle.setAttribute("aria-label", isLight ? "Light theme" : "Dark theme");
+    }
+    if (themeToggleLabel) themeToggleLabel.textContent = isLight ? "Light" : "Dark";
+  };
+  applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const next =
+        document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      applyTheme(next);
+      try {
+        localStorage.setItem("chalkframes_theme", next);
+      } catch {
+        // storage can be blocked (private mode); the toggle still works for this session
+      }
+    });
+  }
 
   // 1. Restore API Key from localStorage
   const savedKey = localStorage.getItem("openrouter_api_key");
@@ -129,12 +187,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 2. Format Selector (Landscape vs Portrait)
+  // 2. Format Selector (Landscape vs Square)
   formatPills.forEach((pill) => {
     pill.addEventListener("click", () => {
       formatPills.forEach((p) => p.classList.remove("active"));
       pill.classList.add("active");
       currentFormat = pill.dataset.format;
+      if (videoTheatre) {
+        videoTheatre.classList.remove("portrait", "square");
+        if (currentFormat === "square") {
+          videoTheatre.classList.add("square");
+        } else if (currentFormat === "portrait") {
+          videoTheatre.classList.add("portrait");
+        }
+      }
     });
   });
 
@@ -144,16 +210,14 @@ document.addEventListener("DOMContentLoaded", () => {
       enginePills.forEach((p) => p.classList.remove("active"));
       pill.classList.add("active");
       currentEngine = pill.dataset.engine;
+      buildFlow(currentEngine);
       if (engineHint) {
         if (currentEngine === "manim") {
-          engineHint.textContent =
-            "Only Manim: 100% of scenes rendered as mathematical Python animations via Manim";
+          engineHint.textContent = "Every scene is a bespoke 3Blue1Brown-style Manim animation";
         } else if (currentEngine === "html") {
-          engineHint.textContent =
-            "Only HTML: 100% of scenes rendered as rich HTML5 + GSAP motion graphics & 3D canvases";
+          engineHint.textContent = "Every scene is an HTML + GSAP motion graphic, no Python";
         } else {
-          engineHint.textContent =
-            "Combined: AI dynamically routes mathematical explainers to Manim and UI/systems to HTML";
+          engineHint.textContent = "Maths scenes route to Manim; product and system scenes to HTML";
         }
       }
     });
@@ -597,7 +661,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
               videoMetaText.textContent = `${payload.resolution || (format === "portrait" ? "1080x1920" : format === "square" ? "1080x1080" : "1920x1080")} · 30 fps · Stereo · ${payload.duration || duration + "s"}`;
               cinemaPanel.classList.remove("hidden");
-              cinemaPanel.scrollIntoView({ behavior: "smooth" });
+              const emptyState = document.getElementById("screenEmpty");
+              if (emptyState) emptyState.classList.add("hidden");
+              playerVideo.classList.add("ready");
               playerVideo.play().catch(() => {});
             }
 
@@ -654,6 +720,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("div");
       card.className = "filmstrip-card";
       const dur = typeof scene.duration === "number" ? scene.duration.toFixed(1) + "s" : "~5s";
+      // Scenes that lost their Manim visuals are marked so the swap is visible, not silent.
+      if (scene.degraded) {
+        card.classList.add("degraded");
+      }
+      const degradedNote = scene.degraded
+        ? `<div class="filmstrip-card-narration" title="${escapeHtml(scene.degradeDetail || scene.degradeReason || "")}">Manim fallback: ${escapeHtml(scene.degradedFrom || "scene")} → ${escapeHtml(scene.archetype || "html")}</div>`
+        : "";
       card.innerHTML = `
         <div class="filmstrip-card-top">
           <span class="filmstrip-index">SCENE ${String(idx + 1).padStart(2, "0")}</span>
@@ -661,6 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="filmstrip-card-title">${escapeHtml(scene.title || "Untitled Scene")}</div>
         <div class="filmstrip-card-narration">${escapeHtml(scene.narration || "")}</div>
+        ${degradedNote}
         <div class="filmstrip-card-footer">
           <span class="filmstrip-duration">⏱ ${dur}</span>
           <button type="button" class="btn-rerender" data-index="${idx}">Tweak Scene</button>

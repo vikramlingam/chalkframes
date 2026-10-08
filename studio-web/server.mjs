@@ -41,6 +41,8 @@ import { sanitizePalette } from "./engines/manim/planner.mjs";
 import { normalizeManimClip } from "./engines/manim/normalize.mjs";
 import { degradeScene } from "./engines/manim/degrade.mjs";
 import { beatFrames } from "./engines/manim/schema.mjs";
+import { generateManimSkillCode } from "./engines/manim/skill_generator.mjs";
+import { repairAndRender } from "./engines/manim/repair.mjs";
 import {
   ARCHETYPE_RENDERERS,
   registerArchetypeRenderer,
@@ -801,29 +803,11 @@ export function getSceneTimingStructure(totalSeconds, seed, options = {}) {
 
   const adjustForManim = (list) => {
     if (!isManimOnly) return list;
-    const manimPicks = [
-      "manim-function-plot",
-      "manim-vector-transform",
-      "manim-network-topology",
-      "manim-transformer-block",
-      "manim-gradient-descent-3d",
-      "manim-eigen-decomposition",
-      "manim-monte-carlo-pi",
-      "manim-markov-chain",
-      "manim-bayes-theorem",
-      "manim-latent-manifold",
-      "manim-positional-rope",
-      "manim-kv-cache",
-    ];
-    return list.map((item, idx) => {
-      const p1 = manimPicks[(idx * 2) % manimPicks.length];
-      const p2 = manimPicks[(idx * 2 + 1) % manimPicks.length];
-      return {
-        ...item,
-        suggestedArchetypes: [p1, p2],
-        suggestedArchetype: p1,
-      };
-    });
+    return list.map((item) => ({
+      ...item,
+      suggestedArchetypes: ["manim-skill"],
+      suggestedArchetype: "manim-skill",
+    }));
   };
 
   if (sec <= 20) {
@@ -1923,11 +1907,15 @@ Analyze the input to craft a clear, engaging narrative arc:
 
 ${
   isManimOnly
-    ? `STEP 2: ENGINE SELECTION RULE (STRICT MODE: ONLY MANIM)
+    ? `STEP 2: ENGINE SELECTION RULE (MANIM SKILL MODE)
 - You MUST set "engine": "manim" on EVERY single scene from Scene 1 to Scene ${actualSceneCount}.
-- You MUST select a "manim-*" archetype from the catalog below for EVERY scene.
+- Use the Manim Skill ("manim-skill") for every scene.
 - Do NOT use "html-gsap" engine or HTML archetypes for any scene.
-- Every scene needs: "manimData" (exact fields from its payload hint) and "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined).
+- Every scene needs: "manimData" with { "title": "...", "concept": "...", "mathExpr": "..." } and "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined).
+- CRAFTSMANSHIP PATTERN 1: "GEOMETRY BEFORE ALGEBRA"
+  Visual memory encodes faster than symbolic memory. Reveal spatial structure and geometry in early beats BEFORE presenting formal equations.
+- CRAFTSMANSHIP PATTERN 2: 3-TIER OPACITY LAYERING
+  Tier 1 (1.0 focal elements), Tier 2 (0.40 contextual geometry), Tier 3 (0.15 background axes/grids).
 - Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".`
     : isHtmlOnly
       ? `STEP 2: ENGINE SELECTION RULE (STRICT MODE: ONLY HTML)
@@ -1949,7 +1937,7 @@ ${
 ENGINE ROUTING RULE (applies to every scene; set "engine" explicitly on every scene):
 ${
   isManimOnly
-    ? `- Every single scene must use "engine": "manim" and a "manim-*" archetype.`
+    ? `- Every single scene must use "engine": "manim" and the "manim-skill" archetype.`
     : `Categorize each scene's narrative purpose, then assign its engine:
 - If a beat explains a continuous function curve, rate of change, geometric transformation, vector field, coordinate projection, or graph traversal, you MUST set "engine": "manim" and choose a "manim-*" archetype.
 - For deep mathematical, calculus, linear algebra, and probability explainers, allocate 50% to 65% of the middle scenes to "engine": "manim" (about ${Math.max(1, Math.round((actualSceneCount - 2) * 0.5))} to ${Math.max(1, Math.floor(actualSceneCount * 0.65))} of the ${Math.max(0, actualSceneCount - 2)} middle scenes here), up to 3 in a row. For general software / product explainers, allocate 25% to 40% (never more than 2 in a row).
@@ -1959,7 +1947,7 @@ ${
 
 3BLUE1BROWN MATHEMATICAL ANIMATION RULES (archetypes whose id starts with "manim-"):
 - The "engine" field of a manim scene is "manim"; ${isManimOnly ? "all scenes are manim." : "every other scene uses html-gsap."}
-- You write DATA, never code. Every manim scene needs: "manimData" (exact fields from its payload hint), "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined), and "fallbackArchetype" (an HTML archetype that conveys the same idea) with "fallbackPayload".
+- You write DATA, never code. Every manim scene needs: "manimData" (exact fields from its payload hint), "beats" (1-6 short narration sentences; the spoken voiceover is these beats joined), and "fallbackArchetype" (an HTML archetype that conveys the same idea) with "fallbackPayload". Never include Python, "code" or "pythonCode" fields.
 - Expressions use only: x, numbers, + - * / ^, parentheses, pi, e, sin cos tan exp log sqrt abs. Example: "x^2 - 2*x + sin(3*x)".
 
 3B1B DESIGN PRINCIPLE 1 — "TRANSFORM, DON'T REPLACE":
@@ -2701,6 +2689,44 @@ export function getArchetypeScopedCss(
 
     /* Portrait stacks */
     [data-composition-id="${sceneId}"] .portrait-stack { display: flex; flex-direction: column; gap: 24px; max-width: 920px; width: 100%; }
+
+    ${
+      compWidth === compHeight
+        ? `
+    /* =========================================================================
+     * Square Aspect Ratio (1080x1080) Fit Armor
+     * Guarantees all motion layouts, cards, and titles fit elegantly within 1080x1080
+     * ========================================================================= */
+    [data-composition-id="${sceneId}"] .editorial-title { font-size: clamp(38px, 5.2vw, 56px) !important; max-width: 920px !important; }
+    [data-composition-id="${sceneId}"] .editorial-subtitle { font-size: 22px !important; max-width: 860px !important; margin-top: 14px !important; }
+    [data-composition-id="${sceneId}"] .cards-container { width: 100% !important; max-width: 960px !important; gap: 24px !important; margin: 24px auto 0 !important; }
+    [data-composition-id="${sceneId}"] .feature-card { padding: 32px 36px !important; min-height: auto !important; }
+    [data-composition-id="${sceneId}"] .bento-grid { width: 100% !important; max-width: 960px !important; grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; margin: 24px auto 0 !important; }
+    [data-composition-id="${sceneId}"] .ladder-container { width: 100% !important; max-width: 960px !important; height: auto !important; flex-direction: column !important; gap: 16px !important; margin: 24px auto 0 !important; }
+    [data-composition-id="${sceneId}"] .live-feed-stream { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .isometric-container { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .terminal-card { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .compare-container { width: 100% !important; max-width: 960px !important; gap: 20px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .chart-wrapper { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; padding: 28px 36px !important; }
+    [data-composition-id="${sceneId}"] .quote-card { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; padding: 32px 40px !important; }
+    [data-composition-id="${sceneId}"] .flow-process-container { width: 100% !important; max-width: 960px !important; flex-wrap: wrap !important; gap: 16px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .kpi-ring-stage { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .diff-split-container { width: 100% !important; max-width: 960px !important; gap: 16px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .chat-stream-card { width: 100% !important; max-width: 960px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .sp-track { width: 100% !important; max-width: 960px !important; flex-wrap: wrap !important; gap: 16px !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .dlf-columns-track { width: 100% !important; max-width: 960px !important; flex-direction: column !important; margin-top: 24px !important; }
+    [data-composition-id="${sceneId}"] .orbit-stage { width: 560px !important; height: 560px !important; margin-top: 20px !important; }
+    [data-composition-id="${sceneId}"] .mobile-phone-frame { width: 380px !important; height: 580px !important; margin-top: 20px !important; }
+    [data-composition-id="${sceneId}"] .fullbleed-layout { padding: 32px 48px !important; }
+    [data-composition-id="${sceneId}"] .split-hero-layout { flex-direction: column !important; justify-content: center !important; align-items: center !important; padding: 40px 50px !important; text-align: center !important; }
+    [data-composition-id="${sceneId}"] .split-col-left { flex: none !important; width: 100% !important; align-items: center !important; text-align: center !important; }
+    [data-composition-id="${sceneId}"] .split-hero-title { font-size: 46px !important; text-align: center !important; }
+    [data-composition-id="${sceneId}"] .split-hero-sub { font-size: 20px !important; text-align: center !important; max-width: 820px !important; }
+    [data-composition-id="${sceneId}"] .split-hero-badge { margin-top: 18px !important; }
+    [data-composition-id="${sceneId}"] .split-col-right { flex: none !important; width: 100% !important; margin-top: 24px !important; justify-content: center !important; }
+    `
+        : ""
+    }
   `;
 }
 
@@ -2760,11 +2786,16 @@ function buildSafeSceneHtml({
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  const isSquare = compWidth === compHeight;
   const subtitle = esc(String(scene.subtitle || scene.voiceover || "").slice(0, 160));
+  const pad = isPortrait ? "130px 48px 120px" : isSquare ? "80px 60px" : "96px";
+  const titleSize = isPortrait ? 64 : isSquare ? 54 : 84;
+  const subSize = isPortrait ? 28 : isSquare ? 22 : 32;
+  const maxW = isSquare ? 920 : 1400;
   return `<template id="${scene.id}-template">
-  <div data-composition-id="${scene.id}" data-width="${compWidth}" data-height="${compHeight}" data-duration="${durationSec.toFixed(6)}" style="position:absolute;inset:0;width:${compWidth}px;height:${compHeight}px;background:${activePalette.background};color:${activePalette.text};display:flex;flex-direction:column;justify-content:center;align-items:center;padding:96px;text-align:center;font-family:'Inter',sans-serif;">
-    <h1 style="font-family:'Playfair Display',serif;font-size:${isPortrait ? 64 : 84}px;font-weight:700;line-height:1.1;max-width:1400px;">${esc(scene.title)}</h1>
-    <p style="margin-top:32px;font-size:${isPortrait ? 28 : 32}px;line-height:1.5;max-width:1200px;color:${activePalette.textMuted || activePalette.text};">${subtitle}</p>
+  <div data-composition-id="${scene.id}" data-width="${compWidth}" data-height="${compHeight}" data-duration="${durationSec.toFixed(6)}" style="position:absolute;inset:0;width:${compWidth}px;height:${compHeight}px;background:${activePalette.background};color:${activePalette.text};display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${pad};text-align:center;font-family:'Inter',sans-serif;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:${titleSize}px;font-weight:700;line-height:1.1;max-width:${maxW}px;">${esc(scene.title)}</h1>
+    <p style="margin-top:24px;font-size:${subSize}px;line-height:1.5;max-width:${maxW - 60}px;color:${activePalette.textMuted || activePalette.text};">${subtitle}</p>
     <script>
       (function () {
         const tl = gsap.timeline({ paused: true });
@@ -2833,6 +2864,8 @@ async function runProductionPipeline(jobId, payload) {
     engineMode = "combined",
   } = payload;
 
+  const effectiveKey =
+    apiKey || (process.env.NODE_ENV !== "test" ? process.env.OPENROUTER_API_KEY : undefined);
   const projectDir = path.join(PROJECTS_DIR, `prod-${jobId}`);
   const assetsDir = path.join(projectDir, "assets");
   const compDir = path.join(projectDir, "compositions");
@@ -3066,6 +3099,7 @@ async function runProductionPipeline(jobId, payload) {
     const voDurations = new Array(storyboard.scenes.length).fill(4.0);
     const concurrency = 2;
     let completedAudioCount = 0;
+    const ttsFailures = [];
 
     const synthTasks = storyboard.scenes.map((scene, i) => async () => {
       const voPath = path.join(assetsDir, `vo-scene${i + 1}.wav`);
@@ -3084,9 +3118,20 @@ async function runProductionPipeline(jobId, payload) {
         });
         voDuration = getWavDurationFast(voPath) || 4.0;
       } catch (probeErr) {
-        console.warn(
-          `[TTS] TTS failed for scene ${i + 1} (${probeErr.message}); estimating duration`,
-        );
+        // A silent scene is a failed voiceover, not a success. Record it and tell the job,
+        // so the user sees the cause instead of a video with missing narration.
+        const cause = String(probeErr.stderr || probeErr.message || "unknown error")
+          .split("\n")
+          .filter((l) => l.trim())
+          .slice(-1)[0]
+          .slice(0, 240);
+        ttsFailures.push({ scene: i + 1, cause });
+        console.warn(`[TTS] scene ${i + 1} voiceover failed: ${cause}`);
+        broadcastEvent(jobId, {
+          node: "audio",
+          status: "active",
+          message: `Voiceover failed for scene ${i + 1}: ${cause}`,
+        });
         const words = voText.split(/\s+/).filter(Boolean).length;
         voDuration = Math.max(4.0, parseFloat((words / 2.2).toFixed(1)));
       }
@@ -3108,12 +3153,19 @@ async function runProductionPipeline(jobId, payload) {
 
     // Integer-frame scene timing: every scene is a whole number of 30fps frames, so
     // per-scene video segments and the padded master audio line up with zero drift.
-    // scene.totalFrames = ceil((voice + 1.2s) * fps), but never shorter than the chapter target.
+    // Ensure the scene-to-scene pause between spoken narrations is naturally paced between 1.0s and 2.0s maximum.
+    const minSceneGap = 1.2; // At least 1.2s gap between voiceovers (>= 1.0s)
+    const maxSceneGap = 1.8; // At most 1.8s gap between voiceovers (<= 2.0s maximum)
     const sceneFrames = storyboard.scenes.map((scene, i) => {
+      const sceneTargetSec = timingStructure[i]?.duration || voDurations[i] + minSceneGap;
+      const clampedTarget = Math.max(
+        voDurations[i] + minSceneGap,
+        Math.min(sceneTargetSec, voDurations[i] + maxSceneGap),
+      );
       const frames = computeSceneFrames({
         voDuration: voDurations[i],
-        targetSec: timingStructure[i]?.duration || 8.0,
-        padding: 1.2,
+        targetSec: clampedTarget,
+        padding: minSceneGap,
         fps: FPS,
       });
       scene.totalFrames = frames;
@@ -3142,6 +3194,34 @@ async function runProductionPipeline(jobId, payload) {
       const sceneWork = path.join(segDir, `manim_${segName(i)}`);
       const rawPath = path.join(sceneWork, "raw.mp4");
       const outPath = path.join(segDir, `scene_${segName(i)}.mp4`);
+
+      // Synthesize bespoke 3Blue1Brown Python code for Manim Skill
+      // Only the explicit manim-skill archetype synthesizes Python. Structured Manim scenes
+      // keep their director-provided data and use their primitive.
+      if (scene.archetype === "manim-skill" && !scene.manimData?.code) {
+        broadcastEvent(jobId, {
+          node: "audio",
+          status: "active",
+          message: `Synthesizing bespoke Manim Skill animation ${n + 1}/${manimIndexes.length}: "${scene.title}"`,
+        });
+        const synthesizedCode = await generateManimSkillCode({
+          scene,
+          topic: sourceTopic || sourceScript || sourcePdfName || scene.title,
+          theme: scene.theme || "dark",
+          beatCount: (scene.beats && scene.beats.length) || 3,
+          apiKey: effectiveKey,
+          model,
+          sceneIndex: i,
+          totalScenes: storyboard.scenes.length,
+        });
+        scene.archetype = "manim-skill";
+        scene.manimData = {
+          ...(scene.manimData || {}),
+          title: scene.title,
+          code: synthesizedCode,
+        };
+      }
+
       try {
         const plan = {
           primitive: scene.archetype,
@@ -3177,61 +3257,85 @@ async function runProductionPipeline(jobId, payload) {
         console.warn(
           `[DEGRADE REASON: Scene ${i + 1}: ${manimErr.kind || "error"}: ${manimErr.message}]`,
         );
-        if (engineMode === "manim") {
-          // In Only Manim mode, retry once with a safe mathematical curve primitive to preserve pure Manim output
+        if (engineMode === "manim" || scene.archetype === "manim-skill") {
+          // Self-Healing Debug Loop: intercept traceback, repair code and retry
           fs.rmSync(sceneWork, { recursive: true, force: true });
           fs.mkdirSync(sceneWork, { recursive: true });
           try {
-            const safePlan = {
-              primitive: "manim-function-plot",
-              brief: {
-                title: scene.title || "Mathematical Analysis",
-                expr: "x^2 - 2*x",
-                xRange: [-3, 3],
+            // Bounded repair: every candidate is screened and must render before it is accepted.
+            const repairBeats = beatFrames(
+              scene.beats || [scene.voiceover || scene.title || "Mathematical analysis."],
+              scene.totalFrames,
+            );
+            const repaired = await repairAndRender({
+              code: scene.manimData?.code || "",
+              initialError: manimErr.message,
+              apiKey: effectiveKey,
+              model,
+              render: async (candidate) => {
+                fs.rmSync(sceneWork, { recursive: true, force: true });
+                fs.mkdirSync(sceneWork, { recursive: true });
+                await runManimScene({
+                  plan: {
+                    primitive: "manim-skill",
+                    brief: {
+                      title: scene.title || "Mathematical Animation",
+                      concept: scene.manimData?.concept || "Dynamic Transformation",
+                      code: candidate,
+                    },
+                    palette: sanitizePalette(resolveScenePalette(scene, activePalette)),
+                    fonts: manimCapability.fonts,
+                    totalFrames: scene.totalFrames,
+                    beatFrames: repairBeats,
+                    width: compWidth,
+                    height: compHeight,
+                    fps: FPS,
+                    outputPath: rawPath,
+                    mediaDir: path.join(sceneWork, "media"),
+                  },
+                  workDir: sceneWork,
+                  python: manimCapability.python,
+                  timeoutMs: Number(process.env.MANIM_TIMEOUT_MS) || undefined,
+                });
               },
-              palette: sanitizePalette(resolveScenePalette(scene, activePalette)),
-              fonts: manimCapability.fonts,
-              totalFrames: scene.totalFrames,
-              beatFrames: beatFrames(
-                scene.beats || [scene.voiceover || scene.title || "Mathematical analysis."],
-                scene.totalFrames,
-              ),
-              width: compWidth,
-              height: compHeight,
-              fps: FPS,
-              outputPath: rawPath,
-              mediaDir: path.join(sceneWork, "media"),
-            };
-            await runManimScene({
-              plan: safePlan,
-              workDir: sceneWork,
-              python: manimCapability.python,
-              timeoutMs: Number(process.env.MANIM_TIMEOUT_MS) || undefined,
             });
+            if (!repaired.ok) {
+              throw Object.assign(
+                new Error(`repair exhausted: ${JSON.stringify(repaired.attempts)}`),
+                {
+                  kind: "repair",
+                },
+              );
+            }
             await normalizeManimClip({
               inputPath: rawPath,
               outputPath: outPath,
               totalFrames: scene.totalFrames,
               width: compWidth,
               height: compHeight,
-              label: `Scene ${i + 1} (manim-function-plot safe fallback)`,
+              label: `Scene ${i + 1} (Manim Skill)`,
             });
             segmentPaths[i] = outPath;
+            scene.manimData = { ...(scene.manimData || {}), code: repaired.code };
             fs.rmSync(sceneWork, { recursive: true, force: true });
             continue;
-          } catch (retryErr) {
-            fs.rmSync(sceneWork, { recursive: true, force: true });
-            throw new Error(
-              `Only Manim mode: Scene ${i + 1} Manim render failed: ${retryErr.message}`,
-            );
+          } catch (repairErr) {
+            console.warn(`[REPAIR] Scene ${i + 1}: ${repairErr.message}`);
+            // If self-healing custom code still fails, proceed to safe geometric fallback
           }
+
+          // No unrelated template is substituted here. A scene whose repairs are exhausted
+          // degrades to its own HTML twin below, and that reason is recorded on the scene.
         }
         storyboard.scenes[i] = degradeScene(scene, manimErr.message);
         fs.rmSync(sceneWork, { recursive: true, force: true });
+        // Degradation is a visible, recorded event: the reason is kept on the scene and
+        // streamed to the job so the user can see which scenes lost their Manim visuals.
+        storyboard.scenes[i].degradeDetail = String(manimErr.message).slice(0, 500);
         broadcastEvent(jobId, {
           node: "audio",
           status: "active",
-          message: `Manim unavailable for "${scene.title}", using ${storyboard.scenes[i].archetype}`,
+          message: `Scene ${i + 1} degraded to ${storyboard.scenes[i].archetype}: ${manimErr.message.slice(0, 160)}`,
         });
       }
     }
@@ -3539,7 +3643,7 @@ async function runProductionPipeline(jobId, payload) {
       sceneWavPaths: storyboard.scenes.map((_, i) => path.join(assetsDir, `vo-scene${i + 1}.wav`)),
       expectedDurations: sceneDurations,
       outputWavPath: masterAudioPath,
-      leadIn: 0.3,
+      leadIn: 0.15,
     });
     const sfxCues = activeSfxCues.map((c) => ({
       path: path.join(sfxDir, c.name),
@@ -3783,7 +3887,7 @@ export async function rerenderSingleScene({
         env: procEnv,
         onProgress: () => {},
       });
-      const frames = computeSceneFrames(sDur);
+      const frames = computeSceneFrames({ voDuration: sDur, padding: 1.2 });
       await normalizeSegment({
         inputPath: rawPath,
         outputPath: outPath,
@@ -3808,7 +3912,7 @@ export async function rerenderSingleScene({
           ),
           expectedDurations: sceneDurations,
           outputWavPath: masterAudioPath,
-          leadIn: 0.3,
+          leadIn: 0.15,
         });
 
         const sceneStartTimes = [0];

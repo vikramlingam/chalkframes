@@ -1,10 +1,16 @@
 """Shared helpers for primitives: safe text, fitting, stage/beat frame allocation."""
 
-from manim import DOWN, UP, Text, config
+import logging
+import shutil
+
+from manim import DOWN, UP, LaggedStart, MathTex, Text, config
 
 from .timing import allocate
 
+log = logging.getLogger("chalk_manim.common")
+
 MAX_TEXT = 80
+_LATEX_OK = None
 
 
 def clean(value, limit=MAX_TEXT):
@@ -48,16 +54,39 @@ def run_stage(budget, frames, *animations):
     frames = max(1, int(frames))
     if animations:
         anim = min(frames, max(int(frames * 0.55), min(frames, 15)))
-        budget.play(*animations, frames=anim)
+        # Several animations in one stage cascade (LaggedStart) instead of firing together.
+        choreographed = (
+            LaggedStart(*animations, lag_ratio=0.15) if len(animations) > 1 else animations[0]
+        )
+        budget.play(choreographed, frames=anim)
         budget.hold(frames - anim)
     else:
         budget.hold(frames)
 
 
+def _latex_available():
+    """True when Manim's LaTeX pipeline (latex + dvisvgm) is installed. Checked once."""
+    global _LATEX_OK
+    if _LATEX_OK is None:
+        # Manim's MathTex needs latex (DVI) and dvisvgm (SVG). Both must resolve on PATH.
+        _LATEX_OK = bool(shutil.which("latex") and shutil.which("dvisvgm"))
+        if not _LATEX_OK:
+            log.warning("LaTeX toolchain incomplete; formulas render as plain text")
+    return _LATEX_OK
+
+
 def math_text(theme, text, size=0.50, color=None):
-    """3b1b mathematical text formatted with mono font and thematic color."""
+    """Typeset formula (MathTex) when LaTeX works; plain monospace Text otherwise."""
     c = color or theme.text
-    t = Text(clean(text, 70), font=theme.mono, weight="BOLD", color=c).scale(size)
+    body = clean(text, 70)
+    if _latex_available():
+        try:
+            t = MathTex(body, color=c).scale(size)
+            fit(t, config.frame_width * 0.8)
+            return t
+        except Exception as exc:  # noqa: BLE001 - malformed TeX must not kill the scene
+            log.warning("MathTex failed for %r (%s); using plain text", body, exc)
+    t = Text(body, font=theme.mono, weight="BOLD", color=c).scale(size)
     fit(t, config.frame_width * 0.8)
     return t
 

@@ -23,6 +23,11 @@ import {
   muxMasterVideo,
   probeVideo,
 } from "../../stitcher.mjs";
+import {
+  repairManimSkillCode,
+  generateProceduralManimCode,
+  buildManimSkillPrompt,
+} from "./skill_generator.mjs";
 
 const hasFfmpeg = spawnSync("ffmpeg", ["-version"]).status === 0;
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "chalk-manim-test-"));
@@ -705,3 +710,132 @@ test(
     }
   },
 );
+
+test("Autonomous Manim Skill: brief validation and prompt building", async () => {
+  const brief = validateManimBrief("manim-skill", {
+    title: "Latent Geodesic Flow",
+    concept: "Continuous Manifold Deformation",
+    mathExpr: "ds^2 = g_{ij} dx^i dx^j",
+    code: "def run(scene, theme, brief, budget, beats): pass",
+  });
+  assert.equal(brief.title, "Latent Geodesic Flow");
+  assert.equal(brief.concept, "Continuous Manifold Deformation");
+  assert.equal(brief.mathExpr, "ds^2 = g_{ij} dx^i dx^j");
+  assert.ok(brief.code.includes("def run"));
+
+  const prompt = buildManimSkillPrompt({
+    scene: { title: "Quantum Entanglement", voiceover: "Entangled state space." },
+    topic: "Physics",
+    beatCount: 3,
+  });
+  assert.ok(prompt.includes("GEOMETRY BEFORE ALGEBRA"));
+  assert.ok(prompt.includes("3-TIER OPACITY LAYERING"));
+  assert.ok(prompt.includes("Quantum Entanglement"));
+
+  const proceduralNeural = generateProceduralManimCode({
+    title: "Deep Neural Layers",
+    voiceover: "Synaptic activations propagate forward.",
+    sceneIndex: 0,
+  });
+  assert.ok(proceduralNeural.includes("Forward Propagation"));
+
+  const proceduralLoss = generateProceduralManimCode({
+    title: "Gradient Descent Optimization",
+    voiceover: "The parameter traverses the loss surface.",
+    sceneIndex: 1,
+  });
+  assert.ok(proceduralLoss.includes("Gradient Vector"));
+  assert.notEqual(proceduralNeural, proceduralLoss, "scenes must have distinct animations");
+
+  const proceduralVectors = generateProceduralManimCode({
+    title: "Linear Coordinate Transformation",
+    voiceover: "The basis vectors deform under matrix A.",
+    sceneIndex: 2,
+  });
+  assert.ok(proceduralVectors.includes("Matrix Mapping"));
+  assert.notEqual(proceduralLoss, proceduralVectors, "scenes must have distinct animations");
+
+  const procedural1 = generateProceduralManimCode({ title: "Analysis 1", sceneIndex: 0 });
+  const procedural2 = generateProceduralManimCode({ title: "Analysis 2", sceneIndex: 1 });
+  assert.notEqual(procedural1, procedural2, "consecutive scenes must never repeat animations");
+
+  // Without a key, repair must report failure (null) rather than return unrelated code.
+  const savedKey = process.env.OPENROUTER_API_KEY;
+  delete process.env.OPENROUTER_API_KEY;
+  try {
+    const repaired = await repairManimSkillCode({
+      code: "invalid code",
+      error: "NameError: name 'foo' is not defined",
+      apiKey: "test-key",
+    });
+    assert.equal(repaired, null, "no key means no repair");
+  } finally {
+    if (savedKey !== undefined) process.env.OPENROUTER_API_KEY = savedKey;
+  }
+});
+
+test("Autonomous Manim Skill (manim-skill) renders real 3Blue1Brown video with geometry before algebra", async (t) => {
+  const cap = await checkManimCapability({ force: true });
+  if (!cap.ok) return t.skip(cap.reasons.join(", "));
+  const dir = tmp();
+  try {
+    const plan = {
+      palette: sanitizePalette(CSS_PALETTE),
+      fonts: cap.fonts,
+      width: 640,
+      height: 360,
+      fps: 30,
+      totalFrames: 75,
+      mediaDir: path.join(dir, "media"),
+      primitive: "manim-skill",
+      brief: {
+        title: "Manim Skill: Neural Manifold",
+        concept: "Geometry before algebra",
+        mathExpr: "\\nabla f(x) = 0",
+      },
+      beatFrames: [25, 25, 25],
+      outputPath: path.join(dir, "manim_skill.mp4"),
+    };
+    await runManimScene({ plan, workDir: path.join(dir, "w_manim"), python: cap.python });
+    const probed = await probeVideo(plan.outputPath);
+    assert.equal(probed.frames, 75);
+    const blankReport = await detectBlankVideo(plan.outputPath);
+    assert.equal(blankReport.blank, false, "rendered Manim skill video must not be blank");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("Square aspect ratio (1:1) renders correctly in Manim without clipping", async (t) => {
+  const cap = await checkManimCapability({ force: true });
+  if (!cap.ok) return t.skip(cap.reasons.join(", "));
+  const dir = tmp();
+  try {
+    const plan = {
+      palette: sanitizePalette(CSS_PALETTE),
+      fonts: cap.fonts,
+      width: 480,
+      height: 480,
+      fps: 30,
+      totalFrames: 60,
+      mediaDir: path.join(dir, "media"),
+      primitive: "manim-skill",
+      brief: {
+        title: "Square Aspect Optimization",
+        concept: "Deep Learning Loss Surfaces",
+        mathExpr: "\\nabla L(\\theta)",
+      },
+      beatFrames: [20, 20, 20],
+      outputPath: path.join(dir, "square_manim.mp4"),
+    };
+    await runManimScene({ plan, workDir: path.join(dir, "w_square"), python: cap.python });
+    const probed = await probeVideo(plan.outputPath);
+    assert.equal(probed.width, 480, "output width must be 480");
+    assert.equal(probed.height, 480, "output height must be 480");
+    assert.equal(probed.frames, 60, "total frames must match exactly");
+    const blankReport = await detectBlankVideo(plan.outputPath);
+    assert.equal(blankReport.blank, false, "square video must not be blank");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

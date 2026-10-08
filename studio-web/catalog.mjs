@@ -550,6 +550,24 @@ export const VISUAL_CATALOG = [
   // Manim primitives: rendered by a Python worker, not HTML. They are director-selectable
   // but never part of random rotation (a rotated pick would have no brief to render).
   {
+    id: "manim-skill",
+    family: "math-anim",
+    engine: "manim",
+    isMiddle: true,
+    description:
+      "MANIM SKILL. Autonomous 3Blue1Brown mathematical animation engine writing custom Python scene code. Enforces 'geometry before algebra' and 3-tier opacity layering. Generates tailored mathematical, geometric, algorithmic, and mechanical visualizations for any technical concept.",
+    payloadHint:
+      'manimData: { title, concept?: string, mathExpr?: string, code?: string }, beats: ["narration sentence", ...] (1-6), fallbackArchetype: "bento-metric-grid", fallbackPayload: { bentoData }',
+    aliases: [
+      "manim-custom",
+      "manim-code",
+      "manim-hermes",
+      "hermes-manim",
+      "manim-script",
+      "hermes-skill",
+    ],
+  },
+  {
     id: "manim-function-plot",
     family: "math-anim",
     engine: "manim",

@@ -13,9 +13,14 @@ jobs:
         with:
           node-version: 22
       - uses: oven-sh/setup-bun@v2
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg libpango1.0-dev libcairo2-dev pkg-config
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install manim
+      - run: echo "MANIM_PYTHON=$(which python)" >> "$GITHUB_ENV"
       - run: bun install
       - run: bun run build
       - run: bunx oxlint studio-web
-      # Manim and Kokoro are optional; those tests skip when unavailable.
+      # Kokoro is optional; Manim tests now run in CI (no LaTeX, so formulas use the plain-text path).
       - run: bun run test

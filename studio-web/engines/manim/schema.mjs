@@ -4,6 +4,7 @@
  */
 
 export const MANIM_PRIMITIVE_IDS = [
+  "manim-skill",
   "manim-function-plot",
   "manim-vector-transform",
   "manim-network-topology",
@@ -31,6 +32,7 @@ export const MANIM_PRIMITIVE_IDS = [
 
 /** Safe HTML archetypes used when the director gives no usable fallback. */
 export const DEFAULT_FALLBACK = {
+  "manim-skill": "bento-metric-grid",
   "manim-function-plot": "bento-metric-grid",
   "manim-vector-transform": "vector-cluster-graph",
   "manim-network-topology": "vector-cluster-graph",
@@ -82,6 +84,12 @@ export function isManimPrimitive(id) {
  */
 export function inferManimPrimitive(manimData) {
   if (!manimData || typeof manimData !== "object" || Array.isArray(manimData)) return null;
+  if (
+    typeof manimData.code === "string" ||
+    typeof manimData.pythonCode === "string" ||
+    typeof manimData.concept === "string"
+  )
+    return "manim-skill";
   if (typeof manimData.expr === "string") return "manim-function-plot";
   if (Array.isArray(manimData.matrix)) return "manim-vector-transform";
   if (Array.isArray(manimData.layers) || Array.isArray(manimData.nodes))
@@ -446,7 +454,20 @@ function bayesTheorem(raw) {
   return brief;
 }
 
+function manimSkill(raw) {
+  const brief = { title: text(raw.title || "Mathematical Animation", 60) };
+  if (typeof raw.code === "string" && raw.code.trim()) {
+    brief.code = raw.code.trim();
+  } else if (typeof raw.pythonCode === "string" && raw.pythonCode.trim()) {
+    brief.code = raw.pythonCode.trim();
+  }
+  if (typeof raw.concept === "string") brief.concept = text(raw.concept, 80);
+  if (typeof raw.mathExpr === "string") brief.mathExpr = text(raw.mathExpr, 60);
+  return brief;
+}
+
 const VALIDATORS = {
+  "manim-skill": manimSkill,
   "manim-function-plot": functionPlot,
   "manim-vector-transform": vectorTransform,
   "manim-network-topology": networkTopology,
@@ -613,6 +634,12 @@ export function createDefaultManimBrief(primitive, title = "") {
         priorA: 0.05,
         likelihoodBGivenA: 0.9,
         likelihoodBGivenNotA: 0.1,
+      };
+    case "manim-skill":
+      return {
+        title: displayTitle || "Mathematical Animation",
+        concept: "Geometry before algebra",
+        code: "",
       };
     default:
       return { title: displayTitle || "Function Plot", expr: "x^2", xRange: [-3, 3] };

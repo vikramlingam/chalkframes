@@ -82,7 +82,6 @@ import {
   validateBeats,
   inferManimPrimitive,
   createDefaultManimBrief,
-  MANIM_PRIMITIVE_IDS,
   DEFAULT_FALLBACK,
 } from "./engines/manim/schema.mjs";
 import { degradeScene } from "./engines/manim/degrade.mjs";
@@ -566,7 +565,7 @@ export function validateStoryboard(
       scene.engine = "manim";
       if (!MANIM_ARCHETYPES.includes(strictArchetype(scene.archetype))) {
         const inferred = inferManimPrimitive(scene.manimData);
-        scene.archetype = inferred || MANIM_PRIMITIVE_IDS[index % MANIM_PRIMITIVE_IDS.length];
+        scene.archetype = inferred || "manim-skill";
       }
     } else if (
       String(scene.engine || "").toLowerCase() === "manim" &&
@@ -582,7 +581,7 @@ export function validateStoryboard(
     let resolvedArch = normalizeArchetype(scene.archetype);
     if (isManimOnly) {
       if (!MANIM_ARCHETYPES.includes(resolvedArch)) {
-        resolvedArch = MANIM_PRIMITIVE_IDS[index % MANIM_PRIMITIVE_IDS.length];
+        resolvedArch = "manim-skill";
       }
     } else if (isHtmlOnly) {
       if (MANIM_ARCHETYPES.includes(resolvedArch)) {
@@ -748,12 +747,8 @@ export function validateStoryboard(
     if (isManimOnly) {
       if (scene.archetype && MANIM_ARCHETYPES.includes(normalizeArchetype(scene.archetype))) {
         finalArchetype = normalizeArchetype(scene.archetype);
-      } else if (index === 0) {
-        finalArchetype = "manim-function-plot";
-      } else if (index === timing.length - 1) {
-        finalArchetype = "manim-network-topology";
       } else {
-        finalArchetype = resolvedArch;
+        finalArchetype = "manim-skill";
       }
       scene.engine = "manim";
     } else if (isHtmlOnly) {

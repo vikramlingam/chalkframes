@@ -55,9 +55,17 @@ def main(argv):
         theme = Theme(plan.get("palette"), plan.get("fonts")).apply()
         config.pixel_width, config.pixel_height = plan["width"], plan["height"]
         config.frame_rate = plan["fps"]
-        # Keep Manim's frame in units proportional to the pixel aspect (height stays 8).
-        config.frame_height = 8.0
-        config.frame_width = 8.0 * plan["width"] / plan["height"]
+        # Keep Manim's frame in units proportional to the pixel aspect.
+        # Standard landscape (16:9) uses frame_height=8.0, frame_width=14.2222.
+        # For square (1:1) or other compact aspect ratios, maintain the standard 14.2222 design width
+        # so that all mathematical objects and coordinates up to [-5.5, 5.5] fit completely within the frame.
+        aspect = plan["width"] / plan["height"]
+        if aspect >= 16.0 / 9.0:
+            config.frame_height = 8.0
+            config.frame_width = 8.0 * aspect
+        else:
+            config.frame_width = 8.0 * (16.0 / 9.0)
+            config.frame_height = config.frame_width / aspect
         config.media_dir = plan["mediaDir"]
         config.disable_caching = True
         config.progress_bar = "none"

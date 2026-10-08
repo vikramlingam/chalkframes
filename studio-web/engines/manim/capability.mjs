@@ -75,8 +75,9 @@ let cached = null;
 async function probe() {
   const reasons = [];
   const python = resolveManimPython();
-  const latex = Boolean(which("pdflatex"));
-  const result = { ok: false, python, manimVersion: null, latex, fonts: {}, reasons };
+  // Formulas need the full LaTeX -> DVI -> SVG chain that Manim's MathTex drives.
+  const latex = Boolean(which("latex") && which("dvisvgm"));
+  const result = { ok: false, python, manimVersion: null, latex, fonts: {}, reasons, notes: [] };
   if (!python) {
     reasons.push("no Python interpreter found (set MANIM_PYTHON)");
     return result;
@@ -99,7 +100,10 @@ async function probe() {
   } catch (err) {
     reasons.push(`manim import failed: ${String(err.message).split("\n")[0].slice(0, 160)}`);
   }
-  // pdflatex is reported but not required: primitives render plain Text, never LaTeX.
+  // LaTeX is advisory, not a gate: without it, formulas render as plain Text and the
+  // engine still runs. The note is surfaced so the degradation is visible, not silent.
+  if (!latex)
+    result.notes.push("LaTeX toolchain (latex + dvisvgm) not found; formulas render as plain text");
   result.ok = reasons.length === 0;
   return result;
 }

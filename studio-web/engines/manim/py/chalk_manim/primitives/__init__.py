@@ -22,9 +22,11 @@ from . import (
     token_unembedding,
     transformer_block,
     vector_transform,
+    skill,
 )
 
 PRIMITIVES = {
+    "manim-skill": skill,
     "manim-function-plot": function_plot,
     "manim-vector-transform": vector_transform,
     "manim-network-topology": network_topology,
