@@ -1554,9 +1554,6 @@ function extractStoryboardFromLines(text) {
  * and visual payloads. Includes multi-tier syntax healing so orchestration never fails.
  */
 export function parseStoryboardYamlOrJson(raw) {
-  if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
-  const cleanedYaml = sanitizeYamlText(raw);
-
   function normalizeParsedStoryboard(obj) {
     if (!obj || typeof obj !== "object") return null;
     if (Array.isArray(obj.frames) && !Array.isArray(obj.scenes)) {
@@ -1582,6 +1579,18 @@ export function parseStoryboardYamlOrJson(raw) {
     }
     return null;
   }
+
+  if (Array.isArray(raw)) {
+    raw = raw
+      .map((item) => (typeof item === "string" ? item : item?.text || item?.content || ""))
+      .join("");
+  } else if (raw && typeof raw === "object") {
+    const directNormalized = normalizeParsedStoryboard(raw);
+    if (directNormalized) return directNormalized;
+  }
+
+  if (typeof raw !== "string" || !raw.trim()) throw new Error("Director returned no storyboard");
+  const cleanedYaml = sanitizeYamlText(raw);
 
   // 1. Primary path: Sanitized YAML parser (handles standard YAML and strict JSON)
   try {
@@ -1723,6 +1732,47 @@ export function formatStoryboardMarkdown(storyboard) {
   return lines.join("\n");
 }
 
+/**
+ * Safely extracts textual completion from OpenRouter response payload.
+ * Handles:
+ * - standard string choice.message.content
+ * - array of content chunks ([{ type: "text", text: "..." }]) used by Claude / Anthropic
+ * - reasoning / thinking fallback when content is empty
+ * - choice.text fallback
+ */
+export function extractOpenRouterContent(data) {
+  if (!data || typeof data !== "object") return "";
+  const choice = data.choices?.[0];
+  if (!choice) return "";
+  const msg = choice.message;
+  if (!msg) {
+    if (typeof choice.text === "string") return choice.text;
+    return "";
+  }
+  let content = msg.content;
+  if (Array.isArray(content)) {
+    content = content
+      .map((part) => {
+        if (typeof part === "string") return part;
+        if (part && typeof part === "object") {
+          return part.text || part.content || "";
+        }
+        return "";
+      })
+      .join("");
+  }
+  if (typeof content === "string" && content.trim()) {
+    return content;
+  }
+  if (typeof msg.reasoning === "string" && msg.reasoning.trim()) {
+    return msg.reasoning;
+  }
+  if (typeof msg.text === "string" && msg.text.trim()) {
+    return msg.text;
+  }
+  return typeof content === "string" ? content : "";
+}
+
 // OpenRouter Topic Script Synthesizer (Generates structured script for any subject in human knowledge)
 export async function synthesizeTopicScript({
   apiKey,
@@ -1798,35 +1848,70 @@ Format your response clearly as:
 
 [Chapters 1 to ${totalScenes} with Chapter Title, Target Words, Voiceover Narration, and Visual Cue]`;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${effectiveKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:4000",
-      "X-Title": "Studio One Production Suite",
-    },
-    body: JSON.stringify({
-      model: model || "anthropic/claude-haiku-5.5",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert multi-disciplinary educator, scientist, and master scriptwriter.",
-        },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: Math.min(6000, Math.max(2500, totalScenes * 180)),
-    }),
-    signal: AbortSignal.timeout(120_000),
-  });
+  const primaryModel = model || "anthropic/claude-haiku-5.5";
+  const fallbackModel =
+    primaryModel === "google/gemini-3.5-flash-lite"
+      ? "anthropic/claude-haiku-5.5"
+      : "google/gemini-3.5-flash-lite";
 
-  if (!response.ok) {
-    throw new Error(`OpenRouter returned HTTP ${response.status} when synthesizing topic script`);
+  const fetchScript = async (targetModel) => {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${effectiveKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:4000",
+        "X-Title": "Studio One Production Suite",
+      },
+      body: JSON.stringify({
+        model: targetModel,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert multi-disciplinary educator, scientist, and master scriptwriter.",
+          },
+          { role: "user", content: prompt },
+        ],
+        max_tokens: Math.min(6000, Math.max(2500, totalScenes * 180)),
+      }),
+      signal: AbortSignal.timeout(120_000),
+    });
+
+    if (!response.ok) {
+      let errDetail = "";
+      try {
+        const errJson = await response.json();
+        errDetail = errJson.error?.message || JSON.stringify(errJson);
+      } catch {
+        errDetail = await response.text().catch(() => "");
+      }
+      throw new Error(
+        `OpenRouter returned HTTP ${response.status} (${targetModel}): ${errDetail || "check API key and model"}`,
+      );
+    }
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(
+        `OpenRouter API error (${targetModel}): ${data.error.message || JSON.stringify(data.error)}`,
+      );
+    }
+    return extractOpenRouterContent(data);
+  };
+
+  let scriptContent = "";
+  try {
+    scriptContent = await fetchScript(primaryModel);
+    if (!scriptContent || !scriptContent.trim()) {
+      throw new Error(`Model ${primaryModel} returned empty completion`);
+    }
+  } catch (err) {
+    console.warn(
+      `[TOPIC SCRIPT FALLBACK] Primary model ${primaryModel} failed (${err.message}). Retrying with ${fallbackModel}...`,
+    );
+    scriptContent = await fetchScript(fallbackModel);
   }
-
-  const data = await response.json();
-  const scriptContent = data.choices?.[0]?.message?.content || "";
 
   // Extract title and domain if present
   const titleMatch = scriptContent.match(/#\s*Title:\s*([^\n\r]+)/i);
@@ -2221,7 +2306,13 @@ async function directStoryboard({
     );
   }
 
-  const callDirector = async (messages, maxTokens) => {
+  const primaryModel = model || "anthropic/claude-haiku-5.5";
+  const fallbackModel =
+    primaryModel === "google/gemini-3.5-flash-lite"
+      ? "anthropic/claude-haiku-5.5"
+      : "google/gemini-3.5-flash-lite";
+
+  const callDirector = async (messages, maxTokens, targetModel = primaryModel) => {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -2231,56 +2322,142 @@ async function directStoryboard({
         "X-Title": "Studio One Production Suite",
       },
       body: JSON.stringify({
-        model: model || "anthropic/claude-haiku-5.5",
+        model: targetModel,
         messages,
         temperature: messages.length > 2 ? 0 : 0.6,
         top_p: 0.9,
-        presence_penalty: messages.length > 2 ? 0 : 0.3,
         max_tokens: maxTokens,
       }),
       signal: AbortSignal.timeout(180_000),
     });
     if (!response.ok) {
-      throw new Error(`OpenRouter returned HTTP ${response.status}; check the API key and model`);
+      let errDetail = "";
+      try {
+        const errJson = await response.json();
+        errDetail = errJson.error?.message || JSON.stringify(errJson);
+      } catch {
+        errDetail = await response.text().catch(() => "");
+      }
+      throw new Error(
+        `OpenRouter returned HTTP ${response.status} (${targetModel}): ${errDetail || "check the API key and model"}`,
+      );
     }
     const data = await response.json();
-    return data.choices?.[0]?.message?.content;
+    if (data.error) {
+      throw new Error(
+        `OpenRouter API error (${targetModel}): ${data.error.message || JSON.stringify(data.error)}`,
+      );
+    }
+    return extractOpenRouterContent(data);
   };
 
   // At least 8192 output tokens so long multi-scene storyboards are not cut off mid-array.
   const maxTokens = Math.min(16000, Math.max(8192, sceneCount * 250));
-  const rawContent = await callDirector(
-    [
-      {
-        role: "system",
-        content:
-          "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
-      },
-      { role: "user", content: prompt },
-    ],
-    maxTokens,
-  );
+  let rawContent = "";
+  let activeModel = primaryModel;
+
   try {
-    return parseStoryboardYamlOrJson(rawContent);
-  } catch (err) {
-    if (typeof rawContent !== "string" || !rawContent.trim()) throw err;
-    console.warn(`[DIRECTOR STORYBOARD REPAIR] ${err.message}; requesting one repair pass`);
-    const repaired = await callDirector(
+    rawContent = await callDirector(
       [
         {
           role: "system",
           content:
-            "You fix malformed YAML or JSON storyboards. Reply with only the corrected, valid YAML specification. No commentary, no explanation. Preserve all content.",
+            "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
         },
-        {
-          role: "user",
-          content: `This storyboard specification failed to parse: ${err.message}.\n\nRaw storyboard:\n${rawContent.slice(0, 60000)}`,
-        },
-        { role: "user", content: "Return the fixed YAML only." },
+        { role: "user", content: prompt },
       ],
       maxTokens,
+      primaryModel,
     );
-    return parseStoryboardYamlOrJson(repaired);
+    if (!rawContent || !rawContent.trim()) {
+      throw new Error(`Model ${primaryModel} returned empty completion`);
+    }
+  } catch (primaryErr) {
+    console.warn(
+      `[DIRECTOR MODEL FALLBACK] Primary director ${primaryModel} failed (${primaryErr.message}). Falling back to ${fallbackModel}...`,
+    );
+    activeModel = fallbackModel;
+    rawContent = await callDirector(
+      [
+        {
+          role: "system",
+          content:
+            "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
+        },
+        { role: "user", content: prompt },
+      ],
+      maxTokens,
+      fallbackModel,
+    );
+  }
+
+  try {
+    return parseStoryboardYamlOrJson(rawContent);
+  } catch (err) {
+    if (typeof rawContent !== "string" || !rawContent.trim()) {
+      if (activeModel !== fallbackModel) {
+        console.warn(
+          `[DIRECTOR MODEL FALLBACK] Empty storyboard from ${activeModel}; attempting fallback to ${fallbackModel}`,
+        );
+        activeModel = fallbackModel;
+        rawContent = await callDirector(
+          [
+            {
+              role: "system",
+              content:
+                "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
+            },
+            { role: "user", content: prompt },
+          ],
+          maxTokens,
+          fallbackModel,
+        );
+        return parseStoryboardYamlOrJson(rawContent);
+      }
+      throw err;
+    }
+    console.warn(
+      `[DIRECTOR STORYBOARD REPAIR] ${err.message}; requesting one repair pass with ${activeModel}`,
+    );
+    try {
+      const repaired = await callDirector(
+        [
+          {
+            role: "system",
+            content:
+              "You fix malformed YAML or JSON storyboards. Reply with only the corrected, valid YAML specification. No commentary, no explanation. Preserve all content.",
+          },
+          {
+            role: "user",
+            content: `This storyboard specification failed to parse: ${err.message}.\n\nRaw storyboard:\n${rawContent.slice(0, 60000)}`,
+          },
+          { role: "user", content: "Return the fixed YAML only." },
+        ],
+        maxTokens,
+        activeModel,
+      );
+      return parseStoryboardYamlOrJson(repaired);
+    } catch (repairErr) {
+      if (activeModel !== fallbackModel) {
+        console.warn(
+          `[DIRECTOR REPAIR FALLBACK] Repair with ${activeModel} failed (${repairErr.message}); falling back to fresh generation with ${fallbackModel}`,
+        );
+        const fallbackContent = await callDirector(
+          [
+            {
+              role: "system",
+              content:
+                "You are an autonomous YAML video design director adhering to professional Hyperframes standards. You produce clean, valid YAML storyboards without commentary.",
+            },
+            { role: "user", content: prompt },
+          ],
+          maxTokens,
+          fallbackModel,
+        );
+        return parseStoryboardYamlOrJson(fallbackContent);
+      }
+      throw repairErr;
+    }
   }
 }
 

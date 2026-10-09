@@ -472,6 +472,9 @@ export async function generateManimSkillCode({
 
     const data = await resp.json();
     let code = data.choices?.[0]?.message?.content || "";
+    if (Array.isArray(code)) {
+      code = code.map((p) => (typeof p === "string" ? p : p?.text || "")).join("");
+    }
     if (code.includes("```python")) {
       code = code.split("```python")[1].split("```")[0];
     } else if (code.includes("```")) {
@@ -555,6 +558,9 @@ def run(scene, theme, brief, budget, beats):
     if (!resp.ok) return null;
     const data = await resp.json();
     let fixed = data.choices?.[0]?.message?.content || "";
+    if (Array.isArray(fixed)) {
+      fixed = fixed.map((p) => (typeof p === "string" ? p : p?.text || "")).join("");
+    }
     if (fixed.includes("```python")) {
       fixed = fixed.split("```python")[1].split("```")[0];
     } else if (fixed.includes("```")) {
