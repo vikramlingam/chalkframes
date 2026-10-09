@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
@@ -92,124 +92,7 @@
       </header>
 
       <div class="body-grid">
-        <!-- ============ CENTRE COLUMN ============ -->
-        <section class="centre">
-          <!-- Source input strip -->
-          <div class="source-card">
-            <div class="tab-bar" role="tablist">
-              <button type="button" class="tab-btn active" data-tab="topic" role="tab">
-                Topic / prompt
-              </button>
-              <button type="button" class="tab-btn" data-tab="url" role="tab">Website URL</button>
-              <button type="button" class="tab-btn" data-tab="script" role="tab">Script</button>
-              <button type="button" class="tab-btn" data-tab="pdf" role="tab">PDF doc</button>
-            </div>
-
-            <div class="tab-content" id="tabTopic">
-              <textarea
-                id="sourceTopicInput"
-                rows="2"
-                placeholder="Enter any topic in the world"
-                spellcheck="false"
-              ></textarea>
-            </div>
-
-            <div class="tab-content hidden" id="tabUrl">
-              <input
-                type="url"
-                id="sourceUrlInput"
-                placeholder="https://yourproduct.com"
-                spellcheck="false"
-                value=""
-              />
-            </div>
-
-            <div class="tab-content hidden" id="tabScript">
-              <textarea
-                id="sourceScriptInput"
-                rows="2"
-                placeholder="Product name, core pain point, key capabilities, pricing notes, and website link..."
-              ></textarea>
-            </div>
-
-            <div class="tab-content hidden" id="tabPdf">
-              <div class="pdf-drop-zone" id="pdfDropZone">
-                <input type="file" id="pdfFileInput" accept="application/pdf" hidden />
-                <div class="pdf-drop-inner" id="pdfDropInner">
-                  <p class="pdf-drop-label">
-                    Drop a PDF here or <span class="pdf-browse-link">browse</span>
-                  </p>
-                  <p class="pdf-drop-hint" id="pdfDropHint">
-                    Pitch decks, product briefs, one-pagers, whitepapers
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="source-foot">
-              <span class="field-hint" id="engineHint"
-                >Combined: AI routes mathematical explainers to Manim and UI/systems to HTML</span
-              >
-              <button type="button" id="generateBtn" class="btn-primary">
-                <span class="btn-text">Produce video</span>
-                <span class="btn-indicator" aria-hidden="true"></span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Animated production line (flow is rendered by app.js for the active engine) -->
-          <div class="line-card" id="monitorPanel">
-            <header class="line-head">
-              <div>
-                <span class="kicker">Production line</span>
-                <h2 class="line-title" id="lineTitle">Waiting for a brief</h2>
-              </div>
-              <div class="live-pill" id="livePill">
-                <span class="pulse-dot"></span>
-                <span id="liveStatusText">Standby</span>
-              </div>
-            </header>
-
-            <div class="flow" id="flowTrack" aria-label="Pipeline stages"></div>
-
-            <div class="console">
-              <div class="console-head">
-                <span class="console-tag">Console</span>
-                <span class="console-time" id="consoleTimestamp">00:00:00</span>
-              </div>
-              <div class="console-message" id="consoleMessage">
-                Awaiting production trigger. Configure the brief and press Produce video.
-              </div>
-            </div>
-          </div>
-
-          <!-- Video screen -->
-          <div class="screen-card" id="cinemaPanel">
-            <div class="screen-head">
-              <div>
-                <span class="kicker">Master output</span>
-                <p class="screen-meta" id="videoMetaText">1080p · 30 fps · Stereo 48kHz</p>
-              </div>
-              <a href="#" id="downloadLink" class="btn-ghost" download>Download</a>
-            </div>
-            <div class="video-theatre" id="videoTheatre">
-              <div class="screen-empty" id="screenEmpty">
-                <span class="screen-empty-mark">▶</span>
-                <p>Your video appears here when the render finishes.</p>
-              </div>
-              <video id="playerVideo" controls playsinline preload="metadata"></video>
-            </div>
-            <div class="filmstrip-section" id="filmstripSection" style="display: none">
-              <div class="filmstrip-head">
-                <span class="kicker">Storyboard</span>
-                <span class="badge" id="filmstripSceneCount">0 scenes</span>
-              </div>
-              <div class="filmstrip-grid" id="filmstripTrack"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ============ RIGHT OPTIONS PANE ============ -->
+        <!-- ============ LEFT OPTIONS PANE (PRODUCTION BRIEF) ============ -->
         <aside class="options-pane" aria-label="Production options">
           <header class="pane-head">
             <span class="kicker">Production brief</span>
@@ -488,6 +371,123 @@
             </div>
           </div>
         </aside>
+
+        <!-- ============ MAIN WORKSPACE (CENTRE / RIGHT) ============ -->
+        <section class="centre">
+          <!-- Source input strip -->
+          <div class="source-card">
+            <div class="tab-bar" role="tablist">
+              <button type="button" class="tab-btn active" data-tab="topic" role="tab">
+                Topic / prompt
+              </button>
+              <button type="button" class="tab-btn" data-tab="url" role="tab">Website URL</button>
+              <button type="button" class="tab-btn" data-tab="script" role="tab">Script</button>
+              <button type="button" class="tab-btn" data-tab="pdf" role="tab">PDF doc</button>
+            </div>
+
+            <div class="tab-content" id="tabTopic">
+              <textarea
+                id="sourceTopicInput"
+                rows="2"
+                placeholder="Enter any topic in the world"
+                spellcheck="false"
+              ></textarea>
+            </div>
+
+            <div class="tab-content hidden" id="tabUrl">
+              <input
+                type="url"
+                id="sourceUrlInput"
+                placeholder="https://yourproduct.com"
+                spellcheck="false"
+                value=""
+              />
+            </div>
+
+            <div class="tab-content hidden" id="tabScript">
+              <textarea
+                id="sourceScriptInput"
+                rows="2"
+                placeholder="Product name, core pain point, key capabilities, pricing notes, and website link..."
+              ></textarea>
+            </div>
+
+            <div class="tab-content hidden" id="tabPdf">
+              <div class="pdf-drop-zone" id="pdfDropZone">
+                <input type="file" id="pdfFileInput" accept="application/pdf" hidden />
+                <div class="pdf-drop-inner" id="pdfDropInner">
+                  <p class="pdf-drop-label">
+                    Drop a PDF here or <span class="pdf-browse-link">browse</span>
+                  </p>
+                  <p class="pdf-drop-hint" id="pdfDropHint">
+                    Pitch decks, product briefs, one-pagers, whitepapers
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="source-foot">
+              <span class="field-hint" id="engineHint"
+                >Combined: AI routes mathematical explainers to Manim and UI/systems to HTML</span
+              >
+              <button type="button" id="generateBtn" class="btn-primary">
+                <span class="btn-text">Produce video</span>
+                <span class="btn-indicator" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Animated production line (thin high-tech flowchart with moving pulse) -->
+          <div class="line-card" id="monitorPanel">
+            <header class="line-head">
+              <div class="line-meta">
+                <span class="kicker">Pipeline flow</span>
+                <h2 class="line-title" id="lineTitle">Waiting for a brief</h2>
+              </div>
+              <div class="live-pill" id="livePill">
+                <span class="pulse-dot"></span>
+                <span id="liveStatusText">Standby</span>
+              </div>
+            </header>
+
+            <div class="flow" id="flowTrack" aria-label="Pipeline stages"></div>
+
+            <div class="console">
+              <div class="console-head">
+                <span class="console-tag">Console</span>
+                <span class="console-time" id="consoleTimestamp">00:00:00</span>
+              </div>
+              <div class="console-message" id="consoleMessage">
+                Awaiting production trigger. Configure the brief and press Produce video.
+              </div>
+            </div>
+          </div>
+
+          <!-- Master output theatre -->
+          <div class="screen-card" id="cinemaPanel">
+            <div class="screen-head">
+              <div>
+                <span class="kicker">Master output</span>
+                <p class="screen-meta" id="videoMetaText">1080p · 30 fps · Stereo 48kHz</p>
+              </div>
+              <a href="#" id="downloadLink" class="btn-ghost" download>Download</a>
+            </div>
+            <div class="video-theatre" id="videoTheatre">
+              <div class="screen-empty" id="screenEmpty">
+                <span class="screen-empty-mark">▶</span>
+                <p>Your video appears here when the render finishes.</p>
+              </div>
+              <video id="playerVideo" controls playsinline preload="metadata"></video>
+            </div>
+            <div class="filmstrip-section" id="filmstripSection" style="display: none">
+              <div class="filmstrip-head">
+                <span class="kicker">Storyboard</span>
+                <span class="badge" id="filmstripSceneCount">0 scenes</span>
+              </div>
+              <div class="filmstrip-grid" id="filmstripTrack"></div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
 
